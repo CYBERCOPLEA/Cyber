@@ -158,7 +158,13 @@ async function deleteCase(id) {
 
 /* ---------- Login & lock ---------- */
 let lastAct = Date.now();
-function lock() { $('#app').classList.add('hidden'); $('#login').classList.remove('hidden'); $('#lgPass').value = ''; $('#lgErr').textContent = ''; UI.closeDrawer(); UI.closeModal(); $('#lgUser').focus(); }
+/* home page: the Login buttons open the login box */
+function showLogin(on = true) { $('#lgWrap').classList.toggle('open', on); $('#lgWrap').setAttribute('aria-hidden', on ? 'false' : 'true'); if (on) setTimeout(() => $('#lgUser').value ? $('#lgPass').focus() : $('#lgUser').focus(), 60); }
+$$('[data-login]').forEach(b => b.onclick = () => showLogin());
+$('#lgClose').onclick = () => showLogin(false);
+$('#lgWrap').onclick = e => { if (e.target.id === 'lgWrap') showLogin(false); };
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && $('#lgWrap').classList.contains('open') && $('#modal').classList.contains('hidden')) showLogin(false); });
+function lock() { $('#app').classList.add('hidden'); $('#login').classList.remove('hidden'); showLogin(); $('#lgPass').value = ''; $('#lgErr').textContent = ''; UI.closeDrawer(); UI.closeModal(); $('#lgUser').focus(); }
 async function boot() {
   await DB.open();
   S.settings = await DB.get('settings');
@@ -168,7 +174,7 @@ async function boot() {
   $('#loginForm').onsubmit = async e => {
     e.preventDefault();
     if ($('#lgUser').value.trim() !== S.settings.user || hashPass($('#lgPass').value, S.settings.salt) !== S.settings.hash) { $('#lgErr').textContent = 'Wrong login ID or password'; return; }
-    $('#login').classList.add('hidden'); $('#app').classList.remove('hidden'); lastAct = Date.now();
+    $('#login').classList.add('hidden'); $('#app').classList.remove('hidden'); showLogin(false); lastAct = Date.now();
     if (!S.data) await start();
     if (S.settings.mustChange) { go('settings'); UI.toast('Please set your own login ID and password now', 5000); }
   };

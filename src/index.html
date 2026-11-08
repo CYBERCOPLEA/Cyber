@@ -11,19 +11,52 @@
 
 <!-- LOGIN -->
 <div id="login">
-  <div class="emblem emblem-big" role="img" aria-label="SudarshanAshtra emblem"></div>
-  <div class="login-card">
-    <h1>SudarshanAshtra</h1>
-    <div class="muted">Cyber Crime Case Analysis &amp; Tracking</div>
-    <form id="loginForm" autocomplete="off">
-      <div class="field"><label for="lgUser">Login ID</label><input id="lgUser" required autofocus></div>
-      <div class="field"><label for="lgPass">Password</label><input id="lgPass" type="password" required></div>
-      <div class="err" id="lgErr"></div>
-      <button class="btn primary" style="width:100%;justify-content:center;padding:10px">Login</button>
-    </form>
-    <div style="text-align:right;margin-top:8px"><a href="#" id="lgForgot" class="small" style="color:var(--accent)">Forgot password?</a></div>
-    <p class="small muted" id="lgFirst" style="margin-top:14px"></p>
-    <p class="small muted">All data stays inside this browser on this computer. Nothing is uploaded.</p>
+  <div class="hp">
+    <header class="hp-top">
+      <div class="hp-brand"><div class="emblem emblem-sm" aria-hidden="true"></div><div><b>SudarshanAshtra</b><small>Cyber Crime Analysis &amp; Tracking</small></div></div>
+      <span class="hp-spacer"></span>
+      <span class="hp-pill"><i></i>Offline · data stays on this computer</span>
+      <button class="hp-btn" type="button" data-login><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Login</button>
+    </header>
+    <section class="hp-hero">
+      <div class="hp-copy">
+        <div class="hp-kicker">For Cyber Crime Investigators</div>
+        <h1>Trace the money.<br><span>Connect the evidence.</span></h1>
+        <p class="hp-lead">SudarshanAshtra turns NCRP complaints, bank statements and social media replies into clear money trails, linked accounts and ready case files, all on this computer.</p>
+        <div class="hp-cta"><button class="hp-btn big" type="button" data-login><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Login to workspace</button><a class="hp-ghost" href="#hpFeat">See what it does ↓</a></div>
+        <ul class="hp-trust">
+          <li><b>100% offline</b>No internet needed</li>
+          <li><b>Private</b>Nothing is uploaded</li>
+          <li><b>Locked</b>Password and auto-lock</li>
+        </ul>
+      </div>
+      <div class="hp-art"><div class="hp-ring"></div><div class="emblem emblem-big" role="img" aria-label="SudarshanAshtra emblem"></div></div>
+    </section>
+    <section class="hp-feats" id="hpFeat">
+        <div class="hp-feat" style="--fc:#f97316"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg></span><div><b>NCRP Complaints</b><p>Import complaint sheets and see each victim, layer and beneficiary account at a glance.</p></div></div>
+        <div class="hp-feat" style="--fc:#8b5cf6"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="12" r="2.2"/><circle cx="19" cy="5" r="2.2"/><circle cx="19" cy="19" r="2.2"/><path d="M7 11l10-5M7 13l10 5"/></svg></span><div><b>Money Trail</b><p>Layer-by-layer flow of money with live tracing from the victim to the last account.</p></div></div>
+        <div class="hp-feat" style="--fc:#10b981"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10l9-6 9 6M5 10v8M19 10v8M9.5 10v8M14.5 10v8M3 20h18"/></svg></span><div><b>Bank &amp; Financial</b><p>Statements, KYC and mule patterns: bulk splits, rapid pass-through, round amounts.</p></div></div>
+        <div class="hp-feat" style="--fc:#ec4899"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17.5" cy="9" r="2.4"/><path d="M16 14.2c2.9.3 5 2.6 5 5.8"/></svg></span><div><b>Social Media</b><p>WhatsApp, Telegram, Facebook, Instagram and Gmail replies: common numbers, IPs and devices.</p></div></div>
+        <div class="hp-feat" style="--fc:#06b6d4"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><div><b>Analytics</b><p>The same mobile, account, IP or e-mail across complaints, banks and platforms.</p></div></div>
+        <div class="hp-feat" style="--fc:#eab308"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h5"/></svg></span><div><b>Case File &amp; Notices</b><p>Case reports, notices to banks and platforms, and CSV / PDF exports.</p></div></div>
+    </section>
+    <footer class="hp-foot">SudarshanAshtra v2.0 · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
+  </div>
+
+  <div class="lg-wrap" id="lgWrap" aria-hidden="true">
+    <div class="login-card" role="dialog" aria-labelledby="lgTitle">
+      <button class="lg-x" type="button" id="lgClose" title="Back to home">✕</button>
+      <div class="lg-head"><div class="emblem emblem-sm" aria-hidden="true"></div><div><h1 id="lgTitle">SudarshanAshtra</h1><div class="muted small">Investigator login</div></div></div>
+      <form id="loginForm" autocomplete="off">
+        <div class="field"><label for="lgUser">Login ID</label><input id="lgUser" required></div>
+        <div class="field"><label for="lgPass">Password</label><input id="lgPass" type="password" required></div>
+        <div class="err" id="lgErr"></div>
+        <button class="btn primary" style="width:100%;justify-content:center;padding:11px;font-size:15px">Login</button>
+      </form>
+      <div style="text-align:right;margin-top:8px"><a href="#" id="lgForgot" class="small" style="color:var(--accent)">Forgot password?</a></div>
+      <p class="small muted" id="lgFirst" style="margin-top:14px"></p>
+      <p class="small muted">All data stays inside this browser on this computer. Nothing is uploaded.</p>
+    </div>
   </div>
 </div>
 
