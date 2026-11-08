@@ -29,7 +29,43 @@ const CAF = {
   ],
   COMMON: [['pos_name', 'POS'], ['pos_code', 'POS code'], ['pos_ucode', 'POS unique ID'], ['pos_mobile', 'POS mobile'], ['pos_agent', 'POS agent'], ['act_date', 'Date of activation'], ['alt', 'Alternate number'], ['poi_no', 'ID number'], ['aadhaar', 'Aadhaar'], ['address', 'Address'], ['email', 'Email'], ['name', 'Customer name'], ['father', 'Father / Husband']],
   EDIT: ['mobile', 'name', 'father', 'alt', 'act_date', 'act_time', 'pos_name', 'pos_code', 'pos_ucode', 'pos_mobile', 'pos_agent', 'pos_address', 'dob', 'gender', 'address', 'aadhaar', 'poi_type', 'poi_no', 'email', 'caf_no', 'sim', 'imsi'],
-  list() { return S.data.caf || (S.data.caf = []); },
+  list() { const L = S.data.caf || (S.data.caf = []); for (const c of L) if (c.fx !== 2) this.repair(c); return L; },
+  // words that are printed field names, not values ("PARENTS", "MR.", "NO", "TYPE OF POA" …)
+  LABW: new Set('parents parent father fathers mother mothers husband husbands spouse spouses guardian guardians wife son daughter relative relation relationship relationships name names full of the mr mrs ms miss shri smt sh kumari km kum dr no nos number numbers num type types poa poi proof id ids identity document documents doc address details detail customer customers subscriber applicant tick applicable as received from uidai na nil none null not available given known blank unknown other others and or care co so do wo ho if any select yes'.split(' ')),
+  SAL: /^(?:mr|mrs|ms|miss|shri|smt|sh|kumari|km|kum|dr|master|m\/s)\.?(?:\s+|$)/i,
+  // true when a value is only label words, a salutation or a placeholder
+  junk(k, v) {
+    v = String(v || '').trim(); if (!v || /^[\s.,\-_\/*#:()0]*$/.test(v)) return true;
+    const w = v.toLowerCase().replace(/[’'`]s\b/g, '').split(/[^a-z0-9]+/).filter(Boolean);
+    if (!w.length || w.every(x => this.LABW.has(x) || /^[a-z]$/.test(x))) return true;
+    if (k === 'poi_no' && !/\d.*\d/.test(v)) return true;
+    if ((k === 'name' || k === 'father' || k === 'pos_agent') && (!/[a-z]{2}/i.test(v) || /\d{3}/.test(v))) return true;
+    return false;
+  },
+  // father / husband from "S/O: NAME", "D/O", "W/O", "H/O", "C/O" (address lines, UIDAI XML co="S/O: …")
+  rel(text) {
+    text = String(text || ''); const STOP = /\b(?:house|h\.?\s?no|flat|village|vill|post|po|ps|dist|district|tehsil|near|nr|road|street|ward|sector|block|city|state|pin|pincode|mohalla|gali|colony|nagar|address|landmark|plot)\b.*$/i;
+    const cands = [], x = text.match(/<Poa\b[^>]*?\bco\s*=\s*"([^"]*)"/i); if (x) cands.push(x[1]);
+    const re = /(?<![\/\w])([SDWHC])[ \t]*\/[ \t]*O\b\.?[ \t]*[:\-–]?[ \t]*([A-Za-z][A-Za-z.' \t]{1,70})/gi; let m;
+    const pri = [], low = [];
+    while ((m = re.exec(text))) (m[1].toUpperCase() === 'C' ? low : pri).push(m[2]);
+    for (const raw of [...cands, ...pri, ...low]) {
+      let s = raw.replace(/^\s*(?:[SDWHC]\s*\/\s*O|care\s*of)\s*[:.\-–]?\s*/i, '').split(/\s{2,}|,|;|\(|\d/)[0].replace(STOP, '').replace(this.SAL, '').trim();
+      s = s.split(/\s+/).slice(0, 5).join(' ').replace(/[.\s]+$/, '');
+      if (s.length >= 3 && !this.junk('father', s)) return s.toUpperCase();
+    }
+    return '';
+  },
+  // clean an already-imported CAF: drop label words, fill father / name again from the saved text
+  repair(c) {
+    for (const k of ['name', 'father', 'poi_no', 'poi_type', 'pos_agent', 'pos_name', 'address', 'email']) if (c[k] && this.junk(k, c[k])) delete c[k];
+    if (c.name) { const n = String(c.name).replace(this.SAL, '').trim(); if (n && n !== c.name) c.name = n.toUpperCase(); }
+    if (c.text) {
+      if (!c.name) { const x = this.xml(c.text); const n = x.name && this.norm('name', x.name); if (n) c.name = n; else { const s = this.smart(c.text.split('\n')); if (s.name) c.name = this.norm('name', s.name); } if (!c.name) delete c.name; }
+      if (!c.father) { const f = this.rel(c.text); if (f) c.father = f; }
+    }
+    c.fx = 2;
+  },
   label(k) { return k === 'operator' ? 'Operator' : (this.F.find(f => f[0] === k) || [k, k])[1]; },
   norm(k, v) {
     v = String(v || '').replace(/\s+/g, ' ').trim();
@@ -37,6 +73,8 @@ const CAF = {
     if (k === 'act_date' || k === 'dob') { const p = this.pdate(v); if (p) return p.d; const d = N.date(v.replace(/\s+\d{1,2}:\d{2}.*$/, '')); return /^\d{4}-\d{2}-\d{2}/.test(d) ? d.slice(0, 10) : ''; }
     if (k === 'email') { v = v.toLowerCase(); return /^[\w.+-]+@[\w-]+\.[\w.]+$/.test(v) && !/@(airtel|jio|vodafoneidea|myvi|vi|ril)\./.test(v) ? v : ''; }
     if (k === 'aadhaar') { const d = v.replace(/[^\dxX*]/g, ''); return d.length >= 4 ? d.toUpperCase() : ''; }
+    if (k === 'name' || k === 'father' || k === 'pos_agent') v = v.replace(this.SAL, '').replace(/^(?:[SDWHC]\s*\/\s*O|care\s*of)\s*[:.\-–]?\s*/i, '').trim();
+    if (this.junk(k, v)) return '';
     return v.toUpperCase();
   },
   // a date written d/m/y, d-m-y, d:m:y, y-m-d or ddmmyyyy (box digits), with the time after it if any
@@ -109,7 +147,7 @@ const CAF = {
   smart(lines) {
     const L = this.prep(lines), o = {}, T = this, set = (k, v) => { if (v && !o[k]) o[k] = v; };
     const cell = s => s.split(/\s{2,}/)[0].trim();
-    const txt = s => { s = cell(s).replace(/\s*\*.*$/, '').replace(/^(mr|mrs|ms|miss|shri|smt|kumari|km)\.?\s+/i, '').trim(); return /[a-z]{2}/i.test(s) && s.length <= 80 && !/received from|uidai|declaration|consent|applicable|if any|mandatory|unique|number|tick|designation/i.test(s) ? s.toUpperCase() : ''; };
+    const txt = s => { const cs = s.split(/\s{2,}/); let c = (cs[0] || '').trim(); if (T.SAL.test(c) && !c.replace(T.SAL, '').trim() && cs[1]) c = cs[1]; c = c.replace(/\s*\*.*$/, '').replace(T.SAL, '').replace(/^(?:[SDWHC]\s*\/\s*O)\s*[:.\-–]?\s*/i, '').trim(); return /[a-z]{2}/i.test(c) && c.length <= 80 && !/received from|uidai|declaration|consent|applicable|if any|mandatory|unique|number|tick|designation/i.test(c) && !T.junk('name', c) ? c.toUpperCase() : ''; };
     const code = s => { const t = cell(s).split(/\s+/)[0].replace(/[.,;]+$/, ''); return /^[A-Z0-9][A-Z0-9\/-]{3,}$/i.test(t) && /\d/.test(t) ? t.toUpperCase() : ''; };
     const mob = s => (s.match(/(?<!\d)(?:\+?91[\s-]?)?([6-9]\d{9})(?!\d)/) || [])[1] || '';
     const date = s => { const p = T.pdate(s); return p ? p.d : ''; };
@@ -117,6 +155,8 @@ const CAF = {
     set('mobile', T.find(L, /mobile\s*(?:no\b|number\s*allo(?:t|c)\w*|number\s*[:*]|n(?:o|umber)\.?\s*\(msisdn)|\bmsisdn\b/i, mob));
     set('name', T.find(L, /c\s?u\s?s\s?t\s?o\s?m\s?e\s?r(?:[’'`]\s?s)?\s*(?:full\s*)?n\s?a\s?m\s?e/i, txt));
     set('father', T.find(L, /(?:name\s*of\s*)?father(?:[’'`]?s)?\s*\/\s*husband(?:[’'`]?s)?(?:\s*name)?|n\s?a\s?m\s?e\s*o\s?f(?=\s*\*)/i, txt));
+    set('father', T.find(L, /(?:father|husband|guardian|spouse|parent)(?:[’'`]?s)?(?:\s*\/\s*(?:father|mother|husband|spouse|guardian|parents?)(?:[’'`]?s)?)*\s*name/i, txt, { all: true }));
+    set('father', T.rel(L.join('\n')));
     set('dob', T.find(L, /d\s?a\s?t\s?e\s*o\s?f\s*b\s?i\s?r\s?t\s?h|\bdob\b/i, date));
     set('gender', T.find(L, /\bg\s?e\s?n\s?d\s?e\s?r\b/i, s => { const m = s.match(/\b(male|female|transgender)\b/i); return m ? m[1].toUpperCase() : ''; }, { look: 1 }));
     set('alt', T.find(L, /a\s?l\s?t\s?e\s?r\s?n\s?a\s?t\s?e\s*(?:c\s?o\s?n\s?t\s?a\s?c\s?t|n\s?o|m\s?o\s?b\s?i\s?l\s?e|n\s?u\s?m\s?b\s?e\s?r|p\s?h\s?o\s?n\s?e)/i, mob));
@@ -234,7 +274,7 @@ const CAF = {
       const text = r.lines.join('\n'), raw = r.lines.filter(l => !/^--- Page \d+ ---$/.test(l)).join('\n');
       const chars = raw.replace(/\s/g, '').length, readable = chars > 300 || (chars > 40 && Object.keys({ ...r.sm, ...r.gen }).length >= 2);
       // operator layout first, then the UIDAI XML (Jio), then simple "Label : Value" pairs
-      const f = { ...r.gen, ...Object.fromEntries(Object.entries(r.sm).map(([k, v]) => [k, this.norm(k, v)]).filter(([, v]) => v)) };
+      const f = { ...Object.fromEntries(Object.entries(r.gen).filter(([k, v]) => !this.junk(k, v))), ...Object.fromEntries(Object.entries(r.sm).map(([k, v]) => [k, this.norm(k, v)]).filter(([, v]) => v)) };
       const x = this.xml(raw); for (const k in x) { const v = this.norm(k, x[k]); if (v && (!f[k] || k === 'aadhaar')) f[k] = v; }
       if (!f.mobile) { const m = raw.match(/(?:mobile|msisdn)[^0-9\n]{0,30}((?:\+?91[\s-]?)?[6-9]\d{9})(?!\d)/i); if (m) f.mobile = this.norm('mobile', m[1]); }
       if (!f.mobile && fileMob && recs.length === 1) { f.mobile = fileMob; f.mobile_src = 'file name'; }
@@ -242,8 +282,9 @@ const CAF = {
       const op = this.operator(raw); if (op) f.operator = op;
       const ct = raw.match(/\b(prepaid|postpaid|pre-paid|post-paid)\b/i); if (ct) f.conn = ct[1].toUpperCase().replace('-', '');
       if (!f.poi_type && /e-?\s?kyc/i.test(raw)) f.poi_type = 'AADHAAR E-KYC';
+      if (!f.father) { const fa = this.rel(raw); if (fa) f.father = fa; }
       const order = { uidai: 0, live: 1, scan: 2 };
-      return { id: uid(), file: file.name + (recs.length > 1 ? ` (#${i + 1})` : ''), pages: r.pages.join(', '), readable, ...f, pairs: r.pairs, text, photos: r.photos.sort((a, b) => order[a.kind] - order[b.kind]).slice(0, 8), added: new Date().toISOString() };
+      return { id: uid(), fx: 2, file: file.name + (recs.length > 1 ? ` (#${i + 1})` : ''), pages: r.pages.join(', '), readable, ...f, pairs: r.pairs, text, photos: r.photos.sort((a, b) => order[a.kind] - order[b.kind]).slice(0, 8), added: new Date().toISOString() };
     });
   },
   async importFiles(files, report) {
@@ -263,7 +304,7 @@ const CAF = {
   groups(k) {
     return Analysis.cached('caf:' + k, () => {
       const G = new Map(), mob = new Set(this.list().map(c => c.mobile).filter(Boolean));
-      for (const c of this.list()) { const v = c[k]; if (!v) continue; const key = k === 'address' ? v.replace(/[^A-Z0-9]/g, '').slice(0, 60) : v; let g = G.get(key); if (!g) G.set(key, g = { value: v, cafs: [] }); g.cafs.push(c); }
+      for (const c of this.list()) { const v = c[k]; if (!v || this.junk(k, v)) continue; const key = k === 'address' ? v.replace(/[^A-Z0-9]/g, '').slice(0, 60) : v; let g = G.get(key); if (!g) G.set(key, g = { value: v, cafs: [] }); g.cafs.push(c); }
       return [...G.values()].map(g => ({ value: g.value, n: g.cafs.length, mobiles: uniq(g.cafs.map(c => c.mobile).filter(Boolean)).join(', '), names: uniq(g.cafs.map(c => c.name).filter(Boolean)).slice(0, 5).join(', '),
         pos: uniq(g.cafs.map(c => c.pos_name).filter(Boolean)).slice(0, 3).join(', '), dates: uniq(g.cafs.map(c => c.act_date).filter(Boolean)).sort().join(', '), files: uniq(g.cafs.map(c => c.file)).join(', '),
         isMob: k === 'alt' && mob.has(g.value) ? 'Yes – it is a CAF mobile here' : '', cafs: g.cafs }));
