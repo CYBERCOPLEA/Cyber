@@ -74,6 +74,10 @@ Money Trail Complaints found from the Acknowledgement No. column. For each compl
               every line. Point at a line to highlight it. Click a line to trace that
               transaction from the victim to the end. Click an account to trace the money
               from the victim to that account ("Show onward money too" adds the rest).
+            - "Show": Auto starts with the victim and the first layers that fit the screen;
+              click +N on an account to open the accounts it paid (− closes them), or pick
+              "Complete trail (all)" to draw every account. The trail is always connected
+              from the victim. Mind map = left-to-right tree; Graph = rings around the victim.
             - "Rows: Money Transfer to only" draws only Money Transfer rows (by the Action
               column, or a sheet named "Money Transfer to"); switch to All rows for ATM / hold.
             Also: complaint lists, summary charts, suspects repeated across complaints.

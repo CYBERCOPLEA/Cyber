@@ -12,8 +12,10 @@ const Graph = {
     edges = edges.filter(e => byId.has(e.from) && byId.has(e.to));
     const maxV = Math.max(1, ...nodes.map(n => n.value || 0)), maxE = Math.max(1, ...edges.map(e => e.amount || 0));
     nodes.forEach(n => n.r = 7 + 15 * Math.sqrt((n.value || 0) / maxV));
-    const mode = opt.mode || 'flow';
-    const layout = () => { if (mode === 'flow') this.layoutFlow(nodes, edges); else if (mode === 'mind') this.layoutMind(nodes, edges, opt.root); else this.layoutForce(nodes, edges); };
+    const mode = opt.mode || 'flow', isMind = mode === 'mind', lay = mode === 'flow' || isMind;
+    nodes.forEach(n => n.w = isMind ? Math.min(230, 30 + 6.6 * (String(n.label).slice(0, 24).length + (n.badge ? 3 : 0))) : 0);
+    const hw = n => isMind ? n.w / 2 : n.r;
+    const layout = () => { if (mode === 'flow') this.layoutFlow(nodes, edges); else if (isMind) this.layoutMind(nodes, edges, opt.root); else if (opt.radial) this.layoutRadial(nodes, edges, opt.root); else this.layoutForce(nodes, edges, opt.root); };
     layout();
     const outE = new Map(), inE = new Map();
     edges.forEach((e, i) => { (outE.get(e.from) || outE.set(e.from, []).get(e.from)).push(i); (inE.get(e.to) || inE.set(e.to, []).get(e.to)).push(i); });
@@ -27,21 +29,21 @@ const Graph = {
       <div class="graph-zoom"><button class="btn sm" data-z="in" title="Zoom in">＋</button><button class="btn sm" data-z="out" title="Zoom out">－</button><button class="btn sm" data-z="fit" title="Fit to screen">⤢</button>
         <button class="btn sm" data-z="lbl" title="Labels on lines: amount → amount + date + layer → none">₹</button><button class="btn sm ${opt.live ? 'primary' : ''}" data-z="live" title="Live money flow: moving lines from sender to receiver">⚡</button><button class="btn sm" data-z="wide" title="More space between layers">↔</button><button class="btn sm" data-z="tall" title="More space between accounts">↕</button>
         <button class="btn sm" data-z="tight" title="Less space">⇲</button><button class="btn sm" data-z="re" title="Re-arrange automatically">⟲</button></div>
-      <div class="graph-legend">${[['victim', 'Victim / source'], ['account', 'Account'], ['risk', 'High-risk / mule'], ['cash', 'Cash-out / ATM'], ['hold', 'Amount on hold'], ['nodal', 'Nodal / escrow / PG'], ['ident', 'Identifier'], ['profile', 'Social profile']].filter(([k]) => nodes.some(n => n.kind === k)).map(([k, l]) => `<span><i style="background:${KIND[k]}"></i>${l}</span>`).join('')}<span class="muted">Point at a line = highlight · click a line = trail from victim through that transaction to the end · click an account = trail from victim to that account · drag account${mode === 'flow' ? ' or "Layer" title' : ''} to move · scroll = zoom</span></div>`;
+      <div class="graph-legend">${[['victim', 'Victim / source'], ['account', 'Account'], ['risk', 'High-risk / mule'], ['cash', 'Cash-out / ATM'], ['hold', 'Amount on hold'], ['nodal', 'Nodal / escrow / PG'], ['ident', 'Identifier'], ['profile', 'Social profile']].filter(([k]) => nodes.some(n => n.kind === k)).map(([k, l]) => `<span><i style="background:${KIND[k]}"></i>${l}</span>`).join('')}${nodes.some(n => n.more) ? `<span><b style="color:${HL}">+N</b> = open the accounts it paid</span>` : ''}<span class="muted">Point at a line = highlight · click a line = trail from victim through that transaction to the end · click an account = trail from victim to that account · drag account${mode === 'flow' ? ' or "Layer" title' : ''} to move · scroll = zoom</span></div>`;
     const svg = $('svg', box); if (opt.live) svg.classList.add('live'); const vp = $('.vp', svg), gC = $('.cols', svg), gE = $('.edges', svg), gH = $('.ehit', svg), gL = $('.elabels', svg), gN = $('.nodes', svg);
     let last = null, T = { x: 0, y: 0, k: 1 }, lblMode = opt.labels === false ? 0 : opt.labels === 'full' ? 2 : 1, hl = null, timers = [];
     const apply = () => vp.setAttribute('transform', `translate(${T.x},${T.y}) scale(${T.k})`);
     const path = e => {
       const a = byId.get(e.from), b = byId.get(e.to);
       if (a === b) return `M${a.x},${a.y - a.r} c40,-50 60,10 ${a.r},${a.r}`;
-      if (mode === 'flow' && Math.abs(b.x - a.x) <= 20) { const x1 = a.x + a.r, x2 = b.x + b.r + 4, cx = a.x + 120 + Math.abs(b.y - a.y) * .15; return `M${x1},${a.y} C${cx},${a.y} ${cx},${b.y} ${x2},${b.y}`; }
-      if (mode === 'flow' && b.x > a.x + 20) { const x1 = a.x + a.r, x2 = b.x - b.r - 4, mx = (x1 + x2) / 2; return `M${x1},${a.y} C${mx},${a.y} ${mx},${b.y} ${x2},${b.y}`; }
+      if (lay && Math.abs(b.x - a.x) <= 20) { const x1 = a.x + hw(a), x2 = b.x + hw(b) + 4, cx = a.x + hw(a) + 100 + Math.abs(b.y - a.y) * .15; return `M${x1},${a.y} C${cx},${a.y} ${cx},${b.y} ${x2},${b.y}`; }
+      if (lay && b.x > a.x + 20) { const x1 = a.x + hw(a), x2 = b.x - hw(b) - 4, mx = (x1 + x2) / 2; return `M${x1},${a.y} C${mx},${a.y} ${mx},${b.y} ${x2},${b.y}`; }
       const dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy) || 1;
       const x1 = a.x + dx / d * a.r, y1 = a.y + dy / d * a.r, x2 = b.x - dx / d * (b.r + 4), y2 = b.y - dy / d * (b.r + 4);
-      if (mode === 'flow') { const cx = (x1 + x2) / 2, cy = Math.min(y1, y2) - 60; return `M${x1},${y1} Q${cx},${cy} ${x2},${y2}`; }
+      if (lay) { const cx = (x1 + x2) / 2, cy = Math.min(y1, y2) - 60; return `M${x1},${y1} Q${cx},${cy} ${x2},${y2}`; }
       return `M${x1},${y1} L${x2},${y2}`;
     };
-    const mid = e => { const a = byId.get(e.from), b = byId.get(e.to); if (mode === 'flow' && a !== b && Math.abs(b.x - a.x) <= 20) return [a.x + 100 + Math.abs(b.y - a.y) * .11, (a.y + b.y) / 2]; return [(a.x + b.x) / 2, (a.y + b.y) / 2 - 5]; };
+    const mid = e => { const a = byId.get(e.from), b = byId.get(e.to); if (lay && a !== b && Math.abs(b.x - a.x) <= 20) return [a.x + hw(a) + 80 + Math.abs(b.y - a.y) * .11, (a.y + b.y) / 2]; return [(a.x + b.x) / 2, (a.y + b.y) / 2 - 5]; };
     const ew = e => (1 + 6 * Math.sqrt((e.amount || 0) / maxE)).toFixed(1);
     gE.innerHTML = edges.map((e, i) => `<path data-e="${i}" d="${path(e)}" fill="none" stroke="${C.muted}" stroke-opacity=".55" stroke-width="${ew(e)}" marker-end="url(#arr)"><title>${esc(accLabel(e.from))} → ${esc(accLabel(e.to))}\n${fmtINR(e.amount)} in ${e.count} txn(s)${edgeDate(e) ? '\n' + edgeDate(e) : ''}</title></path>`).join('');
     const tip = e => `${accLabel(e.from)} → ${accLabel(e.to)}\n${fmtINR(e.amount)} in ${e.count} txn(s)${e.tag ? '\n' + e.tag : ''}${edgeDate(e) ? '\n' + edgeDate(e) : ''}\nClick = trace this transaction from start to end`;
@@ -56,13 +58,19 @@ const Graph = {
       }).join('');
       if (hl) hl.shown.forEach(i => { const l = gL.querySelector(`[data-l="${i}"]`); if (l) l.style.opacity = 1; });
     };
-    gN.innerHTML = nodes.map((n, i) => `<g data-n="${i}" transform="translate(${n.x},${n.y})" style="cursor:pointer">
+    const more = n => n.more || n.collapse ? `<g data-x="1" transform="translate(${hw(n) + (isMind ? 2 : 4)},${isMind ? -15 : -n.r - 4})" style="cursor:pointer"><circle r="${n.more > 99 ? 12 : 10}" fill="${C.surface}" stroke="${HL}" stroke-width="1.6"/><text y="3.5" text-anchor="middle" font-size="${n.more > 99 ? 8.5 : 10}" font-weight="700" fill="${HL}">${n.more ? '+' + n.more : '−'}</text><title>${n.more ? `Open: show the ${n.more} account(s) this account sent money to` : 'Close: hide the accounts opened from here'}</title></g>` : '';
+    gN.innerHTML = nodes.map((n, i) => isMind ? `<g data-n="${i}" transform="translate(${n.x},${n.y})" style="cursor:pointer">
+      <rect class="ring" x="${-n.w / 2 - 5}" y="-18" width="${n.w + 10}" height="36" rx="18" fill="none" stroke="${HL}" stroke-width="3" opacity="0"/>
+      <rect x="${-n.w / 2}" y="-13" width="${n.w}" height="26" rx="13" fill="${KIND[n.kind] || KIND.other}" stroke="${C.surface}" stroke-width="1.5"/>
+      <text y="4" text-anchor="middle" font-size="11.5" font-weight="600" fill="#fff">${n.badge ? '⚑' + esc(n.badge) + ' ' : ''}${esc(String(n.label).slice(0, 24))}</text>
+      ${n.sub ? `<text y="26" text-anchor="middle" font-size="9.5" fill="${C.muted}" paint-order="stroke" stroke="${C.surface2}" stroke-width="3">${esc(String(n.sub).slice(0, 34))}</text>` : ''}
+      ${more(n)}<title>${esc(n.title || n.label)}</title></g>` : `<g data-n="${i}" transform="translate(${n.x},${n.y})" style="cursor:pointer">
       <circle class="ring" r="${n.r + 5}" fill="none" stroke="${HL}" stroke-width="3" opacity="0"/>
       <circle r="${n.r}" fill="${KIND[n.kind] || KIND.other}" stroke="${C.surface}" stroke-width="2"/>
       ${n.badge ? `<text y="4" text-anchor="middle" font-size="10" font-weight="700" fill="#fff">${esc(n.badge)}</text>` : ''}
       <text y="${n.r + 13}" text-anchor="middle" font-size="11" fill="${C.text}" paint-order="stroke" stroke="${C.surface2}" stroke-width="3">${esc(String(n.label).slice(0, 24))}</text>
       ${n.sub ? `<text y="${n.r + 25}" text-anchor="middle" font-size="9.5" fill="${C.muted}" paint-order="stroke" stroke="${C.surface2}" stroke-width="3">${esc(String(n.sub).slice(0, 30))}</text>` : ''}
-      <title>${esc(n.title || n.label)}</title></g>`).join('');
+      ${more(n)}<title>${esc(n.title || n.label)}</title></g>`).join('');
     const nodeEl = n => gN.children[nodes.indexOf(n)];
     // layer titles (flow chart): drag a title to move the whole layer
     const colsOf = () => mode === 'flow' ? [...groupBy(nodes, n => n.layer || 0)].sort((a, b) => a[0] - b[0]) : [];
@@ -77,31 +85,34 @@ const Graph = {
       drawLabels(); drawCols();
     };
     drawLabels(); drawCols();
-    const fit = () => {
+    const fit = readable => {
       if (!nodes.length) return; const W = box.clientWidth || 900, H = box.clientHeight || 600;
-      const xs = nodes.map(n => n.x), ys = nodes.map(n => n.y);
-      const x0 = Math.min(...xs) - 90, x1 = Math.max(...xs) + 90, y0 = Math.min(...ys) - 80, y1 = Math.max(...ys) + 60;
-      T.k = Math.min(2, W / (x1 - x0), H / (y1 - y0)); T.x = (W - (x1 + x0) * T.k) / 2; T.y = (H - (y1 + y0) * T.k) / 2; apply();
+      let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity; for (const n of nodes) { if (n.x < x0) x0 = n.x; if (n.x > x1) x1 = n.x; if (n.y < y0) y0 = n.y; if (n.y > y1) y1 = n.y; }
+      x0 -= 90 + (isMind ? 120 : 0); x1 += 90 + (isMind ? 120 : 0); y0 -= 80; y1 += 60;
+      T.k = Math.min(2, W / (x1 - x0), H / (y1 - y0)); T.x = (W - (x1 + x0) * T.k) / 2; T.y = (H - (y1 + y0) * T.k) / 2;
+      // a big tree would be too small to read: start at a readable size, on the victim
+      if (readable && lay && T.k < .55) { const r = byId.get(opt.root) || nodes[0]; T.k = .55; T.x = 70 - (x0 + 90) * T.k; T.y = H / 2 - r.y * T.k; }
+      apply();
     };
-    fit();
+    fit(true);
     const zoomAt = (f, cx, cy) => { const k = Math.max(.05, Math.min(6, T.k * f)); T.x = cx - (cx - T.x) * k / T.k; T.y = cy - (cy - T.y) * k / T.k; T.k = k; apply(); };
     const scale = (fx, fy) => { nodes.forEach(n => { n.x *= fx; n.y *= fy; }); redraw(nodes); };
     svg.addEventListener('wheel', e => { e.preventDefault(); const r = svg.getBoundingClientRect(); zoomAt(e.deltaY < 0 ? 1.15 : 1 / 1.15, e.clientX - r.left, e.clientY - r.top); }, { passive: false });
     $$('[data-z]', box).forEach(b => b.onclick = () => {
       const z = b.dataset.z;
-      if (z === 'fit') fit(); else if (z === 'lbl') { lblMode = (lblMode + 1) % 3; drawLabels(); }
+      if (z === 'fit') fit(false); else if (z === 'lbl') { lblMode = (lblMode + 1) % 3; drawLabels(); }
       else if (z === 'live') { svg.classList.toggle('live'); b.classList.toggle('primary', svg.classList.contains('live')); }
       else if (z === 'wide') scale(1.25, 1); else if (z === 'tall') scale(1, 1.25); else if (z === 'tight') scale(.85, .85);
-      else if (z === 're') { layout(); redraw(nodes); fit(); }
+      else if (z === 're') { layout(); redraw(nodes); fit(true); }
       else zoomAt(z === 'in' ? 1.3 : 1 / 1.3, box.clientWidth / 2, box.clientHeight / 2);
     });
     // drag: background pans, node moves, layer title moves the whole layer
     let drag = null;
     svg.addEventListener('pointerdown', e => {
-      const g = e.target.closest('[data-n]'), col = e.target.closest('[data-col]'), h = e.target.closest('[data-h]');
+      const g = e.target.closest('[data-n]'), col = e.target.closest('[data-col]'), h = e.target.closest('[data-h]'), x = e.target.closest('[data-x]');
       unhover();
-      drag = { sx: e.clientX, sy: e.clientY, ox: T.x, oy: T.y, moved: false, list: null, node: null, edge: h && !g ? +h.dataset.h : null };
-      if (g) { drag.node = nodes[+g.dataset.n]; drag.list = [drag.node]; }
+      drag = { sx: e.clientX, sy: e.clientY, ox: T.x, oy: T.y, moved: false, list: null, node: null, edge: h && !g ? +h.dataset.h : null, expand: x && g ? nodes[+g.dataset.n] : null };
+      if (g && !x) { drag.node = nodes[+g.dataset.n]; drag.list = [drag.node]; }
       else if (col) drag.list = nodes.filter(n => String(n.layer || 0) === col.dataset.col);
       if (drag.list) drag.start = drag.list.map(n => [n.x, n.y]);
       svg.setPointerCapture(e.pointerId);
@@ -113,7 +124,8 @@ const Graph = {
     });
     svg.addEventListener('pointerup', () => {
       if (drag && !drag.moved) {
-        if (drag.node) { if (opt.onNode) opt.onNode(drag.node, api); if (opt.trail !== false) api.traceTo(drag.node.id); }
+        if (drag.expand) { if (opt.onExpand) opt.onExpand(drag.expand, api); }
+        else if (drag.node) { if (opt.onNode) opt.onNode(drag.node, api); if (opt.trail !== false) api.traceTo(drag.node.id); }
         else if (drag.edge != null) { if (opt.onEdge) opt.onEdge(edges[drag.edge], api); if (opt.trail !== false) api.traceEdge(drag.edge); }
         else if (!drag.list) api.clear();
       }
@@ -214,23 +226,46 @@ const Graph = {
     });
   },
 
+  /* mind map: left-to-right tree. Each account sits under the account that sent it the most money
+     one step closer to the victim; other payments are still drawn as extra lines. */
   layoutMind(nodes, edges, rootId) {
-    const byId = new Map(nodes.map(n => [n.id, n])); const root = byId.get(rootId) || nodes[0]; if (!root) return;
-    const kids = new Map(); const seen = new Set([root.id]); const q = [root.id]; const depth = new Map([[root.id, 0]]);
-    const adj = new Map(); edges.forEach(e => { if (!adj.has(e.from)) adj.set(e.from, []); adj.get(e.from).push(e.to); if (!adj.has(e.to)) adj.set(e.to, []); adj.get(e.to).push(e.from); });
-    while (q.length) { const id = q.shift(); for (const c of adj.get(id) || []) if (!seen.has(c)) { seen.add(c); depth.set(c, depth.get(id) + 1); if (!kids.has(id)) kids.set(id, []); kids.get(id).push(c); q.push(c); } }
-    const leaves = id => (kids.get(id) || []).length ? kids.get(id).reduce((a, c) => a + leaves(c), 0) : 1;
-    const place = (id, a0, a1) => {
-      const n = byId.get(id), d = depth.get(id), a = (a0 + a1) / 2, R = d * 210;
-      n.x = Math.cos(a) * R; n.y = Math.sin(a) * R * .8;
-      let s = a0; const tot = leaves(id);
-      for (const c of kids.get(id) || []) { const span = (a1 - a0) * leaves(c) / tot; place(c, s, s + span); s += span; }
-    };
-    place(root.id, 0, Math.PI * 2);
-    let extra = 0; nodes.forEach(n => { if (!seen.has(n.id)) { n.x = 900 + (extra % 6) * 120; n.y = Math.floor(extra / 6) * 70; extra++; } });
+    if (!nodes.length) return; const byId = new Map(nodes.map(n => [n.id, n]));
+    const out = new Map(), inc = new Map();
+    edges.forEach(e => { if (e.from === e.to || !byId.has(e.from) || !byId.has(e.to)) return; (out.get(e.from) || out.set(e.from, []).get(e.from)).push(e); (inc.get(e.to) || inc.set(e.to, []).get(e.to)).push(e); });
+    const roots = [], hop = new Map();
+    const bfs = start => { roots.push(start); hop.set(start, 0); const q = [start]; while (q.length) { const id = q.shift(); for (const e of out.get(id) || []) if (!hop.has(e.to)) { hop.set(e.to, hop.get(id) + 1); q.push(e.to); } } };
+    if (byId.has(rootId)) bfs(rootId);
+    nodes.forEach(n => { if (!inc.has(n.id) && !hop.has(n.id)) bfs(n.id); });
+    nodes.forEach(n => { if (!hop.has(n.id)) bfs(n.id); });
+    const kids = new Map();
+    for (const n of nodes) { if (roots.includes(n.id)) continue; let best = null; for (const e of inc.get(n.id) || []) if (hop.get(e.from) === hop.get(n.id) - 1 && (!best || e.amount > best.amount)) best = e; if (best) (kids.get(best.from) || kids.set(best.from, []).get(best.from)).push(n.id); }
+    kids.forEach(l => l.sort((a, b) => (byId.get(b).value || 0) - (byId.get(a).value || 0)));
+    let row = 0; const gap = 50, dx = 300;
+    const place = id => { const n = byId.get(id); n.x = hop.get(id) * dx; const ks = kids.get(id) || []; if (!ks.length) { n.y = row++ * gap; return; } ks.forEach(place); n.y = (byId.get(ks[0]).y + byId.get(ks[ks.length - 1]).y) / 2; };
+    roots.forEach(id => { place(id); row += .6; });
+    const mid = (row - 1) * gap / 2; nodes.forEach(n => n.y -= mid);
   },
 
-  layoutForce(nodes, edges) {
+  /* graph view for a money trail: victim in the centre, each step out is one ring */
+  layoutRadial(nodes, edges, rootId) {
+    if (!nodes.length) return; const byId = new Map(nodes.map(n => [n.id, n]));
+    const out = new Map(), inc = new Set(); edges.forEach(e => { if (e.from === e.to || !byId.has(e.from) || !byId.has(e.to)) return; (out.get(e.from) || out.set(e.from, []).get(e.from)).push(e); inc.add(e.to); });
+    const kids = new Map(), depth = new Map(), roots = [];
+    const bfs = start => { roots.push(start); depth.set(start, 0); const q = [start]; while (q.length) { const id = q.shift(); for (const e of (out.get(id) || []).slice().sort((a, b) => b.amount - a.amount)) if (!depth.has(e.to)) { depth.set(e.to, depth.get(id) + 1); (kids.get(id) || kids.set(id, []).get(id)).push(e.to); q.push(e.to); } } };
+    if (byId.has(rootId)) bfs(rootId); nodes.forEach(n => { if (!inc.has(n.id) && !depth.has(n.id)) bfs(n.id); }); nodes.forEach(n => { if (!depth.has(n.id)) bfs(n.id); });
+    const leaves = new Map(); const cnt = id => { if (leaves.has(id)) return leaves.get(id); const ks = kids.get(id) || []; const v = ks.length ? ks.reduce((a, c) => a + cnt(c), 0) : 1; leaves.set(id, v); return v; };
+    const tot = roots.reduce((a, r) => a + cnt(r), 0), maxD = Math.max(1, ...depth.values());
+    const R = Math.max(230, tot * 46 / (2 * Math.PI * maxD));
+    const place = (id, a0, a1) => { const n = byId.get(id), d = depth.get(id), a = (a0 + a1) / 2; n.x = Math.cos(a) * d * R; n.y = Math.sin(a) * d * R; let s0 = a0; for (const c of kids.get(id) || []) { const sp = (a1 - a0) * cnt(c) / cnt(id); place(c, s0, s0 + sp); s0 += sp; } };
+    if (roots.length === 1) place(roots[0], 0, Math.PI * 2);
+    else { // several starting accounts: a small ring of them in the centre
+      const hub = { x: 0, y: 0 }; let s0 = 0; roots.forEach(r => { const sp = Math.PI * 2 * cnt(r) / tot; place(r, s0, s0 + sp); s0 += sp; });
+      roots.forEach((r, i) => { const n = byId.get(r), a = Math.PI * 2 * i / roots.length; n.x = hub.x + Math.cos(a) * R * .35; n.y = hub.y + Math.sin(a) * R * .35; });
+    }
+  },
+
+  layoutForce(nodes, edges, rootId) {
+    if (nodes.length > 500) return this.layoutMind(nodes, edges, rootId); // too many for the spring layout: use the tree
     const byId = new Map(nodes.map(n => [n.id, n])); const n = nodes.length;
     nodes.forEach((d, i) => { const a = i * 2.399963, r = 18 * Math.sqrt(i + 1); d.x = Math.cos(a) * r * 3; d.y = Math.sin(a) * r * 3; d.vx = 0; d.vy = 0; });
     const iters = n > 400 ? 160 : 320, kRep = 9000, L = 150;
