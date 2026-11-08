@@ -879,3 +879,17 @@ svg.c2.dn .dn-c2{font-size:24px}
 .rx-home .rx-txt{font-size:11px;padding-left:9px;color:#cbd5e1}
 @media (max-width:900px){.rx-note.rx-home{width:auto}}
 .ls-guide .ls-next{margin-right:8px}
+/* Export button (graph, mind map, flow chart, money trail) */
+.ex-wrap{position:absolute;z-index:6;bottom:10px;right:132px}
+.ex-btn{display:inline-flex;align-items:center;gap:6px;padding:4px 11px!important;font-size:12px!important;font-weight:700;border-radius:999px!important;background:linear-gradient(90deg,#059669,#10b981)!important;color:#fff!important;border:0!important;box-shadow:0 4px 12px rgba(16,185,129,.35)}
+.ex-btn svg{width:14px;height:14px}
+.ex-menu{position:absolute;right:0;bottom:calc(100% + 6px);min-width:200px;background:var(--surface-1);border:1px solid var(--border);border-radius:12px;box-shadow:0 12px 32px rgba(0,0,0,.45);padding:5px;display:flex;flex-direction:column;gap:2px}
+.ex-menu.hidden{display:none}
+.ex-menu button{display:flex;align-items:baseline;gap:8px;background:none;border:0;color:var(--text-primary);padding:8px 10px;border-radius:8px;cursor:pointer;text-align:left;font-size:13.5px}
+.ex-menu button:hover{background:var(--surface-2)}
+.ex-menu small{color:var(--text-muted);font-size:11.5px}
+.fv-on.graph-box > .ex-wrap{top:12px;bottom:auto;right:180px}
+.fv-on.graph-box > .ex-wrap .ex-menu{top:calc(100% + 6px);bottom:auto}
+.trail-main{position:relative}
+.trail-main > .ex-wrap{position:relative;bottom:auto;right:auto;display:flex;justify-content:flex-end;margin:0 0 8px}
+.trail-main > .ex-wrap .ex-menu{top:calc(100% + 6px);bottom:auto}
