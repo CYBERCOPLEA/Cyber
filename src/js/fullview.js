@@ -1,14 +1,13 @@
-/* fullview.js – a "Full view" button on big views (money trail, flow chart / mind map / graphs, big tables).
+/* fullview.js – a "Full view" button on the mind map, network graph and flow chart.
    It opens that view on the whole screen; Esc or the button closes it. */
 'use strict';
 const FullView = {
   cur: null,
-  // what gets a button: the money trail, every graph, and tables with many rows
+  // what gets a button
   targets() {
     const out = new Set(), main = $('#main'); if (!main) return [];
-    $$('.trail-main', main).forEach(e => out.add(e));
-    $$('.graph-box', main).forEach(g => out.add(g.closest('.card') || g));
-    $$('.tbl-wrap', main).forEach(t => { if (t.querySelectorAll('tbody tr').length >= 8 && !t.closest('.modal, #drawer')) out.add(t.closest('.card') || t); });
+    // only the mind map, network graph and flow chart (the views that show links between accounts)
+    $$('.graph-box', main).forEach(g => { if (g.querySelector('svg .nodes')) out.add(g); });
     return [...out];
   },
   scan() {
@@ -25,14 +24,15 @@ const FullView = {
     this.cur = el; el.classList.add('fv-on'); document.body.classList.add('fv-body');
     const b = el.querySelector(':scope > .fv-btn'); if (b) b.querySelector('span').textContent = 'Exit full view';
     try { const r = el.requestFullscreen && el.requestFullscreen({ navigationUI: 'hide' }); if (r && r.catch) r.catch(() => { }); } catch (e) { }
-    window.dispatchEvent(new Event('resize'));
+    window.dispatchEvent(new Event('resize')); this.fit(el);
   },
+  fit(el) { [250, 700].forEach(t => setTimeout(() => { const f = el.querySelector('[data-z="fit"]'); if (f) f.click(); }, t)); },
   close() {
     const el = this.cur; if (!el) return; this.cur = null;
     el.classList.remove('fv-on'); document.body.classList.remove('fv-body');
     const b = el.querySelector(':scope > .fv-btn'); if (b) b.querySelector('span').textContent = 'Full view';
     if (document.fullscreenElement) { try { document.exitFullscreen(); } catch (e) { } }
-    window.dispatchEvent(new Event('resize'));
+    window.dispatchEvent(new Event('resize')); this.fit(el);
   }
 };
 (() => {
