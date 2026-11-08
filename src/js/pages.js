@@ -207,7 +207,7 @@ const FinTabs = {
     $('#gGo', el).onclick = () => { o.ack = $('#gAck', el).value; o.root = N.acc($('#gRoot', el).value); o.dir = $('#gDir', el).value; o.depth = +$('#gDepth', el).value || 6; o.min = +$('#gMin', el).value || 0; FinTabs.graph(el); };
     const { nodes, edges, note } = finGraphData(o);
     if (!nodes.length) { $('#gBox', el).innerHTML = '<div class="muted" style="padding:40px;text-align:center">No transactions to draw. Import a money trail or statement first.</div>'; return; }
-    const g = Graph.mount($('#gBox', el), nodes, edges, { live: edges.length <= 1000, labels: edges.length > 160 ? true : 'full', mode: o.mode, root: o.root || (nodes.find(n => n.kind === 'victim') || nodes[0]).id, onTrail: (hops, api, info) => trailDrawer(hops, api, info), onClear: UI.closeDrawer });
+    const g = Graph.mount($('#gBox', el), nodes, edges, { vert: !!o.vert, onOrient: v => { o.vert = v; }, live: edges.length <= 1000, labels: edges.length > 160 ? true : 'full', mode: o.mode, root: o.root || (nodes.find(n => n.kind === 'victim') || nodes[0]).id, onTrail: (hops, api, info) => trailDrawer(hops, api, info), onClear: UI.closeDrawer });
     if (o.focus) { const f = o.focus; delete o.focus; setTimeout(() => f.node ? g.highlightNode(f.node) : g.highlightEdge(f.from, f.to), 50); }
     $('#gInfo', el).textContent = `${nodes.length} accounts, ${edges.length} links. ${note}`;
     $('#gSvg', el).onclick = () => g.download('money_trail_' + o.mode);
@@ -244,7 +244,8 @@ function finGraphData(o) {
   let nodes = [...ids].map(id => {
     const n = A.get(id) || { acc: id, names: new Set(), banks: new Set(), inAmt: 0, layer: 0, score: 0, hold: 0 };
     const kind = id.startsWith('VICTIM:') || n.victim || (n.layer === 0 && !id.startsWith('CASH')) ? 'victim' : /^CASH-OUT/.test(id) ? 'cash' : n.hold > 0 ? 'hold' : n.score >= 60 ? 'risk' : 'account';
-    return { id, label: id.startsWith('VICTIM:') ? 'Victim ' + id.slice(7) : accLabel(id), sub: [[...n.names][0], [...n.banks][0]].filter(Boolean).join(' · '), kind, value: Math.max(n.inAmt, n.outAmt || 0), layer: n.layer, title: `${accLabel(id)}\n${[...n.names].join(' / ')}\n${[...n.banks].join(' / ')}\nLayer ${n.layer} · in ${fmtINR(n.inAmt)} · out ${fmtINR(n.outAmt)}${n.score ? '\nRisk ' + n.score : ''}` };
+    return { id, label: id.startsWith('VICTIM:') ? 'Victim ' + id.slice(7) : accLabel(id), sub: [[...n.names][0], [...n.banks][0]].filter(Boolean).join(' · '),
+      det: [[...(n.ifscs || [])][0], n.layer ? 'L' + n.layer : '', n.inAmt ? fmtINR(n.inAmt) : n.outAmt ? 'sent ' + fmtINR(n.outAmt) : ''].filter(Boolean).join(' · '), kind, value: Math.max(n.inAmt, n.outAmt || 0), layer: n.layer, title: `${accLabel(id)}\n${[...n.names].join(' / ')}\n${[...n.banks].join(' / ')}\nLayer ${n.layer} · in ${fmtINR(n.inAmt)} · out ${fmtINR(n.outAmt)}${n.score ? '\nRisk ' + n.score : ''}` };
   });
   if (nodes.length > 450) {
     const top = new Set(nodes.sort((a, b) => b.value - a.value).slice(0, 450).map(n => n.id));

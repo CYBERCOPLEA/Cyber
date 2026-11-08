@@ -17,6 +17,9 @@ const ICON = {
 };
 const ico = (k, s = 18) => `<svg class="ico" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[k] || ''}</svg>`;
 
+/* each menu button has its own colour */
+const NAVC = { dashboard: '#3b82f6', ncrp: '#f97316', trail: '#8b5cf6', financial: '#10b981', social: '#ec4899', analytics: '#06b6d4', others: '#eab308', settings: '#94a3b8' };
+
 /* menu: in the order an investigation is done */
 const MENU = [
   ['Overview', [['dashboard', 'home', 'Dashboard', 'Case summary and next steps']]],
@@ -67,8 +70,8 @@ tabs = function (main, page, list, title, actions = '') {
 /* build the sidebar menu */
 (() => {
   const nav = $('#sidebar'), info = $('#sideInfo');
-  nav.innerHTML = MENU.map(([g, items]) => `<div class="nav-group">${esc(g)}</div>` + items.map(([id, ic, label, tip]) => `<div class="nav-item" data-page="${id}" title="${esc(tip)}">${ico(ic)}<span>${esc(label)}</span></div>`).join('')).join('') +
-    `<div class="nav-bottom"><div class="nav-item" data-page="settings" title="Login, password recovery, preferences">${ico('settings')}<span>Settings</span></div></div>`;
+  nav.innerHTML = MENU.map(([g, items]) => `<div class="nav-group">${esc(g)}</div>` + items.map(([id, ic, label, tip]) => `<div class="nav-item" data-page="${id}" title="${esc(tip)}" style="--c:${NAVC[id] || '#64748b'}"><span class="nib">${ico(ic)}</span><span>${esc(label)}</span></div>`).join('')).join('') +
+    `<div class="nav-bottom"><div class="nav-item" data-page="settings" title="Login, password recovery, preferences" style="--c:${NAVC.settings}"><span class="nib">${ico('settings')}</span><span>Settings</span></div></div>`;
   nav.appendChild(info);
   // top bar icons
   const lockB = $('#btnLock'), thB = $('#btnTheme');

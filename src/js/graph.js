@@ -15,7 +15,10 @@ const Graph = {
     const mode = opt.mode || 'flow', isMind = mode === 'mind', lay = mode === 'flow' || isMind;
     nodes.forEach(n => n.w = isMind ? Math.min(230, 30 + 6.6 * (String(n.label).slice(0, 24).length + (n.badge ? 3 : 0))) : 0);
     const hw = n => isMind ? n.w / 2 : n.r;
-    const layout = () => { if (mode === 'flow') this.layoutFlow(nodes, edges); else if (isMind) this.layoutMind(nodes, edges, opt.root); else if (opt.radial) this.layoutRadial(nodes, edges, opt.root); else this.layoutForce(nodes, edges, opt.root); };
+    let vert = !!opt.vert;
+    // portrait: layers go top → bottom instead of left → right
+    const rot = () => { const fx = lay ? (isMind ? (Math.max(150, ...nodes.map(n => n.w)) + 30) / 50 : 1.9) : .75, fy = lay ? (isMind ? .55 : .62) : 1.33; nodes.forEach(n => { const x = n.x; n.x = n.y * fx; n.y = x * fy; }); };
+    const layout = () => { if (mode === 'flow') this.layoutFlow(nodes, edges); else if (isMind) this.layoutMind(nodes, edges, opt.root); else if (opt.radial) this.layoutRadial(nodes, edges, opt.root); else this.layoutForce(nodes, edges, opt.root); if (vert) rot(); };
     layout();
     const outE = new Map(), inE = new Map();
     edges.forEach((e, i) => { (outE.get(e.from) || outE.set(e.from, []).get(e.from)).push(i); (inE.get(e.to) || inE.set(e.to, []).get(e.to)).push(i); });
@@ -28,14 +31,20 @@ const Graph = {
       <rect width="100%" height="100%" fill="${C.surface2}" class="bg"/><g class="vp"><g class="cols"></g><g class="edges"></g><g class="ehit"></g><g class="elabels" style="pointer-events:none"></g><g class="nodes"></g></g></svg>
       <div class="graph-zoom"><button class="btn sm" data-z="in" title="Zoom in">＋</button><button class="btn sm" data-z="out" title="Zoom out">－</button><button class="btn sm" data-z="fit" title="Fit to screen">⤢</button>
         <button class="btn sm" data-z="lbl" title="Labels on lines: amount → amount + date + layer → none">₹</button><button class="btn sm ${opt.live ? 'primary' : ''}" data-z="live" title="Live money flow: moving lines from sender to receiver">⚡</button><button class="btn sm" data-z="wide" title="More space between layers">↔</button><button class="btn sm" data-z="tall" title="More space between accounts">↕</button>
-        <button class="btn sm" data-z="tight" title="Less space">⇲</button><button class="btn sm" data-z="re" title="Re-arrange automatically">⟲</button></div>
+        <button class="btn sm" data-z="tight" title="Less space">⇲</button><button class="btn sm" data-z="re" title="Re-arrange automatically">⟲</button><button class="btn sm" data-z="orient" title="Turn the chart: landscape ↔ portrait">${opt.vert ? '▭' : '▯'}</button></div>
       <div class="graph-legend">${[['victim', 'Victim / source'], ['account', 'Account'], ['risk', 'High-risk / mule'], ['cash', 'Cash-out / ATM'], ['hold', 'Amount on hold'], ['nodal', 'Nodal / escrow / PG'], ['ident', 'Identifier'], ['profile', 'Social profile']].filter(([k]) => nodes.some(n => n.kind === k)).map(([k, l]) => `<span><i style="background:${KIND[k]}"></i>${l}</span>`).join('')}${nodes.some(n => n.more) ? `<span><b style="color:${HL}">+N</b> = open the accounts it paid</span>` : ''}<span class="muted">Point at a line = highlight · click a line = trail from victim through that transaction to the end · click an account = trail from victim to that account · drag account${mode === 'flow' ? ' or "Layer" title' : ''} to move · scroll = zoom</span></div>`;
     const svg = $('svg', box); if (opt.live) svg.classList.add('live'); const vp = $('.vp', svg), gC = $('.cols', svg), gE = $('.edges', svg), gH = $('.ehit', svg), gL = $('.elabels', svg), gN = $('.nodes', svg);
     let last = null, T = { x: 0, y: 0, k: 1 }, lblMode = opt.labels === false ? 0 : opt.labels === 'full' ? 2 : 1, hl = null, timers = [];
-    const apply = () => vp.setAttribute('transform', `translate(${T.x},${T.y}) scale(${T.k})`);
+    const apply = () => { vp.setAttribute('transform', `translate(${T.x},${T.y}) scale(${T.k})`); svg.style.setProperty('--iz', (1 / Math.max(1, T.k)).toFixed(3)); };
     const path = e => {
       const a = byId.get(e.from), b = byId.get(e.to);
       if (a === b) return `M${a.x},${a.y - a.r} c40,-50 60,10 ${a.r},${a.r}`;
+      if (lay && vert) {
+        const bot = n => isMind ? 44 : n.r + 40, top = n => isMind ? 17 : n.r + 4;
+        if (Math.abs(b.y - a.y) <= 20) { const y1 = a.y + bot(a), cy = y1 + 70 + Math.abs(b.x - a.x) * .12; return `M${a.x},${y1} C${a.x},${cy} ${b.x},${cy} ${b.x},${b.y + bot(b)}`; }
+        if (b.y > a.y + 20) { const y1 = a.y + bot(a), y2 = b.y - top(b), my = (y1 + y2) / 2; return `M${a.x},${y1} C${a.x},${my} ${b.x},${my} ${b.x},${y2}`; }
+        return `M${a.x + hw(a)},${a.y} Q${Math.max(a.x, b.x) + 140},${(a.y + b.y) / 2} ${b.x + hw(b) + 4},${b.y}`;
+      }
       if (lay && Math.abs(b.x - a.x) <= 20) { const x1 = a.x + hw(a), x2 = b.x + hw(b) + 4, cx = a.x + hw(a) + 100 + Math.abs(b.y - a.y) * .15; return `M${x1},${a.y} C${cx},${a.y} ${cx},${b.y} ${x2},${b.y}`; }
       if (lay && b.x > a.x + 20) { const x1 = a.x + hw(a), x2 = b.x - hw(b) - 4, mx = (x1 + x2) / 2; return `M${x1},${a.y} C${mx},${a.y} ${mx},${b.y} ${x2},${b.y}`; }
       const dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy) || 1;
@@ -43,7 +52,7 @@ const Graph = {
       if (lay) { const cx = (x1 + x2) / 2, cy = Math.min(y1, y2) - 60; return `M${x1},${y1} Q${cx},${cy} ${x2},${y2}`; }
       return `M${x1},${y1} L${x2},${y2}`;
     };
-    const mid = e => { const a = byId.get(e.from), b = byId.get(e.to); if (lay && a !== b && Math.abs(b.x - a.x) <= 20) return [a.x + hw(a) + 80 + Math.abs(b.y - a.y) * .11, (a.y + b.y) / 2]; return [(a.x + b.x) / 2, (a.y + b.y) / 2 - 5]; };
+    const mid = e => { const a = byId.get(e.from), b = byId.get(e.to); if (lay && vert) { if (a !== b && Math.abs(b.y - a.y) <= 20) return [(a.x + b.x) / 2, a.y + 95]; if (b.y > a.y + 20) { const y1 = a.y + (isMind ? 44 : a.r + 40), y2 = b.y - (isMind ? 17 : b.r + 4); return [(a.x + b.x) / 2, (y1 + y2) / 2]; } } if (lay && a !== b && Math.abs(b.x - a.x) <= 20) return [a.x + hw(a) + 80 + Math.abs(b.y - a.y) * .11, (a.y + b.y) / 2]; return [(a.x + b.x) / 2, (a.y + b.y) / 2 - 5]; };
     const ew = e => (1 + 6 * Math.sqrt((e.amount || 0) / maxE)).toFixed(1);
     gE.innerHTML = edges.map((e, i) => `<path data-e="${i}" d="${path(e)}" fill="none" stroke="${C.muted}" stroke-opacity=".55" stroke-width="${ew(e)}" marker-end="url(#arr)"><title>${esc(accLabel(e.from))} → ${esc(accLabel(e.to))}\n${fmtINR(e.amount)} in ${e.count} txn(s)${edgeDate(e) ? '\n' + edgeDate(e) : ''}</title></path>`).join('');
     const tip = e => `${accLabel(e.from)} → ${accLabel(e.to)}\n${fmtINR(e.amount)} in ${e.count} txn(s)${e.tag ? '\n' + e.tag : ''}${edgeDate(e) ? '\n' + edgeDate(e) : ''}\nClick = trace this transaction from start to end`;
@@ -52,9 +61,9 @@ const Graph = {
       gL.innerHTML = edges.map((e, i) => {
         const on = hl && hl.edges.has(i); if (!on && (!lblMode || hl)) return ''; if (!e.amount && !on) return '';
         const [x, y] = mid(e);
-        if (on) { const dt = edgeDate(e); return `<g data-l="${i}" class="hl-lbl" style="opacity:0"><text x="${x}" y="${y - 4}" text-anchor="middle" font-size="12" font-weight="700" fill="${C.text}" paint-order="stroke" stroke="${C.surface2}" stroke-width="4">${esc(fmtINR(e.amount))}</text>${dt || e.tag ? `<text x="${x}" y="${y + 10}" text-anchor="middle" font-size="10.5" fill="${HL}" paint-order="stroke" stroke="${C.surface2}" stroke-width="4">${esc([e.tag, dt].filter(Boolean).join(' · '))}</text>` : ''}</g>`; }
-        if (lblMode === 2) { const dt = edgeDate(e), t2 = [e.tag, dt].filter(Boolean).join(' · '); return `<g data-l="${i}"><text x="${x}" y="${y - 2}" text-anchor="middle" font-size="10.5" font-weight="600" fill="${C.text}" paint-order="stroke" stroke="${C.surface2}" stroke-width="3">${esc(fmtINR(e.amount))}</text>${t2 ? `<text x="${x}" y="${y + 10}" text-anchor="middle" font-size="9" fill="${C.muted}" paint-order="stroke" stroke="${C.surface2}" stroke-width="3">${esc(t2)}</text>` : ''}</g>`; }
-        return `<text data-l="${i}" x="${x}" y="${y}" text-anchor="middle" font-size="10" fill="${C.text}" paint-order="stroke" stroke="${C.surface2}" stroke-width="3">${esc(Charts.short(e.amount))}</text>`;
+        if (on) { const dt = edgeDate(e); return `<g data-l="${i}" class="hl-lbl el" style="opacity:0"><text x="${x}" y="${y - 4}" text-anchor="middle" font-size="12" font-weight="700" fill="${C.text}" paint-order="stroke" stroke="${C.surface2}" stroke-width="4">${esc(fmtINR(e.amount))}</text>${dt || e.tag ? `<text x="${x}" y="${y + 10}" text-anchor="middle" font-size="10.5" fill="${HL}" paint-order="stroke" stroke="${C.surface2}" stroke-width="4">${esc([e.tag, dt].filter(Boolean).join(' · '))}</text>` : ''}</g>`; }
+        if (lblMode === 2) { const dt = edgeDate(e), t2 = [e.tag, dt].filter(Boolean).join(' · '); return `<g data-l="${i}" class="el"><text x="${x}" y="${y - 2}" text-anchor="middle" font-size="10.5" font-weight="600" fill="${C.text}" paint-order="stroke" stroke="${C.surface2}" stroke-width="3">${esc(fmtINR(e.amount))}</text>${t2 ? `<text x="${x}" y="${y + 10}" text-anchor="middle" font-size="9" fill="${C.muted}" paint-order="stroke" stroke="${C.surface2}" stroke-width="3">${esc(t2)}</text>` : ''}</g>`; }
+        return `<text data-l="${i}" class="el" x="${x}" y="${y}" text-anchor="middle" font-size="10" fill="${C.text}" paint-order="stroke" stroke="${C.surface2}" stroke-width="3">${esc(Charts.short(e.amount))}</text>`;
       }).join('');
       if (hl) hl.shown.forEach(i => { const l = gL.querySelector(`[data-l="${i}"]`); if (l) l.style.opacity = 1; });
     };
@@ -63,19 +72,20 @@ const Graph = {
       <rect class="ring" x="${-n.w / 2 - 5}" y="-18" width="${n.w + 10}" height="36" rx="18" fill="none" stroke="${HL}" stroke-width="3" opacity="0"/>
       <rect x="${-n.w / 2}" y="-13" width="${n.w}" height="26" rx="13" fill="${KIND[n.kind] || KIND.other}" stroke="${C.surface}" stroke-width="1.5"/>
       <text y="4" text-anchor="middle" font-size="11.5" font-weight="600" fill="#fff">${n.badge ? '⚑' + esc(n.badge) + ' ' : ''}${esc(String(n.label).slice(0, 24))}</text>
-      ${n.sub ? `<text y="26" text-anchor="middle" font-size="9.5" fill="${C.muted}" paint-order="stroke" stroke="${C.surface2}" stroke-width="3">${esc(String(n.sub).slice(0, 34))}</text>` : ''}
+      <g class="nt">${n.det ? `<text y="26" text-anchor="middle" font-size="10" font-weight="600" fill="${C.text}" paint-order="stroke" stroke="${C.surface2}" stroke-width="3">${esc(String(n.det).slice(0, 44))}</text>` : ''}${n.sub ? `<text y="${n.det ? 38 : 26}" text-anchor="middle" font-size="9.5" fill="${C.muted}" paint-order="stroke" stroke="${C.surface2}" stroke-width="3">${esc(String(n.sub).slice(0, 34))}</text>` : ''}</g>
       ${more(n)}<title>${esc(n.title || n.label)}</title></g>` : `<g data-n="${i}" transform="translate(${n.x},${n.y})" style="cursor:pointer">
       <circle class="ring" r="${n.r + 5}" fill="none" stroke="${HL}" stroke-width="3" opacity="0"/>
       <circle r="${n.r}" fill="${KIND[n.kind] || KIND.other}" stroke="${C.surface}" stroke-width="2"/>
       ${n.badge ? `<text y="4" text-anchor="middle" font-size="10" font-weight="700" fill="#fff">${esc(n.badge)}</text>` : ''}
-      <text y="${n.r + 13}" text-anchor="middle" font-size="11" fill="${C.text}" paint-order="stroke" stroke="${C.surface2}" stroke-width="3">${esc(String(n.label).slice(0, 24))}</text>
-      ${n.sub ? `<text y="${n.r + 25}" text-anchor="middle" font-size="9.5" fill="${C.muted}" paint-order="stroke" stroke="${C.surface2}" stroke-width="3">${esc(String(n.sub).slice(0, 30))}</text>` : ''}
+      <g class="nt"><text y="${n.r + 13}" text-anchor="middle" font-size="11" font-weight="600" fill="${C.text}" paint-order="stroke" stroke="${C.surface2}" stroke-width="3">${esc(String(n.label).slice(0, 24))}</text>
+      ${n.det ? `<text y="${n.r + 25}" text-anchor="middle" font-size="10" fill="${HL}" paint-order="stroke" stroke="${C.surface2}" stroke-width="3">${esc(String(n.det).slice(0, 44))}</text>` : ''}
+      ${n.sub ? `<text y="${n.r + (n.det ? 37 : 25)}" text-anchor="middle" font-size="9.5" fill="${C.muted}" paint-order="stroke" stroke="${C.surface2}" stroke-width="3">${esc(String(n.sub).slice(0, 30))}</text>` : ''}</g>
       ${more(n)}<title>${esc(n.title || n.label)}</title></g>`).join('');
     const nodeEl = n => gN.children[nodes.indexOf(n)];
     // layer titles (flow chart): drag a title to move the whole layer
     const colsOf = () => mode === 'flow' ? [...groupBy(nodes, n => n.layer || 0)].sort((a, b) => a[0] - b[0]) : [];
     const drawCols = () => {
-      gC.innerHTML = colsOf().map(([k, list]) => { const x = list.reduce((a, n) => a + n.x, 0) / list.length, y = Math.min(...list.map(n => n.y)) - 48;
+      gC.innerHTML = colsOf().map(([k, list]) => { const x = vert ? Math.min(...list.map(n => n.x)) - 120 : list.reduce((a, n) => a + n.x, 0) / list.length, y = vert ? list.reduce((a, n) => a + n.y, 0) / list.length : Math.min(...list.map(n => n.y)) - 48;
         return `<g data-col="${k}" style="cursor:move"><rect x="${x - 52}" y="${y - 16}" width="104" height="24" rx="12" fill="${C.surface}" stroke="${C.border}"/><text x="${x}" y="${y + 1}" text-anchor="middle" font-size="12" font-weight="700" fill="${C.text}">${k === 0 ? 'Victim' : 'Layer ' + k} · ${list.length}</text></g>`; }).join('');
     };
     const redraw = moved => {
@@ -91,10 +101,10 @@ const Graph = {
       x0 -= 90 + (isMind ? 120 : 0); x1 += 90 + (isMind ? 120 : 0); y0 -= 80; y1 += 60;
       T.k = Math.min(2, W / (x1 - x0), H / (y1 - y0)); T.x = (W - (x1 + x0) * T.k) / 2; T.y = (H - (y1 + y0) * T.k) / 2;
       // a big tree would be too small to read: start at a readable size, on the victim
-      if (readable && lay && T.k < .55) { const r = byId.get(opt.root) || nodes[0]; T.k = .55; T.x = 70 - (x0 + 90) * T.k; T.y = H / 2 - r.y * T.k; }
+      if (readable && lay && T.k < .55) { const r = byId.get(opt.root) || nodes[0]; T.k = .55; if (vert) { T.x = W / 2 - r.x * T.k; T.y = 30 - y0 * T.k; } else { T.x = 70 - (x0 + 90) * T.k; T.y = H / 2 - r.y * T.k; } }
       apply();
     };
-    fit(true);
+    fit(true); apply();
     const zoomAt = (f, cx, cy) => { const k = Math.max(.05, Math.min(6, T.k * f)); T.x = cx - (cx - T.x) * k / T.k; T.y = cy - (cy - T.y) * k / T.k; T.k = k; apply(); };
     const scale = (fx, fy) => { nodes.forEach(n => { n.x *= fx; n.y *= fy; }); redraw(nodes); };
     svg.addEventListener('wheel', e => { e.preventDefault(); const r = svg.getBoundingClientRect(); zoomAt(e.deltaY < 0 ? 1.15 : 1 / 1.15, e.clientX - r.left, e.clientY - r.top); }, { passive: false });
@@ -104,6 +114,7 @@ const Graph = {
       else if (z === 'live') { svg.classList.toggle('live'); b.classList.toggle('primary', svg.classList.contains('live')); }
       else if (z === 'wide') scale(1.25, 1); else if (z === 'tall') scale(1, 1.25); else if (z === 'tight') scale(.85, .85);
       else if (z === 're') { layout(); redraw(nodes); fit(true); }
+      else if (z === 'orient') { vert = !vert; b.textContent = vert ? '▭' : '▯'; layout(); redraw(nodes); fit(true); if (opt.onOrient) opt.onOrient(vert); }
       else zoomAt(z === 'in' ? 1.3 : 1 / 1.3, box.clientWidth / 2, box.clientHeight / 2);
     });
     // drag: background pans, node moves, layer title moves the whole layer
@@ -149,7 +160,7 @@ const Graph = {
         hov = { i, prev: Object.fromEntries(['stroke', 'stroke-opacity', 'stroke-width', 'marker-end'].map(k => [k, p.getAttribute(k)])) };
         p.setAttribute('stroke', HL); p.setAttribute('stroke-opacity', '1'); p.setAttribute('stroke-width', Math.max(4, +ew(e) + 2)); p.setAttribute('marker-end', 'url(#arrH)');
         const [x, y] = mid(e), dt = edgeDate(e), t2 = [e.tag, dt].filter(Boolean).join(' · ');
-        gL.insertAdjacentHTML('beforeend', `<g class="hov-lbl" style="pointer-events:none"><text x="${x}" y="${y - 6}" text-anchor="middle" font-size="13" font-weight="700" fill="${C.text}" paint-order="stroke" stroke="${C.surface2}" stroke-width="5">${esc(fmtINR(e.amount))}</text>${t2 ? `<text x="${x}" y="${y + 9}" text-anchor="middle" font-size="11" fill="${HL}" paint-order="stroke" stroke="${C.surface2}" stroke-width="4">${esc(t2)}</text>` : ''}</g>`);
+        gL.insertAdjacentHTML('beforeend', `<g class="hov-lbl el" style="pointer-events:none"><text x="${x}" y="${y - 6}" text-anchor="middle" font-size="13" font-weight="700" fill="${C.text}" paint-order="stroke" stroke="${C.surface2}" stroke-width="5">${esc(fmtINR(e.amount))}</text>${t2 ? `<text x="${x}" y="${y + 9}" text-anchor="middle" font-size="11" fill="${HL}" paint-order="stroke" stroke="${C.surface2}" stroke-width="4">${esc(t2)}</text>` : ''}</g>`);
       };
       h.onmouseleave = unhover;
     });

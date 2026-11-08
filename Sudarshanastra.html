@@ -367,6 +367,20 @@ table.tbl{font-size:12.5px}
 .tlink.on .tv{stroke:var(--accent-2);stroke-opacity:1;stroke-dasharray:12 7;animation:flowrun .7s linear infinite}
 .trail-canvas.focus .tcard.sel{box-shadow:0 0 0 3px var(--accent-2),var(--shadow)}
 
+/* chart labels keep their size when zooming in */
+.graph-box svg .el,.graph-box svg .nt{transform:scale(var(--iz,1));transform-box:fill-box;transform-origin:center}
+.graph-box svg .nt{transform-origin:center top}
+.graph-zoom [data-z="orient"]{font-size:15px}
+/* coloured menu buttons */
+.nav-item .nib{display:inline-flex;flex:none;width:30px;height:30px;border-radius:9px;align-items:center;justify-content:center;background:color-mix(in srgb,var(--c) 17%,transparent);border:1px solid color-mix(in srgb,var(--c) 35%,transparent);transition:background .15s,transform .15s}
+.nav-item .nib .ico{color:var(--c)}
+.nav-item:hover{background:color-mix(in srgb,var(--c) 10%,transparent)}
+.nav-item:hover .nib{transform:scale(1.06)}
+.nav-item.active,.nav-item.hero.active{background:color-mix(in srgb,var(--c) 20%,transparent);color:var(--text-primary)}
+.nav-item.active .nib{background:var(--c);border-color:var(--c);box-shadow:0 4px 12px color-mix(in srgb,var(--c) 45%,transparent)}
+.nav-item.active .nib .ico{color:#fff}
+.nav-item.active::before{background:var(--c)}
+
 </style>
 </head>
 <body>
@@ -1354,7 +1368,10 @@ const Graph = {
     const mode = opt.mode || 'flow', isMind = mode === 'mind', lay = mode === 'flow' || isMind;
     nodes.forEach(n => n.w = isMind ? Math.min(230, 30 + 6.6 * (String(n.label).slice(0, 24).length + (n.badge ? 3 : 0))) : 0);
     const hw = n => isMind ? n.w / 2 : n.r;
-    const layout = () => { if (mode === 'flow') this.layoutFlow(nodes, edges); else if (isMind) this.layoutMind(nodes, edges, opt.root); else if (opt.radial) this.layoutRadial(nodes, edges, opt.root); else this.layoutForce(nodes, edges, opt.root); };
+    let vert = !!opt.vert;
+    // portrait: layers go top → bottom instead of left → right
+    const rot = () => { const fx = lay ? (isMind ? (Math.max(150, ...nodes.map(n => n.w)) + 30) / 50 : 1.9) : .75, fy = lay ? (isMind ? .55 : .62) : 1.33; nodes.forEach(n => { const x = n.x; n.x = n.y * fx; n.y = x * fy; }); };
+    const layout = () => { if (mode === 'flow') this.layoutFlow(nodes, edges); else if (isMind) this.layoutMind(nodes, edges, opt.root); else if (opt.radial) this.layoutRadial(nodes, edges, opt.root); else this.layoutForce(nodes, edges, opt.root); if (vert) rot(); };
     layout();
     const outE = new Map(), inE = new Map();
     edges.forEach((e, i) => { (outE.get(e.from) || outE.set(e.from, []).get(e.from)).push(i); (inE.get(e.to) || inE.set(e.to, []).get(e.to)).push(i); });
@@ -1367,14 +1384,20 @@ const Graph = {
       <rect width="100%" height="100%" fill="${C.surface2}" class="bg"/><g class="vp"><g class="cols"></g><g class="edges"></g><g class="ehit"></g><g class="elabels" style="pointer-events:none"></g><g class="nodes"></g></g></svg>
       <div class="graph-zoom"><button class="btn sm" data-z="in" title="Zoom in">＋</button><button class="btn sm" data-z="out" title="Zoom out">－</button><button class="btn sm" data-z="fit" title="Fit to screen">⤢</button>
         <button class="btn sm" data-z="lbl" title="Labels on lines: amount → amount + date + layer → none">₹</button><button class="btn sm ${opt.live ? 'primary' : ''}" data-z="live" title="Live money flow: moving lines from sender to receiver">⚡</button><button class="btn sm" data-z="wide" title="More space between layers">↔</button><button class="btn sm" data-z="tall" title="More space between accounts">↕</button>
-        <button class="btn sm" data-z="tight" title="Less space">⇲</button><button class="btn sm" data-z="re" title="Re-arrange automatically">⟲</button></div>
+        <button class="btn sm" data-z="tight" title="Less space">⇲</button><button class="btn sm" data-z="re" title="Re-arrange automatically">⟲</button><button class="btn sm" data-z="orient" title="Turn the chart: landscape ↔ portrait">${opt.vert ? '▭' : '▯'}</button></div>
       <div class="graph-legend">${[['victim', 'Victim / source'], ['account', 'Account'], ['risk', 'High-risk / mule'], ['cash', 'Cash-out / ATM'], ['hold', 'Amount on hold'], ['nodal', 'Nodal / escrow / PG'], ['ident', 'Identifier'], ['profile', 'Social profile']].filter(([k]) => nodes.some(n => n.kind === k)).map(([k, l]) => `<span><i style="background:${KIND[k]}"></i>${l}</span>`).join('')}${nodes.some(n => n.more) ? `<span><b style="color:${HL}">+N</b> = open the accounts it paid</span>` : ''}<span class="muted">Point at a line = highlight · click a line = trail from victim through that transaction to the end · click an account = trail from victim to that account · drag account${mode === 'flow' ? ' or "Layer" title' : ''} to move · scroll = zoom</span></div>`;
     const svg = $('svg', box); if (opt.live) svg.classList.add('live'); const vp = $('.vp', svg), gC = $('.cols', svg), gE = $('.edges', svg), gH = $('.ehit', svg), gL = $('.elabels', svg), gN = $('.nodes', svg);
     let last = null, T = { x: 0, y: 0, k: 1 }, lblMode = opt.labels === false ? 0 : opt.labels === 'full' ? 2 : 1, hl = null, timers = [];
-    const apply = () => vp.setAttribute('transform', `translate(${T.x},${T.y}) scale(${T.k})`);
+    const apply = () => { vp.setAttribute('transform', `translate(${T.x},${T.y}) scale(${T.k})`); svg.style.setProperty('--iz', (1 / Math.max(1, T.k)).toFixed(3)); };
     const path = e => {
       const a = byId.get(e.from), b = byId.get(e.to);
       if (a === b) return `M${a.x},${a.y - a.r} c40,-50 60,10 ${a.r},${a.r}`;
+      if (lay && vert) {
+        const bot = n => isMind ? 44 : n.r + 40, top = n => isMind ? 17 : n.r + 4;
+        if (Math.abs(b.y - a.y) <= 20) { const y1 = a.y + bot(a), cy = y1 + 70 + Math.abs(b.x - a.x) * .12; return `M${a.x},${y1} C${a.x},${cy} ${b.x},${cy} ${b.x},${b.y + bot(b)}`; }
+        if (b.y > a.y + 20) { const y1 = a.y + bot(a), y2 = b.y - top(b), my = (y1 + y2) / 2; return `M${a.x},${y1} C${a.x},${my} ${b.x},${my} ${b.x},${y2}`; }
+        return `M${a.x + hw(a)},${a.y} Q${Math.max(a.x, b.x) + 140},${(a.y + b.y) / 2} ${b.x + hw(b) + 4},${b.y}`;
+      }
       if (lay && Math.abs(b.x - a.x) <= 20) { const x1 = a.x + hw(a), x2 = b.x + hw(b) + 4, cx = a.x + hw(a) + 100 + Math.abs(b.y - a.y) * .15; return `M${x1},${a.y} C${cx},${a.y} ${cx},${b.y} ${x2},${b.y}`; }
       if (lay && b.x > a.x + 20) { const x1 = a.x + hw(a), x2 = b.x - hw(b) - 4, mx = (x1 + x2) / 2; return `M${x1},${a.y} C${mx},${a.y} ${mx},${b.y} ${x2},${b.y}`; }
       const dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy) || 1;
@@ -1382,7 +1405,7 @@ const Graph = {
       if (lay) { const cx = (x1 + x2) / 2, cy = Math.min(y1, y2) - 60; return `M${x1},${y1} Q${cx},${cy} ${x2},${y2}`; }
       return `M${x1},${y1} L${x2},${y2}`;
     };
-    const mid = e => { const a = byId.get(e.from), b = byId.get(e.to); if (lay && a !== b && Math.abs(b.x - a.x) <= 20) return [a.x + hw(a) + 80 + Math.abs(b.y - a.y) * .11, (a.y + b.y) / 2]; return [(a.x + b.x) / 2, (a.y + b.y) / 2 - 5]; };
+    const mid = e => { const a = byId.get(e.from), b = byId.get(e.to); if (lay && vert) { if (a !== b && Math.abs(b.y - a.y) <= 20) return [(a.x + b.x) / 2, a.y + 95]; if (b.y > a.y + 20) { const y1 = a.y + (isMind ? 44 : a.r + 40), y2 = b.y - (isMind ? 17 : b.r + 4); return [(a.x + b.x) / 2, (y1 + y2) / 2]; } } if (lay && a !== b && Math.abs(b.x - a.x) <= 20) return [a.x + hw(a) + 80 + Math.abs(b.y - a.y) * .11, (a.y + b.y) / 2]; return [(a.x + b.x) / 2, (a.y + b.y) / 2 - 5]; };
     const ew = e => (1 + 6 * Math.sqrt((e.amount || 0) / maxE)).toFixed(1);
     gE.innerHTML = edges.map((e, i) => `<path data-e="${i}" d="${path(e)}" fill="none" stroke="${C.muted}" stroke-opacity=".55" stroke-width="${ew(e)}" marker-end="url(#arr)"><title>${esc(accLabel(e.from))} → ${esc(accLabel(e.to))}\n${fmtINR(e.amount)} in ${e.count} txn(s)${edgeDate(e) ? '\n' + edgeDate(e) : ''}</title></path>`).join('');
     const tip = e => `${accLabel(e.from)} → ${accLabel(e.to)}\n${fmtINR(e.amount)} in ${e.count} txn(s)${e.tag ? '\n' + e.tag : ''}${edgeDate(e) ? '\n' + edgeDate(e) : ''}\nClick = trace this transaction from start to end`;
@@ -1391,9 +1414,9 @@ const Graph = {
       gL.innerHTML = edges.map((e, i) => {
         const on = hl && hl.edges.has(i); if (!on && (!lblMode || hl)) return ''; if (!e.amount && !on) return '';
         const [x, y] = mid(e);
-        if (on) { const dt = edgeDate(e); return `<g data-l="${i}" class="hl-lbl" style="opacity:0"><text x="${x}" y="${y - 4}" text-anchor="middle" font-size="12" font-weight="700" fill="${C.text}" paint-order="stroke" stroke="${C.surface2}" stroke-width="4">${esc(fmtINR(e.amount))}</text>${dt || e.tag ? `<text x="${x}" y="${y + 10}" text-anchor="middle" font-size="10.5" fill="${HL}" paint-order="stroke" stroke="${C.surface2}" stroke-width="4">${esc([e.tag, dt].filter(Boolean).join(' · '))}</text>` : ''}</g>`; }
-        if (lblMode === 2) { const dt = edgeDate(e), t2 = [e.tag, dt].filter(Boolean).join(' · '); return `<g data-l="${i}"><text x="${x}" y="${y - 2}" text-anchor="middle" font-size="10.5" font-weight="600" fill="${C.text}" paint-order="stroke" stroke="${C.surface2}" stroke-width="3">${esc(fmtINR(e.amount))}</text>${t2 ? `<text x="${x}" y="${y + 10}" text-anchor="middle" font-size="9" fill="${C.muted}" paint-order="stroke" stroke="${C.surface2}" stroke-width="3">${esc(t2)}</text>` : ''}</g>`; }
-        return `<text data-l="${i}" x="${x}" y="${y}" text-anchor="middle" font-size="10" fill="${C.text}" paint-order="stroke" stroke="${C.surface2}" stroke-width="3">${esc(Charts.short(e.amount))}</text>`;
+        if (on) { const dt = edgeDate(e); return `<g data-l="${i}" class="hl-lbl el" style="opacity:0"><text x="${x}" y="${y - 4}" text-anchor="middle" font-size="12" font-weight="700" fill="${C.text}" paint-order="stroke" stroke="${C.surface2}" stroke-width="4">${esc(fmtINR(e.amount))}</text>${dt || e.tag ? `<text x="${x}" y="${y + 10}" text-anchor="middle" font-size="10.5" fill="${HL}" paint-order="stroke" stroke="${C.surface2}" stroke-width="4">${esc([e.tag, dt].filter(Boolean).join(' · '))}</text>` : ''}</g>`; }
+        if (lblMode === 2) { const dt = edgeDate(e), t2 = [e.tag, dt].filter(Boolean).join(' · '); return `<g data-l="${i}" class="el"><text x="${x}" y="${y - 2}" text-anchor="middle" font-size="10.5" font-weight="600" fill="${C.text}" paint-order="stroke" stroke="${C.surface2}" stroke-width="3">${esc(fmtINR(e.amount))}</text>${t2 ? `<text x="${x}" y="${y + 10}" text-anchor="middle" font-size="9" fill="${C.muted}" paint-order="stroke" stroke="${C.surface2}" stroke-width="3">${esc(t2)}</text>` : ''}</g>`; }
+        return `<text data-l="${i}" class="el" x="${x}" y="${y}" text-anchor="middle" font-size="10" fill="${C.text}" paint-order="stroke" stroke="${C.surface2}" stroke-width="3">${esc(Charts.short(e.amount))}</text>`;
       }).join('');
       if (hl) hl.shown.forEach(i => { const l = gL.querySelector(`[data-l="${i}"]`); if (l) l.style.opacity = 1; });
     };
@@ -1402,19 +1425,20 @@ const Graph = {
       <rect class="ring" x="${-n.w / 2 - 5}" y="-18" width="${n.w + 10}" height="36" rx="18" fill="none" stroke="${HL}" stroke-width="3" opacity="0"/>
       <rect x="${-n.w / 2}" y="-13" width="${n.w}" height="26" rx="13" fill="${KIND[n.kind] || KIND.other}" stroke="${C.surface}" stroke-width="1.5"/>
       <text y="4" text-anchor="middle" font-size="11.5" font-weight="600" fill="#fff">${n.badge ? '⚑' + esc(n.badge) + ' ' : ''}${esc(String(n.label).slice(0, 24))}</text>
-      ${n.sub ? `<text y="26" text-anchor="middle" font-size="9.5" fill="${C.muted}" paint-order="stroke" stroke="${C.surface2}" stroke-width="3">${esc(String(n.sub).slice(0, 34))}</text>` : ''}
+      <g class="nt">${n.det ? `<text y="26" text-anchor="middle" font-size="10" font-weight="600" fill="${C.text}" paint-order="stroke" stroke="${C.surface2}" stroke-width="3">${esc(String(n.det).slice(0, 44))}</text>` : ''}${n.sub ? `<text y="${n.det ? 38 : 26}" text-anchor="middle" font-size="9.5" fill="${C.muted}" paint-order="stroke" stroke="${C.surface2}" stroke-width="3">${esc(String(n.sub).slice(0, 34))}</text>` : ''}</g>
       ${more(n)}<title>${esc(n.title || n.label)}</title></g>` : `<g data-n="${i}" transform="translate(${n.x},${n.y})" style="cursor:pointer">
       <circle class="ring" r="${n.r + 5}" fill="none" stroke="${HL}" stroke-width="3" opacity="0"/>
       <circle r="${n.r}" fill="${KIND[n.kind] || KIND.other}" stroke="${C.surface}" stroke-width="2"/>
       ${n.badge ? `<text y="4" text-anchor="middle" font-size="10" font-weight="700" fill="#fff">${esc(n.badge)}</text>` : ''}
-      <text y="${n.r + 13}" text-anchor="middle" font-size="11" fill="${C.text}" paint-order="stroke" stroke="${C.surface2}" stroke-width="3">${esc(String(n.label).slice(0, 24))}</text>
-      ${n.sub ? `<text y="${n.r + 25}" text-anchor="middle" font-size="9.5" fill="${C.muted}" paint-order="stroke" stroke="${C.surface2}" stroke-width="3">${esc(String(n.sub).slice(0, 30))}</text>` : ''}
+      <g class="nt"><text y="${n.r + 13}" text-anchor="middle" font-size="11" font-weight="600" fill="${C.text}" paint-order="stroke" stroke="${C.surface2}" stroke-width="3">${esc(String(n.label).slice(0, 24))}</text>
+      ${n.det ? `<text y="${n.r + 25}" text-anchor="middle" font-size="10" fill="${HL}" paint-order="stroke" stroke="${C.surface2}" stroke-width="3">${esc(String(n.det).slice(0, 44))}</text>` : ''}
+      ${n.sub ? `<text y="${n.r + (n.det ? 37 : 25)}" text-anchor="middle" font-size="9.5" fill="${C.muted}" paint-order="stroke" stroke="${C.surface2}" stroke-width="3">${esc(String(n.sub).slice(0, 30))}</text>` : ''}</g>
       ${more(n)}<title>${esc(n.title || n.label)}</title></g>`).join('');
     const nodeEl = n => gN.children[nodes.indexOf(n)];
     // layer titles (flow chart): drag a title to move the whole layer
     const colsOf = () => mode === 'flow' ? [...groupBy(nodes, n => n.layer || 0)].sort((a, b) => a[0] - b[0]) : [];
     const drawCols = () => {
-      gC.innerHTML = colsOf().map(([k, list]) => { const x = list.reduce((a, n) => a + n.x, 0) / list.length, y = Math.min(...list.map(n => n.y)) - 48;
+      gC.innerHTML = colsOf().map(([k, list]) => { const x = vert ? Math.min(...list.map(n => n.x)) - 120 : list.reduce((a, n) => a + n.x, 0) / list.length, y = vert ? list.reduce((a, n) => a + n.y, 0) / list.length : Math.min(...list.map(n => n.y)) - 48;
         return `<g data-col="${k}" style="cursor:move"><rect x="${x - 52}" y="${y - 16}" width="104" height="24" rx="12" fill="${C.surface}" stroke="${C.border}"/><text x="${x}" y="${y + 1}" text-anchor="middle" font-size="12" font-weight="700" fill="${C.text}">${k === 0 ? 'Victim' : 'Layer ' + k} · ${list.length}</text></g>`; }).join('');
     };
     const redraw = moved => {
@@ -1430,10 +1454,10 @@ const Graph = {
       x0 -= 90 + (isMind ? 120 : 0); x1 += 90 + (isMind ? 120 : 0); y0 -= 80; y1 += 60;
       T.k = Math.min(2, W / (x1 - x0), H / (y1 - y0)); T.x = (W - (x1 + x0) * T.k) / 2; T.y = (H - (y1 + y0) * T.k) / 2;
       // a big tree would be too small to read: start at a readable size, on the victim
-      if (readable && lay && T.k < .55) { const r = byId.get(opt.root) || nodes[0]; T.k = .55; T.x = 70 - (x0 + 90) * T.k; T.y = H / 2 - r.y * T.k; }
+      if (readable && lay && T.k < .55) { const r = byId.get(opt.root) || nodes[0]; T.k = .55; if (vert) { T.x = W / 2 - r.x * T.k; T.y = 30 - y0 * T.k; } else { T.x = 70 - (x0 + 90) * T.k; T.y = H / 2 - r.y * T.k; } }
       apply();
     };
-    fit(true);
+    fit(true); apply();
     const zoomAt = (f, cx, cy) => { const k = Math.max(.05, Math.min(6, T.k * f)); T.x = cx - (cx - T.x) * k / T.k; T.y = cy - (cy - T.y) * k / T.k; T.k = k; apply(); };
     const scale = (fx, fy) => { nodes.forEach(n => { n.x *= fx; n.y *= fy; }); redraw(nodes); };
     svg.addEventListener('wheel', e => { e.preventDefault(); const r = svg.getBoundingClientRect(); zoomAt(e.deltaY < 0 ? 1.15 : 1 / 1.15, e.clientX - r.left, e.clientY - r.top); }, { passive: false });
@@ -1443,6 +1467,7 @@ const Graph = {
       else if (z === 'live') { svg.classList.toggle('live'); b.classList.toggle('primary', svg.classList.contains('live')); }
       else if (z === 'wide') scale(1.25, 1); else if (z === 'tall') scale(1, 1.25); else if (z === 'tight') scale(.85, .85);
       else if (z === 're') { layout(); redraw(nodes); fit(true); }
+      else if (z === 'orient') { vert = !vert; b.textContent = vert ? '▭' : '▯'; layout(); redraw(nodes); fit(true); if (opt.onOrient) opt.onOrient(vert); }
       else zoomAt(z === 'in' ? 1.3 : 1 / 1.3, box.clientWidth / 2, box.clientHeight / 2);
     });
     // drag: background pans, node moves, layer title moves the whole layer
@@ -1488,7 +1513,7 @@ const Graph = {
         hov = { i, prev: Object.fromEntries(['stroke', 'stroke-opacity', 'stroke-width', 'marker-end'].map(k => [k, p.getAttribute(k)])) };
         p.setAttribute('stroke', HL); p.setAttribute('stroke-opacity', '1'); p.setAttribute('stroke-width', Math.max(4, +ew(e) + 2)); p.setAttribute('marker-end', 'url(#arrH)');
         const [x, y] = mid(e), dt = edgeDate(e), t2 = [e.tag, dt].filter(Boolean).join(' · ');
-        gL.insertAdjacentHTML('beforeend', `<g class="hov-lbl" style="pointer-events:none"><text x="${x}" y="${y - 6}" text-anchor="middle" font-size="13" font-weight="700" fill="${C.text}" paint-order="stroke" stroke="${C.surface2}" stroke-width="5">${esc(fmtINR(e.amount))}</text>${t2 ? `<text x="${x}" y="${y + 9}" text-anchor="middle" font-size="11" fill="${HL}" paint-order="stroke" stroke="${C.surface2}" stroke-width="4">${esc(t2)}</text>` : ''}</g>`);
+        gL.insertAdjacentHTML('beforeend', `<g class="hov-lbl el" style="pointer-events:none"><text x="${x}" y="${y - 6}" text-anchor="middle" font-size="13" font-weight="700" fill="${C.text}" paint-order="stroke" stroke="${C.surface2}" stroke-width="5">${esc(fmtINR(e.amount))}</text>${t2 ? `<text x="${x}" y="${y + 9}" text-anchor="middle" font-size="11" fill="${HL}" paint-order="stroke" stroke="${C.surface2}" stroke-width="4">${esc(t2)}</text>` : ''}</g>`);
       };
       h.onmouseleave = unhover;
     });
@@ -2040,7 +2065,7 @@ const FinTabs = {
     $('#gGo', el).onclick = () => { o.ack = $('#gAck', el).value; o.root = N.acc($('#gRoot', el).value); o.dir = $('#gDir', el).value; o.depth = +$('#gDepth', el).value || 6; o.min = +$('#gMin', el).value || 0; FinTabs.graph(el); };
     const { nodes, edges, note } = finGraphData(o);
     if (!nodes.length) { $('#gBox', el).innerHTML = '<div class="muted" style="padding:40px;text-align:center">No transactions to draw. Import a money trail or statement first.</div>'; return; }
-    const g = Graph.mount($('#gBox', el), nodes, edges, { live: edges.length <= 1000, labels: edges.length > 160 ? true : 'full', mode: o.mode, root: o.root || (nodes.find(n => n.kind === 'victim') || nodes[0]).id, onTrail: (hops, api, info) => trailDrawer(hops, api, info), onClear: UI.closeDrawer });
+    const g = Graph.mount($('#gBox', el), nodes, edges, { vert: !!o.vert, onOrient: v => { o.vert = v; }, live: edges.length <= 1000, labels: edges.length > 160 ? true : 'full', mode: o.mode, root: o.root || (nodes.find(n => n.kind === 'victim') || nodes[0]).id, onTrail: (hops, api, info) => trailDrawer(hops, api, info), onClear: UI.closeDrawer });
     if (o.focus) { const f = o.focus; delete o.focus; setTimeout(() => f.node ? g.highlightNode(f.node) : g.highlightEdge(f.from, f.to), 50); }
     $('#gInfo', el).textContent = `${nodes.length} accounts, ${edges.length} links. ${note}`;
     $('#gSvg', el).onclick = () => g.download('money_trail_' + o.mode);
@@ -2077,7 +2102,8 @@ function finGraphData(o) {
   let nodes = [...ids].map(id => {
     const n = A.get(id) || { acc: id, names: new Set(), banks: new Set(), inAmt: 0, layer: 0, score: 0, hold: 0 };
     const kind = id.startsWith('VICTIM:') || n.victim || (n.layer === 0 && !id.startsWith('CASH')) ? 'victim' : /^CASH-OUT/.test(id) ? 'cash' : n.hold > 0 ? 'hold' : n.score >= 60 ? 'risk' : 'account';
-    return { id, label: id.startsWith('VICTIM:') ? 'Victim ' + id.slice(7) : accLabel(id), sub: [[...n.names][0], [...n.banks][0]].filter(Boolean).join(' · '), kind, value: Math.max(n.inAmt, n.outAmt || 0), layer: n.layer, title: `${accLabel(id)}\n${[...n.names].join(' / ')}\n${[...n.banks].join(' / ')}\nLayer ${n.layer} · in ${fmtINR(n.inAmt)} · out ${fmtINR(n.outAmt)}${n.score ? '\nRisk ' + n.score : ''}` };
+    return { id, label: id.startsWith('VICTIM:') ? 'Victim ' + id.slice(7) : accLabel(id), sub: [[...n.names][0], [...n.banks][0]].filter(Boolean).join(' · '),
+      det: [[...(n.ifscs || [])][0], n.layer ? 'L' + n.layer : '', n.inAmt ? fmtINR(n.inAmt) : n.outAmt ? 'sent ' + fmtINR(n.outAmt) : ''].filter(Boolean).join(' · '), kind, value: Math.max(n.inAmt, n.outAmt || 0), layer: n.layer, title: `${accLabel(id)}\n${[...n.names].join(' / ')}\n${[...n.banks].join(' / ')}\nLayer ${n.layer} · in ${fmtINR(n.inAmt)} · out ${fmtINR(n.outAmt)}${n.score ? '\nRisk ' + n.score : ''}` };
   });
   if (nodes.length > 450) {
     const top = new Set(nodes.sort((a, b) => b.value - a.value).slice(0, 450).map(n => n.id));
@@ -3268,7 +3294,9 @@ const NcrpCase = {
       const L0 = (D.B.L.get(id) || 0) === 0 && n.inAmt === 0;
       const f = D.FL.get(id), flagged = f && (f.bulk || f.rapid);
       const kind = id.startsWith('VICTIM:') || L0 ? 'victim' : /^CASH-OUT/.test(id) ? 'cash' : /Nodal|gateway|Wallet/.test(t) ? 'nodal' : n.hold > 0 ? 'hold' : (a.score >= 60 || flagged) ? 'risk' : 'account';
-      return { id, label: id.startsWith('VICTIM:') ? 'Victim' : L0 ? 'Victim ' + accLabel(id) : accLabel(id), sub: [[...n.names][0], [...n.banks][0]].filter(Boolean).join(' · '), kind, value: Math.max(n.inAmt, n.outAmt), layer: D.B.L.get(id) || 0,
+      const lay = D.B.L.get(id) || 0;
+      return { id, label: id.startsWith('VICTIM:') ? 'Victim' : L0 ? 'Victim ' + accLabel(id) : accLabel(id), sub: [[...n.names][0], [...n.banks][0]].filter(Boolean).join(' · '),
+        det: [[...n.ifscs][0], lay ? 'L' + lay : 'Victim', n.inAmt ? fmtINR(n.inAmt) : n.outAmt ? 'sent ' + fmtINR(n.outAmt) : ''].filter(Boolean).join(' · '), kind, value: Math.max(n.inAmt, n.outAmt), layer: D.B.L.get(id) || 0,
         title: `${id.startsWith('VICTIM:') ? 'Victim of ' + D.ack : accLabel(id)}\n${[...n.names].join(' / ')}\n${[...n.banks].join(' / ')} ${[...n.ifscs].join(' / ')}\nLayer ${D.B.L.get(id) || 0} · received ${fmtINR(n.inAmt)} · sent ${fmtINR(n.outAmt)}${n.hold ? ' · hold ' + fmtINR(n.hold) : ''}${t ? '\n' + t : ''}${flagged ? '\n⚑ ' + f.flags + (f.bulk ? ' – sent to ' + f.receivers + ' accounts' : '') + (f.rapid ? ' – forwarded in ' + Flags.fmtGap(f) : '') : ''}`, badge: flagged ? (f.bulk && f.rapid ? 'BR' : f.bulk ? 'B' : 'R') : '' };
     });
     let edges = D.B.links.map(e => ({ from: e.from, to: e.to, amount: e.amount, count: e.txns.length, txns: e.txns, tag: [D.B.L.get(e.from) || 0, D.B.L.get(e.to) || 0].map(l => l ? 'L' + l : 'Victim').join('→') }));
@@ -3379,7 +3407,7 @@ const NcrpCase = {
       $('#ncTopInfo', el).innerHTML = all ? `Complete trail: all <b>${fmtNum(full.nodes.length)}</b> accounts, ${V.maxHop} steps from the victim.` : `Showing <b>${fmtNum(V.nodes.length)}</b> of ${fmtNum(full.nodes.length)} accounts (victim → step ${shownL}${open.size ? ' + ' + open.size + ' opened' : ''}). Click <b>+N</b> to open more.`;
       if (!V.nodes.length) { box.innerHTML = '<div class="muted" style="padding:40px;text-align:center">This complaint has no money-trail transactions imported yet.</div>'; g = null; return; }
       const root = (V.nodes.find(n => n.kind === 'victim') || V.nodes[0]).id;
-      g = Graph.mount(box, V.nodes, V.edges, { mode: S.ncrpG.mode, root, radial: true, live: S.ncrpG.live !== false && V.edges.length <= 1000, labels: V.edges.length > 160 ? true : 'full',
+      g = Graph.mount(box, V.nodes, V.edges, { mode: S.ncrpG.mode, root, radial: true, vert: !!S.ncrpG.vert, onOrient: v => { S.ncrpG.vert = v; }, live: S.ncrpG.live !== false && V.edges.length <= 1000, labels: V.edges.length > 160 ? true : 'full',
         onTrail: (hops, api, info) => trailDrawer(hops, api, info), onClear: UI.closeDrawer,
         onExpand: n => {
           if (n.more) open.add(n.id);
@@ -3677,6 +3705,9 @@ const ICON = {
 };
 const ico = (k, s = 18) => `<svg class="ico" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[k] || ''}</svg>`;
 
+/* each menu button has its own colour */
+const NAVC = { dashboard: '#3b82f6', ncrp: '#f97316', trail: '#8b5cf6', financial: '#10b981', social: '#ec4899', analytics: '#06b6d4', others: '#eab308', settings: '#94a3b8' };
+
 /* menu: in the order an investigation is done */
 const MENU = [
   ['Overview', [['dashboard', 'home', 'Dashboard', 'Case summary and next steps']]],
@@ -3727,8 +3758,8 @@ tabs = function (main, page, list, title, actions = '') {
 /* build the sidebar menu */
 (() => {
   const nav = $('#sidebar'), info = $('#sideInfo');
-  nav.innerHTML = MENU.map(([g, items]) => `<div class="nav-group">${esc(g)}</div>` + items.map(([id, ic, label, tip]) => `<div class="nav-item" data-page="${id}" title="${esc(tip)}">${ico(ic)}<span>${esc(label)}</span></div>`).join('')).join('') +
-    `<div class="nav-bottom"><div class="nav-item" data-page="settings" title="Login, password recovery, preferences">${ico('settings')}<span>Settings</span></div></div>`;
+  nav.innerHTML = MENU.map(([g, items]) => `<div class="nav-group">${esc(g)}</div>` + items.map(([id, ic, label, tip]) => `<div class="nav-item" data-page="${id}" title="${esc(tip)}" style="--c:${NAVC[id] || '#64748b'}"><span class="nib">${ico(ic)}</span><span>${esc(label)}</span></div>`).join('')).join('') +
+    `<div class="nav-bottom"><div class="nav-item" data-page="settings" title="Login, password recovery, preferences" style="--c:${NAVC.settings}"><span class="nib">${ico('settings')}</span><span>Settings</span></div></div>`;
   nav.appendChild(info);
   // top bar icons
   const lockB = $('#btnLock'), thB = $('#btnTheme');

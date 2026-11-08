@@ -144,7 +144,9 @@ const NcrpCase = {
       const L0 = (D.B.L.get(id) || 0) === 0 && n.inAmt === 0;
       const f = D.FL.get(id), flagged = f && (f.bulk || f.rapid);
       const kind = id.startsWith('VICTIM:') || L0 ? 'victim' : /^CASH-OUT/.test(id) ? 'cash' : /Nodal|gateway|Wallet/.test(t) ? 'nodal' : n.hold > 0 ? 'hold' : (a.score >= 60 || flagged) ? 'risk' : 'account';
-      return { id, label: id.startsWith('VICTIM:') ? 'Victim' : L0 ? 'Victim ' + accLabel(id) : accLabel(id), sub: [[...n.names][0], [...n.banks][0]].filter(Boolean).join(' · '), kind, value: Math.max(n.inAmt, n.outAmt), layer: D.B.L.get(id) || 0,
+      const lay = D.B.L.get(id) || 0;
+      return { id, label: id.startsWith('VICTIM:') ? 'Victim' : L0 ? 'Victim ' + accLabel(id) : accLabel(id), sub: [[...n.names][0], [...n.banks][0]].filter(Boolean).join(' · '),
+        det: [[...n.ifscs][0], lay ? 'L' + lay : 'Victim', n.inAmt ? fmtINR(n.inAmt) : n.outAmt ? 'sent ' + fmtINR(n.outAmt) : ''].filter(Boolean).join(' · '), kind, value: Math.max(n.inAmt, n.outAmt), layer: D.B.L.get(id) || 0,
         title: `${id.startsWith('VICTIM:') ? 'Victim of ' + D.ack : accLabel(id)}\n${[...n.names].join(' / ')}\n${[...n.banks].join(' / ')} ${[...n.ifscs].join(' / ')}\nLayer ${D.B.L.get(id) || 0} · received ${fmtINR(n.inAmt)} · sent ${fmtINR(n.outAmt)}${n.hold ? ' · hold ' + fmtINR(n.hold) : ''}${t ? '\n' + t : ''}${flagged ? '\n⚑ ' + f.flags + (f.bulk ? ' – sent to ' + f.receivers + ' accounts' : '') + (f.rapid ? ' – forwarded in ' + Flags.fmtGap(f) : '') : ''}`, badge: flagged ? (f.bulk && f.rapid ? 'BR' : f.bulk ? 'B' : 'R') : '' };
     });
     let edges = D.B.links.map(e => ({ from: e.from, to: e.to, amount: e.amount, count: e.txns.length, txns: e.txns, tag: [D.B.L.get(e.from) || 0, D.B.L.get(e.to) || 0].map(l => l ? 'L' + l : 'Victim').join('→') }));
@@ -255,7 +257,7 @@ const NcrpCase = {
       $('#ncTopInfo', el).innerHTML = all ? `Complete trail: all <b>${fmtNum(full.nodes.length)}</b> accounts, ${V.maxHop} steps from the victim.` : `Showing <b>${fmtNum(V.nodes.length)}</b> of ${fmtNum(full.nodes.length)} accounts (victim → step ${shownL}${open.size ? ' + ' + open.size + ' opened' : ''}). Click <b>+N</b> to open more.`;
       if (!V.nodes.length) { box.innerHTML = '<div class="muted" style="padding:40px;text-align:center">This complaint has no money-trail transactions imported yet.</div>'; g = null; return; }
       const root = (V.nodes.find(n => n.kind === 'victim') || V.nodes[0]).id;
-      g = Graph.mount(box, V.nodes, V.edges, { mode: S.ncrpG.mode, root, radial: true, live: S.ncrpG.live !== false && V.edges.length <= 1000, labels: V.edges.length > 160 ? true : 'full',
+      g = Graph.mount(box, V.nodes, V.edges, { mode: S.ncrpG.mode, root, radial: true, vert: !!S.ncrpG.vert, onOrient: v => { S.ncrpG.vert = v; }, live: S.ncrpG.live !== false && V.edges.length <= 1000, labels: V.edges.length > 160 ? true : 'full',
         onTrail: (hops, api, info) => trailDrawer(hops, api, info), onClear: UI.closeDrawer,
         onExpand: n => {
           if (n.more) open.add(n.id);
