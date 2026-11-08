@@ -475,3 +475,49 @@ table.tbl{font-size:12.5px}
 @media (max-width:1000px){.chakra-big{width:min(56vh,500px)}.hp-art{margin:50px 0}}
 @media (max-width:620px){.hp-top .hp-btn.big{padding:10px 14px;font-size:13.5px}.hp-by{display:none}}
 .hp-hero{padding-top:clamp(48px,9vh,96px);padding-bottom:clamp(48px,9vh,96px)}
+
+/* home page: second button under Login to workspace */
+.hp-actions{display:flex;flex-direction:column;gap:8px;align-items:stretch}
+.hp-actions .hp-btn{justify-content:center}
+.hp-btn2{display:inline-flex;align-items:center;justify-content:center;gap:9px;cursor:pointer;font:600 14px/1 inherit;font-family:inherit;color:#bfdbfe;padding:11px 18px;border-radius:10px;border:1px solid rgba(96,165,250,.45);background:rgba(37,99,235,.14);transition:background .15s,color .15s}
+.hp-btn2:hover{background:rgba(37,99,235,.28);color:#fff}
+.hp-btn2 svg{width:17px;height:17px}
+/* Search in Local Drive */
+.ls-wrap{position:fixed;inset:0;z-index:85;display:flex;align-items:flex-start;justify-content:center;padding:4vh 16px;background:rgba(3,7,18,.7);backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:opacity .2s;overflow:auto}
+.ls-wrap.open{opacity:1;pointer-events:auto}
+.ls-box{position:relative;width:min(1180px,100%);background:var(--surface-1);border:1px solid var(--border);border-top:3px solid #3b82f6;border-radius:16px;box-shadow:var(--shadow);color:var(--text-primary)}
+.ls-head{display:flex;gap:12px;align-items:flex-start;padding:20px 24px 12px;border-bottom:1px solid var(--border)}
+.ls-head h2{margin:0 0 4px;font-size:20px}
+.ls-sub{font-size:13.5px;color:var(--text-muted)}
+.ls-head .lg-x{position:static;margin-left:auto}
+.ls-body{padding:16px 24px 20px}
+.ls-pick{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:12px}
+.ls-pick label.btn{cursor:pointer}
+.ls-q textarea{width:100%;font-size:15px;padding:10px 12px;resize:vertical;font-family:inherit}
+.ls-opts{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;margin-top:8px;font-size:13px}
+.ls-opts label{display:inline-flex;gap:6px;align-items:center}
+.ls-prog{display:flex;gap:12px;align-items:center;margin:12px 0}
+.ls-bar{flex:none;width:260px;height:8px;border-radius:99px;background:var(--surface-3);overflow:hidden}
+.ls-bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#3b82f6,#f59e0b);transition:width .15s}
+.ls-sum{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin:14px 0 8px}
+.ls-chip{display:inline-block;margin:0 8px 6px 0;padding:5px 11px;border-radius:999px;font-size:13px;background:var(--surface-2);border:1px solid var(--border);color:var(--text-muted)}
+.ls-chip.hit{background:color-mix(in srgb,#10b981 14%,transparent);border-color:color-mix(in srgb,#10b981 45%,transparent);color:var(--text-primary)}
+.ls-warn{margin:12px 0;padding:10px 12px;border-radius:8px;background:color-mix(in srgb,#f59e0b 14%,transparent);color:var(--text-primary)}
+.ls-skip{font-size:12.5px;color:var(--text-muted);max-height:160px;overflow:auto;margin-bottom:8px;padding:8px;border-radius:8px;background:var(--surface-2)}
+.ls-res{max-height:56vh;overflow:auto;border-radius:10px}
+.ls-tbl{width:100%;border-collapse:collapse;font-size:13px}
+.ls-tbl th{position:sticky;top:0;background:var(--surface-3);text-align:left;padding:8px 10px;font-weight:600}
+.ls-tbl td{padding:7px 10px;border-top:1px solid var(--border);vertical-align:top}
+.ls-tbl tr:hover td{background:var(--surface-2)}
+.ls-tbl mark{background:#fbbf24;color:#1f1300;border-radius:3px;padding:0 2px}
+.ls-file{word-break:break-all;max-width:320px;color:var(--accent)}
+.ls-tbl .nowrap{white-space:nowrap}
+.ls-empty{padding:30px;text-align:center;color:var(--text-muted)}
+.ls-note{margin-top:12px}
+
+/* Social Media drop-down */
+.nav-chev{margin-left:auto;width:22px;height:22px;display:grid;place-items:center;border-radius:6px;font-size:13px;transition:transform .2s,background .15s;transform:rotate(-90deg)}
+.nav-chev:hover{background:color-mix(in srgb,var(--c) 30%,transparent)}
+.nav-item.open .nav-chev{transform:none}
+.nav-subs{max-height:0;opacity:0;overflow:hidden;margin-top:0;margin-bottom:0;transition:max-height .25s ease,opacity .2s,margin .2s}
+.nav-subs.open{max-height:260px;opacity:1;margin-top:-2px;margin-bottom:6px}

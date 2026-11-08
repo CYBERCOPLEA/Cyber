@@ -8,6 +8,7 @@ const ICON = {
   trail: '<circle cx="5" cy="12" r="2.5"/><circle cx="19" cy="6" r="2.5"/><circle cx="19" cy="18" r="2.5"/><path d="M7.5 11l9-4"/><path d="M7.5 13l9 4"/>',
   bank: '<path d="M3 10l9-6 9 6"/><path d="M5 10v8M9.5 10v8M14.5 10v8M19 10v8"/><path d="M3 21h18"/>',
   social: '<circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17.5" cy="9" r="2.4"/><path d="M16 14.2c2.9.3 5 2.6 5 5.8"/>',
+  lsearch: '<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><circle cx="12" cy="13" r="2.6"/><path d="M14 15l2 2"/>',
   analytics: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
   file: '<path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/><path d="M10 13h6M10 17h6"/>',
   settings: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
@@ -18,7 +19,7 @@ const ICON = {
 const ico = (k, s = 18) => `<svg class="ico" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[k] || ''}</svg>`;
 
 /* each menu button has its own colour */
-const NAVC = { dashboard: '#3b82f6', ncrp: '#f97316', trail: '#8b5cf6', financial: '#10b981', social: '#ec4899', analytics: '#06b6d4', others: '#eab308', settings: '#94a3b8' };
+const NAVC = { dashboard: '#3b82f6', ncrp: '#f97316', trail: '#8b5cf6', financial: '#10b981', social: '#ec4899', analytics: '#06b6d4', lsearch: '#3b82f6', others: '#eab308', settings: '#94a3b8' };
 
 /* menu: in the order an investigation is done */
 const MENU = [
@@ -28,7 +29,7 @@ const MENU = [
     ['trail', 'trail', 'Money Trail', 'Victim → Layer 1 → Layer 2 … cards'],
     ['financial', 'bank', 'Bank & Financial', 'Statements, KYC, suspects, charts'],
     ['social', 'social', 'Social Media', 'Platform replies, IP logs, links']]],
-  ['Analysis', [['analytics', 'analytics', 'Analytics', 'Mule flags, cross-links, timeline, hotspots']]],
+  ['Analysis', [['analytics', 'analytics', 'Analytics', 'Mule flags, cross-links, timeline, hotspots'], ['lsearch', 'lsearch', 'Search in Local Drive', 'Search inside files and folders on this computer']]],
   ['Action', [['others', 'file', 'Case File & Notices', 'Notes, notices, reports, tools']]]
 ];
 
@@ -67,6 +68,9 @@ tabs = function (main, page, list, title, actions = '') {
   return { cur, body: $('#tabBody', main) };
 };
 
+let LayoutSoc = null;
+/* "Search in Local Drive" opens its own window instead of a page */
+(() => { const og = go; go = function (page, sub) { if (page === 'lsearch') return LocalSearch.open(); return og(page, sub); }; })();
 /* build the sidebar menu */
 (() => {
   const nav = $('#sidebar'), info = $('#sideInfo');
@@ -76,8 +80,14 @@ tabs = function (main, page, list, title, actions = '') {
   // Social Media sub-links: one per platform
   const soc = $('.nav-item[data-page="social"]', nav);
   if (soc) {
+    soc.insertAdjacentHTML('beforeend', '<span class="nav-chev" title="Show / hide platforms">▾</span>');
     soc.insertAdjacentHTML('afterend', `<div class="nav-subs">${Analysis.SOC_PLAT.map(([id, l, c]) => `<div class="nav-sub" data-plat="${id}" style="--pc:${c}" title="Social Media · ${l}"><i></i><span>${l}</span></div>`).join('')}</div>`);
-    soc.addEventListener('click', () => { S.socPlat = ''; }, true);
+    // drop-down: Social Media opens / closes its platform list
+    const subs = $('.nav-subs', nav), setOpen = on => { S.socOpen = on; subs.classList.toggle('open', on); soc.classList.toggle('open', on); };
+    setOpen(false);
+    $('.nav-chev', soc).addEventListener('click', e => { e.stopPropagation(); setOpen(!S.socOpen); });
+    soc.addEventListener('click', e => { if (e.target.closest('.nav-chev')) return; const here = S.page === 'social' && !S.socPlat; S.socPlat = ''; setOpen(here ? !S.socOpen : true); }, true);
+    LayoutSoc = setOpen;
     $$('.nav-sub', nav).forEach(n => n.onclick = () => { S.socPlat = n.dataset.plat; go('social'); });
   }
   // top bar icons
@@ -95,6 +105,7 @@ tabs = function (main, page, list, title, actions = '') {
   render = function () {
     orig();
     $$('.nav-sub').forEach(n => n.classList.toggle('active', S.page === 'social' && S.socPlat === n.dataset.plat));
+    if (S.page === 'social' && S.socPlat && !S.socOpen && LayoutSoc) LayoutSoc(true);
     const d = S.data; if (!d) return;
     const c = typeof activeCase === 'function' ? activeCase() : {};
     const n = Trail.complaints().length;

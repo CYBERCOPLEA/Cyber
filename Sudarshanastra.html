@@ -484,6 +484,52 @@ table.tbl{font-size:12.5px}
 @media (max-width:620px){.hp-top .hp-btn.big{padding:10px 14px;font-size:13.5px}.hp-by{display:none}}
 .hp-hero{padding-top:clamp(48px,9vh,96px);padding-bottom:clamp(48px,9vh,96px)}
 
+/* home page: second button under Login to workspace */
+.hp-actions{display:flex;flex-direction:column;gap:8px;align-items:stretch}
+.hp-actions .hp-btn{justify-content:center}
+.hp-btn2{display:inline-flex;align-items:center;justify-content:center;gap:9px;cursor:pointer;font:600 14px/1 inherit;font-family:inherit;color:#bfdbfe;padding:11px 18px;border-radius:10px;border:1px solid rgba(96,165,250,.45);background:rgba(37,99,235,.14);transition:background .15s,color .15s}
+.hp-btn2:hover{background:rgba(37,99,235,.28);color:#fff}
+.hp-btn2 svg{width:17px;height:17px}
+/* Search in Local Drive */
+.ls-wrap{position:fixed;inset:0;z-index:85;display:flex;align-items:flex-start;justify-content:center;padding:4vh 16px;background:rgba(3,7,18,.7);backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:opacity .2s;overflow:auto}
+.ls-wrap.open{opacity:1;pointer-events:auto}
+.ls-box{position:relative;width:min(1180px,100%);background:var(--surface-1);border:1px solid var(--border);border-top:3px solid #3b82f6;border-radius:16px;box-shadow:var(--shadow);color:var(--text-primary)}
+.ls-head{display:flex;gap:12px;align-items:flex-start;padding:20px 24px 12px;border-bottom:1px solid var(--border)}
+.ls-head h2{margin:0 0 4px;font-size:20px}
+.ls-sub{font-size:13.5px;color:var(--text-muted)}
+.ls-head .lg-x{position:static;margin-left:auto}
+.ls-body{padding:16px 24px 20px}
+.ls-pick{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:12px}
+.ls-pick label.btn{cursor:pointer}
+.ls-q textarea{width:100%;font-size:15px;padding:10px 12px;resize:vertical;font-family:inherit}
+.ls-opts{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;margin-top:8px;font-size:13px}
+.ls-opts label{display:inline-flex;gap:6px;align-items:center}
+.ls-prog{display:flex;gap:12px;align-items:center;margin:12px 0}
+.ls-bar{flex:none;width:260px;height:8px;border-radius:99px;background:var(--surface-3);overflow:hidden}
+.ls-bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#3b82f6,#f59e0b);transition:width .15s}
+.ls-sum{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin:14px 0 8px}
+.ls-chip{display:inline-block;margin:0 8px 6px 0;padding:5px 11px;border-radius:999px;font-size:13px;background:var(--surface-2);border:1px solid var(--border);color:var(--text-muted)}
+.ls-chip.hit{background:color-mix(in srgb,#10b981 14%,transparent);border-color:color-mix(in srgb,#10b981 45%,transparent);color:var(--text-primary)}
+.ls-warn{margin:12px 0;padding:10px 12px;border-radius:8px;background:color-mix(in srgb,#f59e0b 14%,transparent);color:var(--text-primary)}
+.ls-skip{font-size:12.5px;color:var(--text-muted);max-height:160px;overflow:auto;margin-bottom:8px;padding:8px;border-radius:8px;background:var(--surface-2)}
+.ls-res{max-height:56vh;overflow:auto;border-radius:10px}
+.ls-tbl{width:100%;border-collapse:collapse;font-size:13px}
+.ls-tbl th{position:sticky;top:0;background:var(--surface-3);text-align:left;padding:8px 10px;font-weight:600}
+.ls-tbl td{padding:7px 10px;border-top:1px solid var(--border);vertical-align:top}
+.ls-tbl tr:hover td{background:var(--surface-2)}
+.ls-tbl mark{background:#fbbf24;color:#1f1300;border-radius:3px;padding:0 2px}
+.ls-file{word-break:break-all;max-width:320px;color:var(--accent)}
+.ls-tbl .nowrap{white-space:nowrap}
+.ls-empty{padding:30px;text-align:center;color:var(--text-muted)}
+.ls-note{margin-top:12px}
+
+/* Social Media drop-down */
+.nav-chev{margin-left:auto;width:22px;height:22px;display:grid;place-items:center;border-radius:6px;font-size:13px;transition:transform .2s,background .15s;transform:rotate(-90deg)}
+.nav-chev:hover{background:color-mix(in srgb,var(--c) 30%,transparent)}
+.nav-item.open .nav-chev{transform:none}
+.nav-subs{max-height:0;opacity:0;overflow:hidden;margin-top:0;margin-bottom:0;transition:max-height .25s ease,opacity .2s,margin .2s}
+.nav-subs.open{max-height:260px;opacity:1;margin-top:-2px;margin-bottom:6px}
+
 </style>
 </head>
 <body>
@@ -510,7 +556,7 @@ table.tbl{font-size:12.5px}
     <section class="hp-hero">
       <div class="hp-copy">
         <div class="hp-kicker">For Cyber Crime Investigators</div>
-        <h1>Trace the money.<br><span>Connect the evidence.</span></h1>
+        <h1>Trace the Suspect.<br><span>Connect the evidence.</span></h1>
         <p class="hp-lead">SudarshanAshtra turns NCRP complaints, bank statements and social media replies into clear money trails, linked accounts and ready case files, all on this computer.</p>
         <div class="hp-cta"><a class="hp-ghost" href="#hpFeat">See what it does ↓</a></div>
         <ul class="hp-trust">
@@ -3956,6 +4002,151 @@ AnaTabs.entity = el => {
 
 </script>
 <script>
+/* Search in Local Drive: pick a folder or files on this computer and search inside them.
+   Files are read in this browser only. Nothing is uploaded or saved. */
+const LocalSearch = (() => {
+  const TEXT = /\.(txt|csv|tsv|log|json|xml|html?|eml|md|sql|vcf|ini|cfg|ya?ml)$/i, SHEET = /\.(xlsx|xlsm|xls|xlsb|ods)$/i, PDF = /\.pdf$/i, DOCX = /\.docx$/i;
+  const MAXB = 100 * 1024 * 1024;
+  let files = [], results = [], skipped = [], stop = false, busy = false;
+  const h = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const size = n => n > 1e6 ? (n / 1e6).toFixed(1) + ' MB' : Math.max(1, Math.round(n / 1e3)) + ' KB';
+  const pathOf = f => f.webkitRelativePath || f.name;
+  const tick = () => new Promise(r => setTimeout(r, 0));
+
+  function el() {
+    let w = document.getElementById('lsWrap'); if (w) return w;
+    w = document.createElement('div'); w.id = 'lsWrap'; w.className = 'ls-wrap';
+    w.innerHTML = `<div class="ls-box" role="dialog" aria-label="Search in Local Drive">
+      <header class="ls-head"><div><h2>🔎 Search in Local Drive</h2><div class="ls-sub">Choose a folder or files on this computer, then search inside them for a mobile, account, UTR, e-mail, IP, name or any text.</div></div><button class="lg-x" data-x title="Close">✕</button></header>
+      <div class="ls-body">
+        <div class="ls-pick">
+          <label class="btn primary">📁 Choose folder<input type="file" data-dir webkitdirectory directory multiple hidden></label>
+          <label class="btn">📄 Choose files<input type="file" data-files multiple hidden></label>
+          <span data-chosen class="muted small">No folder or files chosen yet.</span>
+        </div>
+        <div class="ls-q">
+          <textarea data-q rows="2" placeholder="What to search: one or more values, separated by comma or new line. e.g. 9876543210, 50100123456789, abc@ybl"></textarea>
+          <div class="ls-opts">
+            <label><input type="checkbox" data-dig checked> Numbers: ignore spaces, dashes and +91</label>
+            <label><input type="checkbox" data-case> Match capital / small letters exactly</label>
+            <span class="spacer"></span>
+            <button class="btn primary" data-go>🔍 Search</button><button class="btn hidden" data-stop>■ Stop</button>
+          </div>
+        </div>
+        <div class="ls-prog hidden" data-prog><div class="ls-bar"><i data-bar></i></div><span data-ptxt class="small muted"></span></div>
+        <div data-sum></div>
+        <div data-res class="ls-res"></div>
+        <div class="ls-note small muted">Reads text, CSV, Excel (xlsx / xls), Word (docx), PDF (with text), JSON, XML, HTML and e-mail (.eml) files. Files are read inside this browser only. Nothing is uploaded or saved.</div>
+      </div></div>`;
+    document.body.appendChild(w);
+    const q = s => w.querySelector(s);
+    w.onclick = e => { if (e.target === w || e.target.closest('[data-x]')) close(); };
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && w.classList.contains('open')) close(); });
+    const take = inp => { files = [...inp.files]; inp.value = ''; const tot = files.reduce((a, f) => a + f.size, 0); const ok = files.filter(f => TEXT.test(f.name) || SHEET.test(f.name) || PDF.test(f.name) || DOCX.test(f.name)).length;
+      q('[data-chosen]').innerHTML = `<b>${files.length}</b> files chosen (${size(tot)}), <b>${ok}</b> can be searched${files[0] && files[0].webkitRelativePath ? ' · folder <b>' + h(files[0].webkitRelativePath.split('/')[0]) + '</b>' : ''}`; };
+    q('[data-dir]').onchange = e => take(e.target);
+    q('[data-files]').onchange = e => take(e.target);
+    q('[data-go]').onclick = run;
+    q('[data-q]').onkeydown = e => { if (e.key === 'Enter' && (e.ctrlKey || !e.shiftKey)) { e.preventDefault(); run(); } };
+    q('[data-stop]').onclick = () => { stop = true; };
+    return w;
+  }
+  function open() { const w = el(); w.classList.add('open'); setTimeout(() => w.querySelector('[data-q]').focus(), 50); }
+  function close() { const w = document.getElementById('lsWrap'); if (w) w.classList.remove('open'); stop = true; }
+
+  function matchers(raw, dig, cs) {
+    return raw.split(/[,\n;]+/).map(s => s.trim()).filter(Boolean).map(t => {
+      let d = t.replace(/\D/g, '');
+      const numeric = dig && /^[\d\s\-+().\/]+$/.test(t) && d.length >= 4;
+      if (numeric && d.length === 12 && d.startsWith('91')) d = d.slice(2);
+      if (numeric && d.length === 11 && d.startsWith('0')) d = d.slice(1);
+      const low = cs ? t : t.toLowerCase();
+      return { term: t, test: line => numeric ? line.replace(/\D/g, '').includes(d) : (cs ? line : line.toLowerCase()).includes(low), re: numeric ? new RegExp(d.split('').join('[\\s\\-().\\/]*')) : null, find(line) { if (this.re) { const x = this.re.exec(line); return x ? [x.index, x[0].length] : null; } const i = (cs ? line : line.toLowerCase()).indexOf(low); return i < 0 ? null : [i, t.length]; } };
+    });
+  }
+  function snippet(line, m) {
+    line = String(line).replace(/\s+/g, ' ').trim();
+    const f = m.find(line);
+    if (!f) return h(line.length > 220 ? line.slice(0, 220) + '…' : line);
+    const [i, n] = f, a = Math.max(0, i - 90), b = Math.min(line.length, i + n + 90);
+    return (a ? '…' : '') + h(line.slice(a, i)) + '<mark>' + h(line.slice(i, i + n)) + '</mark>' + h(line.slice(i + n, b)) + (b < line.length ? '…' : '');
+  }
+
+  async function units(f) {   // yields [where, text] pieces of a file
+    const n = f.name;
+    if (TEXT.test(n)) { const t = await f.text(); return t.split(/\r?\n/).map((l, i) => ['Line ' + (i + 1), l]); }
+    if (SHEET.test(n)) {
+      const wb = XLSX.read(new Uint8Array(await f.arrayBuffer()), { type: 'array', cellDates: true, raw: false }); const out = [];
+      for (const sn of wb.SheetNames) XLSX.utils.sheet_to_json(wb.Sheets[sn], { header: 1, raw: false, defval: '' }).forEach((r, i) => { const t = r.filter(c => c !== '').join(' | '); if (t) out.push([`Sheet "${sn}" · row ${i + 1}`, t]); });
+      return out;
+    }
+    if (DOCX.test(n)) {
+      const z = XLSX.CFB.read(new Uint8Array(await f.arrayBuffer()), { type: 'array' }); const e = (XLSX.CFB.find(z, '/word/document.xml') || XLSX.CFB.find(z, 'word/document.xml')); if (!e) throw new Error('not a Word file');
+      const xml = new TextDecoder().decode(e.content);
+      return xml.replace(/<\/w:p>/g, '\n').replace(/<w:tab\/>/g, ' ').replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&apos;/g, "'").split('\n').map((l, i) => ['Paragraph ' + (i + 1), l]).filter(x => x[1].trim());
+    }
+    if (PDF.test(n)) {
+      if (!window.pdfjsLib) throw new Error('PDF reader not available');
+      const task = pdfjsLib.getDocument({ data: new Uint8Array(await f.arrayBuffer()), isEvalSupported: false });
+      task.onPassword = () => { task.destroy(); };
+      let pdf; try { pdf = await task.promise; } catch (e) { throw new Error(/password/i.test(e && (e.name + e.message)) ? 'password protected' : 'could not open PDF'); }
+      const out = [];
+      for (let p = 1; p <= pdf.numPages; p++) {
+        const tc = await (await pdf.getPage(p)).getTextContent(); const rows = [];
+        for (const it of tc.items) { if (!it.str || !it.str.trim()) continue; const y = it.transform[5]; let r = rows.find(r => Math.abs(r.y - y) < 3); if (!r) rows.push(r = { y, it: [] }); r.it.push(it); }
+        rows.sort((a, b) => b.y - a.y).forEach(r => out.push(['Page ' + p, r.it.sort((a, b) => a.transform[4] - b.transform[4]).map(i => i.str).join(' ')]));
+      }
+      if (!out.length) throw new Error('no text (scanned PDF)');
+      return out;
+    }
+    return null;
+  }
+
+  async function run() {
+    if (busy) return;
+    const w = el(), q = s => w.querySelector(s);
+    const ms = matchers(q('[data-q]').value, q('[data-dig]').checked, q('[data-case]').checked);
+    if (!ms.length) { q('[data-q]').focus(); q('[data-sum]').innerHTML = '<div class="ls-warn">Type what to search first.</div>'; return; }
+    if (!files.length) { q('[data-sum]').innerHTML = '<div class="ls-warn">Choose a folder or files first.</div>'; return; }
+    busy = true; stop = false; results = []; skipped = [];
+    q('[data-go]').classList.add('hidden'); q('[data-stop]').classList.remove('hidden'); q('[data-prog]').classList.remove('hidden'); q('[data-res]').innerHTML = '';
+    let done = 0, read = 0; const t0 = Date.now();
+    for (const f of files) {
+      if (stop) break;
+      done++; q('[data-bar]').style.width = (100 * done / files.length) + '%'; q('[data-ptxt]').textContent = `Reading ${done} of ${files.length} · ${pathOf(f)}`;
+      await tick();
+      if (f.size > MAXB) { skipped.push([pathOf(f), 'larger than 100 MB']); continue; }
+      let u; try { u = await units(f); } catch (e) { skipped.push([pathOf(f), e.message || 'could not read']); continue; }
+      if (!u) { skipped.push([pathOf(f), 'file type not supported']); continue; }
+      read++;
+      for (const [where, line] of u) for (const m of ms) if (line && m.test(line)) results.push({ term: m.term, file: pathOf(f), where, text: line, snip: snippet(line, m) });
+      if (results.length > 20000) { skipped.push(['…', 'stopped after 20,000 matches; make the search more specific']); break; }
+    }
+    busy = false; q('[data-go]').classList.remove('hidden'); q('[data-stop]').classList.add('hidden'); q('[data-prog]').classList.add('hidden');
+    show(ms, read, (Date.now() - t0) / 1000);
+  }
+
+  function show(ms, read, secs) {
+    const w = el(), q = s => w.querySelector(s);
+    const per = ms.map(m => { const r = results.filter(x => x.term === m.term); return `<span class="ls-chip ${r.length ? 'hit' : ''}"><b>${h(m.term)}</b> ${r.length ? `${r.length} matches in ${new Set(r.map(x => x.file)).size} files` : 'not found'}</span>`; }).join('');
+    q('[data-sum]').innerHTML = `<div class="ls-sum"><div>${per}</div><div class="small muted">${read} files searched in ${secs.toFixed(1)} s${stop ? ' · stopped' : ''}${skipped.length ? ` · <a href="#" data-sk>${skipped.length} skipped</a>` : ''}</div>
+      ${results.length ? '<button class="btn sm" data-csv>⬇ CSV of matches</button>' : ''}</div><div class="ls-skip hidden" data-skl>${skipped.map(([p, r]) => `<div><span class="mono">${h(p)}</span> – ${h(r)}</div>`).join('')}</div>`;
+    const sk = q('[data-sk]'); if (sk) sk.onclick = e => { e.preventDefault(); q('[data-skl]').classList.toggle('hidden'); };
+    const cv = q('[data-csv]'); if (cv) cv.onclick = () => {
+      const c = v => '"' + String(v).replace(/"/g, '""') + '"';
+      const csv = '﻿' + [['Searched for', 'File', 'Where', 'Text'], ...results.map(r => [r.term, r.file, r.where, r.text])].map(r => r.map(c).join(',')).join('\r\n');
+      const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); a.download = 'local_drive_search.csv'; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+    };
+    const shown = results.slice(0, 1000);
+    q('[data-res]').innerHTML = results.length ? `<table class="ls-tbl"><thead><tr><th>Searched for</th><th>File</th><th>Where</th><th>Text</th></tr></thead><tbody>${shown.map(r => `<tr><td class="mono">${h(r.term)}</td><td class="ls-file">${h(r.file)}</td><td class="nowrap">${h(r.where)}</td><td>${r.snip}</td></tr>`).join('')}</tbody></table>${results.length > shown.length ? `<div class="small muted" style="padding:8px">Showing the first 1,000 of ${results.length.toLocaleString('en-IN')} matches. Download the CSV for all.</div>` : ''}`
+      : '<div class="ls-empty">No matches found.</div>';
+  }
+  return { open, close };
+})();
+document.querySelectorAll('[data-lsearch]').forEach(b => b.onclick = () => LocalSearch.open());
+
+</script>
+<script>
 /* layout.js - menu in investigation order, consistent page headers and tab order for every section.
    Page ids are unchanged, so saved cases and links keep working. */
 'use strict';
@@ -3966,6 +4157,7 @@ const ICON = {
   trail: '<circle cx="5" cy="12" r="2.5"/><circle cx="19" cy="6" r="2.5"/><circle cx="19" cy="18" r="2.5"/><path d="M7.5 11l9-4"/><path d="M7.5 13l9 4"/>',
   bank: '<path d="M3 10l9-6 9 6"/><path d="M5 10v8M9.5 10v8M14.5 10v8M19 10v8"/><path d="M3 21h18"/>',
   social: '<circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17.5" cy="9" r="2.4"/><path d="M16 14.2c2.9.3 5 2.6 5 5.8"/>',
+  lsearch: '<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><circle cx="12" cy="13" r="2.6"/><path d="M14 15l2 2"/>',
   analytics: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
   file: '<path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/><path d="M10 13h6M10 17h6"/>',
   settings: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
@@ -3976,7 +4168,7 @@ const ICON = {
 const ico = (k, s = 18) => `<svg class="ico" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[k] || ''}</svg>`;
 
 /* each menu button has its own colour */
-const NAVC = { dashboard: '#3b82f6', ncrp: '#f97316', trail: '#8b5cf6', financial: '#10b981', social: '#ec4899', analytics: '#06b6d4', others: '#eab308', settings: '#94a3b8' };
+const NAVC = { dashboard: '#3b82f6', ncrp: '#f97316', trail: '#8b5cf6', financial: '#10b981', social: '#ec4899', analytics: '#06b6d4', lsearch: '#3b82f6', others: '#eab308', settings: '#94a3b8' };
 
 /* menu: in the order an investigation is done */
 const MENU = [
@@ -3986,7 +4178,7 @@ const MENU = [
     ['trail', 'trail', 'Money Trail', 'Victim → Layer 1 → Layer 2 … cards'],
     ['financial', 'bank', 'Bank & Financial', 'Statements, KYC, suspects, charts'],
     ['social', 'social', 'Social Media', 'Platform replies, IP logs, links']]],
-  ['Analysis', [['analytics', 'analytics', 'Analytics', 'Mule flags, cross-links, timeline, hotspots']]],
+  ['Analysis', [['analytics', 'analytics', 'Analytics', 'Mule flags, cross-links, timeline, hotspots'], ['lsearch', 'lsearch', 'Search in Local Drive', 'Search inside files and folders on this computer']]],
   ['Action', [['others', 'file', 'Case File & Notices', 'Notes, notices, reports, tools']]]
 ];
 
@@ -4025,6 +4217,9 @@ tabs = function (main, page, list, title, actions = '') {
   return { cur, body: $('#tabBody', main) };
 };
 
+let LayoutSoc = null;
+/* "Search in Local Drive" opens its own window instead of a page */
+(() => { const og = go; go = function (page, sub) { if (page === 'lsearch') return LocalSearch.open(); return og(page, sub); }; })();
 /* build the sidebar menu */
 (() => {
   const nav = $('#sidebar'), info = $('#sideInfo');
@@ -4034,8 +4229,14 @@ tabs = function (main, page, list, title, actions = '') {
   // Social Media sub-links: one per platform
   const soc = $('.nav-item[data-page="social"]', nav);
   if (soc) {
+    soc.insertAdjacentHTML('beforeend', '<span class="nav-chev" title="Show / hide platforms">▾</span>');
     soc.insertAdjacentHTML('afterend', `<div class="nav-subs">${Analysis.SOC_PLAT.map(([id, l, c]) => `<div class="nav-sub" data-plat="${id}" style="--pc:${c}" title="Social Media · ${l}"><i></i><span>${l}</span></div>`).join('')}</div>`);
-    soc.addEventListener('click', () => { S.socPlat = ''; }, true);
+    // drop-down: Social Media opens / closes its platform list
+    const subs = $('.nav-subs', nav), setOpen = on => { S.socOpen = on; subs.classList.toggle('open', on); soc.classList.toggle('open', on); };
+    setOpen(false);
+    $('.nav-chev', soc).addEventListener('click', e => { e.stopPropagation(); setOpen(!S.socOpen); });
+    soc.addEventListener('click', e => { if (e.target.closest('.nav-chev')) return; const here = S.page === 'social' && !S.socPlat; S.socPlat = ''; setOpen(here ? !S.socOpen : true); }, true);
+    LayoutSoc = setOpen;
     $$('.nav-sub', nav).forEach(n => n.onclick = () => { S.socPlat = n.dataset.plat; go('social'); });
   }
   // top bar icons
@@ -4053,6 +4254,7 @@ tabs = function (main, page, list, title, actions = '') {
   render = function () {
     orig();
     $$('.nav-sub').forEach(n => n.classList.toggle('active', S.page === 'social' && S.socPlat === n.dataset.plat));
+    if (S.page === 'social' && S.socPlat && !S.socOpen && LayoutSoc) LayoutSoc(true);
     const d = S.data; if (!d) return;
     const c = typeof activeCase === 'function' ? activeCase() : {};
     const n = Trail.complaints().length;
