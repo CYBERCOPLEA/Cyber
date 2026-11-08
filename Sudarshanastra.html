@@ -879,6 +879,15 @@ svg.c2.dn .dn-c2{font-size:24px}
 .ch-both{grid-template-columns:minmax(0,1fr) minmax(0,2fr)}
 .ch-both .ch-dwrap>svg{max-width:210px}
 
+/* restricted strip: small, sits below the logo and chakra */
+.rx-note.rx-home{width:max-content;max-width:100%;margin:2px auto 14px;gap:9px;padding:4px 12px 4px 4px;box-shadow:none}
+.rx-home .rx-tag{font-size:10.5px;letter-spacing:1.1px;padding:3px 9px 3px 7px;gap:5px;animation:none;box-shadow:none}
+.rx-home .rx-tag svg{width:12px;height:12px}
+.rx-home .rx-who{font-size:10.5px;letter-spacing:.8px}
+.rx-home .rx-txt{font-size:11px;padding-left:9px;color:#cbd5e1}
+@media (max-width:900px){.rx-note.rx-home{width:auto}}
+.ls-guide .ls-next{margin-right:8px}
+
 </style>
 </head>
 <body>
@@ -892,7 +901,6 @@ svg.c2.dn .dn-c2{font-size:24px}
       <span class="hp-pill"><i></i>Offline · data stays on this computer</span>
       <button class="hp-btn big" type="button" data-login><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Login to workspace</button>
     </header>
-    <div class="rx-note rx-home" role="note" aria-label="Restricted access. Police personnel only"><span class="rx-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.8l7.5 2.9v5.6c0 4.7-3.2 8.6-7.5 9.9-4.3-1.3-7.5-5.2-7.5-9.9V5.7z"/><path d="M12 8v4.4"/><circle cx="12" cy="15.6" r=".8" fill="currentColor"/></svg>RESTRICTED ACCESS</span><b class="rx-who">Police personnel only</b><span class="rx-txt">Authorized police and law enforcement use only. Unauthorized access is prohibited and punishable under Indian law.</span></div>
     <section class="hp-hero">
       <div class="hp-copy">
         <div class="hp-kicker">For Cyber Crime Investigators</div>
@@ -917,6 +925,7 @@ svg.c2.dn .dn-c2{font-size:24px}
 <g fill="#fde68a" opacity=".9"><path transform="rotate(0)" d="M0,-168 L9,-60 L0,-44 L-9,-60 Z"/><path transform="rotate(30)" d="M0,-168 L9,-60 L0,-44 L-9,-60 Z"/><path transform="rotate(60)" d="M0,-168 L9,-60 L0,-44 L-9,-60 Z"/><path transform="rotate(90)" d="M0,-168 L9,-60 L0,-44 L-9,-60 Z"/><path transform="rotate(120)" d="M0,-168 L9,-60 L0,-44 L-9,-60 Z"/><path transform="rotate(150)" d="M0,-168 L9,-60 L0,-44 L-9,-60 Z"/><path transform="rotate(180)" d="M0,-168 L9,-60 L0,-44 L-9,-60 Z"/><path transform="rotate(210)" d="M0,-168 L9,-60 L0,-44 L-9,-60 Z"/><path transform="rotate(240)" d="M0,-168 L9,-60 L0,-44 L-9,-60 Z"/><path transform="rotate(270)" d="M0,-168 L9,-60 L0,-44 L-9,-60 Z"/><path transform="rotate(300)" d="M0,-168 L9,-60 L0,-44 L-9,-60 Z"/><path transform="rotate(330)" d="M0,-168 L9,-60 L0,-44 L-9,-60 Z"/></g>
 <circle r="46" fill="url(#cbh)" stroke="#92400e" stroke-width="4"/><circle r="16" fill="#7c2d12"/><circle r="6" fill="#fde68a"/></svg><div class="emblem emblem-big" role="img" aria-label="SudarshanAshtra emblem"></div></div>
     </section>
+    <div class="rx-note rx-home" role="note" aria-label="Restricted access. Police personnel only"><span class="rx-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.8l7.5 2.9v5.6c0 4.7-3.2 8.6-7.5 9.9-4.3-1.3-7.5-5.2-7.5-9.9V5.7z"/><path d="M12 8v4.4"/><circle cx="12" cy="15.6" r=".8" fill="currentColor"/></svg>RESTRICTED ACCESS</span><b class="rx-who">Police personnel only</b><span class="rx-txt">Authorized police and law enforcement use only. Unauthorized access is prohibited and punishable under Indian law.</span></div>
     <section class="hp-feats" id="hpFeat">
         <div class="hp-feat" style="--fc:#f97316"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg></span><div><b>NCRP Complaints</b><p>Import complaint sheets and see each victim, layer and beneficiary account at a glance.</p></div></div>
         <div class="hp-feat" style="--fc:#8b5cf6"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="12" r="2.2"/><circle cx="19" cy="5" r="2.2"/><circle cx="19" cy="19" r="2.2"/><path d="M7 11l10-5M7 13l10 5"/></svg></span><div><b>Money Trail</b><p>Layer-by-layer flow of money with live tracing from the victim to the last account.</p></div></div>
@@ -5520,7 +5529,7 @@ const LocalSearch = (() => {
             <label class="ls-drv" data-dlab="both"><input type="checkbox" data-drv="both"><span class="ls-dbox"></span><span class="ls-dic">🗂️</span><span><b>Both (This PC)</b><small>C: and D: together</small></span></label>
           </div>
           <div class="ls-guide hidden" data-guide></div>
-          <div class="ls-dpanel hidden" data-dpD><b>D: drive</b> – in the window that opens, click <b>This PC</b> → <b>D:</b> → <b>Select folder</b>. <button class="btn sm" data-pickd>Choose D: again</button> <span class="small muted" data-dstD></span></div>
+          <div class="ls-dpanel hidden" data-dpD><b>D: drive</b> – click <b>This PC</b> → <b>OFFICE (D:)</b> → <b>Select Folder</b>. <button class="btn sm" data-pickd>Choose D: again</button> <span class="small muted" data-dstD></span></div>
           <div class="ls-dpanel hidden" data-dpC><b>C: drive</b> – Windows does not let a browser open the whole C: drive (system files). Tick the parts of C: to search; each one opens a window – just press <b>Select folder</b>:
             <div class="ls-cparts">${[['desktop', '🖥️ Desktop'], ['documents', '📁 Documents'], ['downloads', '⬇️ Downloads'], ['pictures', '🖼️ Pictures'], ['videos', '🎞️ Videos'], ['', '➕ Other folder on C:']].map(([k, l]) => `<label class="ls-cpart"><input type="checkbox" data-cpart="${k}"> ${l}</label>`).join('')}</div></div>
           <div class="ls-drop" data-drop>
@@ -5582,32 +5591,69 @@ const LocalSearch = (() => {
       }
       pendingTag = { tag, label }; q('[data-dirin]').click(); return true;
     };
-    // one drive = one picker with its own remembered place (id drive-c / drive-d), so C: and D: never mix
+    // each drive is remembered on this computer (IndexedDB), so the next time it opens straight away – no window
+    const idb = (mode, fn) => new Promise((res, rej) => {
+      const r = indexedDB.open('sud-ls', 1);
+      r.onupgradeneeded = () => r.result.createObjectStore('h');
+      r.onerror = () => rej(r.error);
+      r.onsuccess = () => { const db = r.result; let tx, rq; try { tx = db.transaction('h', mode); rq = fn(tx.objectStore('h')); } catch (e) { db.close(); rej(e); return; } tx.oncomplete = () => { db.close(); res(rq ? rq.result : undefined); }; tx.onerror = () => { db.close(); rej(tx.error); }; };
+    });
+    const getH = L => window.indexedDB ? idb('readonly', st => st.get('drive-' + L)).catch(() => null) : Promise.resolve(null);
+    const putH = (L, hd) => window.indexedDB ? idb('readwrite', st => { st.put(hd, 'drive-' + L); }).catch(() => { }) : Promise.resolve();
+    const DNAME = { C: 'OS (C:)', D: 'OFFICE (D:)' };
     const guide = (html, kind = 'info') => { const g = q('[data-guide]'); if (!html) { g.classList.add('hidden'); return; } g.className = 'ls-guide ' + kind; g.innerHTML = html; };
-    const pickDrive = async L => {
-      guide(`<b>Choose the ${L}: drive now.</b> In the window that opens: click <b>This PC</b> on the left → <b>${L === 'C' ? 'Local Disk (C:)' : 'D:'}</b> → press <b>Select folder</b>.`);
-      if (!window.showDirectoryPicker) { pendingTag = { tag: L, label: L + ':' }; q('[data-dirin]').click(); return true; }
+    const how = L => `In the left pane click <b>This PC</b> → <b>${DNAME[L]}</b> → press <b>Select Folder</b>.`;
+    const useHandle = (L, hd, remembered) => {
+      const nm = hd.name || '', root = new RegExp('^' + L + ':', 'i').test(nm) || /^[A-Z]:?\\?$/i.test(nm);
+      addSrc({ kind: 'dir', handle: hd, name: L + ': · ' + (root ? 'whole drive' : nm), drive: L });
+      guide(`✔ <b>${L}: drive</b> added${root ? ' – the whole drive will be searched' : ` (folder <b>${h(nm)}</b>)`}.${remembered ? ' Opened from memory – no window needed.' : ' Next time it opens straight away.'} <button class="btn sm" data-gagain>Choose a different ${L}: folder</button>`, 'ok');
+      q('[data-gagain]').onclick = async () => { dropDrive(L); await pickDrive(L, true); syncDrives(); };
+    };
+    // fresh = always show the window (the "Choose again" button)
+    const pickDrive = async (L, fresh) => {
+      if (!window.showDirectoryPicker) { guide(`<b>Choose the ${L}: drive.</b> ${how(L)}`); pendingTag = { tag: L, label: L + ':' }; q('[data-dirin]').click(); return true; }
+      const saved = await getH(L);
+      if (saved && !fresh && saved.queryPermission) {
+        try {
+          let p = await saved.queryPermission({ mode: 'read' });
+          if (p !== 'granted') p = await saved.requestPermission({ mode: 'read' });
+          if (p === 'granted') { useHandle(L, saved, true); return true; }
+        } catch (e) { /* fall through to the window */ }
+      }
+      guide(`<b>Choose the ${L}: drive now.</b> ${how(L)}`);
       try {
-        const hd = await window.showDirectoryPicker({ id: 'drive-' + L.toLowerCase(), mode: 'read' });
-        const nm = hd.name || '', root = new RegExp('^' + L + ':', 'i').test(nm), other = /^[A-Z]:/i.test(nm) && !root;
-        if (other) { guide(`You chose <b>${h(nm)}</b>, not the ${L}: drive. Tick ${L}: again and pick <b>${L}:</b> under <b>This PC</b>.`, 'warn'); return false; }
-        addSrc({ kind: 'dir', handle: hd, name: L + ': · ' + (root ? 'whole drive' : nm), drive: L });
-        guide(root ? `✔ <b>${L}: drive</b> added – the whole drive will be searched.` : `✔ Folder <b>${h(nm)}</b> added for ${L}:. To search the whole drive, pick <b>${L}:</b> itself under <b>This PC</b>.`, 'ok');
-        return true;
+        const o = { id: 'drive-' + L.toLowerCase(), mode: 'read' }; if (saved) o.startIn = saved;
+        const hd = await window.showDirectoryPicker(o);
+        const nm = hd.name || '', other = /^[A-Z]:/i.test(nm) && !new RegExp('^' + L + ':', 'i').test(nm);
+        if (other) { guide(`You chose <b>${h(nm)}</b>, not the ${L}: drive. ${how(L)}`, 'warn'); return false; }
+        useHandle(L, hd, false); putH(L, hd); return true;
       } catch (e) {
         if (e && e.name === 'AbortError') { guide(''); return false; }
-        if (L === 'C') { guide(`Windows / the browser does not allow the <b>whole C: drive</b> (it holds system files). Tick the parts of C: below instead – Desktop, Documents, Downloads… – each opens a window, just press <b>Select folder</b>.`, 'warn'); q('[data-dpC]').classList.remove('hidden'); return false; }
+        if (e && /activation|gesture/i.test(e.message || '')) { askNext(L); return false; }
+        if (L === 'C') { guide(`Windows does not allow the <b>whole C: drive</b> (it holds system files). Tick the parts of C: below instead – Desktop, Documents, Downloads…`, 'warn'); q('[data-dpC]').classList.remove('hidden'); return false; }
         guide(`The browser did not allow that folder${e && e.message ? ' (' + h(e.message) + ')' : ''}. Choose a folder inside it instead.`, 'warn'); return false;
       }
     };
-    const onD = async () => { const ok = await pickDrive('D'); syncDrives(); return ok; };
+    // a browser opens only one window per click, so the next drive gets its own button
+    const askNext = (L, pre = '') => {
+      guide(`${pre}<button class="btn primary sm ls-next" data-gnext>Now pick ${L}: ➜</button> <span>${how(L)}</span>`, pre ? 'ok' : 'info');
+      q('[data-gnext]').onclick = async () => { await pickDrive(L); bothDone(); syncDrives(); };
+    };
+    const bothDone = () => { if (hasDrive('C') && hasDrive('D')) guide('✔ <b>Both drives added</b> – C: and D: will be searched together (whole computer).', 'ok'); };
+    const onD = async () => { const ok = await pickDrive('D', true); syncDrives(); return ok; };
     w.querySelectorAll('[data-drv]').forEach(cb => cb.onchange = async () => {
       const k = cb.dataset.drv, on = cb.checked;
       if (k === 'both') {
         if (on) {
           if (!hasDrive('C')) await pickDrive('C');
-          if (!hasDrive('D')) await pickDrive('D');
-          if (hasDrive('C') && hasDrive('D')) guide('✔ <b>Both drives added</b> – C: and D: will be searched together, like the whole computer (This PC). A browser cannot open "This PC" as one folder, so the two drives are added one after the other.', 'ok');
+          if (!hasDrive('D')) {
+            // D: opens on its own only if it is remembered and still allowed; otherwise one more click
+            const saved = await getH('D'); let ok = false;
+            try { ok = !!(saved && saved.queryPermission && await saved.queryPermission({ mode: 'read' }) === 'granted'); } catch (e) { }
+            if (ok) useHandle('D', saved, true);
+            else askNext('D', hasDrive('C') ? '✔ <b>C: added.</b> ' : '');
+          }
+          bothDone();
         } else { dropDrive('C'); dropDrive('D'); guide(''); }
         syncDrives(); return;
       }

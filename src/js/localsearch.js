@@ -108,7 +108,7 @@ const LocalSearch = (() => {
             <label class="ls-drv" data-dlab="both"><input type="checkbox" data-drv="both"><span class="ls-dbox"></span><span class="ls-dic">🗂️</span><span><b>Both (This PC)</b><small>C: and D: together</small></span></label>
           </div>
           <div class="ls-guide hidden" data-guide></div>
-          <div class="ls-dpanel hidden" data-dpD><b>D: drive</b> – in the window that opens, click <b>This PC</b> → <b>D:</b> → <b>Select folder</b>. <button class="btn sm" data-pickd>Choose D: again</button> <span class="small muted" data-dstD></span></div>
+          <div class="ls-dpanel hidden" data-dpD><b>D: drive</b> – click <b>This PC</b> → <b>OFFICE (D:)</b> → <b>Select Folder</b>. <button class="btn sm" data-pickd>Choose D: again</button> <span class="small muted" data-dstD></span></div>
           <div class="ls-dpanel hidden" data-dpC><b>C: drive</b> – Windows does not let a browser open the whole C: drive (system files). Tick the parts of C: to search; each one opens a window – just press <b>Select folder</b>:
             <div class="ls-cparts">${[['desktop', '🖥️ Desktop'], ['documents', '📁 Documents'], ['downloads', '⬇️ Downloads'], ['pictures', '🖼️ Pictures'], ['videos', '🎞️ Videos'], ['', '➕ Other folder on C:']].map(([k, l]) => `<label class="ls-cpart"><input type="checkbox" data-cpart="${k}"> ${l}</label>`).join('')}</div></div>
           <div class="ls-drop" data-drop>
@@ -170,32 +170,69 @@ const LocalSearch = (() => {
       }
       pendingTag = { tag, label }; q('[data-dirin]').click(); return true;
     };
-    // one drive = one picker with its own remembered place (id drive-c / drive-d), so C: and D: never mix
+    // each drive is remembered on this computer (IndexedDB), so the next time it opens straight away – no window
+    const idb = (mode, fn) => new Promise((res, rej) => {
+      const r = indexedDB.open('sud-ls', 1);
+      r.onupgradeneeded = () => r.result.createObjectStore('h');
+      r.onerror = () => rej(r.error);
+      r.onsuccess = () => { const db = r.result; let tx, rq; try { tx = db.transaction('h', mode); rq = fn(tx.objectStore('h')); } catch (e) { db.close(); rej(e); return; } tx.oncomplete = () => { db.close(); res(rq ? rq.result : undefined); }; tx.onerror = () => { db.close(); rej(tx.error); }; };
+    });
+    const getH = L => window.indexedDB ? idb('readonly', st => st.get('drive-' + L)).catch(() => null) : Promise.resolve(null);
+    const putH = (L, hd) => window.indexedDB ? idb('readwrite', st => { st.put(hd, 'drive-' + L); }).catch(() => { }) : Promise.resolve();
+    const DNAME = { C: 'OS (C:)', D: 'OFFICE (D:)' };
     const guide = (html, kind = 'info') => { const g = q('[data-guide]'); if (!html) { g.classList.add('hidden'); return; } g.className = 'ls-guide ' + kind; g.innerHTML = html; };
-    const pickDrive = async L => {
-      guide(`<b>Choose the ${L}: drive now.</b> In the window that opens: click <b>This PC</b> on the left → <b>${L === 'C' ? 'Local Disk (C:)' : 'D:'}</b> → press <b>Select folder</b>.`);
-      if (!window.showDirectoryPicker) { pendingTag = { tag: L, label: L + ':' }; q('[data-dirin]').click(); return true; }
+    const how = L => `In the left pane click <b>This PC</b> → <b>${DNAME[L]}</b> → press <b>Select Folder</b>.`;
+    const useHandle = (L, hd, remembered) => {
+      const nm = hd.name || '', root = new RegExp('^' + L + ':', 'i').test(nm) || /^[A-Z]:?\\?$/i.test(nm);
+      addSrc({ kind: 'dir', handle: hd, name: L + ': · ' + (root ? 'whole drive' : nm), drive: L });
+      guide(`✔ <b>${L}: drive</b> added${root ? ' – the whole drive will be searched' : ` (folder <b>${h(nm)}</b>)`}.${remembered ? ' Opened from memory – no window needed.' : ' Next time it opens straight away.'} <button class="btn sm" data-gagain>Choose a different ${L}: folder</button>`, 'ok');
+      q('[data-gagain]').onclick = async () => { dropDrive(L); await pickDrive(L, true); syncDrives(); };
+    };
+    // fresh = always show the window (the "Choose again" button)
+    const pickDrive = async (L, fresh) => {
+      if (!window.showDirectoryPicker) { guide(`<b>Choose the ${L}: drive.</b> ${how(L)}`); pendingTag = { tag: L, label: L + ':' }; q('[data-dirin]').click(); return true; }
+      const saved = await getH(L);
+      if (saved && !fresh && saved.queryPermission) {
+        try {
+          let p = await saved.queryPermission({ mode: 'read' });
+          if (p !== 'granted') p = await saved.requestPermission({ mode: 'read' });
+          if (p === 'granted') { useHandle(L, saved, true); return true; }
+        } catch (e) { /* fall through to the window */ }
+      }
+      guide(`<b>Choose the ${L}: drive now.</b> ${how(L)}`);
       try {
-        const hd = await window.showDirectoryPicker({ id: 'drive-' + L.toLowerCase(), mode: 'read' });
-        const nm = hd.name || '', root = new RegExp('^' + L + ':', 'i').test(nm), other = /^[A-Z]:/i.test(nm) && !root;
-        if (other) { guide(`You chose <b>${h(nm)}</b>, not the ${L}: drive. Tick ${L}: again and pick <b>${L}:</b> under <b>This PC</b>.`, 'warn'); return false; }
-        addSrc({ kind: 'dir', handle: hd, name: L + ': · ' + (root ? 'whole drive' : nm), drive: L });
-        guide(root ? `✔ <b>${L}: drive</b> added – the whole drive will be searched.` : `✔ Folder <b>${h(nm)}</b> added for ${L}:. To search the whole drive, pick <b>${L}:</b> itself under <b>This PC</b>.`, 'ok');
-        return true;
+        const o = { id: 'drive-' + L.toLowerCase(), mode: 'read' }; if (saved) o.startIn = saved;
+        const hd = await window.showDirectoryPicker(o);
+        const nm = hd.name || '', other = /^[A-Z]:/i.test(nm) && !new RegExp('^' + L + ':', 'i').test(nm);
+        if (other) { guide(`You chose <b>${h(nm)}</b>, not the ${L}: drive. ${how(L)}`, 'warn'); return false; }
+        useHandle(L, hd, false); putH(L, hd); return true;
       } catch (e) {
         if (e && e.name === 'AbortError') { guide(''); return false; }
-        if (L === 'C') { guide(`Windows / the browser does not allow the <b>whole C: drive</b> (it holds system files). Tick the parts of C: below instead – Desktop, Documents, Downloads… – each opens a window, just press <b>Select folder</b>.`, 'warn'); q('[data-dpC]').classList.remove('hidden'); return false; }
+        if (e && /activation|gesture/i.test(e.message || '')) { askNext(L); return false; }
+        if (L === 'C') { guide(`Windows does not allow the <b>whole C: drive</b> (it holds system files). Tick the parts of C: below instead – Desktop, Documents, Downloads…`, 'warn'); q('[data-dpC]').classList.remove('hidden'); return false; }
         guide(`The browser did not allow that folder${e && e.message ? ' (' + h(e.message) + ')' : ''}. Choose a folder inside it instead.`, 'warn'); return false;
       }
     };
-    const onD = async () => { const ok = await pickDrive('D'); syncDrives(); return ok; };
+    // a browser opens only one window per click, so the next drive gets its own button
+    const askNext = (L, pre = '') => {
+      guide(`${pre}<button class="btn primary sm ls-next" data-gnext>Now pick ${L}: ➜</button> <span>${how(L)}</span>`, pre ? 'ok' : 'info');
+      q('[data-gnext]').onclick = async () => { await pickDrive(L); bothDone(); syncDrives(); };
+    };
+    const bothDone = () => { if (hasDrive('C') && hasDrive('D')) guide('✔ <b>Both drives added</b> – C: and D: will be searched together (whole computer).', 'ok'); };
+    const onD = async () => { const ok = await pickDrive('D', true); syncDrives(); return ok; };
     w.querySelectorAll('[data-drv]').forEach(cb => cb.onchange = async () => {
       const k = cb.dataset.drv, on = cb.checked;
       if (k === 'both') {
         if (on) {
           if (!hasDrive('C')) await pickDrive('C');
-          if (!hasDrive('D')) await pickDrive('D');
-          if (hasDrive('C') && hasDrive('D')) guide('✔ <b>Both drives added</b> – C: and D: will be searched together, like the whole computer (This PC). A browser cannot open "This PC" as one folder, so the two drives are added one after the other.', 'ok');
+          if (!hasDrive('D')) {
+            // D: opens on its own only if it is remembered and still allowed; otherwise one more click
+            const saved = await getH('D'); let ok = false;
+            try { ok = !!(saved && saved.queryPermission && await saved.queryPermission({ mode: 'read' }) === 'granted'); } catch (e) { }
+            if (ok) useHandle('D', saved, true);
+            else askNext('D', hasDrive('C') ? '✔ <b>C: added.</b> ' : '');
+          }
+          bothDone();
         } else { dropDrive('C'); dropDrive('D'); guide(''); }
         syncDrives(); return;
       }

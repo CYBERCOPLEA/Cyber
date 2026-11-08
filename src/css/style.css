@@ -870,3 +870,12 @@ svg.c2.dn .dn-c1{font-size:14px}
 svg.c2.dn .dn-c2{font-size:24px}
 .ch-both{grid-template-columns:minmax(0,1fr) minmax(0,2fr)}
 .ch-both .ch-dwrap>svg{max-width:210px}
+
+/* restricted strip: small, sits below the logo and chakra */
+.rx-note.rx-home{width:max-content;max-width:100%;margin:2px auto 14px;gap:9px;padding:4px 12px 4px 4px;box-shadow:none}
+.rx-home .rx-tag{font-size:10.5px;letter-spacing:1.1px;padding:3px 9px 3px 7px;gap:5px;animation:none;box-shadow:none}
+.rx-home .rx-tag svg{width:12px;height:12px}
+.rx-home .rx-who{font-size:10.5px;letter-spacing:.8px}
+.rx-home .rx-txt{font-size:11px;padding-left:9px;color:#cbd5e1}
+@media (max-width:900px){.rx-note.rx-home{width:auto}}
+.ls-guide .ls-next{margin-right:8px}
