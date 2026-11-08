@@ -190,6 +190,8 @@ const Graph = {
       svg,
       // whole trail through an account: from the victim, through it, to the last account
       highlightNode(id) { if (!byId.has(id)) return; show(new Set([...walk([id], -1), ...walk([id], 1)]), [id], { type: 'full', node: byId.get(id) }); },
+      // several accounts at once: all their trails together
+      highlightMany(ids) { ids = ids.filter(id => byId.has(id)); if (!ids.length) return; const es = new Set(); ids.forEach(id => { walk([id], -1).forEach(i => es.add(i)); walk([id], 1).forEach(i => es.add(i)); }); show(es, ids, { type: 'many', count: ids.length }); },
       // from the victim up to this account only
       traceTo(id) { if (!byId.has(id)) return; const es = walk([id], -1); if (!es.size) return this.highlightNode(id); show(es, [id], { type: 'upto', node: byId.get(id) }); },
       // one transaction line: from the victim, through this line, to the end of the trail

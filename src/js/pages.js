@@ -265,8 +265,8 @@ function openTrail(f) {
 }
 function trailDrawer(hops, api, info) {
   info = info || {}; const node = info.node || null, E = info.edge;
-  const head = info.type === 'upto' ? 'Trail: victim → ' + accLabel(node.id) : info.type === 'edge' ? 'Trail through ' + accLabel(E.from) + ' → ' + accLabel(E.to) : 'Money trail' + (node ? ' through ' + accLabel(node.id) : '');
-  const what = info.type === 'upto' ? 'How the money reached this account, step by step from the victim.' : info.type === 'edge' ? `How the money reached this transaction (${fmtINR(E.amount)}${E.tag ? ', ' + E.tag : ''}) and where it went after it, to the last account.` : 'From the victim, through this account, to the last account.';
+  const head = info.type === 'many' ? `Money trail of ${info.count} selected accounts` : info.type === 'upto' ? 'Trail: victim → ' + accLabel(node.id) : info.type === 'edge' ? 'Trail through ' + accLabel(E.from) + ' → ' + accLabel(E.to) : 'Money trail' + (node ? ' through ' + accLabel(node.id) : '');
+  const what = info.type === 'many' ? 'Everything that flows into and out of the selected accounts, from the victim to the last account.' : info.type === 'upto' ? 'How the money reached this account, step by step from the victim.' : info.type === 'edge' ? `How the money reached this transaction (${fmtINR(E.amount)}${E.tag ? ', ' + E.tag : ''}) and where it went after it, to the last account.` : 'From the victim, through this account, to the last account.';
   const rows = hops.flatMap(h => (h.txns && h.txns.length ? h.txns : [{}]).map(t => ({ step: h.step, from: h.from, to: h.to, amount: t.amount ?? h.amount, date: t.date || '', utr: t.txn_id || '', bank: t.to_bank || '', action: t.action || '' })))
     .sort((a, b) => a.step - b.step || String(a.date).localeCompare(String(b.date)));
   const total = sum(hops.filter(h => h.step === 1), h => h.amount);

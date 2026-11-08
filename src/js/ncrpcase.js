@@ -93,6 +93,56 @@ const Flags = {
       <label style="margin-left:14px">Rapid = sent onward within</label><input type="number" id="${id}M" min="1" value="${R.mins}" style="width:74px"><label>minutes of receiving</label>
       <label style="margin-left:14px"><input type="checkbox" id="${id}O" ${S.flagOnly !== false ? 'checked' : ''}> only flagged accounts</label></div>`;
   },
+  /* flagged-accounts table with filters, a Search button and row selection */
+  table(host, rows, o) {
+    const FF = S.flagF || (S.flagF = {}), SS = S.flagSel || (S.flagSel = {});
+    const F = FF[o.id] || (FF[o.id] = { flag: '', bank: '', layer: '', minIn: '', minRecv: '', maxGap: '', q: '' });
+    if (!SS[o.id] || SS[o.id].key !== o.key) SS[o.id] = { key: o.key, set: new Set() };
+    const sel = SS[o.id].set;
+    const banks = uniq(rows.flatMap(r => String(r.bank || '').split(' / ')).filter(Boolean)).sort();
+    const layers = uniq(rows.map(r => r.layer).filter(Boolean)).sort((a, b) => a - b);
+    const opt = (v, l, cur) => `<option value="${esc(v)}" ${String(cur) === String(v) ? 'selected' : ''}>${esc(l)}</option>`;
+    host.innerHTML = `<div class="flagbar">
+        <div class="f"><label>Flag</label><select data-f="flag">${[['', 'All rows'], ['any', 'Any flag'], ['bulk', 'Bulk split'], ['rapid', 'Rapid'], ['both', 'Both (bulk + rapid)']].map(([v, l]) => opt(v, l, F.flag)).join('')}</select></div>
+        <div class="f"><label>Bank</label><select data-f="bank">${opt('', 'All banks (' + banks.length + ')', F.bank)}${banks.map(b => opt(b, b, F.bank)).join('')}</select></div>
+        <div class="f"><label>Layer</label><select data-f="layer">${opt('', 'All layers', F.layer)}${layers.map(l => opt(l, 'Layer ' + l, F.layer)).join('')}</select></div>
+        <div class="f"><label>Received at least ₹</label><input data-f="minIn" type="number" min="0" value="${esc(F.minIn)}" placeholder="e.g. 100000"></div>
+        <div class="f"><label>Sent to at least (accounts)</label><input data-f="minRecv" type="number" min="0" value="${esc(F.minRecv)}" placeholder="e.g. 10"></div>
+        <div class="f"><label>Forwarded within (min)</label><input data-f="maxGap" type="number" min="0" value="${esc(F.maxGap)}" placeholder="e.g. 30"></div>
+        <div class="f grow"><label>Account / name / IFSC</label><input data-f="q" type="search" value="${esc(F.q)}" placeholder="type and press Search"></div>
+        <div class="f"><label>&nbsp;</label><div class="row" style="gap:6px"><button class="btn primary" data-a="go">🔍 Search</button><button class="btn" data-a="reset">Reset</button></div></div>
+      </div>
+      <div class="selbar"><span data-a="cnt"></span><span data-a="found" class="muted small"></span><span class="spacer"></span>
+        <button class="btn sm" data-a="all">☑ Select all found</button><button class="btn sm" data-a="none">Clear selection</button>
+        ${o.onShow ? '<button class="btn sm primary" data-a="show">Show selected on chart</button>' : ''}<button class="btn sm" data-a="csv">⬇ CSV of selected</button><button class="btn sm" data-a="copy">Copy account numbers</button></div>
+      <div data-a="tbl"></div>`;
+    const q = k => host.querySelector(`[data-a="${k}"]`);
+    let found = rows;
+    const cnt = () => { q('cnt').innerHTML = `<b>${sel.size}</b> selected`; q('found').textContent = ` · ${fmtNum(found.length)} of ${fmtNum(rows.length)} accounts match`; };
+    const selCol = { key: '_sel', label: '✓', nosort: true, render: r => `<input type="checkbox" class="fsel" data-acc="${esc(r.acc)}" ${sel.has(r.acc) ? 'checked' : ''} title="Select">` };
+    const run = () => {
+      $$('[data-f]', host).forEach(i => F[i.dataset.f] = i.value.trim());
+      const t = F.q.toLowerCase(), minIn = +F.minIn || 0, minRecv = +F.minRecv || 0, maxGap = F.maxGap === '' ? null : +F.maxGap;
+      found = rows.filter(r => (!F.flag || (F.flag === 'any' ? r.bulk || r.rapid : F.flag === 'both' ? r.bulk && r.rapid : r[F.flag]))
+        && (!F.bank || String(r.bank).split(' / ').includes(F.bank)) && (!F.layer || String(r.layer) === F.layer)
+        && r.inAmt >= minIn && r.receivers >= minRecv && (maxGap == null || (r.gap != null && r.gap <= maxGap))
+        && (!t || [r.acc, r.name, r.ifsc, r.bank].some(v => String(v || '').toLowerCase().includes(t))));
+      Table(q('tbl'), { rows: found, pageSize: o.pageSize || 25, exportName: o.exportName, sortKey: 'receivers', sortDir: -1, columns: [selCol, ...Flags.columns()], onRow: o.onRow,
+        after: c => { bindAccLinks(c); $$('.fsel', c).forEach(cb => cb.onclick = e => { e.stopPropagation(); cb.checked ? sel.add(cb.dataset.acc) : sel.delete(cb.dataset.acc); cnt(); }); } });
+      cnt();
+    };
+    q('go').onclick = run;
+    $$('[data-f]', host).forEach(i => { i.onkeydown = e => { if (e.key === 'Enter') run(); }; if (i.tagName === 'SELECT') i.onchange = run; });
+    q('reset').onclick = () => { Object.keys(F).forEach(k => F[k] = ''); $$('[data-f]', host).forEach(i => i.value = ''); run(); };
+    q('all').onclick = () => { found.forEach(r => sel.add(r.acc)); run(); };
+    q('none').onclick = () => { sel.clear(); run(); };
+    const picked = () => rows.filter(r => sel.has(r.acc));
+    const need = () => { if (!sel.size) { UI.toast('Tick one or more accounts first'); return false; } return true; };
+    if (o.onShow) q('show').onclick = () => need() && o.onShow([...sel]);
+    q('csv').onclick = () => need() && UI.download((o.exportName || 'flagged') + '_selected.csv', UI.toCSV([{ key: 'flags', label: 'Flag' }, { key: 'acc', label: 'Account' }, { key: 'name', label: 'Name' }, { key: 'bank', label: 'Bank' }, { key: 'ifsc', label: 'IFSC' }, { key: 'layer', label: 'Layer' }, { key: 'inAmt', label: 'Received' }, { key: 'inCnt', label: 'Txns in' }, { key: 'receivers', label: 'Sent to (accounts)' }, { key: 'outAmt', label: 'Sent onward' }, { key: 'gap', label: 'Fastest forward (min)' }, { key: 'inAt', label: 'Received at' }, { key: 'outAt', label: 'Forwarded at' }, { key: 'ackList', label: 'Complaints' }], picked()), 'text/csv');
+    q('copy').onclick = () => { if (!need()) return; const txt = picked().map(r => r.acc + (r.ifsc ? '\t' + r.ifsc : '') + (r.bank ? '\t' + r.bank : '')).join('\n'); (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject()).then(() => UI.toast(sel.size + ' account numbers copied'), () => UI.drawer('Selected accounts', `<textarea style="width:100%;height:60vh" class="mono">${esc(txt)}</textarea>`)); };
+    run();
+  },
   bindRule(el, id, redraw) {
     const upd = async () => { const R = this.rule(); R.fan = Math.max(2, +$('#' + id + 'F', el).value || 5); R.mins = Math.max(1, +$('#' + id + 'M', el).value || 60); S.flagOnly = $('#' + id + 'O', el).checked; await DB.set('settings', S.settings); redraw(); };
     ['F', 'M', 'O'].forEach(k => $('#' + id + k, el).onchange = upd);
@@ -105,7 +155,7 @@ AnaTabs.flags = el => {
   el.innerHTML = UI.kpis([['Bulk-split accounts', all.filter(r => r.bulk).length, 'one in → many out', 'c2'], ['Rapid pass-through', all.filter(r => r.rapid).length, 'forwarded within ' + Flags.rule().mins + ' min', 'c3'], ['Both flags', all.filter(r => r.bulk && r.rapid).length, 'strong mule pattern', 'c6'], ['Accounts checked', all.length, 'received and sent money']]) +
     `<div class="card"><h3>Accounts that receive money and pass it on – in bulk or in minutes</h3><div class="sub">Typical of mule / layering accounts. Fastest forward = shortest time between money coming in and the next money going out. Click a row to see its full money trail.</div>${Flags.ruleBar('fl')}<div id="flT" style="margin-top:10px"></div></div>`;
   Flags.bindRule(el, 'fl', () => AnaTabs.flags(el));
-  Table($('#flT', el), { rows, exportName: 'bulk_split_rapid_accounts', sortKey: 'receivers', sortDir: -1, columns: Flags.columns(), after: bindAccLinks, onRow: r => openTrail({ node: r.acc }) });
+  Flags.table($('#flT', el), rows, { id: 'fl', key: 'all', pageSize: 50, exportName: 'bulk_split_rapid_accounts', onRow: r => openTrail({ node: r.acc }) });
 };
 
 const NcrpCase = {
@@ -214,7 +264,7 @@ const NcrpCase = {
       <div class="grid g2">
         <div class="card"><h3>Layer-wise money trail</h3><div class="sub">Money moved at each layer. Total row = all layers together.</div><div id="ncL"></div></div>
         <div class="card"><h3>Amount per layer</h3><div id="ncLc"></div>${D.nodal.length ? `<div class="note warn" style="margin-top:12px"><b>${D.nodal.length} nodal / escrow / payment-gateway account(s)</b> in this trail: ${D.nodal.slice(0, 4).map(b => `<span class="mono">${esc(b.acc)}</span> (${esc(b.type)})`).join(', ')}${D.nodal.length > 4 ? ' …' : ''}. Money passes through these – ask the bank / PG for the onward merchant or sub-account instead of freezing the whole pool.</div>` : ''}</div></div>
-      <div class="card"><h3>⚑ Flagged accounts – bulk split &amp; rapid pass-through</h3><div class="sub">Accounts in this complaint that received money and sent it on to many accounts (bulk split, <b>B</b> on the chart) or within minutes (rapid, <b>R</b>). Click a row to show its trail on the chart.</div>${Flags.ruleBar('ncf')}<div id="ncF" style="margin-top:10px"></div></div>
+      <div class="card"><h3>⚑ Flagged accounts – bulk split &amp; rapid pass-through</h3><div class="sub">Accounts in this complaint that received money and sent it on to many accounts (bulk split, <b>B</b> on the chart) or within minutes (rapid, <b>R</b>). Use the filters and <b>Search</b> to narrow the list. Tick accounts to show them together on the chart, download them or copy their numbers. Click a row to show its trail on the chart.</div>${Flags.ruleBar('ncf')}<div id="ncF" style="margin-top:10px"></div></div>
       <div class="card"><div class="row" style="flex-wrap:wrap">
         <h3 class="grow" style="margin:0">Money trail chart</h3>
         <span class="pill-group">${[['flow', 'Flow chart'], ['mind', 'Mind map'], ['net', 'Graph']].map(([k, l]) => `<button data-gm="${k}" class="${S.ncrpG.mode === k ? 'active' : ''}">${l}</button>`).join('')}</span>
@@ -275,6 +325,11 @@ const NcrpCase = {
       let p = V && V.parent.get(id), guard = 0; while (p && guard++ < 100) { open.add(p); p = V.parent.get(p); }
       draw(fn);
     };
+    const showMany = (ids, fn) => {
+      const miss = ids.filter(id => !V.nodes.some(n => n.id === id)); if (!miss.length) return g && fn(g);
+      for (const id of miss) { let p = V.parent.get(id), guard = 0; while (p && guard++ < 100) { open.add(p); p = V.parent.get(p); } }
+      draw(fn);
+    };
     draw();
     const mt = $('#ncMt', el); if (mt) mt.onchange = e => { S.ncrpG.mt = e.target.value === '1'; NcrpTabs.case(el); setTimeout(() => $('#ncBox').scrollIntoView({ block: 'center' }), 30); };
     $('#ncDepth', el).onchange = e => { S.ncrpG.depth = +e.target.value; open.clear(); draw(); };
@@ -286,8 +341,9 @@ const NcrpCase = {
 
     // flagged accounts
     Flags.bindRule(el, 'ncf', () => NcrpCase.render(el));
-    Table($('#ncF', el), { rows: S.flagOnly === false ? D.flags : D.flags.filter(f => f.bulk || f.rapid), pageSize: 25, exportName: 'complaint_' + ack + '_flagged', sortKey: 'receivers', sortDir: -1, columns: Flags.columns(), after: bindAccLinks,
-      onRow: r => { $('#ncBox').scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(() => showOn(r.acc, g => g.highlightNode(r.acc)), 350); } });
+    Flags.table($('#ncF', el), S.flagOnly === false ? D.flags : D.flags.filter(f => f.bulk || f.rapid), { id: 'ncf', key: ack, exportName: 'complaint_' + ack + '_flagged',
+      onRow: r => { $('#ncBox').scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(() => showOn(r.acc, g => g.highlightNode(r.acc)), 350); },
+      onShow: ids => { $('#ncBox').scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(() => showMany(ids, g => g.highlightMany(ids)), 350); } });
     // transactions table
     $('#ncLay', el).onchange = e => { S.ncrpLay = e.target.value; NcrpTabs.case(el); setTimeout(() => $('#ncT').scrollIntoView(), 30); };
     $('#ncHold', el).onchange = e => { S.ncrpHold = e.target.checked; NcrpTabs.case(el); setTimeout(() => $('#ncT').scrollIntoView(), 30); };
