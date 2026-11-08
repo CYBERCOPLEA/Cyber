@@ -1,0 +1,9 @@
+Platform,Request ID,Username / Profile,Registered Name,Mobile,Email,IMEI,Device,IP Address,Port,Timestamp,Created On,Location
+WhatsApp,WA-REQ-101,+91 9123456780,Arif,9123456780,,490154203237518,Redmi Note 12,49.36.100.21,51234,2026-10-02 10:02:11,2026-07-18,Nuh
+WhatsApp,WA-REQ-101,+91 9123456780,Arif,9123456780,,490154203237518,Redmi Note 12,106.210.33.7,40122,2026-10-02 22:45:09,2026-07-18,Nuh
+Telegram,TG-REQ-07,@stock_guru_profit,Stock Guru,9988776655,,,Android,49.36.100.21,,2026-10-01 21:10:00,2026-08-30,
+Instagram,IG-REQ-55,investwithriya_official,Riya Invest,9988776655,riya.invest.dummy@example.com,,iPhone 12,106.210.33.7,33211,2026-09-29 20:15:00,2026-08-01,
+Facebook,FB-REQ-12,facebook.com/profile.php?id=1000999,Riya Sharma,,riya.invest.dummy@example.com,,,100.72.14.9,60001,2026-09-28 19:00:00,2026-08-02,
+X (Twitter),X-REQ-3,@profit_tips_daily,Profit Tips,9012345678,,,Android,49.36.100.21,,2026-10-03 23:30:00,2026-09-10,
+WhatsApp,WA-REQ-102,+91 9876501234,Vikas,9876501234,,490154203237518,Redmi Note 12,49.36.101.5,,2026-10-04 11:00:00,2026-09-11,Bharatpur
+Google / Gmail / YouTube,G-REQ-9,arif.dummy@example.com,Mohd Arif,9123456780,arif.dummy@example.com,,Redmi Note 12,49.36.100.21,,2026-10-02 09:55:00,2026-07-15,

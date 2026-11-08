@@ -1,0 +1,7 @@
+Account Number,Account Holder Name,Bank Name,IFSC,Branch,Registered Mobile,Registered Email,PAN,Aadhaar,Address,State,District,PIN Code,Account Opening Date,Balance,IP Address,Linked UPI
+38291045612,RAJAT KUMAR (DUMMY),State Bank of India,SBIN0001234,Sector 12 Branch,9876501234,rajat.dummy@example.com,ABCPK1234F,234123412346,"H No 12, Village Demo, Nuh",HARYANA,NUH,122107,15-08-2026,1200,49.36.100.21,rajatk@oksbi
+921010045566778,SUNITA DEVI (DUMMY),Axis Bank,UTIB0000456,Alwar Main,9988776655,sunita.dummy@example.com,BCDPD2345G,,"Ward 4, Demo Nagar, Alwar",RAJASTHAN,ALWAR,301001,01-09-2026,300,,
+4512000100023456,MOHD ARIF (DUMMY),Punjab National Bank,PUNB0123400,Firozpur Jhirka,9123456780,arif.dummy@example.com,CDEPA3456H,,"Village Demo Khurd, Firozpur Jhirka",HARYANA,NUH,122104,20-07-2026,500,49.36.100.21,arif786@ybl
+7311442233,VIKAS SHARMA (DUMMY),Kotak Mahindra Bank,KKBK0005033,Bharatpur,9876501234,vikas.dummy@example.com,DEFPS4567J,,"Demo Colony, Bharatpur",RAJASTHAN,BHARATPUR,321001,11-09-2026,2000,,
+20345678901,ANIL YADAV (DUMMY),State Bank of India,SBIN0005566,Mathura Road,9012345678,anil.dummy@example.com,EFGPY5678K,,"Demo Gali, Mathura",UTTAR PRADESH,MATHURA,281001,02-09-2026,100,,
+002105500912,DEMO TRADERS (DUMMY),Yes Bank,YESB0000021,Gurugram,9123456780,demotraders@example.com,FGHFD6789L,,"Shop 5, Demo Market, Gurugram",HARYANA,GURUGRAM,122001,10-06-2026,120500,,

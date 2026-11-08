@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sudarshanastra - Cyber Crime Case Analysis</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login">
+  <div class="login-card">
+    <svg class="logo" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="28" fill="none" stroke="#3987e5" stroke-width="4"/><circle cx="32" cy="32" r="9" fill="#d95926"/><g stroke="#3987e5" stroke-width="3"><line x1="32" y1="4" x2="32" y2="18"/><line x1="32" y1="46" x2="32" y2="60"/><line x1="4" y1="32" x2="18" y2="32"/><line x1="46" y1="32" x2="60" y2="32"/><line x1="12" y1="12" x2="22" y2="22"/><line x1="42" y1="42" x2="52" y2="52"/><line x1="52" y1="12" x2="42" y2="22"/><line x1="22" y1="42" x2="12" y2="52"/></g></svg>
+    <h1>Sudarshanastra</h1>
+    <div class="muted">Cyber Crime Case Analysis &amp; Tracking</div>
+    <form id="loginForm" autocomplete="off">
+      <div class="field"><label for="lgUser">Login ID</label><input id="lgUser" required autofocus></div>
+      <div class="field"><label for="lgPass">Password</label><input id="lgPass" type="password" required></div>
+      <div class="err" id="lgErr"></div>
+      <button class="btn primary" style="width:100%;justify-content:center;padding:10px">Login</button>
+    </form>
+    <div style="text-align:right;margin-top:8px"><a href="#" id="lgForgot" class="small" style="color:var(--accent)">Forgot password?</a></div>
+    <p class="small muted" id="lgFirst" style="margin-top:14px"></p>
+    <p class="small muted">All data stays inside this browser on this computer. Nothing is uploaded.</p>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" class="hidden">
+  <header id="topbar">
+    <div class="brand">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="28" fill="none" stroke="#3987e5" stroke-width="5"/><circle cx="32" cy="32" r="10" fill="#d95926"/></svg>
+      <div>Sudarshanastra<small>Cyber Crime Analysis &amp; Tracking</small></div>
+    </div>
+    <label for="caseSel" class="small">Case</label>
+    <select id="caseSel"></select>
+    <button class="btn sm" id="btnNewCase" title="Create a new case">+ New case</button>
+    <div class="spacer"></div>
+    <input id="gsearch" placeholder="Search any account, mobile, email, UTR, IP…">
+    <button class="btn sm" id="btnTheme" title="Switch light / dark">☀ / ☾</button>
+    <button class="btn sm" id="btnLock" title="Lock now">🔒 Lock</button>
+  </header>
+  <nav id="sidebar">
+    <div class="nav-item" data-page="dashboard"><span class="num">⌂</span>Dashboard</div>
+    <div class="nav-item hero" data-page="trail"><span class="num">₹</span>Money Trail</div>
+    <div class="nav-sep"></div>
+    <div class="nav-item" data-page="financial"><span class="num">1</span>Financial</div>
+    <div class="nav-item" data-page="social"><span class="num">2</span>Social Media</div>
+    <div class="nav-item" data-page="ncrp"><span class="num">3</span>NCRP</div>
+    <div class="nav-item" data-page="analytics"><span class="num">4</span>Analytics</div>
+    <div class="nav-item" data-page="others"><span class="num">5</span>Others</div>
+    <div class="nav-sep"></div>
+    <div class="nav-item" data-page="settings"><span class="num">⚙</span>Settings</div>
+    <div class="side-note" id="sideInfo"></div>
+  </nav>
+  <main id="main"></main>
+</div>
+
+<aside id="drawer"><header><h3 id="drTitle"></h3><button class="btn sm" id="drClose">✕</button></header><div class="body" id="drBody"></div></aside>
+<div id="modal" class="hidden"><div class="box"><header><h3 id="mdTitle"></h3><button class="btn sm" id="mdClose">✕</button></header><div class="body" id="mdBody"></div><footer id="mdFoot"></footer></div></div>
+<div id="toast"></div>
+<div class="chart-tip" id="chartTip"></div>
+<input type="file" id="filePick" class="hidden" multiple>
+
+<script src="js/lib/xlsx.full.min.js"></script>
+<script src="js/lib/pdf.min.js"></script>
+<script src="js/lib/pdf.worker.min.js"></script>
+<script src="js/core.js"></script>
+<script src="js/parsers.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/graph.js"></script>
+<script src="js/analysis.js"></script>
+<script src="js/pages.js"></script>
+<script src="js/trail.js"></script>
+<script src="js/demo.js"></script>
+<script src="js/main.js"></script>
+<script src="js/recovery.js"></script>
+<script src="js/mailotp.js"></script>
+<script src="js/ncrpcase.js"></script>
+<script src="js/layout.js"></script>
+</body>
+</html>
