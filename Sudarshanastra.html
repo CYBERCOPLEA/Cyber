@@ -4157,6 +4157,8 @@ const NcrpCase = {
     const ack = S.ncrpAck, D = this.data(ack), c = D.c, idx = list.findIndex(x => x.ack === ack);
     const go2 = a => { S.ncrpAck = a; NcrpTabs.case(el); };
     const srcs = uniq(D.txns.map(t => t._src).filter(Boolean));
+    // default: the complete trail, so every layer stays linked (L1 → L2 → L3 …); very big cases start with "Auto"
+    const depthNow = S.ncrpG.depth == null ? (D.info.size <= 1500 ? 99 : 0) : +S.ncrpG.depth;
     el.innerHTML = `
       <div class="card hero-card" style="padding:16px 18px"><div class="row" style="gap:10px;flex-wrap:wrap">
         <label style="font-weight:700">Data file</label><select id="ncSrc" style="max-width:220px"><option value="">All files (${files.length})</option>${files.map(f => `<option ${f === S.ncrpSrc ? 'selected' : ''}>${esc(f)}</option>`).join('')}</select>
@@ -4184,7 +4186,7 @@ const NcrpCase = {
         <h3 class="grow" style="margin:0">Money trail chart</h3>
         <span class="pill-group">${[['flow', 'Flow chart'], ['mind', 'Mind map'], ['net', 'Graph']].map(([k, l]) => `<button data-gm="${k}" class="${S.ncrpG.mode === k ? 'active' : ''}">${l}</button>`).join('')}</span>
         ${D.moved.some(isMoneyTransfer) ? `<label class="small">Rows</label><select id="ncMt"><option value="1" ${S.ncrpG.mt !== false ? 'selected' : ''}>Money Transfer to only</option><option value="0" ${S.ncrpG.mt === false ? 'selected' : ''}>All rows (with ATM, hold…)</option></select>` : ''}
-        <label class="small">Show</label><select id="ncDepth">${[[0, 'Auto (fits screen)'], [1, 'Layer 1'], [2, 'Up to Layer 2'], [3, 'Up to Layer 3'], [4, 'Up to Layer 4'], [6, 'Up to Layer 6'], [99, 'Complete trail (all – big cases take a few seconds)']].map(([v, l]) => `<option value="${v}" ${(+S.ncrpG.depth || 0) === v ? 'selected' : ''}>${l}</option>`).join('')}</select><span class="small muted" id="ncTopInfo"></span>
+        <label class="small">Show</label><select id="ncDepth">${[[0, 'Auto (fits screen)'], [1, 'Layer 1'], [2, 'Up to Layer 2'], [3, 'Up to Layer 3'], [4, 'Up to Layer 4'], [6, 'Up to Layer 6'], [99, 'Complete trail (all – big cases take a few seconds)']].map(([v, l]) => `<option value="${v}" ${depthNow === v ? 'selected' : ''}>${l}</option>`).join('')}</select><span class="small muted" id="ncTopInfo"></span>
         <button class="btn sm" id="ncReplay">▶ Play whole trail</button><button class="btn sm" id="ncSvg">⬇ SVG</button><button class="btn sm" id="ncPng">⬇ PNG</button></div>
         <div class="sub" style="margin-top:6px">Lines move from sender to receiver (⚡ switches it off). Each line shows amount, layer (L1→L2) and date (₹ button changes labels). Point at a line to highlight it. Click a line to trace that transaction from the victim to the end. Click an account to trace the money from the victim to that account. Click <b>+N</b> on an account to open the accounts it paid (<b>−</b> closes them). Drag accounts or a "Layer" title to make space.</div>
         <div class="graph-box" id="ncBox" style="height:640px"></div></div>
@@ -4208,10 +4210,11 @@ const NcrpCase = {
 
     // chart
     const full = this.graphData(D); let g = null, V = null;
+    const depthNow2 = () => S.ncrpG.depth == null ? depthNow : +S.ncrpG.depth;
     if (!S.ncrpOpen || S.ncrpOpen.ack !== ack || S.ncrpOpen.mt !== S.ncrpG.mt) S.ncrpOpen = { ack, mt: S.ncrpG.mt, set: new Set() };
     const open = S.ncrpOpen.set, box = $('#ncBox', el);
     const pickDepth = () => {
-      const d = +S.ncrpG.depth || 0; if (d) return d;
+      const d = depthNow2(); if (d) return d;
       const v0 = this.view(full, 99, new Set()); let best = 1;
       for (let k = 1; k <= v0.maxHop; k++) { if (v0.nodes.filter(n => v0.hop.get(n.id) <= k).length <= 160) best = k; else break; }
       return best;
@@ -4219,7 +4222,8 @@ const NcrpCase = {
     const draw = then => {
       const depth = pickDepth(); V = this.view(full, depth, open);
       const shownL = Math.min(depth, V.maxHop), all = V.nodes.length === full.nodes.length;
-      $('#ncTopInfo', el).innerHTML = all ? `Complete trail: all <b>${fmtNum(full.nodes.length)}</b> accounts, ${V.maxHop} steps from the victim.` : `Showing <b>${fmtNum(V.nodes.length)}</b> of ${fmtNum(full.nodes.length)} accounts (victim → step ${shownL}${open.size ? ' + ' + open.size + ' opened' : ''}). Click <b>+N</b> to open more.`;
+      $('#ncTopInfo', el).innerHTML = all ? `Complete trail: all <b>${fmtNum(full.nodes.length)}</b> accounts, ${V.maxHop} steps from the victim.` : `Showing <b>${fmtNum(V.nodes.length)}</b> of ${fmtNum(full.nodes.length)} accounts (victim → step ${shownL}${open.size ? ' + ' + open.size + ' opened' : ''}). Click <b>+N</b> on an account to open it, or <button class="btn sm primary" id="ncAll">Show complete trail</button>`;
+      const ab = $('#ncAll', el); if (ab) ab.onclick = () => { S.ncrpG.depth = 99; const sel = $('#ncDepth', el); if (sel) sel.value = '99'; open.clear(); draw(); };
       if (!V.nodes.length) { box.innerHTML = '<div class="muted" style="padding:40px;text-align:center">This complaint has no money-trail transactions imported yet.</div>'; g = null; return; }
       const root = (V.nodes.find(n => n.kind === 'victim') || V.nodes[0]).id;
       g = Graph.mount(box, V.nodes, V.edges, { mode: S.ncrpG.mode, root, radial: true, trailColors: true, colorBy: S.settings.graphColor, onColor: v => { S.settings.graphColor = v; DB.set('settings', S.settings); }, vert: !!S.ncrpG.vert, onOrient: v => { S.ncrpG.vert = v; }, live: S.ncrpG.live !== false && V.edges.length <= 1000, labels: V.edges.length > 160 ? true : 'full',
