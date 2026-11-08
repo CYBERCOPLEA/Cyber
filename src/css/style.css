@@ -590,3 +590,11 @@ table.tbl{font-size:12.5px}
 .ls-detail h3{margin:0;font-size:15px}
 .ls-res .tbl-wrap{max-height:56vh}
 @media (max-width:760px){.ls-modes{grid-template-columns:1fr}}
+
+/* CAF import box, photo captions, edit form */
+.caf-drop{display:flex;align-items:center;gap:14px;padding:16px 18px;margin-bottom:14px;border:2px dashed color-mix(in srgb,#84cc16 55%,var(--border));border-radius:14px;background:color-mix(in srgb,#84cc16 8%,var(--surface))}
+.caf-drop.over{background:color-mix(in srgb,#84cc16 20%,var(--surface));border-style:solid}
+.caf-drop-ic{font-size:30px}
+.caf-fig{margin:0;text-align:center}.caf-fig figcaption{font-size:11px;color:var(--text-muted,#888);margin-top:3px}
+.caf-ph{cursor:zoom-in}.caf-ph.scan{height:160px}
+.caf-edit{display:grid;grid-template-columns:1fr 1fr;gap:8px}.caf-edit label{display:flex;flex-direction:column;font-size:12px;gap:3px}.caf-edit input{width:100%}
