@@ -787,3 +787,22 @@ svg.c2.ln.hov .it:not(.pop){opacity:1}
 .hp-mark .ck{width:136%;height:136%;margin:-68% 0 0 -68%}
 .ck-top .ck{width:132%;height:132%;margin:-66% 0 0 -66%}
 .hp-top{padding-top:8px}
+/* full-width home page: use the space on wide screens */
+.hp{max-width:min(1760px,96vw);padding:0 clamp(18px,2.6vw,56px)}
+.hp-hero{grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:clamp(24px,3vw,72px);padding-top:clamp(28px,5vh,64px);padding-bottom:clamp(36px,6vh,72px)}
+.hp-copy h1{font-size:clamp(34px,4vw,72px)}
+.hp-lead{font-size:clamp(15px,1.15vw,20px);max-width:760px}
+.emblem-big{height:min(64vh,620px)}
+.chakra-big{width:min(84vh,820px)}
+@media (min-width:1400px){.hp-feats{grid-template-columns:repeat(6,1fr)}.hp-feat{flex-direction:column;gap:10px}}
+@media (min-width:1001px) and (max-width:1399px){.hp-feats{grid-template-columns:repeat(3,1fr)}}
+@media (max-width:1000px){.hp-hero{grid-template-columns:1fr}.emblem-big{height:min(42vh,380px)}.chakra-big{width:min(56vh,500px)}}
+.hp-top{padding:24px 0 18px}
+.rx-note{margin-top:14px}
+.rx-body p{max-width:none}
+.hp-hero{padding-top:clamp(12px,3vh,40px);padding-bottom:clamp(24px,4vh,56px)}
+@media (min-width:1400px){.rx-body p{font-size:14.5px}.rx-t{font-size:18px}}
+.hp-trust{flex-wrap:nowrap}
+.hp-trust li{flex:0 1 auto;min-width:0}
+@media (max-width:1240px){.hp-trust{flex-wrap:wrap}}
+.hp{max-width:min(2240px,95vw)}
