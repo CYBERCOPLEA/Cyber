@@ -524,3 +524,10 @@ table.tbl{font-size:12.5px}
 
 /* sidebar items never squeeze: the menu scrolls instead */
 #sidebar>*{flex-shrink:0}
+
+/* Analytics: Common Suspect */
+.btn.big{padding:12px 20px;font-size:15px;font-weight:700}
+.cs-imp{border-top:3px solid #f97316}
+.cs-stat{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.cs-stat span{padding:6px 12px;border-radius:999px;background:var(--surface-2);border:1px solid var(--border);font-size:13px}
+.cs-fields{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}

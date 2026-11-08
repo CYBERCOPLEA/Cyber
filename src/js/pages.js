@@ -463,7 +463,7 @@ function showComplaint(c) {
 
 /* ======================= 4. ANALYTICS ======================= */
 Pages.analytics = main => {
-  const { cur, body } = tabs(main, 'analytics', [['cross', 'Cross-Link (all sections)'], ['entity', 'Entity Graph'], ['time', 'Timeline'], ['geo', 'Hotspots'], ['flags', 'Bulk Split & Rapid'], ['velocity', 'Fast Movement'], ['round', 'Patterns']], '4 · Analytics');
+  const { cur, body } = tabs(main, 'analytics', [['common', 'Common Suspect'], ['cross', 'Cross-Link (all sections)'], ['entity', 'Entity Graph'], ['time', 'Timeline'], ['geo', 'Hotspots'], ['flags', 'Bulk Split & Rapid'], ['velocity', 'Fast Movement'], ['round', 'Patterns']], '4 · Analytics');
   AnaTabs[cur](body);
 };
 const AnaTabs = {

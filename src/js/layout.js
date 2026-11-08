@@ -44,8 +44,8 @@ const PAGE_META = {
   social: { group: 'Investigation', title: 'Social Media', desc: 'Replies from WhatsApp, Facebook, Instagram, Telegram, X, Google etc. Common numbers, emails, devices and IPs.',
     order: ['data', 'common', 'ip', 'graph'], names: { common: 'Common Details' } },
   analytics: { group: 'Analysis', title: 'Analytics', desc: 'Mule behaviour across all complaints, and the same identifier appearing in bank, social media and NCRP data.',
-    order: ['flags', 'velocity', 'cross', 'entity', 'time', 'geo', 'round'],
-    names: { flags: 'Bulk Split & Rapid', velocity: 'Fast Movement', cross: 'Cross-Link', entity: 'Entity Graph', time: 'Timeline', geo: 'Hotspots', round: 'Patterns' } },
+    order: ['common', 'flags', 'velocity', 'cross', 'entity', 'time', 'geo', 'round'],
+    names: { common: 'Common Suspect', flags: 'Bulk Split & Rapid', velocity: 'Fast Movement', cross: 'Cross-Link', entity: 'Entity Graph', time: 'Timeline', geo: 'Hotspots', round: 'Patterns' } },
   others: { group: 'Action', title: 'Case File & Notices', desc: 'Case details, notes and tasks, notice drafts, reports and export, and helper tools.',
     order: ['cases', 'notes', 'notices', 'reports', 'extract', 'tools'],
     names: { cases: 'Case Details', notes: 'Notes & Tasks', notices: 'Notice Drafts', reports: 'Reports & Export', extract: 'Identifier Extractor', tools: 'Validators & Lookup' } }
