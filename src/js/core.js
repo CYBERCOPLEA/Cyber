@@ -96,6 +96,7 @@ const FIELDS = {
     ['disputed', 'Disputed Amount', ['disputedamount', 'disputed', 'fraudamount']],
     ['hold', 'Put on Hold / Lien Amount', ['putonholdamount', 'holdamount', 'lienamount', 'onhold', 'freezeamount', 'hold']],
     ['date', 'Transaction Date', ['transactiondate', 'txndate', 'dateoftransaction', 'transactiondatetime', 'valuedate', 'date']],
+    ['time', 'Transaction Time (if separate)', ['transactiontime', 'txntime', 'timeoftransaction', 'time']],
     ['txn_id', 'UTR / Transaction ID / RRN', ['transactionidutr', 'utrnumber', 'utrno', 'utr', 'transactionid', 'txnid', 'rrn', 'referenceno', 'refno', 'reference']],
     ['mode', 'Mode (UPI/IMPS/NEFT/ATM)', ['mode', 'channel', 'paymentmode', 'transactiontype', 'txntype', 'type']],
     ['action', 'Action Taken by Bank', ['actiontakenbybank', 'actiontaken', 'action', 'status']],
@@ -202,11 +203,22 @@ const N = {
     s = s.replace(/(cr|dr)\.?$/i, '');
     const n = parseFloat(s); if (isNaN(n)) return null; return neg ? -n : n;
   },
+  /* time from a separate column: "01:10", "1:10 PM", Excel time fraction or a Date */
+  time(v) {
+    if (v == null || v === '') return '';
+    const p2 = n => String(n).padStart(2, '0');
+    if (v instanceof Date && !isNaN(v)) { const d = new Date(Math.round(v.getTime() / 60000) * 60000); return `${p2(d.getHours())}:${p2(d.getMinutes())}`; }
+    if (typeof v === 'number' && v >= 0 && v < 1) { const m = Math.round(v * 1440); return `${p2(Math.floor(m / 60) % 24)}:${p2(m % 60)}`; }
+    const tm = String(v).match(/(\d{1,2}):(\d{2})(?::\d{2})?\s*([AaPp][Mm])?/); if (!tm) return '';
+    let h = +tm[1]; if (tm[3]) { const pm = /p/i.test(tm[3]); if (pm && h < 12) h += 12; if (!pm && h === 12) h = 0; } return `${p2(h)}:${tm[2]}`;
+  },
   date(v) {
     if (v == null || v === '') return '';
-    if (v instanceof Date && !isNaN(v)) return v.toISOString().slice(0, 16).replace('T', ' ').replace(' 00:00', '');
-    if (typeof v === 'number' && v > 20000 && v < 80000) { // Excel serial
-      const d = new Date(Math.round((v - 25569) * 86400000)); return d.toISOString().slice(0, 16).replace('T', ' ').replace(' 00:00', '');
+    const p2 = n => String(n).padStart(2, '0');
+    // Excel dates arrive in the computer's local time (e.g. IST) – read them in local time, rounded to the minute
+    if (v instanceof Date && !isNaN(v)) { const d = new Date(Math.round(v.getTime() / 60000) * 60000); const t = d.getHours() || d.getMinutes() ? ` ${p2(d.getHours())}:${p2(d.getMinutes())}` : ''; return `${d.getFullYear()}-${p2(d.getMonth() + 1)}-${p2(d.getDate())}${t}`; }
+    if (typeof v === 'number' && v > 20000 && v < 80000) { // Excel serial number
+      const d = new Date(Math.round((v - 25569) * 1440) * 60000); const t = d.getUTCHours() || d.getUTCMinutes() ? ` ${p2(d.getUTCHours())}:${p2(d.getUTCMinutes())}` : ''; return `${d.getUTCFullYear()}-${p2(d.getUTCMonth() + 1)}-${p2(d.getUTCDate())}${t}`;
     }
     const s = String(v).trim();
     const mon = { jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6, jul: 7, aug: 8, sep: 9, sept: 9, oct: 10, nov: 11, dec: 12 };
