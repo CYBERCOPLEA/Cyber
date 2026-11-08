@@ -373,3 +373,8 @@ table.tbl{font-size:12.5px}
 .nav-item.active .nib{background:var(--c);border-color:var(--c);box-shadow:0 4px 12px color-mix(in srgb,var(--c) 45%,transparent)}
 .nav-item.active .nib .ico{color:#fff}
 .nav-item.active::before{background:var(--c)}
+
+/* coloured boxes */
+.card.cc{border-top:3px solid var(--cc);background-image:linear-gradient(180deg,color-mix(in srgb,var(--cc) 10%,transparent),transparent 110px)}
+.card.cc h3{color:color-mix(in srgb,var(--cc) 55%,var(--text-primary))}
+.card.cc h3::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--cc);margin-right:8px;vertical-align:middle;box-shadow:0 0 0 3px color-mix(in srgb,var(--cc) 25%,transparent)}

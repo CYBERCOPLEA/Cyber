@@ -94,3 +94,11 @@ tabs = function (main, page, list, title, actions = '') {
     $('#statusbar').innerHTML = `<span class="dot"></span><span>Offline · data stays on this computer</span><span class="sep">|</span><span>Case: <b>${esc(c.name || '')}</b>${c.status ? ' · ' + esc(c.status) : ''}</span><span class="sep">|</span><span>${fmtNum(n)} complaints · ${fmtNum(d.txns.length)} txns · ${fmtNum(d.kyc.length)} KYC · ${fmtNum(d.social.length)} social</span><span class="spacer"></span><span>Signed in as <b>${esc(S.settings.user)}</b></span><span class="sep">|</span><span>Sudarshanastra v2.0</span>`;
   };
 })();
+
+/* every card gets its own colour so boxes are easy to tell apart */
+(() => {
+  const CC = ['#3b82f6', '#10b981', '#8b5cf6', '#f97316', '#ec4899', '#06b6d4', '#eab308', '#14b8a6', '#a855f7', '#84cc16', '#6366f1', '#f43f5e'];
+  let busy = false;
+  const paint = () => { busy = false; $$('#main .card').forEach((c, i) => { if (!c.classList.contains('cc')) c.classList.add('cc'); c.style.setProperty('--cc', CC[i % CC.length]); }); };
+  new MutationObserver(() => { if (!busy) { busy = true; requestAnimationFrame(paint); } }).observe($('#main'), { childList: true, subtree: true });
+})();

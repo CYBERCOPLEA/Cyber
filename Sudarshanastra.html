@@ -381,6 +381,11 @@ table.tbl{font-size:12.5px}
 .nav-item.active .nib .ico{color:#fff}
 .nav-item.active::before{background:var(--c)}
 
+/* coloured boxes */
+.card.cc{border-top:3px solid var(--cc);background-image:linear-gradient(180deg,color-mix(in srgb,var(--cc) 10%,transparent),transparent 110px)}
+.card.cc h3{color:color-mix(in srgb,var(--cc) 55%,var(--text-primary))}
+.card.cc h3::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--cc);margin-right:8px;vertical-align:middle;box-shadow:0 0 0 3px color-mix(in srgb,var(--cc) 25%,transparent)}
+
 </style>
 </head>
 <body>
@@ -1162,20 +1167,24 @@ function Table(container, opt) {
 /* ---------- Charts (SVG) ---------- */
 const PALETTE = () => { const cs = getComputedStyle(document.documentElement); return [1, 2, 3, 4, 5, 6, 7, 8].map(i => cs.getPropertyValue('--s' + i).trim()); };
 const Charts = {
+  // bar colour by size: biggest = red, smallest = light yellow
+  heat(v, mx, mn = 0) { const t = mx > mn ? Math.max(0, Math.min(1, (v - mn) / (mx - mn))) : 1; return `hsl(${Math.round(54 - 54 * t)},${Math.round(96 - 14 * t)}%,${Math.round(78 - 30 * t)}%)`; },
+  // text that reads well on that bar colour
+  ink(v, mx, mn = 0) { const t = mx > mn ? (v - mn) / (mx - mn) : 1; return t > .55 ? '#fff' : '#3b2600'; },
   tip(e, html) { const t = $('#chartTip'); if (!html) { t.style.display = 'none'; return; } t.innerHTML = html; t.style.display = 'block'; t.style.left = (e.clientX + 14) + 'px'; t.style.top = (e.clientY + 10) + 'px'; },
   bindTips(el) { $$('[data-tip]', el).forEach(n => { n.onmousemove = e => Charts.tip(e, n.dataset.tip); n.onmouseleave = e => Charts.tip(e, null); }); },
   // horizontal bars: data [{label, value, sub}]
   hbar(el, data, { fmt = fmtNum, max = 12, onClick } = {}) {
     data = data.slice(0, max);
     if (!data.length) { el.innerHTML = '<div class="muted small">No data</div>'; return; }
-    const W = 560, rowH = 28, lw = 170, H = data.length * rowH + 6, mx = Math.max(...data.map(d => d.value)) || 1, col = PALETTE()[0];
+    const W = 560, rowH = 28, lw = 170, H = data.length * rowH + 6, mx = Math.max(...data.map(d => d.value)) || 1, mn = Math.min(...data.map(d => d.value));
     el.innerHTML = `<svg class="chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMinYMin meet">${data.map((d, i) => {
       const w = Math.max(2, (W - lw - 100) * d.value / mx), y = i * rowH + 4;
       return `<g data-tip="${esc(d.label)}<br><b>${esc(fmt(d.value))}</b>${d.sub ? '<br>' + esc(d.sub) : ''}" data-i="${i}" style="cursor:${onClick ? 'pointer' : 'default'}">
         <rect x="0" y="${y - 2}" width="${W}" height="${rowH}" fill="transparent"/>
-        <text x="${lw - 8}" y="${y + 14}" text-anchor="end">${esc(String(d.label).slice(0, 26))}</text>
-        <rect x="${lw}" y="${y + 3}" width="${w}" height="16" rx="4" fill="${d.color || col}"/>
-        <text x="${lw + w + 6}" y="${y + 15}" style="fill:var(--text-primary)">${esc(fmt(d.value))}</text></g>`;
+        <text x="${lw - 8}" y="${y + 14}" text-anchor="end" style="fill:var(--text-primary)">${esc(String(d.label).slice(0, 26))}</text>
+        <rect x="${lw}" y="${y + 2}" width="${w}" height="18" rx="4" fill="${Charts.heat(d.value, mx, mn)}" stroke="rgba(150,70,0,.45)" stroke-width=".8"/>
+        ${(() => { const v = esc(fmt(d.value)), tw = v.length * 6.4 + 12; return w > tw ? `<text x="${lw + w - 6}" y="${y + 15}" text-anchor="end" style="fill:${Charts.ink(d.value, mx, mn)};font-weight:700">${v}</text>` : `<text x="${lw + w + 6}" y="${y + 15}" style="fill:var(--text-primary);font-weight:600">${v}</text>`; })()}</g>`;
     }).join('')}</svg>`;
     Charts.bindTips(el);
     if (onClick) $$('g[data-i]', el).forEach(g => g.onclick = () => onClick(data[+g.dataset.i]));
@@ -1184,13 +1193,13 @@ const Charts = {
   vbar(el, data, { fmt = fmtNum, color } = {}) {
     if (!data.length) { el.innerHTML = '<div class="muted small">No data</div>'; return; }
     const W = 560, H = 230, pl = 56, pb = 34, pt = 12, mx = Math.max(...data.map(d => d.value)) || 1;
-    const bw = (W - pl - 10) / data.length, col = color || PALETTE()[0];
+    const bw = (W - pl - 10) / data.length, mn = Math.min(...data.map(d => d.value));
     const ticks = [0, .25, .5, .75, 1].map(t => mx * t);
     el.innerHTML = `<svg class="chart" viewBox="0 0 ${W} ${H}">
       ${ticks.map(t => { const y = H - pb - (H - pb - pt) * t / mx; return `<line class="gridline" x1="${pl}" x2="${W}" y1="${y}" y2="${y}"/><text x="${pl - 6}" y="${y + 4}" text-anchor="end">${esc(Charts.short(t))}</text>`; }).join('')}
       ${data.map((d, i) => { const h = Math.max(1, (H - pb - pt) * d.value / mx), x = pl + i * bw + bw * .15, w = Math.max(2, bw * .7 - 2);
         return `<g data-tip="${esc(d.label)}<br><b>${esc(fmt(d.value))}</b>${d.sub ? '<br>' + esc(d.sub) : ''}"><rect x="${pl + i * bw}" y="${pt}" width="${bw}" height="${H - pb - pt}" fill="transparent"/>
-        <path d="M${x},${H - pb} v${-(h - 4)} q0,-4 4,-4 h${w - 8} q4,0 4,4 v${h - 4} z" fill="${col}"/>
+        <path d="M${x},${H - pb} v${-(h - 4)} q0,-4 4,-4 h${w - 8} q4,0 4,4 v${h - 4} z" fill="${Charts.heat(d.value, mx, mn)}"/>
         ${data.length <= 16 || i % Math.ceil(data.length / 12) === 0 ? `<text x="${x + w / 2}" y="${H - pb + 15}" text-anchor="middle">${esc(String(d.label).slice(0, 10))}</text>` : ''}</g>`; }).join('')}
       <line x1="${pl}" x2="${W}" y1="${H - pb}" y2="${H - pb}" stroke="var(--grid)"/></svg>`;
     Charts.bindTips(el);
@@ -1206,7 +1215,7 @@ const Charts = {
       ${[0, .5, 1].map(t => `<line class="gridline" x1="${pl}" x2="${W}" y1="${y(mx * t)}" y2="${y(mx * t)}"/><text x="${pl - 6}" y="${y(mx * t) + 4}" text-anchor="end">${esc(Charts.short(mx * t))}</text>`).join('')}
       <path d="${path} L${x(data.length - 1)},${H - pb} L${pl},${H - pb} Z" fill="${col}" opacity=".12"/>
       <path d="${path}" fill="none" stroke="${col}" stroke-width="2"/>
-      ${data.map((d, i) => `<g data-tip="${esc(d.label)}<br><b>${esc(fmt(d.value))}</b>"><rect x="${x(i) - (W / data.length) / 2}" y="${pt}" width="${W / data.length}" height="${H - pb - pt}" fill="transparent"/>${data.length < 60 ? `<circle cx="${x(i)}" cy="${y(d.value)}" r="3.5" fill="${col}" stroke="var(--surface-1)" stroke-width="2"/>` : ''}${i % step === 0 ? `<text x="${x(i)}" y="${H - pb + 15}" text-anchor="middle">${esc(String(d.label).slice(5, 10) || d.label)}</text>` : ''}</g>`).join('')}
+      ${data.map((d, i) => `<g data-tip="${esc(d.label)}<br><b>${esc(fmt(d.value))}</b>"><rect x="${x(i) - (W / data.length) / 2}" y="${pt}" width="${W / data.length}" height="${H - pb - pt}" fill="transparent"/>${data.length < 60 || d.value >= mx * .5 ? `<circle cx="${x(i)}" cy="${y(d.value)}" r="${d.value >= mx * .5 ? 4.5 : 3.5}" fill="${Charts.heat(d.value, mx)}" stroke="var(--surface-1)" stroke-width="2"/>` : ''}${i % step === 0 ? `<text x="${x(i)}" y="${H - pb + 15}" text-anchor="middle">${esc(String(d.label).slice(5, 10) || d.label)}</text>` : ''}</g>`).join('')}
       <line x1="${pl}" x2="${W}" y1="${H - pb}" y2="${H - pb}" stroke="var(--grid)"/></svg>`;
     Charts.bindTips(el);
   },
@@ -3781,6 +3790,14 @@ tabs = function (main, page, list, title, actions = '') {
     $('#sideInfo').innerHTML = `<div class="si-case">${esc(c.name || '')}</div><div class="si-row"><span>Complaints</span><b>${fmtNum(n)}</b></div><div class="si-row"><span>Transactions</span><b>${fmtNum(d.txns.length)}</b></div><div class="si-row"><span>KYC records</span><b>${fmtNum(d.kyc.length)}</b></div><div class="si-row"><span>Social records</span><b>${fmtNum(d.social.length)}</b></div>`;
     $('#statusbar').innerHTML = `<span class="dot"></span><span>Offline · data stays on this computer</span><span class="sep">|</span><span>Case: <b>${esc(c.name || '')}</b>${c.status ? ' · ' + esc(c.status) : ''}</span><span class="sep">|</span><span>${fmtNum(n)} complaints · ${fmtNum(d.txns.length)} txns · ${fmtNum(d.kyc.length)} KYC · ${fmtNum(d.social.length)} social</span><span class="spacer"></span><span>Signed in as <b>${esc(S.settings.user)}</b></span><span class="sep">|</span><span>Sudarshanastra v2.0</span>`;
   };
+})();
+
+/* every card gets its own colour so boxes are easy to tell apart */
+(() => {
+  const CC = ['#3b82f6', '#10b981', '#8b5cf6', '#f97316', '#ec4899', '#06b6d4', '#eab308', '#14b8a6', '#a855f7', '#84cc16', '#6366f1', '#f43f5e'];
+  let busy = false;
+  const paint = () => { busy = false; $$('#main .card').forEach((c, i) => { if (!c.classList.contains('cc')) c.classList.add('cc'); c.style.setProperty('--cc', CC[i % CC.length]); }); };
+  new MutationObserver(() => { if (!busy) { busy = true; requestAnimationFrame(paint); } }).observe($('#main'), { childList: true, subtree: true });
 })();
 
 </script>
