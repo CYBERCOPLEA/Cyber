@@ -37,7 +37,7 @@
   };
 
   const hbarSvg = (data, fmt, tot, onClick, wide) => {
-    const W = wide ? 560 : 420, rowH = 30, lw = wide ? 170 : 130, H = data.length * rowH + 8, mx = Math.max(...data.map(d => d.value)) || 1, g = ++gid;
+    const W = wide ? 600 : 470, rowH = 32, lw = wide ? 200 : 165, H = data.length * rowH + 8, mx = Math.max(...data.map(d => d.value)) || 1, g = ++gid;
     return `<svg class="chart c2 hb" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMinYMin meet"><defs>${data.map((d, i) => grad(`hg${g}_${i}`, col(i))).join('')}</defs>${data.map((d, i) => {
       const w = Math.max(3, (W - lw - 92) * d.value / mx), y = i * rowH + 4, v = esc(fmt(d.value));
       return `<g class="it" data-tip="${esc(tipHtml(d, col(i), fmt, tot))}" data-i="${i}" style="cursor:${onClick ? 'pointer' : 'default'};--c:${col(i)}">

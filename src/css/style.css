@@ -835,3 +835,38 @@ body.fv-body{overflow:hidden}
 .ls-guide.ok{border-color:rgba(16,185,129,.45);background:rgba(16,185,129,.12);color:#d1fae5}
 .ls-guide.warn{border-color:rgba(245,158,11,.5);background:rgba(245,158,11,.12);color:#fef3c7}
 .ls-dpanel[data-dpD]{display:none!important}
+/* bigger, easier-to-read text across the app (about 20% larger) */
+#app{font-size:15.5px}
+#app .small{font-size:13.5px}
+#main .tabs{gap:4px;margin-bottom:20px}
+#main .tab{font-size:15.5px;font-weight:600;padding:11px 17px}
+#main .tab .tcount{font-size:12px}
+#main .card{padding:18px 20px}
+#main .card h3{font-size:17.5px;font-weight:700}
+#main .card h4{font-size:15px}
+#main .card .sub{font-size:14px;line-height:1.5}
+#main .kpi .label{font-size:12.5px}
+#main .kpi .value{font-size:26px}
+#main .kpi .hint{font-size:12.5px}
+#main .tbl{font-size:14px}
+#main .tbl th{font-size:12.5px;padding:10px 12px}
+#main .tbl td{padding:8px 12px}
+#main .btn{font-size:14.5px}
+#main .btn.sm{font-size:13.5px;padding:5px 11px}
+#main .badge{font-size:12.5px}
+#main .ch-empty{font-size:15px;padding:26px 0}
+#main .page-head h2{font-size:26px}
+#main .ph-desc{font-size:14.5px}
+#main input,#main select,#main textarea{font-size:14.5px}
+#main .note,#main .list-item{font-size:14.5px}
+#sidebar .nav-item{font-size:15.5px}
+#drawer{font-size:15px}
+#drawer .tbl{font-size:14px}
+svg.c2 text{font-size:13.5px}
+svg.c2 .lb{font-size:14px}
+svg.c2 .vl{font-size:13.5px}
+svg.c2 .vt{font-size:12.5px}
+svg.c2.dn .dn-c1{font-size:14px}
+svg.c2.dn .dn-c2{font-size:24px}
+.ch-both{grid-template-columns:minmax(0,1fr) minmax(0,2fr)}
+.ch-both .ch-dwrap>svg{max-width:210px}
