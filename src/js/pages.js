@@ -208,7 +208,7 @@ const FinTabs = {
     const { nodes, edges, note } = finGraphData(o);
     if (!nodes.length) { $('#gBox', el).innerHTML = '<div class="muted" style="padding:40px;text-align:center">No transactions to draw. Import a money trail or statement first.</div>'; return; }
     let lastNode = null;
-    const g = Graph.mount($('#gBox', el), nodes, edges, { mode: o.mode, root: o.root || (nodes.find(n => n.kind === 'victim') || nodes[0]).id, onNode: n => { lastNode = n; }, onTrail: (hops, api) => trailDrawer(hops, api, lastNode), onClear: UI.closeDrawer });
+    const g = Graph.mount($('#gBox', el), nodes, edges, { live: edges.length <= 1000, labels: edges.length > 160 ? true : 'full', mode: o.mode, root: o.root || (nodes.find(n => n.kind === 'victim') || nodes[0]).id, onNode: n => { lastNode = n; }, onTrail: (hops, api) => trailDrawer(hops, api, lastNode), onClear: UI.closeDrawer });
     if (o.focus) { const f = o.focus; delete o.focus; lastNode = nodes.find(n => n.id === (f.node || f.to)) || null; setTimeout(() => f.node ? g.highlightNode(f.node) : g.highlightEdge(f.from, f.to), 50); }
     $('#gInfo', el).textContent = `${nodes.length} accounts, ${edges.length} links. ${note}`;
     $('#gSvg', el).onclick = () => g.download('money_trail_' + o.mode);
@@ -252,6 +252,8 @@ function finGraphData(o) {
     nodes = nodes.filter(n => top.has(n.id)); edges = edges.filter(e => top.has(e.from) && top.has(e.to));
     note = 'Large trail: showing the 450 biggest accounts. Pick a complaint, a start account or a minimum amount to see everything.';
   }
+  const lay = new Map(nodes.map(n => [n.id, n.layer || 0]));
+  edges = edges.map(e => ({ ...e, tag: [lay.get(e.from) || 0, lay.get(e.to) || 0].map(l => l ? 'L' + l : 'Victim').join('→') }));
   return { nodes, edges, note };
 }
 
@@ -505,15 +507,23 @@ const AnaTabs = {
     Table($('#g5', el), { rows: [...P].map(([pin, l]) => ({ pin, n: l.length, accs: l.map(k => k.acc).join(', '), names: uniq(l.map(k => k.name)).join(', '), district: uniq(l.map(k => k.district)).join(', ') })), sortKey: 'n', sortDir: -1, exportName: 'pincodes', columns: [{ key: 'pin', label: 'PIN' }, { key: 'n', label: 'Accounts', num: true }, { key: 'district', label: 'District' }, { key: 'names', label: 'Names' }, { key: 'accs', label: 'Accounts list' }] });
   },
   velocity(el) {
-    const { A, inE, outE } = Analysis.fin(); const rows = [];
+    const { A, inE, outE } = Analysis.fin(); const rows = []; const W = d => Flags.when(d);
     for (const n of A.values()) {
       if (isSynthetic(n.acc) || n.acc.startsWith('VICTIM:')) continue;
-      const ins = (inE.get(n.acc) || []).flatMap(e => e.txns).filter(t => t.date).sort((a, b) => a.date.localeCompare(b.date));
-      const outs = (outE.get(n.acc) || []).flatMap(e => e.txns).filter(t => t.date).sort((a, b) => a.date.localeCompare(b.date));
-      for (const i of ins) { const o = outs.find(x => x.date >= i.date); if (!o) continue; const mins = (new Date(o.date.replace(' ', 'T')) - new Date(i.date.replace(' ', 'T'))) / 60000; if (mins <= 1440) rows.push({ acc: n.acc, name: [...n.names][0] || '', inAt: i.date, inAmt: i.amount, outAt: o.date, outAmt: o.amount, to: o.to_acc, mins: Math.round(mins), ack: i.ack_no }); }
+      const ins = (inE.get(n.acc) || []).flatMap(e => e.txns).map(t => ({ t, w: W(t.date) })).filter(x => x.w).sort((a, b) => a.w.t - b.w.t);
+      const outs = (outE.get(n.acc) || []).flatMap(e => e.txns).map(t => ({ t, w: W(t.date) })).filter(x => x.w).sort((a, b) => a.w.t - b.w.t);
+      for (const i of ins) {
+        // first money going out at or after this money came in
+        const ot = i.w.time && outs.find(x => x.w.time && x.w.t >= i.w.t), od = outs.find(x => !x.w.time && x.w.day === i.w.day) || (!i.w.time && outs.find(x => x.w.day === i.w.day));
+        const o = ot && ot.w.t - i.w.t <= 86400000 ? ot : od; if (!o) continue;
+        const timed = i.w.time && o.w.time, mins = timed ? Math.round((o.w.t - i.w.t) / 60000) : null;
+        if (timed ? mins > 1440 : o.w.day !== i.w.day) continue;
+        rows.push({ acc: n.acc, name: [...n.names][0] || '', inAt: i.t.date, inAmt: i.t.amount, outAt: o.t.date, outAmt: o.t.amount, to: o.t.to_acc, mins, gapTxt: timed ? Flags.fmtGap({ gap: mins }) : 'same day – time not in data', ack: i.t.ack_no });
+      }
     }
-    el.innerHTML = `<div class="card"><h3>Money moved out within 24 hours of arriving</h3><div class="sub">Typical of mule / pass-through accounts. Gap is in minutes (0 when only dates, not times, are available).</div><div id="vT"></div></div>`;
-    Table($('#vT', el), { rows, exportName: 'fast_movement', sortKey: 'mins', columns: [{ key: 'acc', label: 'Account', render: r => accLink(r.acc) }, { key: 'name', label: 'Name' }, { key: 'inAt', label: 'Received at' }, { key: 'inAmt', label: 'Received', num: true, fmt: fmtINR }, { key: 'outAt', label: 'Sent at' }, { key: 'outAmt', label: 'Sent', num: true, fmt: fmtINR }, { key: 'to', label: 'Sent to', render: r => accLink(r.to) }, { key: 'mins', label: 'Gap (min)', num: true }, { key: 'ack', label: 'Ack' }], after: bindAccLinks });
+    const noTime = rows.filter(r => r.mins == null).length;
+    el.innerHTML = `<div class="card"><h3>Money moved out within 24 hours of arriving</h3><div class="sub">Typical of mule / pass-through accounts. Gap = time between money coming in and the next money going out. When a row has only a date (no time), the gap is shown as "same day".</div>${noTime ? `<div class="note warn">${noTime} row(s) have no time for the money coming in, so the exact gap can't be worked out. If your sheet has the time in a separate column, map it to <b>Transaction Time</b> while importing.</div>` : ''}<div id="vT"></div></div>`;
+    Table($('#vT', el), { rows, exportName: 'fast_movement', sortKey: 'mins', columns: [{ key: 'acc', label: 'Account', render: r => accLink(r.acc) }, { key: 'name', label: 'Name' }, { key: 'inAt', label: 'Received at' }, { key: 'inAmt', label: 'Received', num: true, fmt: fmtINR }, { key: 'outAt', label: 'Sent at' }, { key: 'outAmt', label: 'Sent', num: true, fmt: fmtINR }, { key: 'to', label: 'Sent to', render: r => accLink(r.to) }, { key: 'mins', label: 'Gap', num: true, csv: r => r.mins ?? r.gapTxt, render: r => r.mins != null ? `<b>${esc(r.gapTxt)}</b>` : `<span class="small muted">${esc(r.gapTxt)}</span>` }, { key: 'ack', label: 'Ack' }], after: bindAccLinks });
   },
   round(el) {
     const tx = S.data.txns;

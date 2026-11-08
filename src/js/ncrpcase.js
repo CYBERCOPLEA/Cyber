@@ -141,10 +141,12 @@ const NcrpCase = {
     const top = +S.ncrpG.top || 0, total = nodes.length;
     if (top && nodes.length > top) {
       // keep the biggest accounts, plus every account on the way from the victim to them
-      const inc = new Map(); edges.forEach(e => { if (!inc.has(e.to)) inc.set(e.to, []); inc.get(e.to).push(e.from); });
-      const keep = new Set(), q = nodes.slice().sort((a, b) => b.value - a.value).slice(0, top).map(n => n.id);
-      while (q.length) { const id = q.pop(); if (keep.has(id)) continue; keep.add(id); (inc.get(id) || []).forEach(f => q.push(f)); }
-      const ns = nodes.filter(n => keep.has(n.id)); edges = edges.filter(e => keep.has(e.from) && keep.has(e.to));
+      // one main path per account: the biggest incoming payment, followed back to the victim
+      const best = new Map(); edges.forEach(e => { if (e.from !== e.to && (!best.has(e.to) || e.amount > best.get(e.to).amount)) best.set(e.to, e); });
+      const keep = new Set();
+      for (const n of nodes.slice().sort((a, b) => b.value - a.value).slice(0, top)) { let id = n.id, guard = 0; while (id && !keep.has(id) && guard++ < 60) { keep.add(id); const e = best.get(id); id = e ? e.from : null; } }
+      const pathE = new Set([...keep].map(id => best.get(id)).filter(Boolean));
+      const ns = nodes.filter(n => keep.has(n.id)); edges = edges.filter(e => pathE.has(e) || (keep.has(e.from) && keep.has(e.to) && edges.length < 400));
       return { nodes: ns, edges, total };
     }
     return { nodes, edges, total };
@@ -213,7 +215,7 @@ const NcrpCase = {
     $('#ncTop', el).onchange = e => { S.ncrpG.top = +e.target.value; NcrpTabs.case(el); setTimeout(() => $('#ncBox').scrollIntoView({ block: 'center' }), 30); };
     if (nodes.length) {
       const root = (nodes.find(n => n.kind === 'victim') || nodes[0]).id;
-      g = Graph.mount($('#ncBox', el), nodes, edges, { mode: S.ncrpG.mode, root, live: S.ncrpG.live !== false, labels: edges.length > 160 ? true : 'full',
+      g = Graph.mount($('#ncBox', el), nodes, edges, { mode: S.ncrpG.mode, root, live: S.ncrpG.live !== false && edges.length <= 1000, labels: edges.length > 160 ? true : 'full',
         onNode: n => { lastNode = n; }, onTrail: (hops, api) => trailDrawer(hops, api, lastNode), onClear: UI.closeDrawer });
       $('#ncSvg', el).onclick = () => g.download('trail_' + ack + '_' + S.ncrpG.mode);
       $('#ncPng', el).onclick = () => g.download('trail_' + ack + '_' + S.ncrpG.mode, true);

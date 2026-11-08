@@ -587,6 +587,7 @@ const FIELDS = {
     ['disputed', 'Disputed Amount', ['disputedamount', 'disputed', 'fraudamount']],
     ['hold', 'Put on Hold / Lien Amount', ['putonholdamount', 'holdamount', 'lienamount', 'onhold', 'freezeamount', 'hold']],
     ['date', 'Transaction Date', ['transactiondate', 'txndate', 'dateoftransaction', 'transactiondatetime', 'valuedate', 'date']],
+    ['time', 'Transaction Time (if separate)', ['transactiontime', 'txntime', 'timeoftransaction', 'time']],
     ['txn_id', 'UTR / Transaction ID / RRN', ['transactionidutr', 'utrnumber', 'utrno', 'utr', 'transactionid', 'txnid', 'rrn', 'referenceno', 'refno', 'reference']],
     ['mode', 'Mode (UPI/IMPS/NEFT/ATM)', ['mode', 'channel', 'paymentmode', 'transactiontype', 'txntype', 'type']],
     ['action', 'Action Taken by Bank', ['actiontakenbybank', 'actiontaken', 'action', 'status']],
@@ -693,11 +694,22 @@ const N = {
     s = s.replace(/(cr|dr)\.?$/i, '');
     const n = parseFloat(s); if (isNaN(n)) return null; return neg ? -n : n;
   },
+  /* time from a separate column: "01:10", "1:10 PM", Excel time fraction or a Date */
+  time(v) {
+    if (v == null || v === '') return '';
+    const p2 = n => String(n).padStart(2, '0');
+    if (v instanceof Date && !isNaN(v)) { const d = new Date(Math.round(v.getTime() / 60000) * 60000); return `${p2(d.getHours())}:${p2(d.getMinutes())}`; }
+    if (typeof v === 'number' && v >= 0 && v < 1) { const m = Math.round(v * 1440); return `${p2(Math.floor(m / 60) % 24)}:${p2(m % 60)}`; }
+    const tm = String(v).match(/(\d{1,2}):(\d{2})(?::\d{2})?\s*([AaPp][Mm])?/); if (!tm) return '';
+    let h = +tm[1]; if (tm[3]) { const pm = /p/i.test(tm[3]); if (pm && h < 12) h += 12; if (!pm && h === 12) h = 0; } return `${p2(h)}:${tm[2]}`;
+  },
   date(v) {
     if (v == null || v === '') return '';
-    if (v instanceof Date && !isNaN(v)) return v.toISOString().slice(0, 16).replace('T', ' ').replace(' 00:00', '');
-    if (typeof v === 'number' && v > 20000 && v < 80000) { // Excel serial
-      const d = new Date(Math.round((v - 25569) * 86400000)); return d.toISOString().slice(0, 16).replace('T', ' ').replace(' 00:00', '');
+    const p2 = n => String(n).padStart(2, '0');
+    // Excel dates arrive in the computer's local time (e.g. IST) – read them in local time, rounded to the minute
+    if (v instanceof Date && !isNaN(v)) { const d = new Date(Math.round(v.getTime() / 60000) * 60000); const t = d.getHours() || d.getMinutes() ? ` ${p2(d.getHours())}:${p2(d.getMinutes())}` : ''; return `${d.getFullYear()}-${p2(d.getMonth() + 1)}-${p2(d.getDate())}${t}`; }
+    if (typeof v === 'number' && v > 20000 && v < 80000) { // Excel serial number
+      const d = new Date(Math.round((v - 25569) * 1440) * 60000); const t = d.getUTCHours() || d.getUTCMinutes() ? ` ${p2(d.getUTCHours())}:${p2(d.getUTCMinutes())}` : ''; return `${d.getUTCFullYear()}-${p2(d.getUTCMonth() + 1)}-${p2(d.getUTCDate())}${t}`;
     }
     const s = String(v).trim();
     const mon = { jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6, jul: 7, aug: 8, sep: 9, sept: 9, oct: 10, nov: 11, dec: 12 };
@@ -961,7 +973,7 @@ const Parsers = {
       ack_no: N.ack(o.ack_no), layer: o.layer === '' || o.layer == null ? null : parseInt(String(o.layer).replace(/\D/g, '')) || null,
       from_acc: N.acc(o.from_acc), from_name: N.upper(o.from_name), from_bank: N.text(o.from_bank), from_ifsc: N.ifsc(o.from_ifsc),
       to_acc: N.acc(o.to_acc), to_name: N.upper(o.to_name), to_bank: N.text(o.to_bank), to_ifsc: N.ifsc(o.to_ifsc),
-      amount: N.amount(o.amount), disputed: N.amount(o.disputed), hold: N.amount(o.hold), date: N.date(o.date), txn_id: N.acc(o.txn_id),
+      amount: N.amount(o.amount), disputed: N.amount(o.disputed), hold: N.amount(o.hold), date: (d => { const tm = N.time(o.time); return d && tm && /^\d{4}-\d{2}-\d{2}$/.test(d) ? d + ' ' + tm : d; })(N.date(o.date)), txn_id: N.acc(o.txn_id),
       mode: N.upper(o.mode), action: N.text(o.action), atm_loc: N.text(o.atm_loc), mobile: N.mobile(o.mobile), email: N.email(o.email),
       pan: N.pan(o.pan), aadhaar: N.aadhaar(o.aadhaar), state: N.upper(o.state), district: N.upper(o.district), remarks: N.text(o.remarks), _raw: o._raw
     };
@@ -1953,7 +1965,7 @@ const FinTabs = {
     const { nodes, edges, note } = finGraphData(o);
     if (!nodes.length) { $('#gBox', el).innerHTML = '<div class="muted" style="padding:40px;text-align:center">No transactions to draw. Import a money trail or statement first.</div>'; return; }
     let lastNode = null;
-    const g = Graph.mount($('#gBox', el), nodes, edges, { mode: o.mode, root: o.root || (nodes.find(n => n.kind === 'victim') || nodes[0]).id, onNode: n => { lastNode = n; }, onTrail: (hops, api) => trailDrawer(hops, api, lastNode), onClear: UI.closeDrawer });
+    const g = Graph.mount($('#gBox', el), nodes, edges, { live: edges.length <= 1000, labels: edges.length > 160 ? true : 'full', mode: o.mode, root: o.root || (nodes.find(n => n.kind === 'victim') || nodes[0]).id, onNode: n => { lastNode = n; }, onTrail: (hops, api) => trailDrawer(hops, api, lastNode), onClear: UI.closeDrawer });
     if (o.focus) { const f = o.focus; delete o.focus; lastNode = nodes.find(n => n.id === (f.node || f.to)) || null; setTimeout(() => f.node ? g.highlightNode(f.node) : g.highlightEdge(f.from, f.to), 50); }
     $('#gInfo', el).textContent = `${nodes.length} accounts, ${edges.length} links. ${note}`;
     $('#gSvg', el).onclick = () => g.download('money_trail_' + o.mode);
@@ -1997,6 +2009,8 @@ function finGraphData(o) {
     nodes = nodes.filter(n => top.has(n.id)); edges = edges.filter(e => top.has(e.from) && top.has(e.to));
     note = 'Large trail: showing the 450 biggest accounts. Pick a complaint, a start account or a minimum amount to see everything.';
   }
+  const lay = new Map(nodes.map(n => [n.id, n.layer || 0]));
+  edges = edges.map(e => ({ ...e, tag: [lay.get(e.from) || 0, lay.get(e.to) || 0].map(l => l ? 'L' + l : 'Victim').join('→') }));
   return { nodes, edges, note };
 }
 
@@ -2250,15 +2264,23 @@ const AnaTabs = {
     Table($('#g5', el), { rows: [...P].map(([pin, l]) => ({ pin, n: l.length, accs: l.map(k => k.acc).join(', '), names: uniq(l.map(k => k.name)).join(', '), district: uniq(l.map(k => k.district)).join(', ') })), sortKey: 'n', sortDir: -1, exportName: 'pincodes', columns: [{ key: 'pin', label: 'PIN' }, { key: 'n', label: 'Accounts', num: true }, { key: 'district', label: 'District' }, { key: 'names', label: 'Names' }, { key: 'accs', label: 'Accounts list' }] });
   },
   velocity(el) {
-    const { A, inE, outE } = Analysis.fin(); const rows = [];
+    const { A, inE, outE } = Analysis.fin(); const rows = []; const W = d => Flags.when(d);
     for (const n of A.values()) {
       if (isSynthetic(n.acc) || n.acc.startsWith('VICTIM:')) continue;
-      const ins = (inE.get(n.acc) || []).flatMap(e => e.txns).filter(t => t.date).sort((a, b) => a.date.localeCompare(b.date));
-      const outs = (outE.get(n.acc) || []).flatMap(e => e.txns).filter(t => t.date).sort((a, b) => a.date.localeCompare(b.date));
-      for (const i of ins) { const o = outs.find(x => x.date >= i.date); if (!o) continue; const mins = (new Date(o.date.replace(' ', 'T')) - new Date(i.date.replace(' ', 'T'))) / 60000; if (mins <= 1440) rows.push({ acc: n.acc, name: [...n.names][0] || '', inAt: i.date, inAmt: i.amount, outAt: o.date, outAmt: o.amount, to: o.to_acc, mins: Math.round(mins), ack: i.ack_no }); }
+      const ins = (inE.get(n.acc) || []).flatMap(e => e.txns).map(t => ({ t, w: W(t.date) })).filter(x => x.w).sort((a, b) => a.w.t - b.w.t);
+      const outs = (outE.get(n.acc) || []).flatMap(e => e.txns).map(t => ({ t, w: W(t.date) })).filter(x => x.w).sort((a, b) => a.w.t - b.w.t);
+      for (const i of ins) {
+        // first money going out at or after this money came in
+        const ot = i.w.time && outs.find(x => x.w.time && x.w.t >= i.w.t), od = outs.find(x => !x.w.time && x.w.day === i.w.day) || (!i.w.time && outs.find(x => x.w.day === i.w.day));
+        const o = ot && ot.w.t - i.w.t <= 86400000 ? ot : od; if (!o) continue;
+        const timed = i.w.time && o.w.time, mins = timed ? Math.round((o.w.t - i.w.t) / 60000) : null;
+        if (timed ? mins > 1440 : o.w.day !== i.w.day) continue;
+        rows.push({ acc: n.acc, name: [...n.names][0] || '', inAt: i.t.date, inAmt: i.t.amount, outAt: o.t.date, outAmt: o.t.amount, to: o.t.to_acc, mins, gapTxt: timed ? Flags.fmtGap({ gap: mins }) : 'same day – time not in data', ack: i.t.ack_no });
+      }
     }
-    el.innerHTML = `<div class="card"><h3>Money moved out within 24 hours of arriving</h3><div class="sub">Typical of mule / pass-through accounts. Gap is in minutes (0 when only dates, not times, are available).</div><div id="vT"></div></div>`;
-    Table($('#vT', el), { rows, exportName: 'fast_movement', sortKey: 'mins', columns: [{ key: 'acc', label: 'Account', render: r => accLink(r.acc) }, { key: 'name', label: 'Name' }, { key: 'inAt', label: 'Received at' }, { key: 'inAmt', label: 'Received', num: true, fmt: fmtINR }, { key: 'outAt', label: 'Sent at' }, { key: 'outAmt', label: 'Sent', num: true, fmt: fmtINR }, { key: 'to', label: 'Sent to', render: r => accLink(r.to) }, { key: 'mins', label: 'Gap (min)', num: true }, { key: 'ack', label: 'Ack' }], after: bindAccLinks });
+    const noTime = rows.filter(r => r.mins == null).length;
+    el.innerHTML = `<div class="card"><h3>Money moved out within 24 hours of arriving</h3><div class="sub">Typical of mule / pass-through accounts. Gap = time between money coming in and the next money going out. When a row has only a date (no time), the gap is shown as "same day".</div>${noTime ? `<div class="note warn">${noTime} row(s) have no time for the money coming in, so the exact gap can't be worked out. If your sheet has the time in a separate column, map it to <b>Transaction Time</b> while importing.</div>` : ''}<div id="vT"></div></div>`;
+    Table($('#vT', el), { rows, exportName: 'fast_movement', sortKey: 'mins', columns: [{ key: 'acc', label: 'Account', render: r => accLink(r.acc) }, { key: 'name', label: 'Name' }, { key: 'inAt', label: 'Received at' }, { key: 'inAmt', label: 'Received', num: true, fmt: fmtINR }, { key: 'outAt', label: 'Sent at' }, { key: 'outAmt', label: 'Sent', num: true, fmt: fmtINR }, { key: 'to', label: 'Sent to', render: r => accLink(r.to) }, { key: 'mins', label: 'Gap', num: true, csv: r => r.mins ?? r.gapTxt, render: r => r.mins != null ? `<b>${esc(r.gapTxt)}</b>` : `<span class="small muted">${esc(r.gapTxt)}</span>` }, { key: 'ack', label: 'Ack' }], after: bindAccLinks });
   },
   round(el) {
     const tx = S.data.txns;
@@ -3140,10 +3162,12 @@ const NcrpCase = {
     const top = +S.ncrpG.top || 0, total = nodes.length;
     if (top && nodes.length > top) {
       // keep the biggest accounts, plus every account on the way from the victim to them
-      const inc = new Map(); edges.forEach(e => { if (!inc.has(e.to)) inc.set(e.to, []); inc.get(e.to).push(e.from); });
-      const keep = new Set(), q = nodes.slice().sort((a, b) => b.value - a.value).slice(0, top).map(n => n.id);
-      while (q.length) { const id = q.pop(); if (keep.has(id)) continue; keep.add(id); (inc.get(id) || []).forEach(f => q.push(f)); }
-      const ns = nodes.filter(n => keep.has(n.id)); edges = edges.filter(e => keep.has(e.from) && keep.has(e.to));
+      // one main path per account: the biggest incoming payment, followed back to the victim
+      const best = new Map(); edges.forEach(e => { if (e.from !== e.to && (!best.has(e.to) || e.amount > best.get(e.to).amount)) best.set(e.to, e); });
+      const keep = new Set();
+      for (const n of nodes.slice().sort((a, b) => b.value - a.value).slice(0, top)) { let id = n.id, guard = 0; while (id && !keep.has(id) && guard++ < 60) { keep.add(id); const e = best.get(id); id = e ? e.from : null; } }
+      const pathE = new Set([...keep].map(id => best.get(id)).filter(Boolean));
+      const ns = nodes.filter(n => keep.has(n.id)); edges = edges.filter(e => pathE.has(e) || (keep.has(e.from) && keep.has(e.to) && edges.length < 400));
       return { nodes: ns, edges, total };
     }
     return { nodes, edges, total };
@@ -3212,7 +3236,7 @@ const NcrpCase = {
     $('#ncTop', el).onchange = e => { S.ncrpG.top = +e.target.value; NcrpTabs.case(el); setTimeout(() => $('#ncBox').scrollIntoView({ block: 'center' }), 30); };
     if (nodes.length) {
       const root = (nodes.find(n => n.kind === 'victim') || nodes[0]).id;
-      g = Graph.mount($('#ncBox', el), nodes, edges, { mode: S.ncrpG.mode, root, live: S.ncrpG.live !== false, labels: edges.length > 160 ? true : 'full',
+      g = Graph.mount($('#ncBox', el), nodes, edges, { mode: S.ncrpG.mode, root, live: S.ncrpG.live !== false && edges.length <= 1000, labels: edges.length > 160 ? true : 'full',
         onNode: n => { lastNode = n; }, onTrail: (hops, api) => trailDrawer(hops, api, lastNode), onClear: UI.closeDrawer });
       $('#ncSvg', el).onclick = () => g.download('trail_' + ack + '_' + S.ncrpG.mode);
       $('#ncPng', el).onclick = () => g.download('trail_' + ack + '_' + S.ncrpG.mode, true);
@@ -3405,6 +3429,70 @@ NcrpTabs.summary = el => {
   if (list.length > 1) { const br = [[0, 10000, '< 10K'], [10000, 50000, '10K–50K'], [50000, 100000, '50K–1L'], [100000, 500000, '1L–5L'], [500000, 1e13, '> 5L']]; Charts.vbar($('#s6', el), br.map(([a, b, l]) => ({ label: l, value: st.filter(c => (c.amount || 0) >= a && (c.amount || 0) < b).length })), { fmt: v => v + ' complaints' }); }
   else hb('#s6', by(tx, t => String(t.action || '').trim() || null, () => 1), v => fmtNum(v) + ' rows');
   if (S.data.ncrp.length) { const nc = S.data.ncrp.filter(n => list.some(c => c.ack === n.ack_no)); hb('#s7', by(nc, n => n.category, () => 1), v => v + ' complaints'); hb('#s8', by(nc, n => n.district, n => n.amount || 0)); }
+};
+
+</script>
+<script>
+/* entity.js - Analytics → Entity Graph: accounts / profiles / complaints joined by the details they share.
+   Works with money-trail sheets alone (mobile, email, PAN, Aadhaar, name, UPI, IFSC), plus KYC, social and NCRP data. */
+'use strict';
+
+AnaTabs.entity = el => {
+  const T = S.entTypes || (S.entTypes = { mobile: 1, email: 1, pan: 1, aadhaar: 1, name: 1, upi: 1, imei: 1, ip: 1, ifsc: 0 });
+  const top = S.entTop || 50;
+  const M = new Map(), owners = new Map();
+  const own = (id, label, sub, kind) => { if (!owners.has(id)) owners.set(id, { id, label, sub, kind, value: 0 }); return id; };
+  const put = (type, v, ownerId) => {
+    if (!T[type] || v == null) return; v = String(v).trim();
+    if (type === 'name') v = v.toUpperCase().replace(/\s+/g, ' ');
+    if (v.length < (type === 'name' ? 4 : 3) || isSynthetic(v)) return;
+    const k = type + ':' + v; if (!M.has(k)) M.set(k, { type, value: v, owners: new Set() }); M.get(k).owners.add(ownerId);
+  };
+  for (const t of S.data.txns) {
+    if (!t.to_acc || isSynthetic(t.to_acc)) continue;
+    const o = own('A:' + t.to_acc, accLabel(t.to_acc), [t.to_name, t.to_bank].filter(Boolean).join(' · '), 'account');
+    put('mobile', t.mobile, o); put('email', t.email, o); put('pan', t.pan, o); put('aadhaar', t.aadhaar, o); put('name', t.to_name, o); put('ifsc', t.to_ifsc, o);
+    if (t.to_acc.includes('@')) put('upi', t.to_acc.toLowerCase(), o);
+  }
+  for (const k of S.data.kyc) {
+    if (!k.acc) continue; const o = own('A:' + k.acc, accLabel(k.acc), [k.name, k.bank].filter(Boolean).join(' · '), 'account');
+    put('mobile', k.mobile, o); put('email', k.email, o); put('pan', k.pan, o); put('aadhaar', k.aadhaar, o); put('name', k.name, o); put('ip', k.ip, o); put('ifsc', k.ifsc, o);
+  }
+  for (const r of S.data.social) {
+    const o = own('P:' + (r.platform || '') + ':' + (r.profile || r.name || ''), r.profile || r.name || 'profile', r.platform || 'Social', 'profile');
+    String(r.mobile || '').split(/[,;]/).forEach(m => put('mobile', N.mobile(m), o)); String(r.email || '').split(/[,;]/).forEach(m => put('email', m.trim().toLowerCase(), o));
+    put('imei', r.imei, o); put('ip', r.ip, o); put('name', r.name, o);
+  }
+  for (const c of S.data.ncrp) { const o = own('C:' + c.ack_no, 'Complaint ' + c.ack_no, c.victim_name || 'NCRP', 'victim'); put('mobile', c.suspect_mobile, o); put('upi', c.suspect_upi, o); put('email', c.suspect_email, o); }
+
+  const shared = [...M.values()].filter(x => x.owners.size >= 2).sort((a, b) => b.owners.size - a.owners.size);
+  const shown = shared.slice(0, top);
+  const nodes = new Map(), edges = [];
+  for (const x of shown) {
+    const id = 'I:' + x.type + ':' + x.value;
+    nodes.set(id, { id, label: x.value, sub: x.type.toUpperCase() + ' · ' + x.owners.size, kind: 'ident', value: x.owners.size * 3, title: `${x.type.toUpperCase()}: ${x.value}\nshared by ${x.owners.size}` });
+    for (const o of x.owners) { if (!nodes.has(o)) nodes.set(o, { ...owners.get(o), value: 0 }); nodes.get(o).value++; edges.push({ from: o, to: id, amount: 0, count: 1 }); }
+  }
+  const labels = { mobile: 'Mobile', email: 'Email', pan: 'PAN', aadhaar: 'Aadhaar', name: 'Same name', upi: 'UPI', imei: 'IMEI', ip: 'IP', ifsc: 'IFSC (branch)' };
+  el.innerHTML = `<div class="card"><h3>Entity graph – who is linked to whom</h3><div class="sub">Accounts (blue), social profiles (pink) and complaints (orange) joined to the details they share (violet). Built from the money-trail sheet, KYC, social media and NCRP data. Click a violet detail to list everything that shares it; click an account to open it.</div>
+    <div class="row" style="flex-wrap:wrap">${Object.entries(labels).map(([k, l]) => `<label class="small"><input type="checkbox" data-et="${k}" ${T[k] ? 'checked' : ''}> ${l}</label>`).join('')}
+    <label style="margin-left:12px">Show</label><select id="eTop">${[50, 120, 250, 500].map(n => `<option ${n === top ? 'selected' : ''}>${n}</option>`).join('')}</select><label>biggest shared details</label>
+    <span class="spacer"></span><span class="small muted">${shared.length} shared details · showing ${shown.length}</span><button class="btn sm" id="ePng">⬇ PNG</button></div></div>
+    <div class="graph-box" id="eBox" style="height:680px"></div>`;
+  $$('[data-et]', el).forEach(c => c.onchange = () => { T[c.dataset.et] = c.checked ? 1 : 0; AnaTabs.entity(el); });
+  $('#eTop', el).onchange = e => { S.entTop = +e.target.value; AnaTabs.entity(el); };
+  if (!nodes.size) { $('#eBox', el).innerHTML = `<div class="muted" style="padding:40px;text-align:center">No detail is shared by two or more accounts / profiles with the ticked types.${T.ifsc ? '' : ' Try ticking IFSC (branch).'}<br>Mobile, email, PAN and Aadhaar come from the trail sheet columns or from imported KYC replies.</div>`; return; }
+  const g = Graph.mount($('#eBox', el), [...nodes.values()], edges, {
+    mode: 'net', labels: false,
+    onNode: n => {
+      if (n.kind === 'ident') {
+        const x = shown.find(s => 'I:' + s.type + ':' + s.value === n.id);
+        const b = UI.drawer(x.type.toUpperCase() + ': ' + x.value, `<p class="small muted">Shared by ${x.owners.size}</p>` + [...x.owners].map(o => { const w = owners.get(o); return `<div class="list-item small">${o.startsWith('A:') ? accLink(o.slice(2)) : esc(w.label)} · ${esc(w.sub || '')}</div>`; }).join(''));
+        bindAccLinks(b);
+      } else if (n.id.startsWith('A:')) showAccount(n.id.slice(2));
+    }
+  });
+  $('#ePng', el).onclick = () => g.download('entity_graph', true);
 };
 
 </script>

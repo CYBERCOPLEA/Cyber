@@ -151,7 +151,7 @@ const Parsers = {
       ack_no: N.ack(o.ack_no), layer: o.layer === '' || o.layer == null ? null : parseInt(String(o.layer).replace(/\D/g, '')) || null,
       from_acc: N.acc(o.from_acc), from_name: N.upper(o.from_name), from_bank: N.text(o.from_bank), from_ifsc: N.ifsc(o.from_ifsc),
       to_acc: N.acc(o.to_acc), to_name: N.upper(o.to_name), to_bank: N.text(o.to_bank), to_ifsc: N.ifsc(o.to_ifsc),
-      amount: N.amount(o.amount), disputed: N.amount(o.disputed), hold: N.amount(o.hold), date: N.date(o.date), txn_id: N.acc(o.txn_id),
+      amount: N.amount(o.amount), disputed: N.amount(o.disputed), hold: N.amount(o.hold), date: (d => { const tm = N.time(o.time); return d && tm && /^\d{4}-\d{2}-\d{2}$/.test(d) ? d + ' ' + tm : d; })(N.date(o.date)), txn_id: N.acc(o.txn_id),
       mode: N.upper(o.mode), action: N.text(o.action), atm_loc: N.text(o.atm_loc), mobile: N.mobile(o.mobile), email: N.email(o.email),
       pan: N.pan(o.pan), aadhaar: N.aadhaar(o.aadhaar), state: N.upper(o.state), district: N.upper(o.district), remarks: N.text(o.remarks), _raw: o._raw
     };
