@@ -282,7 +282,7 @@ const CaseReport = {
       const box = document.createElement('div'); box.style.cssText = 'position:fixed;left:-9999px;top:0;width:1400px;height:900px'; document.body.appendChild(box);
       const th = document.documentElement.dataset.theme; document.documentElement.dataset.theme = 'light'; const { nodes, edges } = finGraphData({ mode: 'flow', min: 0 }); let g = null; try { if (nodes.length) g = Graph.mount(box, nodes, edges, { mode: 'flow' }).exportSVG(); } finally { document.documentElement.dataset.theme = th; } if (g) { out.flow = { svg: g.str, ...(await toPng(g.str, 1800)) }; } box.remove();
     } catch (e) { console.warn('flow chart', e); }
-    try { const bg = getComputedStyle(document.querySelector('.emblem')).backgroundImage.match(/url\("?(.*?)"?\)$/); if (bg) out.emblem = await toPng(bg[1], 300, null); } catch (e) { }
+    try { const bg = getComputedStyle((document.querySelector('.emblem-big') || document.querySelector('.emblem'))).backgroundImage.match(/url\("?(.*?)"?\)$/); if (bg) out.emblem = await toPng(bg[1], 300, null); } catch (e) { }
     return out;
   },
   html(m, im) {
