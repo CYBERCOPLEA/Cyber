@@ -1,0 +1,4 @@
+*.backup.json
+*backup*.json
+case_data/
+.DS_Store
