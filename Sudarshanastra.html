@@ -1351,13 +1351,13 @@ const Graph = {
     box.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg"><defs>
       <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="${C.muted}"/></marker>
       <marker id="arrH" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="${HL}"/></marker></defs>
-      <rect width="100%" height="100%" fill="${C.surface2}" class="bg"/><g class="vp"><g class="cols"></g><g class="edges"></g><g class="elabels"></g><g class="nodes"></g></g></svg>
+      <rect width="100%" height="100%" fill="${C.surface2}" class="bg"/><g class="vp"><g class="cols"></g><g class="edges"></g><g class="ehit"></g><g class="elabels" style="pointer-events:none"></g><g class="nodes"></g></g></svg>
       <div class="graph-zoom"><button class="btn sm" data-z="in" title="Zoom in">＋</button><button class="btn sm" data-z="out" title="Zoom out">－</button><button class="btn sm" data-z="fit" title="Fit to screen">⤢</button>
         <button class="btn sm" data-z="lbl" title="Labels on lines: amount → amount + date + layer → none">₹</button><button class="btn sm ${opt.live ? 'primary' : ''}" data-z="live" title="Live money flow: moving lines from sender to receiver">⚡</button><button class="btn sm" data-z="wide" title="More space between layers">↔</button><button class="btn sm" data-z="tall" title="More space between accounts">↕</button>
         <button class="btn sm" data-z="tight" title="Less space">⇲</button><button class="btn sm" data-z="re" title="Re-arrange automatically">⟲</button></div>
-      <div class="graph-legend">${[['victim', 'Victim / source'], ['account', 'Account'], ['risk', 'High-risk / mule'], ['cash', 'Cash-out / ATM'], ['hold', 'Amount on hold'], ['nodal', 'Nodal / escrow / PG'], ['ident', 'Identifier'], ['profile', 'Social profile']].filter(([k]) => nodes.some(n => n.kind === k)).map(([k, l]) => `<span><i style="background:${KIND[k]}"></i>${l}</span>`).join('')}<span class="muted">Click account = highlight full trail · drag account${mode === 'flow' ? ' or "Layer" title' : ''} to move · scroll = zoom</span></div>`;
-    const svg = $('svg', box); if (opt.live) svg.classList.add('live'); const vp = $('.vp', svg), gC = $('.cols', svg), gE = $('.edges', svg), gL = $('.elabels', svg), gN = $('.nodes', svg);
-    let T = { x: 0, y: 0, k: 1 }, lblMode = opt.labels === false ? 0 : opt.labels === 'full' ? 2 : 1, hl = null, timers = [];
+      <div class="graph-legend">${[['victim', 'Victim / source'], ['account', 'Account'], ['risk', 'High-risk / mule'], ['cash', 'Cash-out / ATM'], ['hold', 'Amount on hold'], ['nodal', 'Nodal / escrow / PG'], ['ident', 'Identifier'], ['profile', 'Social profile']].filter(([k]) => nodes.some(n => n.kind === k)).map(([k, l]) => `<span><i style="background:${KIND[k]}"></i>${l}</span>`).join('')}<span class="muted">Point at a line = highlight · click a line = trail from victim through that transaction to the end · click an account = trail from victim to that account · drag account${mode === 'flow' ? ' or "Layer" title' : ''} to move · scroll = zoom</span></div>`;
+    const svg = $('svg', box); if (opt.live) svg.classList.add('live'); const vp = $('.vp', svg), gC = $('.cols', svg), gE = $('.edges', svg), gH = $('.ehit', svg), gL = $('.elabels', svg), gN = $('.nodes', svg);
+    let last = null, T = { x: 0, y: 0, k: 1 }, lblMode = opt.labels === false ? 0 : opt.labels === 'full' ? 2 : 1, hl = null, timers = [];
     const apply = () => vp.setAttribute('transform', `translate(${T.x},${T.y}) scale(${T.k})`);
     const path = e => {
       const a = byId.get(e.from), b = byId.get(e.to);
@@ -1372,6 +1372,8 @@ const Graph = {
     const mid = e => { const a = byId.get(e.from), b = byId.get(e.to); if (mode === 'flow' && a !== b && Math.abs(b.x - a.x) <= 20) return [a.x + 100 + Math.abs(b.y - a.y) * .11, (a.y + b.y) / 2]; return [(a.x + b.x) / 2, (a.y + b.y) / 2 - 5]; };
     const ew = e => (1 + 6 * Math.sqrt((e.amount || 0) / maxE)).toFixed(1);
     gE.innerHTML = edges.map((e, i) => `<path data-e="${i}" d="${path(e)}" fill="none" stroke="${C.muted}" stroke-opacity=".55" stroke-width="${ew(e)}" marker-end="url(#arr)"><title>${esc(accLabel(e.from))} → ${esc(accLabel(e.to))}\n${fmtINR(e.amount)} in ${e.count} txn(s)${edgeDate(e) ? '\n' + edgeDate(e) : ''}</title></path>`).join('');
+    const tip = e => `${accLabel(e.from)} → ${accLabel(e.to)}\n${fmtINR(e.amount)} in ${e.count} txn(s)${e.tag ? '\n' + e.tag : ''}${edgeDate(e) ? '\n' + edgeDate(e) : ''}\nClick = trace this transaction from start to end`;
+    gH.innerHTML = edges.map((e, i) => `<path data-h="${i}" d="${path(e)}" fill="none" stroke="transparent" stroke-width="14" style="cursor:pointer;pointer-events:stroke"><title>${esc(tip(e))}</title></path>`).join('');
     const drawLabels = () => {
       gL.innerHTML = edges.map((e, i) => {
         const on = hl && hl.edges.has(i); if (!on && (!lblMode || hl)) return ''; if (!e.amount && !on) return '';
@@ -1399,7 +1401,7 @@ const Graph = {
     const redraw = moved => {
       moved.forEach(n => nodeEl(n).setAttribute('transform', `translate(${n.x},${n.y})`));
       const ids = new Set(moved.map(n => n.id));
-      edges.forEach((ed, i) => { if (ids.has(ed.from) || ids.has(ed.to)) gE.children[i].setAttribute('d', path(ed)); });
+      edges.forEach((ed, i) => { if (ids.has(ed.from) || ids.has(ed.to)) { const d = path(ed); gE.children[i].setAttribute('d', d); gH.children[i].setAttribute('d', d); } });
       drawLabels(); drawCols();
     };
     drawLabels(); drawCols();
@@ -1424,8 +1426,9 @@ const Graph = {
     // drag: background pans, node moves, layer title moves the whole layer
     let drag = null;
     svg.addEventListener('pointerdown', e => {
-      const g = e.target.closest('[data-n]'), col = e.target.closest('[data-col]');
-      drag = { sx: e.clientX, sy: e.clientY, ox: T.x, oy: T.y, moved: false, list: null, node: null };
+      const g = e.target.closest('[data-n]'), col = e.target.closest('[data-col]'), h = e.target.closest('[data-h]');
+      unhover();
+      drag = { sx: e.clientX, sy: e.clientY, ox: T.x, oy: T.y, moved: false, list: null, node: null, edge: h && !g ? +h.dataset.h : null };
       if (g) { drag.node = nodes[+g.dataset.n]; drag.list = [drag.node]; }
       else if (col) drag.list = nodes.filter(n => String(n.layer || 0) === col.dataset.col);
       if (drag.list) drag.start = drag.list.map(n => [n.x, n.y]);
@@ -1437,7 +1440,11 @@ const Graph = {
       else { T.x = drag.ox + dx; T.y = drag.oy + dy; apply(); }
     });
     svg.addEventListener('pointerup', () => {
-      if (drag && !drag.moved) { if (drag.node) { if (opt.onNode) opt.onNode(drag.node, api); if (opt.trail !== false) api.highlightNode(drag.node.id); } else if (!drag.list) api.clear(); }
+      if (drag && !drag.moved) {
+        if (drag.node) { if (opt.onNode) opt.onNode(drag.node, api); if (opt.trail !== false) api.traceTo(drag.node.id); }
+        else if (drag.edge != null) { if (opt.onEdge) opt.onEdge(edges[drag.edge], api); if (opt.trail !== false) api.traceEdge(drag.edge); }
+        else if (!drag.list) api.clear();
+      }
       drag = null;
     });
     // hover: show neighbours (only when no trail is highlighted)
@@ -1446,9 +1453,27 @@ const Graph = {
       g.onmouseleave = () => { if (hl) return; edges.forEach((e, i) => { gE.children[i].setAttribute('stroke', C.muted); gE.children[i].setAttribute('stroke-opacity', '.55'); }); };
     });
 
+    // point at a line: make it stand out and show its amount, layer and date
+    let hov = null;
+    function unhover() {
+      if (!hov) return; const p = gE.children[hov.i]; Object.entries(hov.prev).forEach(([k, v]) => v == null ? p.removeAttribute(k) : p.setAttribute(k, v));
+      const l = gL.querySelector('.hov-lbl'); if (l) gL.removeChild(l); hov = null;
+    }
+    $$('[data-h]', gH).forEach(h => {
+      h.onmouseenter = () => {
+        if (drag) return; unhover(); const i = +h.dataset.h, e = edges[i], p = gE.children[i];
+        hov = { i, prev: Object.fromEntries(['stroke', 'stroke-opacity', 'stroke-width', 'marker-end'].map(k => [k, p.getAttribute(k)])) };
+        p.setAttribute('stroke', HL); p.setAttribute('stroke-opacity', '1'); p.setAttribute('stroke-width', Math.max(4, +ew(e) + 2)); p.setAttribute('marker-end', 'url(#arrH)');
+        const [x, y] = mid(e), dt = edgeDate(e), t2 = [e.tag, dt].filter(Boolean).join(' · ');
+        gL.insertAdjacentHTML('beforeend', `<g class="hov-lbl" style="pointer-events:none"><text x="${x}" y="${y - 6}" text-anchor="middle" font-size="13" font-weight="700" fill="${C.text}" paint-order="stroke" stroke="${C.surface2}" stroke-width="5">${esc(fmtINR(e.amount))}</text>${t2 ? `<text x="${x}" y="${y + 9}" text-anchor="middle" font-size="11" fill="${HL}" paint-order="stroke" stroke="${C.surface2}" stroke-width="4">${esc(t2)}</text>` : ''}</g>`);
+      };
+      h.onmouseleave = unhover;
+    });
+
     /* ---- full trail highlight: everything upstream (to the victim) and downstream (to the last account) ---- */
     const walk = (startNodes, dir) => { const seen = new Set(), es = new Set(), q = [...startNodes]; while (q.length) { const id = q.shift(); if (seen.has(id)) continue; seen.add(id); for (const i of (dir > 0 ? outE : inE).get(id) || []) { es.add(i); q.push(dir > 0 ? edges[i].to : edges[i].from); } } return es; };
-    function show(edgeSet, focusIds) {
+    function show(edgeSet, focusIds, info = {}) {
+      unhover(); last = { edgeSet, focusIds, info };
       timers.forEach(clearTimeout); timers = [];
       const nodeSet = new Set(); edgeSet.forEach(i => { nodeSet.add(edges[i].from); nodeSet.add(edges[i].to); }); focusIds.forEach(id => nodeSet.add(id));
       // step number of each hop = distance from the start of the trail
@@ -1464,13 +1489,18 @@ const Graph = {
         timers.push(setTimeout(() => steps.get(k).forEach(i => { const p = gE.children[i]; p.setAttribute('stroke', HL); p.setAttribute('stroke-opacity', '1'); p.setAttribute('stroke-width', Math.max(3, ew(edges[i]))); p.setAttribute('marker-end', 'url(#arrH)'); p.classList.add('hl-run'); hl.shown.add(i); const l = gL.querySelector(`[data-l="${i}"]`); if (l) l.style.opacity = 1; }), t));
         t += 650;
       });
-      if (opt.onTrail) opt.onTrail(order.map(i => ({ ...edges[i], step: (dist.get(edges[i].from) || 0) + 1 })), api);
+      if (opt.onTrail) opt.onTrail(order.map(i => ({ ...edges[i], step: (dist.get(edges[i].from) || 0) + 1 })), api, info);
     }
     const api = {
       svg,
-      highlightNode(id) { if (!byId.has(id)) return; show(new Set([...walk([id], -1), ...walk([id], 1)]), [id]); },
-      highlightEdge(from, to) { const i = edges.findIndex(e => e.from === from && e.to === to); if (i < 0) return this.highlightNode(byId.has(to) ? to : from); show(new Set([i, ...walk([from], -1), ...walk([to], 1)]), [from, to]); },
-      replay() { if (hl) show(hl.edges, nodes.filter((n, i) => gN.children[i].querySelector('.ring').getAttribute('opacity') === '1').map(n => n.id)); },
+      // whole trail through an account: from the victim, through it, to the last account
+      highlightNode(id) { if (!byId.has(id)) return; show(new Set([...walk([id], -1), ...walk([id], 1)]), [id], { type: 'full', node: byId.get(id) }); },
+      // from the victim up to this account only
+      traceTo(id) { if (!byId.has(id)) return; const es = walk([id], -1); if (!es.size) return this.highlightNode(id); show(es, [id], { type: 'upto', node: byId.get(id) }); },
+      // one transaction line: from the victim, through this line, to the end of the trail
+      traceEdge(i) { const e = edges[i]; if (!e) return; show(new Set([i, ...walk([e.from], -1), ...walk([e.to], 1)]), [e.from, e.to], { type: 'edge', edge: e, node: byId.get(e.to) }); },
+      highlightEdge(from, to) { const i = edges.findIndex(e => e.from === from && e.to === to); if (i < 0) return this.highlightNode(byId.has(to) ? to : from); this.traceEdge(i); },
+      replay() { if (last) show(last.edgeSet, last.focusIds, last.info); },
       clear() {
         if (!hl) return; timers.forEach(clearTimeout); hl = null;
         edges.forEach((e, i) => { const p = gE.children[i]; p.classList.remove('hl-run'); p.setAttribute('stroke', C.muted); p.setAttribute('stroke-opacity', '.55'); p.setAttribute('stroke-width', ew(e)); p.setAttribute('marker-end', 'url(#arr)'); });
@@ -1964,9 +1994,8 @@ const FinTabs = {
     $('#gGo', el).onclick = () => { o.ack = $('#gAck', el).value; o.root = N.acc($('#gRoot', el).value); o.dir = $('#gDir', el).value; o.depth = +$('#gDepth', el).value || 6; o.min = +$('#gMin', el).value || 0; FinTabs.graph(el); };
     const { nodes, edges, note } = finGraphData(o);
     if (!nodes.length) { $('#gBox', el).innerHTML = '<div class="muted" style="padding:40px;text-align:center">No transactions to draw. Import a money trail or statement first.</div>'; return; }
-    let lastNode = null;
-    const g = Graph.mount($('#gBox', el), nodes, edges, { live: edges.length <= 1000, labels: edges.length > 160 ? true : 'full', mode: o.mode, root: o.root || (nodes.find(n => n.kind === 'victim') || nodes[0]).id, onNode: n => { lastNode = n; }, onTrail: (hops, api) => trailDrawer(hops, api, lastNode), onClear: UI.closeDrawer });
-    if (o.focus) { const f = o.focus; delete o.focus; lastNode = nodes.find(n => n.id === (f.node || f.to)) || null; setTimeout(() => f.node ? g.highlightNode(f.node) : g.highlightEdge(f.from, f.to), 50); }
+    const g = Graph.mount($('#gBox', el), nodes, edges, { live: edges.length <= 1000, labels: edges.length > 160 ? true : 'full', mode: o.mode, root: o.root || (nodes.find(n => n.kind === 'victim') || nodes[0]).id, onTrail: (hops, api, info) => trailDrawer(hops, api, info), onClear: UI.closeDrawer });
+    if (o.focus) { const f = o.focus; delete o.focus; setTimeout(() => f.node ? g.highlightNode(f.node) : g.highlightEdge(f.from, f.to), 50); }
     $('#gInfo', el).textContent = `${nodes.length} accounts, ${edges.length} links. ${note}`;
     $('#gSvg', el).onclick = () => g.download('money_trail_' + o.mode);
     $('#gPng', el).onclick = () => g.download('money_trail_' + o.mode, true);
@@ -2020,17 +2049,22 @@ function openTrail(f) {
   S.graphOpt = { mode: 'flow', root: '', depth: 6, dir: 'down', ack: f.ack || '', min: 0, focus: f.node ? { node: f.node } : { from: f.from, to: f.to } };
   go('financial', 'graph');
 }
-function trailDrawer(hops, api, node) {
+function trailDrawer(hops, api, info) {
+  info = info || {}; const node = info.node || null, E = info.edge;
+  const head = info.type === 'upto' ? 'Trail: victim → ' + accLabel(node.id) : info.type === 'edge' ? 'Trail through ' + accLabel(E.from) + ' → ' + accLabel(E.to) : 'Money trail' + (node ? ' through ' + accLabel(node.id) : '');
+  const what = info.type === 'upto' ? 'How the money reached this account, step by step from the victim.' : info.type === 'edge' ? `How the money reached this transaction (${fmtINR(E.amount)}${E.tag ? ', ' + E.tag : ''}) and where it went after it, to the last account.` : 'From the victim, through this account, to the last account.';
   const rows = hops.flatMap(h => (h.txns && h.txns.length ? h.txns : [{}]).map(t => ({ step: h.step, from: h.from, to: h.to, amount: t.amount ?? h.amount, date: t.date || '', utr: t.txn_id || '', bank: t.to_bank || '', action: t.action || '' })))
     .sort((a, b) => a.step - b.step || String(a.date).localeCompare(String(b.date)));
   const total = sum(hops.filter(h => h.step === 1), h => h.amount);
-  const body = UI.drawer('Money trail' + (node ? ' through ' + accLabel(node.id) : ''), `
-    <div class="row" style="margin-bottom:10px"><button class="btn sm primary" id="trPlay">▶ Play again</button><button class="btn sm" id="trClr">Clear highlight</button>${node && !node.id.startsWith('VICTIM:') ? '<button class="btn sm" id="trAcc">Account details</button>' : ''}<button class="btn sm" id="trCsv">⬇ CSV</button></div>
-    <p class="small muted">${hops.length} links · ${uniq(hops.flatMap(h => [h.from, h.to])).length} accounts · ${Math.max(0, ...hops.map(h => h.step))} steps${total ? ' · first step total ' + fmtINR(total) : ''}. Steps light up one by one on the chart, from the victim to the last account.</p>
+  const body = UI.drawer(head, `
+    <div class="row" style="margin-bottom:10px;flex-wrap:wrap"><button class="btn sm primary" id="trPlay">▶ Play again</button>${node && info.type === 'upto' ? '<button class="btn sm" id="trOn">Show onward money too</button>' : ''}${node && info.type === 'full' && !node.id.startsWith('VICTIM:') ? '<button class="btn sm" id="trUp">Only up to this account</button>' : ''}<button class="btn sm" id="trClr">Clear highlight</button>${node && !node.id.startsWith('VICTIM:') ? '<button class="btn sm" id="trAcc">Account details</button>' : ''}<button class="btn sm" id="trCsv">⬇ CSV</button></div>
+    <p class="small"><b>${esc(what)}</b></p><p class="small muted">${hops.length} links · ${uniq(hops.flatMap(h => [h.from, h.to])).length} accounts · ${Math.max(0, ...hops.map(h => h.step))} steps${total ? ' · first step total ' + fmtINR(total) : ''}. Steps light up one by one on the chart. Click an empty part of the chart to clear.</p>
     <div class="tbl-wrap" style="max-height:none"><table class="tbl"><tr><th>Step</th><th>From → To</th><th class="num">Amount</th><th>Date</th><th>UTR</th></tr>
     ${rows.map(r => `<tr><td class="num">${r.step}</td><td>${accLink(r.from)}<br>→ ${accLink(r.to)}${r.bank ? `<div class="small muted">${esc(r.bank)}${r.action ? ' · ' + esc(r.action) : ''}</div>` : ''}</td><td class="num">${fmtINR(r.amount)}</td><td class="small">${esc(r.date)}</td><td class="small mono">${esc(r.utr)}</td></tr>`).join('')}</table></div>`);
   bindAccLinks(body);
   $('#trPlay', body).onclick = () => api.replay();
+  const on = $('#trOn', body); if (on) on.onclick = () => api.highlightNode(node.id);
+  const up = $('#trUp', body); if (up) up.onclick = () => api.traceTo(node.id);
   $('#trClr', body).onclick = () => api.clear();
   const ac = $('#trAcc', body); if (ac) ac.onclick = () => showAccount(node.id);
   $('#trCsv', body).onclick = () => UI.download('money_trail_path.csv', UI.toCSV([{ key: 'step', label: 'Step' }, { key: 'from', label: 'From' }, { key: 'to', label: 'To' }, { key: 'amount', label: 'Amount' }, { key: 'date', label: 'Date' }, { key: 'utr', label: 'UTR' }, { key: 'bank', label: 'Bank' }, { key: 'action', label: 'Action' }], rows), 'text/csv');
@@ -3023,6 +3057,8 @@ const Mail = {
    see beneficiaries, IFSC, dates, amounts, nodal / escrow accounts, layer totals and a live flow chart / mind map / network. */
 'use strict';
 
+const isMoneyTransfer = t => t.action ? /money\s*transfer/i.test(t.action) : /\[\s*money\s*transfer/i.test(t._src || '');
+
 /* Nodal / pool / escrow / payment-gateway accounts: money passes through, they are not the fraudster's own account */
 const ACC_TYPES = [
   ['Nodal / Escrow', /\b(NODAL|ESCROW|POOL(ING)?\s*A\/?C|POOL ACCOUNT|SETTLEMENT|SUSPENSE|CLEARING|SWEEP|PAYOUT|COLLECTION\s*(A\/?C|ACCOUNT)|VIRTUAL\s*A\/?C|TRUST\s*A\/?C|CURRENT\s*A\/?C\s*NODAL)\b/],
@@ -3150,7 +3186,7 @@ const NcrpCase = {
 
   graphData(D) {
     const { A } = Analysis.fin();
-    const nodes = [...D.info.values()].map(n => {
+    let nodes = [...D.info.values()].map(n => {
       const id = n.id, t = accType(id, n), a = A.get(id) || {};
       const L0 = (D.B.L.get(id) || 0) === 0 && n.inAmt === 0;
       const f = D.FL.get(id), flagged = f && (f.bulk || f.rapid);
@@ -3159,6 +3195,13 @@ const NcrpCase = {
         title: `${id.startsWith('VICTIM:') ? 'Victim of ' + D.ack : accLabel(id)}\n${[...n.names].join(' / ')}\n${[...n.banks].join(' / ')} ${[...n.ifscs].join(' / ')}\nLayer ${D.B.L.get(id) || 0} · received ${fmtINR(n.inAmt)} · sent ${fmtINR(n.outAmt)}${n.hold ? ' · hold ' + fmtINR(n.hold) : ''}${t ? '\n' + t : ''}${flagged ? '\n⚑ ' + f.flags + (f.bulk ? ' – sent to ' + f.receivers + ' accounts' : '') + (f.rapid ? ' – forwarded in ' + Flags.fmtGap(f) : '') : ''}`, badge: flagged ? (f.bulk && f.rapid ? 'BR' : f.bulk ? 'B' : 'R') : '' };
     });
     let edges = D.B.links.map(e => ({ from: e.from, to: e.to, amount: e.amount, count: e.txns.length, txns: e.txns, tag: [D.B.L.get(e.from) || 0, D.B.L.get(e.to) || 0].map(l => l ? 'L' + l : 'Victim').join('→') }));
+    // "Money Transfer to" rows only (the action column, or a sheet with that name)
+    const mtAll = D.moved.filter(isMoneyTransfer).length;
+    if (mtAll && S.ncrpG.mt !== false) {
+      edges = edges.map(e => { const tx = (e.txns || []).filter(isMoneyTransfer); return tx.length === e.txns.length ? e : { ...e, txns: tx, count: tx.length, amount: sum(tx, t => t._amt ?? Math.abs(t.amount || 0)) }; }).filter(e => e.count);
+      const used = new Set(edges.flatMap(e => [e.from, e.to]));
+      nodes = nodes.filter(n => used.has(n.id));
+    }
     const top = +S.ncrpG.top || 0, total = nodes.length;
     if (top && nodes.length > top) {
       // keep the biggest accounts, plus every account on the way from the victim to them
@@ -3168,9 +3211,9 @@ const NcrpCase = {
       for (const n of nodes.slice().sort((a, b) => b.value - a.value).slice(0, top)) { let id = n.id, guard = 0; while (id && !keep.has(id) && guard++ < 60) { keep.add(id); const e = best.get(id); id = e ? e.from : null; } }
       const pathE = new Set([...keep].map(id => best.get(id)).filter(Boolean));
       const ns = nodes.filter(n => keep.has(n.id)); edges = edges.filter(e => pathE.has(e) || (keep.has(e.from) && keep.has(e.to) && edges.length < 400));
-      return { nodes: ns, edges, total };
+      return { nodes: ns, edges, total, mtAll };
     }
-    return { nodes, edges, total };
+    return { nodes, edges, total, mtAll };
   },
 
   render(el) {
@@ -3208,9 +3251,10 @@ const NcrpCase = {
       <div class="card"><div class="row" style="flex-wrap:wrap">
         <h3 class="grow" style="margin:0">Money trail chart</h3>
         <span class="pill-group">${[['flow', 'Flow chart'], ['mind', 'Mind map'], ['net', 'Graph']].map(([k, l]) => `<button data-gm="${k}" class="${S.ncrpG.mode === k ? 'active' : ''}">${l}</button>`).join('')}</span>
+        ${D.moved.some(isMoneyTransfer) ? `<label class="small">Rows</label><select id="ncMt"><option value="1" ${S.ncrpG.mt !== false ? 'selected' : ''}>Money Transfer to only</option><option value="0" ${S.ncrpG.mt === false ? 'selected' : ''}>All rows (with ATM, hold…)</option></select>` : ''}
         <label class="small">Accounts</label><select id="ncTop">${[[30, 'Top 30'], [60, 'Top 60'], [120, 'Top 120'], [250, 'Top 250'], [0, 'All']].map(([v, l]) => `<option value="${v}" ${(S.ncrpG.top ?? 60) === v ? 'selected' : ''}>${l}</option>`).join('')}</select><span class="small muted" id="ncTopInfo"></span>
         <button class="btn sm" id="ncReplay">▶ Play whole trail</button><button class="btn sm" id="ncSvg">⬇ SVG</button><button class="btn sm" id="ncPng">⬇ PNG</button></div>
-        <div class="sub" style="margin-top:6px">Lines move from sender to receiver (⚡ switches it off). Each line shows amount, layer (L1→L2) and date (₹ button changes labels). Click any account to run its full trail from victim to last layer. Drag accounts or a "Layer" title to make space.</div>
+        <div class="sub" style="margin-top:6px">Lines move from sender to receiver (⚡ switches it off). Each line shows amount, layer (L1→L2) and date (₹ button changes labels). Point at a line to highlight it. Click a line to trace that transaction from the victim to the end. Click an account to trace the money from the victim to that account. Drag accounts or a "Layer" title to make space.</div>
         <div class="graph-box" id="ncBox" style="height:640px"></div></div>
       <div class="card"><h3>Transactions of this complaint</h3><div class="sub">Sorted by amount, maximum to minimum (use Sort / A→Z / Z→A or click a column title to change). Click a row to show it on the chart.</div>
         <div class="row" style="margin-bottom:8px"><label>Layer</label><select id="ncLay"><option value="">All layers</option>${D.layers.map(l => `<option value="${l.layer}" ${String(S.ncrpLay) === String(l.layer) ? 'selected' : ''}>${l.layer === 0 ? 'Victim / no layer' : 'Layer ' + l.layer} (${l.txns})</option>`).join('')}</select>
@@ -3231,16 +3275,17 @@ const NcrpCase = {
     Charts.hbar($('#ncLc', el), D.layers.map(l => ({ label: l.layer === 0 ? 'Victim' : 'Layer ' + l.layer, value: l.amount, sub: l.txns + ' txns · ' + l.accounts + ' accounts' })), { fmt: fmtINR, max: 30 });
 
     // chart
-    const { nodes, edges, total } = this.graphData(D); let g = null, lastNode = null;
+    const { nodes, edges, total } = this.graphData(D); let g = null;
     $('#ncTopInfo', el).textContent = nodes.length < total ? `Showing the ${nodes.length} biggest accounts (and the path to them) of ${total}.` : `${total} accounts.`;
+    const mt = $('#ncMt', el); if (mt) mt.onchange = e => { S.ncrpG.mt = e.target.value === '1'; NcrpTabs.case(el); setTimeout(() => $('#ncBox').scrollIntoView({ block: 'center' }), 30); };
     $('#ncTop', el).onchange = e => { S.ncrpG.top = +e.target.value; NcrpTabs.case(el); setTimeout(() => $('#ncBox').scrollIntoView({ block: 'center' }), 30); };
     if (nodes.length) {
       const root = (nodes.find(n => n.kind === 'victim') || nodes[0]).id;
       g = Graph.mount($('#ncBox', el), nodes, edges, { mode: S.ncrpG.mode, root, live: S.ncrpG.live !== false && edges.length <= 1000, labels: edges.length > 160 ? true : 'full',
-        onNode: n => { lastNode = n; }, onTrail: (hops, api) => trailDrawer(hops, api, lastNode), onClear: UI.closeDrawer });
+        onTrail: (hops, api, info) => trailDrawer(hops, api, info), onClear: UI.closeDrawer });
       $('#ncSvg', el).onclick = () => g.download('trail_' + ack + '_' + S.ncrpG.mode);
       $('#ncPng', el).onclick = () => g.download('trail_' + ack + '_' + S.ncrpG.mode, true);
-      $('#ncReplay', el).onclick = () => { lastNode = nodes.find(n => n.id === root); g.highlightNode(root); };
+      $('#ncReplay', el).onclick = () => g.highlightNode(root);
       $('#ncBox', el).addEventListener('click', e => { const z = e.target.closest('[data-z="live"]'); if (z) S.ncrpG.live = $('#ncBox svg').classList.contains('live'); });
     } else $('#ncBox', el).innerHTML = '<div class="muted" style="padding:40px;text-align:center">This complaint has no money-trail transactions imported yet.</div>';
     $$('[data-gm]', el).forEach(b => b.onclick = () => { S.ncrpG.mode = b.dataset.gm; NcrpTabs.case(el); setTimeout(() => $('#ncBox').scrollIntoView({ block: 'center' }), 30); });
@@ -3248,7 +3293,7 @@ const NcrpCase = {
     // flagged accounts
     Flags.bindRule(el, 'ncf', () => NcrpCase.render(el));
     Table($('#ncF', el), { rows: S.flagOnly === false ? D.flags : D.flags.filter(f => f.bulk || f.rapid), pageSize: 25, exportName: 'complaint_' + ack + '_flagged', sortKey: 'receivers', sortDir: -1, columns: Flags.columns(), after: bindAccLinks,
-      onRow: r => { if (!g) return; lastNode = nodes.find(n => n.id === r.acc) || null; $('#ncBox').scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(() => g.highlightNode(r.acc), 350); } });
+      onRow: r => { if (!g) return; $('#ncBox').scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(() => g.highlightNode(r.acc), 350); } });
     // transactions table
     $('#ncLay', el).onchange = e => { S.ncrpLay = e.target.value; NcrpTabs.case(el); setTimeout(() => $('#ncT').scrollIntoView(), 30); };
     $('#ncHold', el).onchange = e => { S.ncrpHold = e.target.checked; NcrpTabs.case(el); setTimeout(() => $('#ncT').scrollIntoView(), 30); };
@@ -3265,7 +3310,7 @@ const NcrpCase = {
         { key: '_type', label: 'Account type', render: r => typeBadge(r._type) },
         { key: 'hold', label: 'Hold', num: true, fmt: v => v ? fmtINR(v) : '' }, { key: 'action', label: 'Action / status' }, { key: 'mode', label: 'Mode' }],
       after: bindAccLinks,
-      onRow: r => { if (!g) return; const from = r.from_acc || 'VICTIM:' + ack, to = r.to_acc || 'UNIDENTIFIED'; lastNode = nodes.find(n => n.id === to) || null; $('#ncBox').scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(() => g.highlightEdge(from, to), 350); }
+      onRow: r => { if (!g) return; const from = r.from_acc || 'VICTIM:' + ack, to = r.to_acc || 'UNIDENTIFIED'; $('#ncBox').scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(() => g.highlightEdge(from, to), 350); }
     });
     // beneficiaries
     Table($('#ncB', el), {
@@ -3279,7 +3324,7 @@ const NcrpCase = {
         { key: 'type', label: 'Type', render: r => typeBadge(r.type) }, { key: 'flags', label: 'Flags', render: r => r.fl ? Flags.badges(r.fl) : '' }, { key: 'complaints', label: 'In complaints', num: true, render: r => r.complaints > 1 ? `<span class="badge bad">${r.complaints}</span>` : (r.complaints || '') },
         { key: 'score', label: 'Risk', num: true }],
       after: bindAccLinks,
-      onRow: r => { if (!g) return; lastNode = nodes.find(n => n.id === r.acc) || null; $('#ncBox').scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(() => g.highlightNode(r.acc), 350); }
+      onRow: r => { if (!g) return; $('#ncBox').scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(() => g.traceTo(r.acc), 350); }
     });
   }
 };
