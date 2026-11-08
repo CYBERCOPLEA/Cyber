@@ -102,6 +102,14 @@ const LocalSearch = (() => {
       <div class="ls-body">
         <section class="ls-step"><div class="ls-num">1</div><div class="ls-sec">
           <div class="ls-t">Where to search</div>
+          <div class="ls-drives"><span class="ls-dl">Select hard drive</span>
+            <label class="ls-drv" data-dlab="C"><input type="checkbox" data-drv="C"><span class="ls-dbox"></span><span class="ls-dic">💻</span><span><b>C: drive</b><small>Windows drive · your folders</small></span></label>
+            <label class="ls-drv" data-dlab="D"><input type="checkbox" data-drv="D"><span class="ls-dbox"></span><span class="ls-dic">💾</span><span><b>D: drive</b><small>Data drive · whole drive</small></span></label>
+            <label class="ls-drv" data-dlab="both"><input type="checkbox" data-drv="both"><span class="ls-dbox"></span><span class="ls-dic">🗂️</span><span><b>Both C: and D:</b><small>Search both in one go</small></span></label>
+          </div>
+          <div class="ls-dpanel hidden" data-dpD><b>D: drive</b> – in the window that opens, click <b>This PC</b> → <b>D:</b> → <b>Select folder</b>. <button class="btn sm" data-pickd>Choose D: again</button> <span class="small muted" data-dstD></span></div>
+          <div class="ls-dpanel hidden" data-dpC><b>C: drive</b> – Windows does not let a browser open the whole C: drive (system files). Tick the parts of C: to search; each one opens a window – just press <b>Select folder</b>:
+            <div class="ls-cparts">${[['desktop', '🖥️ Desktop'], ['documents', '📁 Documents'], ['downloads', '⬇️ Downloads'], ['pictures', '🖼️ Pictures'], ['videos', '🎞️ Videos'], ['', '➕ Other folder on C:']].map(([k, l]) => `<label class="ls-cpart"><input type="checkbox" data-cpart="${k}"> ${l}</label>`).join('')}</div></div>
           <div class="ls-drop" data-drop>
             <button class="btn primary" data-adddir>💽 Add drive / folder</button>
             <button class="btn" data-addfiles>📄 Add files</button>
@@ -153,7 +161,31 @@ const LocalSearch = (() => {
       } else q('[data-dirin]').click();
     };
     q('[data-addfiles]').onclick = () => q('[data-filein]').click();
-    const fromInput = inp => { const fs = [...inp.files]; inp.value = ''; if (!fs.length) return; const root = fs[0].webkitRelativePath ? fs[0].webkitRelativePath.split('/')[0] : (fs.length === 1 ? fs[0].name : fs.length + ' files'); addSrc({ kind: 'files', files: fs, name: root, count: fs.length, bytes: fs.reduce((a, f) => a + f.size, 0) }); };
+    // C: / D: / both
+    const pickDir = async (tag, startIn, label) => {
+      if (window.showDirectoryPicker) {
+        try { const o = { id: 'ls' + tag.replace(/\W/g, ''), mode: 'read' }; if (startIn) o.startIn = startIn; const hd = await window.showDirectoryPicker(o); addSrc({ kind: 'dir', handle: hd, name: (label ? label + ' · ' : '') + (hd.name || tag), drive: tag }); return true; }
+        catch (e) { if (e && e.name !== 'AbortError') note(`The browser did not allow that folder${e.message ? ' (' + h(e.message) + ')' : ''}. For C: choose Desktop, Documents, Downloads or another folder of your own.`); return false; }
+      }
+      pendingTag = { tag, label }; q('[data-dirin]').click(); return true;
+    };
+    const onD = async () => { const ok = await pickDir('D', '', 'D:'); syncDrives(); return ok; };
+    const onC = () => { q('[data-dpC]').classList.remove('hidden'); };
+    w.querySelectorAll('[data-drv]').forEach(cb => cb.onchange = async () => {
+      const k = cb.dataset.drv, on = cb.checked;
+      if (k === 'both') { if (on) { onC(); if (!hasDrive('D')) await onD(); } else { dropDrive('C'); dropDrive('D'); } syncDrives(); return; }
+      if (k === 'D') { if (on) { if (!hasDrive('D')) await onD(); } else dropDrive('D'); }
+      if (k === 'C') { if (on) onC(); else dropDrive('C'); }
+      syncDrives();
+    });
+    q('[data-pickd]').onclick = onD;
+    w.querySelectorAll('[data-cpart]').forEach(cb => cb.onchange = async () => {
+      const k = cb.dataset.cpart, tag = 'C:' + (k || 'other');
+      if (cb.checked) { const lab = { desktop: 'C: Desktop', documents: 'C: Documents', downloads: 'C: Downloads', pictures: 'C: Pictures', videos: 'C: Videos' }[k] || 'C:'; if (!(await pickDir(tag, k || 'documents', lab)) && window.showDirectoryPicker) cb.checked = false; }
+      else { sources = sources.filter(s => s.drive !== tag); drawSrcs(); }
+      syncDrives();
+    });
+    const fromInput = inp => { const fs = [...inp.files], pt = pendingTag; pendingTag = null; inp.value = ''; if (!fs.length) return; const root = fs[0].webkitRelativePath ? fs[0].webkitRelativePath.split('/')[0] : (fs.length === 1 ? fs[0].name : fs.length + ' files'); addSrc({ kind: 'files', files: fs, name: (pt && pt.label ? pt.label + ' · ' : '') + root, count: fs.length, bytes: fs.reduce((a, f) => a + f.size, 0), drive: pt ? pt.tag : undefined }); syncDrives(); };
     q('[data-dirin]').onchange = e => fromInput(e.target);
     q('[data-filein]').onchange = e => fromInput(e.target);
     const dz = q('[data-drop]');
@@ -185,12 +217,23 @@ const LocalSearch = (() => {
   }
   function note(html, bad = true) { const w = el(); w.querySelector('[data-hint]').innerHTML = `<span class="${bad ? 'err' : ''}">${html}</span>`; }
   function addSrc(s) { sources.push(s); drawSrcs(); note('', false); }
+  let pendingTag = null;
+  const hasDrive = d => sources.some(s => s.drive && s.drive.startsWith(d));
+  function dropDrive(d) { sources = sources.filter(s => !(s.drive && s.drive.startsWith(d))); const w = el(); if (d === 'C') { w.querySelectorAll('[data-cpart]').forEach(c => c.checked = false); w.querySelector('[data-dpC]').classList.add('hidden'); } drawSrcs(); }
+  function syncDrives() {
+    const w = el(), C = hasDrive('C') || !w.querySelector('[data-dpC]').classList.contains('hidden'), D = hasDrive('D');
+    w.querySelector('[data-drv="C"]').checked = C; w.querySelector('[data-drv="D"]').checked = D; w.querySelector('[data-drv="both"]').checked = C && D;
+    w.querySelector('[data-dpD]').classList.toggle('hidden', !D);
+    const nd = sources.filter(s => s.drive === 'D').length; w.querySelector('[data-dstD]').textContent = nd ? `✓ ${nd} D: location added` : '';
+    w.querySelectorAll('[data-dlab]').forEach(l => l.classList.toggle('on', l.querySelector('input').checked));
+    w.querySelectorAll('[data-cpart]').forEach(c => { c.checked = sources.some(s => s.drive === 'C:' + (c.dataset.cpart || 'other')); c.parentElement.classList.toggle('on', c.checked); });
+  }
   function drawSrcs() {
     const box = el().querySelector('[data-srcs]');
     box.innerHTML = sources.length ? sources.map((s, i) => `<span class="ls-src">${s.kind === 'dir' ? '💽' : '📄'} <b>${h(s.name)}</b>${s.kind === 'files' ? ` <span class="muted">${num(s.count)} files · ${size(s.bytes)}</span>` : ' <span class="muted">folder · all sub-folders</span>'}<button data-rm="${i}" title="Remove">✕</button></span>`).join('') + '<button class="btn sm" data-clr>Clear all</button>'
       : '<span class="small muted">Nothing added yet.</span>';
-    box.querySelectorAll('[data-rm]').forEach(b => b.onclick = () => { sources.splice(+b.dataset.rm, 1); drawSrcs(); });
-    const c = box.querySelector('[data-clr]'); if (c) c.onclick = () => { sources = []; drawSrcs(); };
+    box.querySelectorAll('[data-rm]').forEach(b => b.onclick = () => { sources.splice(+b.dataset.rm, 1); drawSrcs(); syncDrives(); });
+    const c = box.querySelector('[data-clr]'); if (c) c.onclick = () => { sources = []; const w = el(); w.querySelector('[data-dpC]').classList.add('hidden'); drawSrcs(); syncDrives(); };
   }
   function syncTypes() { const w = el(); w.querySelectorAll('[data-ft]').forEach(b => b.classList.toggle('on', types.has(b.dataset.ft))); w.querySelector('[data-all]').classList.toggle('on', types.size === FT.length); }
   function open() { el().classList.add('open'); }
