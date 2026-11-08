@@ -121,6 +121,15 @@ let LayoutSoc = null;
 (() => {
   const CC = ['#3b82f6', '#10b981', '#8b5cf6', '#f97316', '#ec4899', '#06b6d4', '#eab308', '#14b8a6', '#a855f7', '#84cc16', '#6366f1', '#f43f5e'];
   let busy = false;
-  const paint = () => { busy = false; $$('#main .card').forEach((c, i) => { if (!c.classList.contains('cc')) c.classList.add('cc'); c.style.setProperty('--cc', CC[i % CC.length]); }); };
+  const KC = ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16', '#f97316', '#6366f1', '#14b8a6', '#e11d48'];
+  const BC = ['#3b82f6', '#10b981', '#f97316', '#8b5cf6', '#ec4899', '#06b6d4', '#eab308', '#14b8a6', '#6366f1', '#84cc16', '#f43f5e', '#a855f7'];
+  const paint = () => {
+    busy = false;
+    $$('#main .card').forEach((c, i) => { if (!c.classList.contains('cc')) c.classList.add('cc'); c.style.setProperty('--cc', CC[i % CC.length]); });
+    $$('#main .kpis').forEach(k => [...k.children].forEach((x, i) => { if (!x.classList.contains('kc2')) x.classList.add('kc2'); x.style.setProperty('--kc', KC[i % KC.length]); }));
+    $$('#main .steps .step').forEach((x, i) => { if (!x.classList.contains('kc2')) x.classList.add('kc2'); x.style.setProperty('--kc', KC[(i + 2) % KC.length]); });
+    let bi = 0; $$('#main .btn').forEach(b => { if (b.classList.contains('danger') || b.closest('.ch-sw')) return; if (!b.classList.contains('bc')) b.classList.add('bc'); const c = BC[bi++ % BC.length]; if (b.style.getPropertyValue('--bc') !== c) b.style.setProperty('--bc', c); });
+    const t = $$('#main .tabs .tab'); t.forEach((x, i) => { const c = BC[i % BC.length]; if (x.style.getPropertyValue('--tc') !== c) x.style.setProperty('--tc', c); });
+  };
   new MutationObserver(() => { if (!busy) { busy = true; requestAnimationFrame(paint); } }).observe($('#main'), { childList: true, subtree: true });
 })();
