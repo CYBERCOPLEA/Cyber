@@ -18,8 +18,8 @@ const Recovery = {
       <ul class="small" style="color:var(--text-secondary)"><li>Write it in your diary, or print it and keep it in a safe place – not on this computer's desktop.</li>
       <li>Anyone who has this key can reset the password, so keep it private.</li><li>Each key works once. After using it you get a new one.</li></ul>`,
       [{ label: 'Copy', onClick: () => { navigator.clipboard?.writeText(k); UI.toast('Copied'); } },
-       { label: 'Download as .txt', onClick: () => UI.download('Sudarshanastra_recovery_key.txt', `Sudarshanastra password recovery key\r\n\r\n${k}\r\n\r\nCreated: ${new Date().toLocaleString('en-IN')}\r\nKeep this private. Use it on the login page: "Forgot password?"\r\n`) },
-       { label: 'Print', onClick: () => Reports.win('Recovery key', `<h1>Sudarshanastra – password recovery key</h1><p style="font:700 28px Consolas,monospace;letter-spacing:3px">${k}</p><p>Created ${new Date().toLocaleString('en-IN')}. Keep private.</p>`) },
+       { label: 'Download as .txt', onClick: () => UI.download('SudarshanAshtra_recovery_key.txt', `SudarshanAshtra password recovery key\r\n\r\n${k}\r\n\r\nCreated: ${new Date().toLocaleString('en-IN')}\r\nKeep this private. Use it on the login page: "Forgot password?"\r\n`) },
+       { label: 'Print', onClick: () => Reports.win('Recovery key', `<h1>SudarshanAshtra – password recovery key</h1><p style="font:700 28px Consolas,monospace;letter-spacing:3px">${k}</p><p>Created ${new Date().toLocaleString('en-IN')}. Keep private.</p>`) },
        { label: 'I have saved it', cls: 'primary', onClick: UI.closeModal }]);
     return body;
   },

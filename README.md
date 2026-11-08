@@ -1,4 +1,4 @@
-# Sudarshanastra – Cyber Crime Case Analysis & Tracking
+# SudarshanAshtra – Cyber Crime Case Analysis & Tracking
 
 Offline tool for analysing cyber-fraud cases: NCRP complaints, layer-wise money trail,
 bank statements and KYC, social media replies, mule-account flags, notices and reports.

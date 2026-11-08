@@ -654,7 +654,7 @@ Pages.settings = main => {
       <div class="f"><label>Theme</label><select id="sTheme"><option value="dark" ${S.settings.theme !== 'light' ? 'selected' : ''}>Dark</option><option value="light" ${S.settings.theme === 'light' ? 'selected' : ''}>Light</option></select></div></div>
       <div class="row" style="margin-top:10px"><button class="btn primary" id="sPref">Save preferences</button></div>
       <h3 style="margin-top:22px">Danger zone</h3><div class="row"><button class="btn danger" id="sClear">Clear all data of current case</button></div></div></div>
-    <div class="card"><h3>About</h3><div class="small muted">Sudarshanastra v1.0 · offline single-folder web app · works in Chrome / Edge / Firefox without internet. Libraries: SheetJS (Excel), PDF.js (PDF). Your data never leaves this computer.</div></div>`;
+    <div class="card"><h3>About</h3><div class="small muted">SudarshanAshtra v2.0 · offline single-folder web app · works in Chrome / Edge / Firefox without internet. Libraries: SheetJS (Excel), PDF.js (PDF). Your data never leaves this computer.</div></div>`;
   $('#sSave').onclick = async () => {
     const e = $('#sErr'); e.textContent = '';
     if (hashPass($('#sCur').value, S.settings.salt) !== S.settings.hash) { e.textContent = 'Current password is wrong'; return; }

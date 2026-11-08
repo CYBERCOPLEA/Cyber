@@ -20,7 +20,7 @@ const Mail = {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           service_id: c.service, template_id: c.template, user_id: c.key,
-          template_params: { to_email: c.email, passcode, purpose, valid_minutes: 10, app_name: 'Sudarshanastra', time: new Date().toLocaleString('en-IN') }
+          template_params: { to_email: c.email, passcode, purpose, valid_minutes: 10, app_name: 'SudarshanAshtra', time: new Date().toLocaleString('en-IN') }
         })
       });
     } catch (e) { throw new Error('Could not reach the e-mail service (check internet / firewall).'); }

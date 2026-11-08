@@ -1,4 +1,4 @@
-SUDARSHANASTRA – Cyber Crime Case Analysis & Tracking (offline)
+SUDARSHANASHTRA – Cyber Crime Case Analysis & Tracking (offline)
 ==================================================================
 
 HOW TO START
@@ -34,7 +34,7 @@ One-time setup (about 10 minutes):
  4. Account -> General: copy the Public Key.
     Account -> Security: tick "Allow EmailJS API for non-browser applications" (needed because
     the app is opened as a file), and leave the domain allow-list empty.
- 5. In Sudarshanastra: Settings -> "Forgot-password by e-mail code": check the e-mail, paste the
+ 5. In SudarshanAshtra: Settings -> "Forgot-password by e-mail code": check the e-mail, paste the
     Service ID, Template ID and Public Key, tick "Allow e-mail code on the login page",
     type your current password, Save. Click "Send test e-mail" to check it arrives.
 Use: login page -> "Forgot password?" -> "E-mail me a code" -> Send code -> type the code and a

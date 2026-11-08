@@ -82,7 +82,7 @@ const Reports = {
     const common = ['account', 'mobile', 'email', 'pan', 'aadhaar', 'ifsc'].map(f => [f, Analysis.finCommon(f).filter(g => g.n >= 2 && (g.accs >= 2 || g.acks >= 2)).sort((a, b) => b.n - a.n)]).filter(x => x[1].length);
     const xl = Analysis.crossLinks().filter(x => x.sections >= 2 || x.refs >= 2).sort((a, b) => b.sections - a.sections || b.refs - a.refs);
     const socC = ['mobile', 'email', 'imei', 'ip'].map(f => [f, Analysis.socCommon(f).filter(g => g.profiles >= 2)]).filter(x => x[1].length);
-    const html = `<h1>Case Analysis Report</h1><div class="muted">Generated ${new Date().toLocaleString('en-IN')} · Sudarshanastra</div>
+    const html = `<h1>Case Analysis Report</h1><div class="muted">Generated ${new Date().toLocaleString('en-IN')} · SudarshanAshtra</div>
       <h2>Case details</h2><table>${[['Case', c.name], ['FIR / Case No', c.fir], ['Sections', c.section], ['Police Station', c.ps], ['District', c.district], ['IO', [c.io, c.io_rank].filter(Boolean).join(', ')], ['NCRP Ack', c.ack], ['Status', c.status], ['Brief facts', c.desc]].filter(r => r[1]).map(r => `<tr><th style="width:180px">${r[0]}</th><td style="white-space:pre-wrap">${esc(r[1])}</td></tr>`).join('')}</table>
       <h2>Summary</h2>${[['Complaints', d.ncrp.length], ['Reported loss', fmtINR(sum(d.ncrp, r => r.amount))], ['Transactions analysed', d.txns.length], ['Accounts in trail', acc.length], ['Max layer', Math.max(0, ...acc.map(a => a.layer))], ['Amount on hold', fmtINR(sum(acc, a => a.hold))], ['High-risk accounts', acc.filter(a => a.score >= 60).length], ['Social profiles', d.social.length]].map(k => `<span class="kp">${k[0]}<b>${k[1]}</b></span>`).join('')}
       ${d.ncrp.length ? '<h2>NCRP complaints</h2>' + this.tbl([['ack_no', 'Ack No'], ['date', 'Date'], ['victim_name', 'Victim'], ['district', 'District'], ['category', 'Category'], ['amount', 'Amount', fmtINR], ['hold_amount', 'Hold', fmtINR], ['status', 'Status']], d.ncrp) : ''}
@@ -117,7 +117,7 @@ const Reports = {
   restore() {
     const fp = $('#filePick'); fp.value = ''; fp.onchange = async () => {
       try {
-        const j = JSON.parse(await fp.files[0].text()); if (j.app !== 'sudarshanastra') throw new Error('Not a Sudarshanastra backup');
+        const j = JSON.parse(await fp.files[0].text()); if (j.app !== 'sudarshanastra') throw new Error('Not a SudarshanAshtra backup');
         const mode = prompt('Type MERGE to add these cases to existing ones, or REPLACE to delete current cases and restore only the backup:', 'MERGE'); if (!mode) return;
         if (mode.toUpperCase() === 'REPLACE') { for (const c of S.cases) await DB.del('case:' + c.id); S.cases = []; }
         for (const c of j.cases) { if (S.cases.some(x => x.id === c.id)) c.id = uid() + '', c.name += ' (restored)'; S.cases.push(c); await DB.set('case:' + c.id, j.data[c.id] || j.data[Object.keys(j.data)[j.cases.indexOf(c)]] || emptyCase()); }
