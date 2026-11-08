@@ -461,3 +461,17 @@ table.tbl{font-size:12.5px}
 .lg-x:hover{background:var(--surface-2);color:var(--text-primary)}
 @media (max-width:1000px){.hp-hero{grid-template-columns:1fr;text-align:center}.hp-lead{margin-left:auto;margin-right:auto}.hp-cta,.hp-trust{justify-content:center}.hp-art{order:-1}.emblem-big{height:min(42vh,380px)}.hp-feats{grid-template-columns:repeat(2,1fr)}.hp-pill{display:none}}
 @media (max-width:620px){.hp-feats{grid-template-columns:1fr}.hp-brand small{display:none}}
+
+/* Sudarshan Chakra: spins clockwise behind the emblem and in the header */
+@keyframes chakraSpin{to{transform:rotate(360deg)}}
+.chakra-big{position:absolute;width:min(78vh,700px);max-width:125%;aspect-ratio:1;animation:chakraSpin 14s linear infinite;filter:drop-shadow(0 0 22px rgba(251,191,36,.45)) drop-shadow(0 0 60px rgba(234,88,12,.25));opacity:.95}
+.hp-mark{position:relative;width:64px;height:64px;flex:none;display:grid;place-items:center}
+.chakra-sm{width:64px;height:64px;animation:chakraSpin 6s linear infinite;filter:drop-shadow(0 0 8px rgba(251,191,36,.55))}
+.hp-brand b{background:linear-gradient(90deg,#f8fafc,#fbbf24 70%,#f97316);-webkit-background-clip:text;background-clip:text;color:transparent;font-size:21px}
+.hp-by{display:inline-flex;align-items:center;gap:8px;margin-top:4px;font-size:12.5px;font-weight:600;color:#e2e8f0}
+.hp-by i{font-style:normal;font-weight:500;color:#fbbf24;padding:1px 8px;border-radius:999px;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.3)}
+.hp-top .hp-btn.big{padding:13px 22px;font-size:15px}
+.hp-foot b{color:#94a3b8}
+@media (max-width:1000px){.chakra-big{width:min(56vh,500px)}.hp-art{margin:50px 0}}
+@media (max-width:620px){.hp-top .hp-btn.big{padding:10px 14px;font-size:13.5px}.hp-by{display:none}}
+.hp-hero{padding-top:clamp(48px,9vh,96px);padding-bottom:clamp(48px,9vh,96px)}
