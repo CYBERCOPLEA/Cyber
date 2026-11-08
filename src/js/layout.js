@@ -8,6 +8,8 @@ const ICON = {
   trail: '<circle cx="5" cy="12" r="2.5"/><circle cx="19" cy="6" r="2.5"/><circle cx="19" cy="18" r="2.5"/><path d="M7.5 11l9-4"/><path d="M7.5 13l9 4"/>',
   bank: '<path d="M3 10l9-6 9 6"/><path d="M5 10v8M9.5 10v8M14.5 10v8M19 10v8"/><path d="M3 21h18"/>',
   social: '<circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17.5" cy="9" r="2.4"/><path d="M16 14.2c2.9.3 5 2.6 5 5.8"/>',
+  osint: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.5 3.9 5.5 3.9 9s-1.3 6.5-3.9 9M12 3C9.4 5.5 8.1 8.5 8.1 12s1.3 6.5 3.9 9"/>',
+  caf: '<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2.2"/><path d="M5.5 16c.6-1.7 2-2.6 3.5-2.6s2.9.9 3.5 2.6M14 10h4M14 13h4"/>',
   lsearch: '<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><circle cx="12" cy="13" r="2.6"/><path d="M14 15l2 2"/>',
   analytics: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
   file: '<path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/><path d="M10 13h6M10 17h6"/>',
@@ -19,7 +21,7 @@ const ICON = {
 const ico = (k, s = 18) => `<svg class="ico" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[k] || ''}</svg>`;
 
 /* each menu button has its own colour */
-const NAVC = { dashboard: '#3b82f6', ncrp: '#f97316', trail: '#8b5cf6', financial: '#10b981', social: '#ec4899', analytics: '#06b6d4', lsearch: '#3b82f6', others: '#eab308', settings: '#94a3b8' };
+const NAVC = { dashboard: '#3b82f6', ncrp: '#f97316', trail: '#8b5cf6', financial: '#10b981', social: '#ec4899', analytics: '#06b6d4', osint: '#ef4444', caf: '#84cc16', lsearch: '#6366f1', others: '#eab308', settings: '#94a3b8' };
 
 /* menu: in the order an investigation is done */
 const MENU = [
@@ -29,7 +31,7 @@ const MENU = [
     ['trail', 'trail', 'Money Trail', 'Victim → Layer 1 → Layer 2 … cards'],
     ['financial', 'bank', 'Bank & Financial', 'Statements, KYC, suspects, charts'],
     ['social', 'social', 'Social Media', 'Platform replies, IP logs, links']]],
-  ['Analysis', [['analytics', 'analytics', 'Analytics', 'Mule flags, cross-links, timeline, hotspots'], ['lsearch', 'lsearch', 'Search in Local Drive', 'Search inside files and folders on this computer']]],
+  ['Analysis', [['analytics', 'analytics', 'Analytics', 'Mule flags, cross-links, timeline, hotspots'], ['osint', 'osint', 'OSINT', 'Open OSINT Framework (osintframework.com) in a new tab'], ['caf', 'caf', 'CAF Analysis', 'SIM application forms: table, common POS, agent, date, number, photo'], ['lsearch', 'lsearch', 'Search in Local Drive', 'Search inside files and folders on this computer']]],
   ['Action', [['others', 'file', 'Case File & Notices', 'Notes, notices, reports, tools']]]
 ];
 
@@ -46,6 +48,7 @@ const PAGE_META = {
   analytics: { group: 'Analysis', title: 'Analytics', desc: 'Mule behaviour across all complaints, and the same identifier appearing in bank, social media and NCRP data.',
     order: ['common', 'flags', 'velocity', 'cross', 'entity', 'time', 'geo', 'round'],
     names: { common: 'Common Suspect', flags: 'Bulk Split & Rapid', velocity: 'Fast Movement', cross: 'Cross-Link', entity: 'Entity Graph', time: 'Timeline', geo: 'Hotspots', round: 'Patterns' } },
+  caf: { group: 'Analysis', title: 'CAF Analysis', desc: 'SIM Customer Application Forms (PDF): one row per CAF, and what many CAFs share – POS, POS agent, activation date, alternate number, ID and user photo.', order: ['data', 'common', 'photo'] },
   others: { group: 'Action', title: 'Case File & Notices', desc: 'Case details, notes and tasks, notice drafts, reports and export, and helper tools.',
     order: ['cases', 'notes', 'notices', 'reports', 'extract', 'tools'],
     names: { cases: 'Case Details', notes: 'Notes & Tasks', notices: 'Notice Drafts', reports: 'Reports & Export', extract: 'Identifier Extractor', tools: 'Validators & Lookup' } }
@@ -70,7 +73,7 @@ tabs = function (main, page, list, title, actions = '') {
 
 let LayoutSoc = null;
 /* "Search in Local Drive" opens its own window instead of a page */
-(() => { const og = go; go = function (page, sub) { if (page === 'lsearch') return LocalSearch.open(); return og(page, sub); }; })();
+(() => { const og = go; go = function (page, sub) { if (page === 'lsearch') return LocalSearch.open(); if (page === 'osint') { window.open('https://osintframework.com/', '_blank', 'noopener'); return; } return og(page, sub); }; })();
 /* build the sidebar menu */
 (() => {
   const nav = $('#sidebar'), info = $('#sideInfo');

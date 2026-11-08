@@ -531,3 +531,24 @@ table.tbl{font-size:12.5px}
 .cs-stat{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
 .cs-stat span{padding:6px 12px;border-radius:999px;background:var(--surface-2);border:1px solid var(--border);font-size:13px}
 .cs-fields{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+
+/* CAF Analysis */
+.caf-mini{width:34px;height:40px;object-fit:cover;border-radius:5px;border:1px solid var(--border);margin-right:8px;vertical-align:middle}
+.caf-phs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.caf-ph{height:120px;border-radius:8px;border:1px solid var(--border)}
+.caf-txt{white-space:pre-wrap;font-size:12px;max-height:40vh;overflow:auto;background:var(--surface-2);padding:10px;border-radius:8px}
+.caf-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin-top:8px}
+.caf-card{display:flex;gap:10px;align-items:center;padding:8px;border-radius:10px;border:1px solid var(--border);background:var(--surface-2);cursor:pointer}
+.caf-card:hover{border-color:var(--accent)}
+.caf-card img{width:64px;height:76px;object-fit:cover;border-radius:6px}
+
+/* ===== Left menu redesign: every button has its own colour ===== */
+#sidebar .nav-item{position:relative;margin:0 0 6px;padding:8px 10px;border-radius:12px;font-weight:600;color:color-mix(in srgb,var(--c) 30%,var(--text-primary));
+  background:linear-gradient(90deg,color-mix(in srgb,var(--c) 16%,transparent),color-mix(in srgb,var(--c) 4%,transparent));border:1px solid color-mix(in srgb,var(--c) 30%,transparent);transition:transform .15s,background .15s,box-shadow .15s}
+#sidebar .nav-item .nib{background:linear-gradient(135deg,var(--c),color-mix(in srgb,var(--c) 60%,#000));border:0;box-shadow:0 3px 10px color-mix(in srgb,var(--c) 40%,transparent)}
+#sidebar .nav-item .nib .ico{color:#fff}
+#sidebar .nav-item:hover{transform:translateX(3px);background:linear-gradient(90deg,color-mix(in srgb,var(--c) 28%,transparent),color-mix(in srgb,var(--c) 8%,transparent));box-shadow:0 4px 14px color-mix(in srgb,var(--c) 22%,transparent)}
+#sidebar .nav-item.active{color:#fff;background:linear-gradient(90deg,var(--c),color-mix(in srgb,var(--c) 55%,#0b1220));border-color:var(--c);box-shadow:0 6px 18px color-mix(in srgb,var(--c) 40%,transparent)}
+#sidebar .nav-item.active .nib{background:rgba(255,255,255,.22);box-shadow:none}
+#sidebar .nav-item.active::before{display:none}
+#sidebar .nav-item[data-page="osint"]::after{content:"↗";margin-left:auto;font-size:13px;opacity:.75}
