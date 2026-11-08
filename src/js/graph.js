@@ -11,9 +11,15 @@ const Graph = {
     const byId = new Map(nodes.map(n => [n.id, n]));
     edges = edges.filter(e => byId.has(e.from) && byId.has(e.to));
     const maxV = Math.max(1, ...nodes.map(n => n.value || 0)), maxE = Math.max(1, ...edges.map(e => e.amount || 0));
-    nodes.forEach(n => n.r = 7 + 15 * Math.sqrt((n.value || 0) / maxV));
+    // money graphs: circle size = how many accounts it sent money on to (bulk split) + amount; layer number inside
+    const money = nodes.some(n => n.layer), fanOut = new Map();
+    edges.forEach(e => { let s = fanOut.get(e.from); if (!s) fanOut.set(e.from, s = new Set()); s.add(e.to); });
+    nodes.forEach(n => n.fan = (fanOut.get(n.id) || new Set()).size);
+    const maxF = Math.max(1, ...nodes.map(n => n.fan)), BULK = Math.max(4, Math.ceil(maxF * .35));
+    nodes.forEach(n => { n.bulk = money && n.fan >= BULK && n.fan >= 4; n.r = money ? 12 + 22 * Math.sqrt(n.fan / maxF) + 6 * Math.sqrt((n.value || 0) / maxV) : 7 + 15 * Math.sqrt((n.value || 0) / maxV); });
+    const lab = n => (money && n.layer ? 'L' + n.layer + ' · ' : '') + String(n.label).slice(0, 24) + (n.bulk ? ' ⇉' + n.fan : '');
     const mode = opt.mode || 'flow', isMind = mode === 'mind', lay = mode === 'flow' || isMind;
-    nodes.forEach(n => n.w = isMind ? Math.min(230, 30 + 6.6 * (String(n.label).slice(0, 24).length + (n.badge ? 3 : 0))) : 0);
+    nodes.forEach(n => n.w = isMind ? Math.min(270, 30 + 6.6 * (lab(n).length + (n.badge ? 3 : 0))) * (n.bulk ? 1.08 : 1) : 0);
     const hw = n => isMind ? n.w / 2 : n.r;
     let vert = !!opt.vert;
     // portrait: layers go top → bottom instead of left → right
@@ -42,7 +48,9 @@ const Graph = {
     const fmtD = d => { d = String(d || ''); const m = d.match(/^(\d{4})-(\d{2})-(\d{2})(?: (\d{2}:\d{2}))?/); return m ? `${m[3]}-${m[2]}-${m[1].slice(2)}${m[4] ? ' ' + m[4] : ''}` : d; };
     const edgeDate = e => { const ds = (e.txns || []).map(t => t.date).filter(Boolean).sort(); return ds.length ? fmtD(ds[0]) + (ds.length > 1 && ds[ds.length - 1].slice(0, 10) !== ds[0].slice(0, 10) ? ' → ' + fmtD(ds[ds.length - 1]).slice(0, 8) : '') : ''; };
 
-    const legend = () => {
+    const sizeKey = () => money ? `<span class="g-size" title="Circle size"><svg width="62" height="22" viewBox="0 0 62 22"><circle cx="8" cy="11" r="5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="24" cy="11" r="7.5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="48" cy="11" r="10" fill="none" stroke="#fbbf24" stroke-width="2" stroke-dasharray="3 2"/></svg>Bigger circle = sent to more accounts · <b style="color:#fbbf24">gold ring ⇉N</b> = bulk split to N accounts (${BULK}+) · <b>L1, L2…</b> = layer</span>` : '';
+    const legend = () => sizeKey() + legend0();
+    const legend0 = () => {
       const sel = opt.trailColors ? `<select class="gcol" title="How to colour the chart">${[['layer', 'Colour: each layer'], ['victim', 'Colour: each victim\'s trail'], ['kind', 'Colour: account type']].map(([v, l]) => `<option value="${v}" ${v === colorBy ? 'selected' : ''}>${l}</option>`).join('')}</select>` : '';
       if (colorBy === 'victim') return sel + victims.slice(0, 14).map(([r, c]) => `<span><i style="background:${c}"></i>${esc(String(r.label).replace(/^Victim /, '').slice(0, 22))}</span>`).join('') + (victims.length > 14 ? `<span class="muted">+${victims.length - 14} more</span>` : '') + `<span class="muted">Each victim and the whole trail of its money have the same colour.</span>`;
       if (colorBy === 'layer') return sel + uniq(nodes.map(n => n.layer || 0)).sort((a, b) => a - b).map(l => `<span><i style="background:${LPAL[l % LPAL.length]}"></i>${l ? 'Layer ' + l : 'Victim'}</span>`).join('') + `<span class="muted">Lines take the colour of the layer they go to.</span>`;
@@ -93,17 +101,17 @@ const Graph = {
     const more = n => n.more || n.collapse ? `<g data-x="1" transform="translate(${hw(n) + (isMind ? 2 : 4)},${isMind ? -15 : -n.r - 4})" style="cursor:pointer"><circle r="${n.more > 99 ? 12 : 10}" fill="${C.surface}" stroke="${HL}" stroke-width="1.6"/><text y="3.5" text-anchor="middle" font-size="${n.more > 99 ? 8.5 : 10}" font-weight="700" fill="${HL}">${n.more ? '+' + n.more : '−'}</text><title>${n.more ? `Open: show the ${n.more} account(s) this account sent money to` : 'Close: hide the accounts opened from here'}</title></g>` : '';
     gN.innerHTML = nodes.map((n, i) => isMind ? `<g data-n="${i}" transform="translate(${n.x},${n.y})" style="cursor:pointer">
       <rect class="ring" x="${-n.w / 2 - 5}" y="-18" width="${n.w + 10}" height="36" rx="18" fill="none" stroke="${HL}" stroke-width="3" opacity="0"/>
-      <rect class="nb" x="${-n.w / 2}" y="-13" width="${n.w}" height="26" rx="13" fill="${nodeCol(n)}" stroke="${C.surface}" stroke-width="1.5"/>
-      <text class="pt" y="4" text-anchor="middle" font-size="11.5" font-weight="600" fill="${ink(nodeCol(n))}">${n.badge ? '⚑' + esc(n.badge) + ' ' : ''}${esc(String(n.label).slice(0, 24))}</text>
+      <rect class="nb" x="${-n.w / 2}" y="${n.bulk ? -16 : -13}" width="${n.w}" height="${n.bulk ? 32 : 26}" rx="${n.bulk ? 16 : 13}" fill="${nodeCol(n)}" stroke="${n.bulk ? '#fbbf24' : C.surface}" stroke-width="${n.bulk ? 3 : 1.5}"/>
+      <text class="pt" y="4" text-anchor="middle" font-size="${n.bulk ? 12.5 : 11.5}" font-weight="${n.bulk ? 800 : 600}" fill="${ink(nodeCol(n))}">${n.badge ? '⚑' + esc(n.badge) + ' ' : ''}${esc(lab(n))}</text>
       <g class="nt">${n.det ? `<text y="26" text-anchor="middle" font-size="10" font-weight="600" fill="${C.text}" paint-order="stroke" stroke="${C.surface2}" stroke-width="3">${esc(String(n.det).slice(0, 44))}</text>` : ''}${n.sub ? `<text y="${n.det ? 38 : 26}" text-anchor="middle" font-size="9.5" fill="${C.muted}" paint-order="stroke" stroke="${C.surface2}" stroke-width="3">${esc(String(n.sub).slice(0, 34))}</text>` : ''}</g>
       ${more(n)}<title>${esc(n.title || n.label)}</title></g>` : `<g data-n="${i}" transform="translate(${n.x},${n.y})" style="cursor:pointer">
       <circle class="ring" r="${n.r + 5}" fill="none" stroke="${HL}" stroke-width="3" opacity="0"/>
-      <circle class="nb" r="${n.r}" fill="${nodeCol(n)}" stroke="${C.surface}" stroke-width="2"/>
-      ${n.badge ? `<text y="4" text-anchor="middle" font-size="10" font-weight="700" fill="#fff">${esc(n.badge)}</text>` : ''}
+      ${n.bulk ? `<circle r="${n.r + 6}" fill="none" stroke="#fbbf24" stroke-width="2.5" stroke-dasharray="5 4" opacity=".9"/>` : ''}<circle class="nb" r="${n.r}" fill="${nodeCol(n)}" stroke="${n.bulk ? '#fbbf24' : C.surface}" stroke-width="${n.bulk ? 3 : 2}"/>
+      ${money && (n.layer || n.kind === 'victim') ? `<text y="${Math.round(n.r * .3)}" text-anchor="middle" font-size="${Math.max(10, Math.min(20, n.r * .8))}" font-weight="800" fill="${ink(nodeCol(n))}" style="pointer-events:none">${n.layer ? 'L' + n.layer : 'V'}</text>` : n.badge ? `<text y="4" text-anchor="middle" font-size="10" font-weight="700" fill="#fff">${esc(n.badge)}</text>` : ''}
       <g class="nt"><text y="${n.r + 13}" text-anchor="middle" font-size="11" font-weight="600" fill="${C.text}" paint-order="stroke" stroke="${C.surface2}" stroke-width="3">${esc(String(n.label).slice(0, 24))}</text>
       ${n.det ? `<text y="${n.r + 25}" text-anchor="middle" font-size="10" fill="${HL}" paint-order="stroke" stroke="${C.surface2}" stroke-width="3">${esc(String(n.det).slice(0, 44))}</text>` : ''}
       ${n.sub ? `<text y="${n.r + (n.det ? 37 : 25)}" text-anchor="middle" font-size="9.5" fill="${C.muted}" paint-order="stroke" stroke="${C.surface2}" stroke-width="3">${esc(String(n.sub).slice(0, 30))}</text>` : ''}</g>
-      ${more(n)}<title>${esc(n.title || n.label)}</title></g>`).join('');
+      ${more(n)}<title>${esc((n.title || n.label) + (n.fan ? `\nSent money on to ${n.fan} account(s)${n.bulk ? ' – bulk split' : ''}` : ''))}</title></g>`).join('');
     const nodeEl = n => gN.children[nodes.indexOf(n)];
     // layer titles (flow chart): drag a title to move the whole layer
     const colsOf = () => mode === 'flow' ? [...groupBy(nodes, n => n.layer || 0)].sort((a, b) => a[0] - b[0]) : [];
