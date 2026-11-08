@@ -71,7 +71,11 @@ Money Trail Complaints found from the Acknowledgement No. column. For each compl
             - BULK SPLIT accounts (received money, sent it to many accounts) and RAPID pass-through
               accounts (sent money on within minutes) – limits can be changed on screen
             - flow chart, mind map and graph with moving "live" lines, amount, date and L1->L2 on
-              every line; click an account or table row to run its full trail
+              every line. Point at a line to highlight it. Click a line to trace that
+              transaction from the victim to the end. Click an account to trace the money
+              from the victim to that account ("Show onward money too" adds the rest).
+            - "Rows: Money Transfer to only" draws only Money Transfer rows (by the Action
+              column, or a sheet named "Money Transfer to"); switch to All rows for ATM / hold.
             Also: complaint lists, summary charts, suspects repeated across complaints.
 4 Analytics "Bulk Split & Rapid" tab checks the same flags across ALL complaints together.
 4 Analytics Cross-Link (same identifier found in bank + social + NCRP data), entity graph,

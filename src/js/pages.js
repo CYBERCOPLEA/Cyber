@@ -207,9 +207,8 @@ const FinTabs = {
     $('#gGo', el).onclick = () => { o.ack = $('#gAck', el).value; o.root = N.acc($('#gRoot', el).value); o.dir = $('#gDir', el).value; o.depth = +$('#gDepth', el).value || 6; o.min = +$('#gMin', el).value || 0; FinTabs.graph(el); };
     const { nodes, edges, note } = finGraphData(o);
     if (!nodes.length) { $('#gBox', el).innerHTML = '<div class="muted" style="padding:40px;text-align:center">No transactions to draw. Import a money trail or statement first.</div>'; return; }
-    let lastNode = null;
-    const g = Graph.mount($('#gBox', el), nodes, edges, { live: edges.length <= 1000, labels: edges.length > 160 ? true : 'full', mode: o.mode, root: o.root || (nodes.find(n => n.kind === 'victim') || nodes[0]).id, onNode: n => { lastNode = n; }, onTrail: (hops, api) => trailDrawer(hops, api, lastNode), onClear: UI.closeDrawer });
-    if (o.focus) { const f = o.focus; delete o.focus; lastNode = nodes.find(n => n.id === (f.node || f.to)) || null; setTimeout(() => f.node ? g.highlightNode(f.node) : g.highlightEdge(f.from, f.to), 50); }
+    const g = Graph.mount($('#gBox', el), nodes, edges, { live: edges.length <= 1000, labels: edges.length > 160 ? true : 'full', mode: o.mode, root: o.root || (nodes.find(n => n.kind === 'victim') || nodes[0]).id, onTrail: (hops, api, info) => trailDrawer(hops, api, info), onClear: UI.closeDrawer });
+    if (o.focus) { const f = o.focus; delete o.focus; setTimeout(() => f.node ? g.highlightNode(f.node) : g.highlightEdge(f.from, f.to), 50); }
     $('#gInfo', el).textContent = `${nodes.length} accounts, ${edges.length} links. ${note}`;
     $('#gSvg', el).onclick = () => g.download('money_trail_' + o.mode);
     $('#gPng', el).onclick = () => g.download('money_trail_' + o.mode, true);
@@ -263,17 +262,22 @@ function openTrail(f) {
   S.graphOpt = { mode: 'flow', root: '', depth: 6, dir: 'down', ack: f.ack || '', min: 0, focus: f.node ? { node: f.node } : { from: f.from, to: f.to } };
   go('financial', 'graph');
 }
-function trailDrawer(hops, api, node) {
+function trailDrawer(hops, api, info) {
+  info = info || {}; const node = info.node || null, E = info.edge;
+  const head = info.type === 'upto' ? 'Trail: victim → ' + accLabel(node.id) : info.type === 'edge' ? 'Trail through ' + accLabel(E.from) + ' → ' + accLabel(E.to) : 'Money trail' + (node ? ' through ' + accLabel(node.id) : '');
+  const what = info.type === 'upto' ? 'How the money reached this account, step by step from the victim.' : info.type === 'edge' ? `How the money reached this transaction (${fmtINR(E.amount)}${E.tag ? ', ' + E.tag : ''}) and where it went after it, to the last account.` : 'From the victim, through this account, to the last account.';
   const rows = hops.flatMap(h => (h.txns && h.txns.length ? h.txns : [{}]).map(t => ({ step: h.step, from: h.from, to: h.to, amount: t.amount ?? h.amount, date: t.date || '', utr: t.txn_id || '', bank: t.to_bank || '', action: t.action || '' })))
     .sort((a, b) => a.step - b.step || String(a.date).localeCompare(String(b.date)));
   const total = sum(hops.filter(h => h.step === 1), h => h.amount);
-  const body = UI.drawer('Money trail' + (node ? ' through ' + accLabel(node.id) : ''), `
-    <div class="row" style="margin-bottom:10px"><button class="btn sm primary" id="trPlay">▶ Play again</button><button class="btn sm" id="trClr">Clear highlight</button>${node && !node.id.startsWith('VICTIM:') ? '<button class="btn sm" id="trAcc">Account details</button>' : ''}<button class="btn sm" id="trCsv">⬇ CSV</button></div>
-    <p class="small muted">${hops.length} links · ${uniq(hops.flatMap(h => [h.from, h.to])).length} accounts · ${Math.max(0, ...hops.map(h => h.step))} steps${total ? ' · first step total ' + fmtINR(total) : ''}. Steps light up one by one on the chart, from the victim to the last account.</p>
+  const body = UI.drawer(head, `
+    <div class="row" style="margin-bottom:10px;flex-wrap:wrap"><button class="btn sm primary" id="trPlay">▶ Play again</button>${node && info.type === 'upto' ? '<button class="btn sm" id="trOn">Show onward money too</button>' : ''}${node && info.type === 'full' && !node.id.startsWith('VICTIM:') ? '<button class="btn sm" id="trUp">Only up to this account</button>' : ''}<button class="btn sm" id="trClr">Clear highlight</button>${node && !node.id.startsWith('VICTIM:') ? '<button class="btn sm" id="trAcc">Account details</button>' : ''}<button class="btn sm" id="trCsv">⬇ CSV</button></div>
+    <p class="small"><b>${esc(what)}</b></p><p class="small muted">${hops.length} links · ${uniq(hops.flatMap(h => [h.from, h.to])).length} accounts · ${Math.max(0, ...hops.map(h => h.step))} steps${total ? ' · first step total ' + fmtINR(total) : ''}. Steps light up one by one on the chart. Click an empty part of the chart to clear.</p>
     <div class="tbl-wrap" style="max-height:none"><table class="tbl"><tr><th>Step</th><th>From → To</th><th class="num">Amount</th><th>Date</th><th>UTR</th></tr>
     ${rows.map(r => `<tr><td class="num">${r.step}</td><td>${accLink(r.from)}<br>→ ${accLink(r.to)}${r.bank ? `<div class="small muted">${esc(r.bank)}${r.action ? ' · ' + esc(r.action) : ''}</div>` : ''}</td><td class="num">${fmtINR(r.amount)}</td><td class="small">${esc(r.date)}</td><td class="small mono">${esc(r.utr)}</td></tr>`).join('')}</table></div>`);
   bindAccLinks(body);
   $('#trPlay', body).onclick = () => api.replay();
+  const on = $('#trOn', body); if (on) on.onclick = () => api.highlightNode(node.id);
+  const up = $('#trUp', body); if (up) up.onclick = () => api.traceTo(node.id);
   $('#trClr', body).onclick = () => api.clear();
   const ac = $('#trAcc', body); if (ac) ac.onclick = () => showAccount(node.id);
   $('#trCsv', body).onclick = () => UI.download('money_trail_path.csv', UI.toCSV([{ key: 'step', label: 'Step' }, { key: 'from', label: 'From' }, { key: 'to', label: 'To' }, { key: 'amount', label: 'Amount' }, { key: 'date', label: 'Date' }, { key: 'utr', label: 'UTR' }, { key: 'bank', label: 'Bank' }, { key: 'action', label: 'Action' }], rows), 'text/csv');

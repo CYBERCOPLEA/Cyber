@@ -2,6 +2,8 @@
    see beneficiaries, IFSC, dates, amounts, nodal / escrow accounts, layer totals and a live flow chart / mind map / network. */
 'use strict';
 
+const isMoneyTransfer = t => t.action ? /money\s*transfer/i.test(t.action) : /\[\s*money\s*transfer/i.test(t._src || '');
+
 /* Nodal / pool / escrow / payment-gateway accounts: money passes through, they are not the fraudster's own account */
 const ACC_TYPES = [
   ['Nodal / Escrow', /\b(NODAL|ESCROW|POOL(ING)?\s*A\/?C|POOL ACCOUNT|SETTLEMENT|SUSPENSE|CLEARING|SWEEP|PAYOUT|COLLECTION\s*(A\/?C|ACCOUNT)|VIRTUAL\s*A\/?C|TRUST\s*A\/?C|CURRENT\s*A\/?C\s*NODAL)\b/],
@@ -129,7 +131,7 @@ const NcrpCase = {
 
   graphData(D) {
     const { A } = Analysis.fin();
-    const nodes = [...D.info.values()].map(n => {
+    let nodes = [...D.info.values()].map(n => {
       const id = n.id, t = accType(id, n), a = A.get(id) || {};
       const L0 = (D.B.L.get(id) || 0) === 0 && n.inAmt === 0;
       const f = D.FL.get(id), flagged = f && (f.bulk || f.rapid);
@@ -138,6 +140,13 @@ const NcrpCase = {
         title: `${id.startsWith('VICTIM:') ? 'Victim of ' + D.ack : accLabel(id)}\n${[...n.names].join(' / ')}\n${[...n.banks].join(' / ')} ${[...n.ifscs].join(' / ')}\nLayer ${D.B.L.get(id) || 0} · received ${fmtINR(n.inAmt)} · sent ${fmtINR(n.outAmt)}${n.hold ? ' · hold ' + fmtINR(n.hold) : ''}${t ? '\n' + t : ''}${flagged ? '\n⚑ ' + f.flags + (f.bulk ? ' – sent to ' + f.receivers + ' accounts' : '') + (f.rapid ? ' – forwarded in ' + Flags.fmtGap(f) : '') : ''}`, badge: flagged ? (f.bulk && f.rapid ? 'BR' : f.bulk ? 'B' : 'R') : '' };
     });
     let edges = D.B.links.map(e => ({ from: e.from, to: e.to, amount: e.amount, count: e.txns.length, txns: e.txns, tag: [D.B.L.get(e.from) || 0, D.B.L.get(e.to) || 0].map(l => l ? 'L' + l : 'Victim').join('→') }));
+    // "Money Transfer to" rows only (the action column, or a sheet with that name)
+    const mtAll = D.moved.filter(isMoneyTransfer).length;
+    if (mtAll && S.ncrpG.mt !== false) {
+      edges = edges.map(e => { const tx = (e.txns || []).filter(isMoneyTransfer); return tx.length === e.txns.length ? e : { ...e, txns: tx, count: tx.length, amount: sum(tx, t => t._amt ?? Math.abs(t.amount || 0)) }; }).filter(e => e.count);
+      const used = new Set(edges.flatMap(e => [e.from, e.to]));
+      nodes = nodes.filter(n => used.has(n.id));
+    }
     const top = +S.ncrpG.top || 0, total = nodes.length;
     if (top && nodes.length > top) {
       // keep the biggest accounts, plus every account on the way from the victim to them
@@ -147,9 +156,9 @@ const NcrpCase = {
       for (const n of nodes.slice().sort((a, b) => b.value - a.value).slice(0, top)) { let id = n.id, guard = 0; while (id && !keep.has(id) && guard++ < 60) { keep.add(id); const e = best.get(id); id = e ? e.from : null; } }
       const pathE = new Set([...keep].map(id => best.get(id)).filter(Boolean));
       const ns = nodes.filter(n => keep.has(n.id)); edges = edges.filter(e => pathE.has(e) || (keep.has(e.from) && keep.has(e.to) && edges.length < 400));
-      return { nodes: ns, edges, total };
+      return { nodes: ns, edges, total, mtAll };
     }
-    return { nodes, edges, total };
+    return { nodes, edges, total, mtAll };
   },
 
   render(el) {
@@ -187,9 +196,10 @@ const NcrpCase = {
       <div class="card"><div class="row" style="flex-wrap:wrap">
         <h3 class="grow" style="margin:0">Money trail chart</h3>
         <span class="pill-group">${[['flow', 'Flow chart'], ['mind', 'Mind map'], ['net', 'Graph']].map(([k, l]) => `<button data-gm="${k}" class="${S.ncrpG.mode === k ? 'active' : ''}">${l}</button>`).join('')}</span>
+        ${D.moved.some(isMoneyTransfer) ? `<label class="small">Rows</label><select id="ncMt"><option value="1" ${S.ncrpG.mt !== false ? 'selected' : ''}>Money Transfer to only</option><option value="0" ${S.ncrpG.mt === false ? 'selected' : ''}>All rows (with ATM, hold…)</option></select>` : ''}
         <label class="small">Accounts</label><select id="ncTop">${[[30, 'Top 30'], [60, 'Top 60'], [120, 'Top 120'], [250, 'Top 250'], [0, 'All']].map(([v, l]) => `<option value="${v}" ${(S.ncrpG.top ?? 60) === v ? 'selected' : ''}>${l}</option>`).join('')}</select><span class="small muted" id="ncTopInfo"></span>
         <button class="btn sm" id="ncReplay">▶ Play whole trail</button><button class="btn sm" id="ncSvg">⬇ SVG</button><button class="btn sm" id="ncPng">⬇ PNG</button></div>
-        <div class="sub" style="margin-top:6px">Lines move from sender to receiver (⚡ switches it off). Each line shows amount, layer (L1→L2) and date (₹ button changes labels). Click any account to run its full trail from victim to last layer. Drag accounts or a "Layer" title to make space.</div>
+        <div class="sub" style="margin-top:6px">Lines move from sender to receiver (⚡ switches it off). Each line shows amount, layer (L1→L2) and date (₹ button changes labels). Point at a line to highlight it. Click a line to trace that transaction from the victim to the end. Click an account to trace the money from the victim to that account. Drag accounts or a "Layer" title to make space.</div>
         <div class="graph-box" id="ncBox" style="height:640px"></div></div>
       <div class="card"><h3>Transactions of this complaint</h3><div class="sub">Sorted by amount, maximum to minimum (use Sort / A→Z / Z→A or click a column title to change). Click a row to show it on the chart.</div>
         <div class="row" style="margin-bottom:8px"><label>Layer</label><select id="ncLay"><option value="">All layers</option>${D.layers.map(l => `<option value="${l.layer}" ${String(S.ncrpLay) === String(l.layer) ? 'selected' : ''}>${l.layer === 0 ? 'Victim / no layer' : 'Layer ' + l.layer} (${l.txns})</option>`).join('')}</select>
@@ -210,16 +220,17 @@ const NcrpCase = {
     Charts.hbar($('#ncLc', el), D.layers.map(l => ({ label: l.layer === 0 ? 'Victim' : 'Layer ' + l.layer, value: l.amount, sub: l.txns + ' txns · ' + l.accounts + ' accounts' })), { fmt: fmtINR, max: 30 });
 
     // chart
-    const { nodes, edges, total } = this.graphData(D); let g = null, lastNode = null;
+    const { nodes, edges, total } = this.graphData(D); let g = null;
     $('#ncTopInfo', el).textContent = nodes.length < total ? `Showing the ${nodes.length} biggest accounts (and the path to them) of ${total}.` : `${total} accounts.`;
+    const mt = $('#ncMt', el); if (mt) mt.onchange = e => { S.ncrpG.mt = e.target.value === '1'; NcrpTabs.case(el); setTimeout(() => $('#ncBox').scrollIntoView({ block: 'center' }), 30); };
     $('#ncTop', el).onchange = e => { S.ncrpG.top = +e.target.value; NcrpTabs.case(el); setTimeout(() => $('#ncBox').scrollIntoView({ block: 'center' }), 30); };
     if (nodes.length) {
       const root = (nodes.find(n => n.kind === 'victim') || nodes[0]).id;
       g = Graph.mount($('#ncBox', el), nodes, edges, { mode: S.ncrpG.mode, root, live: S.ncrpG.live !== false && edges.length <= 1000, labels: edges.length > 160 ? true : 'full',
-        onNode: n => { lastNode = n; }, onTrail: (hops, api) => trailDrawer(hops, api, lastNode), onClear: UI.closeDrawer });
+        onTrail: (hops, api, info) => trailDrawer(hops, api, info), onClear: UI.closeDrawer });
       $('#ncSvg', el).onclick = () => g.download('trail_' + ack + '_' + S.ncrpG.mode);
       $('#ncPng', el).onclick = () => g.download('trail_' + ack + '_' + S.ncrpG.mode, true);
-      $('#ncReplay', el).onclick = () => { lastNode = nodes.find(n => n.id === root); g.highlightNode(root); };
+      $('#ncReplay', el).onclick = () => g.highlightNode(root);
       $('#ncBox', el).addEventListener('click', e => { const z = e.target.closest('[data-z="live"]'); if (z) S.ncrpG.live = $('#ncBox svg').classList.contains('live'); });
     } else $('#ncBox', el).innerHTML = '<div class="muted" style="padding:40px;text-align:center">This complaint has no money-trail transactions imported yet.</div>';
     $$('[data-gm]', el).forEach(b => b.onclick = () => { S.ncrpG.mode = b.dataset.gm; NcrpTabs.case(el); setTimeout(() => $('#ncBox').scrollIntoView({ block: 'center' }), 30); });
@@ -227,7 +238,7 @@ const NcrpCase = {
     // flagged accounts
     Flags.bindRule(el, 'ncf', () => NcrpCase.render(el));
     Table($('#ncF', el), { rows: S.flagOnly === false ? D.flags : D.flags.filter(f => f.bulk || f.rapid), pageSize: 25, exportName: 'complaint_' + ack + '_flagged', sortKey: 'receivers', sortDir: -1, columns: Flags.columns(), after: bindAccLinks,
-      onRow: r => { if (!g) return; lastNode = nodes.find(n => n.id === r.acc) || null; $('#ncBox').scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(() => g.highlightNode(r.acc), 350); } });
+      onRow: r => { if (!g) return; $('#ncBox').scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(() => g.highlightNode(r.acc), 350); } });
     // transactions table
     $('#ncLay', el).onchange = e => { S.ncrpLay = e.target.value; NcrpTabs.case(el); setTimeout(() => $('#ncT').scrollIntoView(), 30); };
     $('#ncHold', el).onchange = e => { S.ncrpHold = e.target.checked; NcrpTabs.case(el); setTimeout(() => $('#ncT').scrollIntoView(), 30); };
@@ -244,7 +255,7 @@ const NcrpCase = {
         { key: '_type', label: 'Account type', render: r => typeBadge(r._type) },
         { key: 'hold', label: 'Hold', num: true, fmt: v => v ? fmtINR(v) : '' }, { key: 'action', label: 'Action / status' }, { key: 'mode', label: 'Mode' }],
       after: bindAccLinks,
-      onRow: r => { if (!g) return; const from = r.from_acc || 'VICTIM:' + ack, to = r.to_acc || 'UNIDENTIFIED'; lastNode = nodes.find(n => n.id === to) || null; $('#ncBox').scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(() => g.highlightEdge(from, to), 350); }
+      onRow: r => { if (!g) return; const from = r.from_acc || 'VICTIM:' + ack, to = r.to_acc || 'UNIDENTIFIED'; $('#ncBox').scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(() => g.highlightEdge(from, to), 350); }
     });
     // beneficiaries
     Table($('#ncB', el), {
@@ -258,7 +269,7 @@ const NcrpCase = {
         { key: 'type', label: 'Type', render: r => typeBadge(r.type) }, { key: 'flags', label: 'Flags', render: r => r.fl ? Flags.badges(r.fl) : '' }, { key: 'complaints', label: 'In complaints', num: true, render: r => r.complaints > 1 ? `<span class="badge bad">${r.complaints}</span>` : (r.complaints || '') },
         { key: 'score', label: 'Risk', num: true }],
       after: bindAccLinks,
-      onRow: r => { if (!g) return; lastNode = nodes.find(n => n.id === r.acc) || null; $('#ncBox').scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(() => g.highlightNode(r.acc), 350); }
+      onRow: r => { if (!g) return; $('#ncBox').scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(() => g.traceTo(r.acc), 350); }
     });
   }
 };
