@@ -812,3 +812,17 @@ svg.c2.ln.hov .it:not(.pop){opacity:1}
 .hp-hero{padding-top:clamp(8px,2vh,28px);padding-bottom:clamp(16px,3vh,40px)}
 @media (max-width:1000px){.hp-art{height:min(56vh,500px);margin:10px 0}.chakra-big{width:min(56vh,500px)}.emblem-big{height:min(40vh,380px)}}
 @media (max-width:1500px){.rx-txt{font-size:12.5px}.rx-who{font-size:12.5px}.rx-tag{font-size:12px}}
+/* Full view */
+.fv-host{position:relative}
+.fv-btn{position:absolute;top:-13px;right:16px;z-index:6;display:inline-flex;align-items:center;gap:6px;padding:4px 11px!important;font-size:12px!important;font-weight:700;border-radius:999px!important;
+  background:linear-gradient(90deg,#2563eb,#7c3aed)!important;color:#fff!important;border:1px solid rgba(255,255,255,.18)!important;box-shadow:0 4px 14px rgba(37,99,235,.35)}
+.fv-btn svg{width:14px;height:14px}
+.fv-btn:hover{filter:brightness(1.12)}
+.fv-on{position:fixed!important;inset:0!important;z-index:9000!important;margin:0!important;width:auto!important;max-width:none!important;border-radius:0!important;
+  background:var(--bg)!important;padding:46px 18px 14px!important;overflow:auto!important;display:flex;flex-direction:column}
+.fv-on > .fv-btn{position:fixed;top:10px;right:18px;z-index:9001}
+.fv-on .graph-box{height:calc(100vh - 140px)!important;flex:1 1 auto}
+.fv-on .tbl-wrap{max-height:calc(100vh - 170px)!important}
+.fv-on.trail-main .trail-scroll,.fv-on .trail-scroll{max-height:none!important;height:calc(100vh - 150px);flex:1 1 auto}
+body.fv-body{overflow:hidden}
+.graph-box.fv-host:not(.fv-on) > .fv-btn{top:auto;bottom:10px;right:10px}
