@@ -348,3 +348,14 @@ table.tbl{font-size:12.5px}
 .kpis-c .kpi .value{font-size:18px}
 .kpis-c .kpi .label{font-size:10px;letter-spacing:.5px;min-height:26px}
 .filter-bar{padding:10px 14px;border-left:3px solid var(--accent)}
+
+/* Money Trail page: live, clickable lines */
+.tsvg .th{pointer-events:stroke;cursor:pointer}
+.tsvg .tl1,.tsvg .tl2{pointer-events:none;opacity:0;transition:opacity .15s}
+.trail-canvas.few .tsvg .tl1,.trail-canvas.few .tsvg .tl2,.tlink.on .tl1,.tlink.on .tl2,.tlink.hov .tl1,.tlink.hov .tl2{opacity:1}
+.tlink.hov .tl1{font-size:13px}
+.trail-canvas.live .tlink .tv{stroke-dasharray:9 7;animation:flowrun 1.2s linear infinite}
+.tlink.hov .tv{stroke:var(--accent-2);stroke-opacity:1;stroke-width:5px;stroke-dasharray:12 7;animation:flowrun .6s linear infinite}
+.trail-canvas.focus .tlink.hov{opacity:1}
+.tlink.on .tv{stroke:var(--accent-2);stroke-opacity:1;stroke-dasharray:12 7;animation:flowrun .7s linear infinite}
+.trail-canvas.focus .tcard.sel{box-shadow:0 0 0 3px var(--accent-2),var(--shadow)}

@@ -65,7 +65,7 @@ const Trail = {
     const list = Trail.complaints();
     const sel = S.trailAck && list.some(c => c.ack === S.trailAck) ? S.trailAck : (S.trailAck === '*' ? '*' : (list[0] || {}).ack || '*');
     S.trailAck = sel;
-    main.innerHTML = `<div class="page-title"><div><h2>Money Trail</h2><div class="sub2">Victim → Layer 1 → Layer 2 → … exactly as numbered in the bank action / NCRP trail sheet. Click any account card to highlight its full path.</div></div><span class="spacer"></span>
+    main.innerHTML = `<div class="page-title"><div><h2>Money Trail</h2><div class="sub2">Victim → Layer 1 → Layer 2 → … exactly as numbered in the bank action / NCRP trail sheet. Point at a line to highlight it, click a line to trace that transaction from the victim to the end, click an account card to trace the money from the victim to it.</div></div><span class="spacer"></span>
       <button class="btn" id="trImp">⬆ Import trail</button><button class="btn" id="trPrint">🖨 Print / PDF</button><button class="btn" id="trCsv">⬇ CSV</button></div>
       <div class="trail-layout">
         <aside class="card trail-list"><div class="row" style="margin-bottom:8px"><h3 class="grow" style="margin:0">Complaints <span class="badge">${list.length}</span></h3></div>
@@ -118,6 +118,7 @@ const Trail = {
       const r0 = cv.getBoundingClientRect(); svg.setAttribute('width', cv.scrollWidth); svg.setAttribute('height', cv.scrollHeight);
       const box = id => { const el = cv.querySelector(`.tcard[data-id="${CSS.escape(id)}"]`); if (!el) return null; const r = el.getBoundingClientRect(); return { l: r.left - r0.left, r: r.right - r0.left, t: r.top - r0.top, b: r.bottom - r0.top, m: (r.top + r.bottom) / 2 - r0.top }; };
       const maxA = Math.max(1, ...links.map(l => l.amount));
+      cv.classList.toggle('few', links.length <= 40); cv.classList.toggle('live', links.length <= 800);
       svg.innerHTML = `<defs><marker id="tarr" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="${C.muted}"/></marker><marker id="tarrH" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="${C.s[1]}"/></marker></defs>` +
         links.map((l, i) => {
           const a = box(l.from), b = box(l.to); if (!a || !b || l.from === l.to) return '';
@@ -125,23 +126,45 @@ const Trail = {
           if (b.l > a.r) { const x1 = a.r, x2 = b.l - 2, mx = (x1 + x2) / 2; d = `M${x1},${a.m} C${mx},${a.m} ${mx},${b.m} ${x2},${b.m}`; lx = mx; ly = (a.m + b.m) / 2; }
           else { const x1 = a.r, x2 = b.r + 2, cx = Math.max(a.r, b.r) + 60; d = `M${x1},${a.m} C${cx},${a.m} ${cx},${b.m} ${x2},${b.m}`; lx = cx - 14; ly = (a.m + b.m) / 2; }
           const ds = l.txns.map(t => t.date).filter(Boolean).sort(); const dt = ds.length ? ds[0].replace(/^(\d{4})-(\d{2})-(\d{2})/, '$3-$2-$1') : '';
-          return `<g class="tlink" data-i="${i}" data-from="${esc(l.from)}" data-to="${esc(l.to)}"><path d="${d}" fill="none" stroke="${C.muted}" stroke-opacity=".6" stroke-width="${(1.5 + 4 * Math.sqrt(l.amount / maxA)).toFixed(1)}" marker-end="url(#tarr)"/>
-            <text x="${lx}" y="${ly - 3}" text-anchor="middle" class="tl1">${esc(fmtINR(l.amount))}${l.txns.length > 1 ? ' (' + l.txns.length + ')' : ''}</text>${dt ? `<text x="${lx}" y="${ly + 10}" text-anchor="middle" class="tl2">${esc(dt)}</text>` : ''}<title>${esc(accLabel(l.from))} → ${esc(accLabel(l.to))}\n${l.txns.map(t => `${fmtINR(t.amount)}  ${t.date || ''}  ${t.txn_id || ''}`).join('\n')}</title></g>`;
+          return `<g class="tlink" data-i="${i}" data-from="${esc(l.from)}" data-to="${esc(l.to)}"><path class="tv" d="${d}" fill="none" stroke="${C.muted}" stroke-opacity=".6" stroke-width="${(1.5 + 4 * Math.sqrt(l.amount / maxA)).toFixed(1)}" marker-end="url(#tarr)"/><path class="th" d="${d}" fill="none" stroke="transparent" stroke-width="14"/>
+            <text x="${lx}" y="${ly - 3}" text-anchor="middle" class="tl1">${esc(fmtINR(l.amount))}${l.txns.length > 1 ? ' (' + l.txns.length + ')' : ''}</text>${dt ? `<text x="${lx}" y="${ly + 10}" text-anchor="middle" class="tl2">${esc(dt)}</text>` : ''}<title>${esc(accLabel(l.from))} → ${esc(accLabel(l.to))}\n${l.txns.slice(0, 12).map(t => `${fmtINR(t.amount)}  ${t.date || ''}  ${t.txn_id || ''}`).join('\n')}${l.txns.length > 12 ? '\n… ' + (l.txns.length - 12) + ' more' : ''}\nClick = trace this transaction from start to end</title></g>`;
         }).join('');
+      if (cv.dataset.sel) restore();
     };
     requestAnimationFrame(drawArrows);
     window.onresize = () => { if ($('#trCanvas')) drawArrows(); };
-    // click a card: highlight the full path through it (back to the victim, forward to the end)
-    const walk = (id, dir) => { const seen = new Set([id]), q = [id]; while (q.length) { const x = q.shift(); for (const l of links) { const nx = dir > 0 ? (l.from === x ? l.to : null) : (l.to === x ? l.from : null); if (nx && !seen.has(nx)) { seen.add(nx); q.push(nx); } } } return seen; };
-    $$('.tcard', cv).forEach(el => el.onclick = () => {
-      const id = el.dataset.id;
-      if (cv.dataset.sel === id) { cv.dataset.sel = ''; cv.classList.remove('focus'); $$('.on', cv).forEach(x => x.classList.remove('on')); $$('.tlink path', cv).forEach(p => p.setAttribute('marker-end', 'url(#tarr)')); return; }
-      cv.dataset.sel = id; cv.classList.add('focus');
-      const up = walk(id, -1), down = walk(id, 1), on = new Set([...up, ...down]);
-      $$('.tcard', cv).forEach(x => x.classList.toggle('on', on.has(x.dataset.id)));
-      $$('.tlink', cv).forEach(g => { const hit = (up.has(g.dataset.from) && up.has(g.dataset.to)) || (down.has(g.dataset.from) && down.has(g.dataset.to)); g.classList.toggle('on', hit); g.querySelector('path').setAttribute('marker-end', hit ? 'url(#tarrH)' : 'url(#tarr)'); });
-      if (!id.startsWith('VICTIM:') && !isSynthetic(id)) showAccount(id);
-    });
+    // ---- tracing: lines and cards ----
+    const outL = new Map(), inL = new Map();
+    links.forEach((l, i) => { if (l.from === l.to) return; (outL.get(l.from) || outL.set(l.from, []).get(l.from)).push(i); (inL.get(l.to) || inL.set(l.to, []).get(l.to)).push(i); });
+    const walk = (id, dir) => { const seen = new Set([id]), es = new Set(), q = [id]; while (q.length) { const x = q.shift(); for (const i of (dir > 0 ? outL : inL).get(x) || []) { es.add(i); const nx = dir > 0 ? links[i].to : links[i].from; if (!seen.has(nx)) { seen.add(nx); q.push(nx); } } } return es; };
+    let timers = [], cur = null;
+    const clear = () => { timers.forEach(clearTimeout); timers = []; cur = null; cv.dataset.sel = ''; cv.classList.remove('focus'); $$('.on', cv).forEach(x => x.classList.remove('on')); $$('.tlink .tv', cv).forEach(p => p.setAttribute('marker-end', 'url(#tarr)')); UI.closeDrawer(); };
+    const mark = (es, focus, info) => {
+      timers.forEach(clearTimeout); timers = []; cur = { es, focus, info }; cv.dataset.sel = focus.join('|'); cv.classList.add('focus');
+      $$('.on', cv).forEach(x => x.classList.remove('on')); $$('.tlink .tv', cv).forEach(p => p.setAttribute('marker-end', 'url(#tarr)'));
+      const ids = new Set(focus); es.forEach(i => { ids.add(links[i].from); ids.add(links[i].to); });
+      $$('.tcard', cv).forEach(x => x.classList.toggle('on', ids.has(x.dataset.id)));
+      $$('.tcard', cv).forEach(x => x.classList.toggle('sel', focus.includes(x.dataset.id)));
+      // light up step by step, from the victim's side to the end
+      const steps = groupBy([...es], i => L.get(links[i].from) || 0), gm = new Map($$('.tlink', cv).map(g => [+g.dataset.i, g]));
+      [...steps.keys()].sort((a, b) => a - b).forEach((k, n) => timers.push(setTimeout(() => steps.get(k).forEach(i => { const g = gm.get(i); if (g) { g.classList.add('on'); g.querySelector('.tv').setAttribute('marker-end', 'url(#tarrH)'); } }), n * 450)));
+      const hops = [...es].map(i => ({ ...links[i], step: (L.get(links[i].from) || 0) + 1, tag: [L.get(links[i].from) || 0, L.get(links[i].to) || 0].map(l => l ? 'L' + l : 'Victim').join('→') }));
+      trailDrawer(hops, api, info);
+    };
+    const restore = () => { if (cur) { const c = cur; mark(c.es, c.focus, c.info); } };
+    const nodeOf = id => ({ id });
+    const api = {
+      replay: restore, clear,
+      highlightNode: id => mark(new Set([...walk(id, -1), ...walk(id, 1)]), [id], { type: 'full', node: nodeOf(id) }),
+      traceTo: id => { const es = walk(id, -1); if (!es.size) return api.highlightNode(id); mark(es, [id], { type: 'upto', node: nodeOf(id) }); }
+    };
+    const traceLine = i => { const l = links[i]; mark(new Set([i, ...walk(l.from, -1), ...walk(l.to, 1)]), [l.from, l.to], { type: 'edge', edge: { ...l, tag: [L.get(l.from) || 0, L.get(l.to) || 0].map(x => x ? 'L' + x : 'Victim').join('→') }, node: nodeOf(l.to) }); };
+    $$('.tcard', cv).forEach(el => el.onclick = () => { const id = el.dataset.id; if (cur && cur.info.type !== 'edge' && cur.focus[0] === id) return clear(); api.traceTo(id); });
+    // lines: point = highlight, click = trace (events come from the wide invisible path)
+    svg.style.pointerEvents = 'none';
+    svg.addEventListener('mouseover', e => { const g = e.target.closest('.tlink'); if (g) g.classList.add('hov'); });
+    svg.addEventListener('mouseout', e => { const g = e.target.closest('.tlink'); if (g) g.classList.remove('hov'); });
+    svg.addEventListener('click', e => { const g = e.target.closest('.tlink'); if (g) traceLine(+g.dataset.i); });
   }
 };
 Pages.trail = main => Trail.render(main);
