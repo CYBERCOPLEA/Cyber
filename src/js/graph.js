@@ -22,9 +22,32 @@ const Graph = {
     layout();
     const outE = new Map(), inE = new Map();
     edges.forEach((e, i) => { (outE.get(e.from) || outE.set(e.from, []).get(e.from)).push(i); (inE.get(e.to) || inE.set(e.to, []).get(e.to)).push(i); });
+    /* colours: by type (default for other charts), by victim (each victim's whole trail one colour) or by layer */
+    const PAL = ['#3b82f6', '#22c55e', '#a855f7', '#f59e0b', '#ec4899', '#06b6d4', '#ef4444', '#84cc16', '#6366f1', '#14b8a6', '#eab308', '#f97316'];
+    const LPAL = ['#f97316', '#3b82f6', '#22c55e', '#a855f7', '#06b6d4', '#ec4899', '#eab308', '#14b8a6', '#6366f1', '#84cc16', '#ef4444', '#0ea5e9'];
+    let colorBy = opt.trailColors ? (opt.colorBy || 'layer') : 'kind';
+    const vcol = new Map(), victims = [];
+    if (opt.trailColors) {
+      const hasIn = new Set(edges.filter(e => e.from !== e.to).map(e => e.to));
+      let roots = nodes.filter(n => n.kind === 'victim'); if (!roots.length) roots = nodes.filter(n => !hasIn.has(n.id));
+      roots = roots.slice().sort((a, b) => (b.value || 0) - (a.value || 0));
+      const q = []; roots.forEach((r, i) => { const c = PAL[i % PAL.length]; vcol.set(r.id, c); victims.push([r, c]); q.push(r.id); });
+      while (q.length) { const id = q.shift(); for (const i of (outE.get(id) || []).slice().sort((a, b) => edges[b].amount - edges[a].amount)) { const t = edges[i].to; if (!vcol.has(t)) { vcol.set(t, vcol.get(id)); q.push(t); } } }
+    }
+    const lcol = n => LPAL[(n.layer || 0) % LPAL.length];
+    const nodeCol = n => colorBy === 'victim' ? (vcol.get(n.id) || C.muted) : colorBy === 'layer' ? lcol(n) : (KIND[n.kind] || KIND.other);
+    const edgeCol = i => colorBy === 'kind' ? C.muted : colorBy === 'victim' ? (vcol.get(edges[i].from) || C.muted) : lcol(byId.get(edges[i].to));
+    const eop = () => colorBy === 'kind' ? '.55' : '.8';
+    const ink = c => { const m = /^#(..)(..)(..)$/.exec(c || ''); if (!m) return '#fff'; const [r, g, b] = m.slice(1).map(h => parseInt(h, 16)); return (r * 299 + g * 587 + b * 114) / 1000 > 165 ? '#1f1300' : '#fff'; };
     const fmtD = d => { d = String(d || ''); const m = d.match(/^(\d{4})-(\d{2})-(\d{2})(?: (\d{2}:\d{2}))?/); return m ? `${m[3]}-${m[2]}-${m[1].slice(2)}${m[4] ? ' ' + m[4] : ''}` : d; };
     const edgeDate = e => { const ds = (e.txns || []).map(t => t.date).filter(Boolean).sort(); return ds.length ? fmtD(ds[0]) + (ds.length > 1 && ds[ds.length - 1].slice(0, 10) !== ds[0].slice(0, 10) ? ' → ' + fmtD(ds[ds.length - 1]).slice(0, 8) : '') : ''; };
 
+    const legend = () => {
+      const sel = opt.trailColors ? `<select class="gcol" title="How to colour the chart">${[['layer', 'Colour: each layer'], ['victim', 'Colour: each victim\'s trail'], ['kind', 'Colour: account type']].map(([v, l]) => `<option value="${v}" ${v === colorBy ? 'selected' : ''}>${l}</option>`).join('')}</select>` : '';
+      if (colorBy === 'victim') return sel + victims.slice(0, 14).map(([r, c]) => `<span><i style="background:${c}"></i>${esc(String(r.label).replace(/^Victim /, '').slice(0, 22))}</span>`).join('') + (victims.length > 14 ? `<span class="muted">+${victims.length - 14} more</span>` : '') + `<span class="muted">Each victim and the whole trail of its money have the same colour.</span>`;
+      if (colorBy === 'layer') return sel + uniq(nodes.map(n => n.layer || 0)).sort((a, b) => a - b).map(l => `<span><i style="background:${LPAL[l % LPAL.length]}"></i>${l ? 'Layer ' + l : 'Victim'}</span>`).join('') + `<span class="muted">Lines take the colour of the layer they go to.</span>`;
+      return sel + `${[['victim', 'Victim / source'], ['account', 'Account'], ['risk', 'High-risk / mule'], ['cash', 'Cash-out / ATM'], ['hold', 'Amount on hold'], ['nodal', 'Nodal / escrow / PG'], ['ident', 'Identifier'], ['profile', 'Social profile']].filter(([k]) => nodes.some(n => n.kind === k)).map(([k, l]) => `<span><i style="background:${KIND[k]}"></i>${l}</span>`).join('')}${nodes.some(n => n.more) ? `<span><b style="color:${HL}">+N</b> = open the accounts it paid</span>` : ''}<span class="muted">Point at a line = highlight · click a line = trail from victim through that transaction to the end · click an account = trail from victim to that account · drag account${mode === 'flow' ? ' or "Layer" title' : ''} to move · scroll = zoom</span>`;
+    };
     box.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg"><defs>
       <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="${C.muted}"/></marker>
       <marker id="arrH" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="${HL}"/></marker></defs>
@@ -32,7 +55,7 @@ const Graph = {
       <div class="graph-zoom"><button class="btn sm" data-z="in" title="Zoom in">＋</button><button class="btn sm" data-z="out" title="Zoom out">－</button><button class="btn sm" data-z="fit" title="Fit to screen">⤢</button>
         <button class="btn sm" data-z="lbl" title="Labels on lines: amount → amount + date + layer → none">₹</button><button class="btn sm ${opt.live ? 'primary' : ''}" data-z="live" title="Live money flow: moving lines from sender to receiver">⚡</button><button class="btn sm" data-z="wide" title="More space between layers">↔</button><button class="btn sm" data-z="tall" title="More space between accounts">↕</button>
         <button class="btn sm" data-z="tight" title="Less space">⇲</button><button class="btn sm" data-z="re" title="Re-arrange automatically">⟲</button><button class="btn sm" data-z="orient" title="Turn the chart: landscape ↔ portrait">${opt.vert ? '▭' : '▯'}</button></div>
-      <div class="graph-legend">${[['victim', 'Victim / source'], ['account', 'Account'], ['risk', 'High-risk / mule'], ['cash', 'Cash-out / ATM'], ['hold', 'Amount on hold'], ['nodal', 'Nodal / escrow / PG'], ['ident', 'Identifier'], ['profile', 'Social profile']].filter(([k]) => nodes.some(n => n.kind === k)).map(([k, l]) => `<span><i style="background:${KIND[k]}"></i>${l}</span>`).join('')}${nodes.some(n => n.more) ? `<span><b style="color:${HL}">+N</b> = open the accounts it paid</span>` : ''}<span class="muted">Point at a line = highlight · click a line = trail from victim through that transaction to the end · click an account = trail from victim to that account · drag account${mode === 'flow' ? ' or "Layer" title' : ''} to move · scroll = zoom</span></div>`;
+      <div class="graph-legend">${legend()}</div>`;
     const svg = $('svg', box); if (opt.live) svg.classList.add('live'); const vp = $('.vp', svg), gC = $('.cols', svg), gE = $('.edges', svg), gH = $('.ehit', svg), gL = $('.elabels', svg), gN = $('.nodes', svg);
     let last = null, T = { x: 0, y: 0, k: 1 }, lblMode = opt.labels === false ? 0 : opt.labels === 'full' ? 2 : 1, hl = null, timers = [];
     const apply = () => { vp.setAttribute('transform', `translate(${T.x},${T.y}) scale(${T.k})`); svg.style.setProperty('--iz', (1 / Math.max(1, T.k)).toFixed(3)); };
@@ -54,7 +77,7 @@ const Graph = {
     };
     const mid = e => { const a = byId.get(e.from), b = byId.get(e.to); if (lay && vert) { if (a !== b && Math.abs(b.y - a.y) <= 20) return [(a.x + b.x) / 2, a.y + 95]; if (b.y > a.y + 20) { const y1 = a.y + (isMind ? 44 : a.r + 40), y2 = b.y - (isMind ? 17 : b.r + 4); return [(a.x + b.x) / 2, (y1 + y2) / 2]; } } if (lay && a !== b && Math.abs(b.x - a.x) <= 20) return [a.x + hw(a) + 80 + Math.abs(b.y - a.y) * .11, (a.y + b.y) / 2]; return [(a.x + b.x) / 2, (a.y + b.y) / 2 - 5]; };
     const ew = e => (1 + 6 * Math.sqrt((e.amount || 0) / maxE)).toFixed(1);
-    gE.innerHTML = edges.map((e, i) => `<path data-e="${i}" d="${path(e)}" fill="none" stroke="${C.muted}" stroke-opacity=".55" stroke-width="${ew(e)}" marker-end="url(#arr)"><title>${esc(accLabel(e.from))} → ${esc(accLabel(e.to))}\n${fmtINR(e.amount)} in ${e.count} txn(s)${edgeDate(e) ? '\n' + edgeDate(e) : ''}</title></path>`).join('');
+    gE.innerHTML = edges.map((e, i) => `<path data-e="${i}" d="${path(e)}" fill="none" stroke="${edgeCol(i)}" stroke-opacity="${eop()}" stroke-width="${ew(e)}" marker-end="url(#arr)"><title>${esc(accLabel(e.from))} → ${esc(accLabel(e.to))}\n${fmtINR(e.amount)} in ${e.count} txn(s)${edgeDate(e) ? '\n' + edgeDate(e) : ''}</title></path>`).join('');
     const tip = e => `${accLabel(e.from)} → ${accLabel(e.to)}\n${fmtINR(e.amount)} in ${e.count} txn(s)${e.tag ? '\n' + e.tag : ''}${edgeDate(e) ? '\n' + edgeDate(e) : ''}\nClick = trace this transaction from start to end`;
     gH.innerHTML = edges.map((e, i) => `<path data-h="${i}" d="${path(e)}" fill="none" stroke="transparent" stroke-width="14" style="cursor:pointer;pointer-events:stroke"><title>${esc(tip(e))}</title></path>`).join('');
     const drawLabels = () => {
@@ -70,12 +93,12 @@ const Graph = {
     const more = n => n.more || n.collapse ? `<g data-x="1" transform="translate(${hw(n) + (isMind ? 2 : 4)},${isMind ? -15 : -n.r - 4})" style="cursor:pointer"><circle r="${n.more > 99 ? 12 : 10}" fill="${C.surface}" stroke="${HL}" stroke-width="1.6"/><text y="3.5" text-anchor="middle" font-size="${n.more > 99 ? 8.5 : 10}" font-weight="700" fill="${HL}">${n.more ? '+' + n.more : '−'}</text><title>${n.more ? `Open: show the ${n.more} account(s) this account sent money to` : 'Close: hide the accounts opened from here'}</title></g>` : '';
     gN.innerHTML = nodes.map((n, i) => isMind ? `<g data-n="${i}" transform="translate(${n.x},${n.y})" style="cursor:pointer">
       <rect class="ring" x="${-n.w / 2 - 5}" y="-18" width="${n.w + 10}" height="36" rx="18" fill="none" stroke="${HL}" stroke-width="3" opacity="0"/>
-      <rect x="${-n.w / 2}" y="-13" width="${n.w}" height="26" rx="13" fill="${KIND[n.kind] || KIND.other}" stroke="${C.surface}" stroke-width="1.5"/>
-      <text y="4" text-anchor="middle" font-size="11.5" font-weight="600" fill="#fff">${n.badge ? '⚑' + esc(n.badge) + ' ' : ''}${esc(String(n.label).slice(0, 24))}</text>
+      <rect class="nb" x="${-n.w / 2}" y="-13" width="${n.w}" height="26" rx="13" fill="${nodeCol(n)}" stroke="${C.surface}" stroke-width="1.5"/>
+      <text class="pt" y="4" text-anchor="middle" font-size="11.5" font-weight="600" fill="${ink(nodeCol(n))}">${n.badge ? '⚑' + esc(n.badge) + ' ' : ''}${esc(String(n.label).slice(0, 24))}</text>
       <g class="nt">${n.det ? `<text y="26" text-anchor="middle" font-size="10" font-weight="600" fill="${C.text}" paint-order="stroke" stroke="${C.surface2}" stroke-width="3">${esc(String(n.det).slice(0, 44))}</text>` : ''}${n.sub ? `<text y="${n.det ? 38 : 26}" text-anchor="middle" font-size="9.5" fill="${C.muted}" paint-order="stroke" stroke="${C.surface2}" stroke-width="3">${esc(String(n.sub).slice(0, 34))}</text>` : ''}</g>
       ${more(n)}<title>${esc(n.title || n.label)}</title></g>` : `<g data-n="${i}" transform="translate(${n.x},${n.y})" style="cursor:pointer">
       <circle class="ring" r="${n.r + 5}" fill="none" stroke="${HL}" stroke-width="3" opacity="0"/>
-      <circle r="${n.r}" fill="${KIND[n.kind] || KIND.other}" stroke="${C.surface}" stroke-width="2"/>
+      <circle class="nb" r="${n.r}" fill="${nodeCol(n)}" stroke="${C.surface}" stroke-width="2"/>
       ${n.badge ? `<text y="4" text-anchor="middle" font-size="10" font-weight="700" fill="#fff">${esc(n.badge)}</text>` : ''}
       <g class="nt"><text y="${n.r + 13}" text-anchor="middle" font-size="11" font-weight="600" fill="${C.text}" paint-order="stroke" stroke="${C.surface2}" stroke-width="3">${esc(String(n.label).slice(0, 24))}</text>
       ${n.det ? `<text y="${n.r + 25}" text-anchor="middle" font-size="10" fill="${HL}" paint-order="stroke" stroke="${C.surface2}" stroke-width="3">${esc(String(n.det).slice(0, 44))}</text>` : ''}
@@ -144,8 +167,8 @@ const Graph = {
     });
     // hover: show neighbours (only when no trail is highlighted)
     $$('[data-n]', gN).forEach(g => {
-      g.onmouseenter = () => { if (hl) return; const n = nodes[+g.dataset.n]; edges.forEach((e, i) => { const on = e.from === n.id || e.to === n.id; gE.children[i].setAttribute('stroke', on ? HL : C.muted); gE.children[i].setAttribute('stroke-opacity', on ? '.95' : '.25'); }); };
-      g.onmouseleave = () => { if (hl) return; edges.forEach((e, i) => { gE.children[i].setAttribute('stroke', C.muted); gE.children[i].setAttribute('stroke-opacity', '.55'); }); };
+      g.onmouseenter = () => { if (hl) return; const n = nodes[+g.dataset.n]; edges.forEach((e, i) => { const on = e.from === n.id || e.to === n.id; gE.children[i].setAttribute('stroke', on ? HL : edgeCol(i)); gE.children[i].setAttribute('stroke-opacity', on ? '.95' : '.2'); }); };
+      g.onmouseleave = () => { if (hl) return; edges.forEach((e, i) => { gE.children[i].setAttribute('stroke', edgeCol(i)); gE.children[i].setAttribute('stroke-opacity', eop()); }); };
     });
 
     // point at a line: make it stand out and show its amount, layer and date
@@ -176,7 +199,7 @@ const Graph = {
       while (q.length) { const [id, d] = q.shift(); if (dist.has(id) && dist.get(id) <= d) continue; dist.set(id, d); if (d > 50) continue; for (const i of outE.get(id) || []) if (edgeSet.has(i) && edges[i].to !== id) q.push([edges[i].to, d + 1]); }
       const order = [...edgeSet].sort((a, b) => (dist.get(edges[a].from) || 0) - (dist.get(edges[b].from) || 0));
       hl = { edges: edgeSet, nodes: nodeSet, shown: new Set(), order, dist };
-      edges.forEach((e, i) => { const p = gE.children[i]; p.classList.remove('hl-run'); p.setAttribute('stroke', C.muted); p.setAttribute('stroke-opacity', edgeSet.has(i) ? '.25' : '.07'); p.setAttribute('marker-end', 'url(#arr)'); });
+      edges.forEach((e, i) => { const p = gE.children[i]; p.classList.remove('hl-run'); p.setAttribute('stroke', edgeCol(i)); p.setAttribute('stroke-opacity', edgeSet.has(i) ? '.3' : '.07'); p.setAttribute('marker-end', 'url(#arr)'); });
       nodes.forEach((n, i) => { const g = gN.children[i]; g.style.opacity = nodeSet.has(n.id) ? 1 : .15; g.querySelector('.ring').setAttribute('opacity', focusIds.includes(n.id) ? 1 : 0); });
       drawLabels();
       const steps = groupBy(order, i => dist.get(edges[i].from) || 0); let t = 0;
@@ -186,6 +209,13 @@ const Graph = {
       });
       if (opt.onTrail) opt.onTrail(order.map(i => ({ ...edges[i], step: (dist.get(edges[i].from) || 0) + 1 })), api, info);
     }
+    const recolor = () => {
+      nodes.forEach((n, i) => { const g = gN.children[i], b = g.querySelector('.nb'), t = g.querySelector('.pt'); if (b) b.setAttribute('fill', nodeCol(n)); if (t) t.setAttribute('fill', ink(nodeCol(n))); });
+      if (last && hl) show(last.edgeSet, last.focusIds, last.info); else edges.forEach((e, i) => { gE.children[i].setAttribute('stroke', edgeCol(i)); gE.children[i].setAttribute('stroke-opacity', eop()); });
+      bindLegend();
+    };
+    function bindLegend() { const lg = $('.graph-legend', box); lg.innerHTML = legend(); const sl = $('.gcol', lg); if (sl) sl.onchange = () => { colorBy = sl.value; if (opt.onColor) opt.onColor(colorBy); recolor(); }; }
+    bindLegend();
     const api = {
       svg,
       // whole trail through an account: from the victim, through it, to the last account
@@ -200,7 +230,7 @@ const Graph = {
       replay() { if (last) show(last.edgeSet, last.focusIds, last.info); },
       clear() {
         if (!hl) return; timers.forEach(clearTimeout); hl = null;
-        edges.forEach((e, i) => { const p = gE.children[i]; p.classList.remove('hl-run'); p.setAttribute('stroke', C.muted); p.setAttribute('stroke-opacity', '.55'); p.setAttribute('stroke-width', ew(e)); p.setAttribute('marker-end', 'url(#arr)'); });
+        edges.forEach((e, i) => { const p = gE.children[i]; p.classList.remove('hl-run'); p.setAttribute('stroke', edgeCol(i)); p.setAttribute('stroke-opacity', eop()); p.setAttribute('stroke-width', ew(e)); p.setAttribute('marker-end', 'url(#arr)'); });
         nodes.forEach((n, i) => { gN.children[i].style.opacity = 1; gN.children[i].querySelector('.ring').setAttribute('opacity', 0); });
         drawLabels(); if (opt.onClear) opt.onClear();
       },

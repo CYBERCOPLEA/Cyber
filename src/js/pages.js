@@ -207,7 +207,7 @@ const FinTabs = {
     $('#gGo', el).onclick = () => { o.ack = $('#gAck', el).value; o.root = N.acc($('#gRoot', el).value); o.dir = $('#gDir', el).value; o.depth = +$('#gDepth', el).value || 6; o.min = +$('#gMin', el).value || 0; FinTabs.graph(el); };
     const { nodes, edges, note } = finGraphData(o);
     if (!nodes.length) { $('#gBox', el).innerHTML = '<div class="muted" style="padding:40px;text-align:center">No transactions to draw. Import a money trail or statement first.</div>'; return; }
-    const g = Graph.mount($('#gBox', el), nodes, edges, { vert: !!o.vert, onOrient: v => { o.vert = v; }, live: edges.length <= 1000, labels: edges.length > 160 ? true : 'full', mode: o.mode, root: o.root || (nodes.find(n => n.kind === 'victim') || nodes[0]).id, onTrail: (hops, api, info) => trailDrawer(hops, api, info), onClear: UI.closeDrawer });
+    const g = Graph.mount($('#gBox', el), nodes, edges, { trailColors: true, colorBy: S.settings.graphColor, onColor: v => { S.settings.graphColor = v; DB.set('settings', S.settings); }, vert: !!o.vert, onOrient: v => { o.vert = v; }, live: edges.length <= 1000, labels: edges.length > 160 ? true : 'full', mode: o.mode, root: o.root || (nodes.find(n => n.kind === 'victim') || nodes[0]).id, onTrail: (hops, api, info) => trailDrawer(hops, api, info), onClear: UI.closeDrawer });
     if (o.focus) { const f = o.focus; delete o.focus; setTimeout(() => f.node ? g.highlightNode(f.node) : g.highlightEdge(f.from, f.to), 50); }
     $('#gInfo', el).textContent = `${nodes.length} accounts, ${edges.length} links. ${note}`;
     $('#gSvg', el).onclick = () => g.download('money_trail_' + o.mode);

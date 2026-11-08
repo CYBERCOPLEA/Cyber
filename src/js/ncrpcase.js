@@ -307,7 +307,7 @@ const NcrpCase = {
       $('#ncTopInfo', el).innerHTML = all ? `Complete trail: all <b>${fmtNum(full.nodes.length)}</b> accounts, ${V.maxHop} steps from the victim.` : `Showing <b>${fmtNum(V.nodes.length)}</b> of ${fmtNum(full.nodes.length)} accounts (victim → step ${shownL}${open.size ? ' + ' + open.size + ' opened' : ''}). Click <b>+N</b> to open more.`;
       if (!V.nodes.length) { box.innerHTML = '<div class="muted" style="padding:40px;text-align:center">This complaint has no money-trail transactions imported yet.</div>'; g = null; return; }
       const root = (V.nodes.find(n => n.kind === 'victim') || V.nodes[0]).id;
-      g = Graph.mount(box, V.nodes, V.edges, { mode: S.ncrpG.mode, root, radial: true, vert: !!S.ncrpG.vert, onOrient: v => { S.ncrpG.vert = v; }, live: S.ncrpG.live !== false && V.edges.length <= 1000, labels: V.edges.length > 160 ? true : 'full',
+      g = Graph.mount(box, V.nodes, V.edges, { mode: S.ncrpG.mode, root, radial: true, trailColors: true, colorBy: S.settings.graphColor, onColor: v => { S.settings.graphColor = v; DB.set('settings', S.settings); }, vert: !!S.ncrpG.vert, onOrient: v => { S.ncrpG.vert = v; }, live: S.ncrpG.live !== false && V.edges.length <= 1000, labels: V.edges.length > 160 ? true : 'full',
         onTrail: (hops, api, info) => trailDrawer(hops, api, info), onClear: UI.closeDrawer,
         onExpand: n => {
           if (n.more) open.add(n.id);
