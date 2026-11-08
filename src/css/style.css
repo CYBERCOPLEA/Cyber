@@ -807,3 +807,5 @@ svg.c2.ln.hov .it:not(.pop){opacity:1}
 @media (max-width:1240px){.hp-trust{flex-wrap:wrap}}
 .hp{max-width:min(2240px,95vw)}
 .ck{animation:chakraSpin 9s linear infinite !important;will-change:transform}
+/* big chakra: only the golden rays, no dark disc showing past the shield */
+.chakra-big > :not(defs):not(g:first-of-type){display:none}
