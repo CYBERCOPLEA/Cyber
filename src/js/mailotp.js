@@ -6,7 +6,7 @@
 
 const Mail = {
   API: 'https://api.emailjs.com/api/v1.0/email/send',
-  DEFAULT_EMAIL: 'cybercoplea@gmail.com',
+  DEFAULT_EMAIL: '',
   cfg() { return S.settings.mail || {}; },
   ready() { const c = this.cfg(); return !!(c.on && c.email && c.service && c.template && c.key); },
   mask(e) { const [u, d] = String(e).split('@'); if (!d) return e; return u.slice(0, 2) + '*'.repeat(Math.max(3, u.length - 3)) + u.slice(-1) + '@' + d; },

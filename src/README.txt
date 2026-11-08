@@ -22,7 +22,7 @@ The app has no server, so it sends mail through your own free EmailJS account (e
 free plan = 200 mails/month). Only the e-mail address and the 6-digit code are sent – never case data.
 One-time setup (about 10 minutes):
  1. Go to https://www.emailjs.com and sign up (free).
- 2. Email Services -> Add New Service -> Gmail -> "Connect account" with cybercoplea@gmail.com
+ 2. Email Services -> Add New Service -> Gmail -> "Connect account" with your own Gmail
     -> Create. Note the Service ID (looks like service_abc1234).
  3. Email Templates -> Create New Template:
       To Email : {{to_email}}
