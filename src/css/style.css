@@ -830,3 +830,8 @@ body.fv-body{overflow:hidden}
 .graph-legend .g-size svg{width:62px!important;height:22px!important;flex:none;cursor:default!important}
 .fv-on.graph-box{height:100vh!important;padding:0!important;border:0!important}
 .fv-on.graph-box > .fv-btn{top:12px;right:18px;bottom:auto}
+
+.ls-guide{margin:10px 0 2px;padding:10px 14px;border-radius:10px;font-size:13.5px;line-height:1.5;border:1px solid rgba(99,102,241,.45);background:rgba(99,102,241,.12);color:#e0e7ff}
+.ls-guide.ok{border-color:rgba(16,185,129,.45);background:rgba(16,185,129,.12);color:#d1fae5}
+.ls-guide.warn{border-color:rgba(245,158,11,.5);background:rgba(245,158,11,.12);color:#fef3c7}
+.ls-dpanel[data-dpD]{display:none!important}

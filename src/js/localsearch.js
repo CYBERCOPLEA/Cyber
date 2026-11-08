@@ -103,10 +103,11 @@ const LocalSearch = (() => {
         <section class="ls-step"><div class="ls-num">1</div><div class="ls-sec">
           <div class="ls-t">Where to search</div>
           <div class="ls-drives"><span class="ls-dl">Select hard drive</span>
-            <label class="ls-drv" data-dlab="C"><input type="checkbox" data-drv="C"><span class="ls-dbox"></span><span class="ls-dic">💻</span><span><b>C: drive</b><small>Windows drive · your folders</small></span></label>
-            <label class="ls-drv" data-dlab="D"><input type="checkbox" data-drv="D"><span class="ls-dbox"></span><span class="ls-dic">💾</span><span><b>D: drive</b><small>Data drive · whole drive</small></span></label>
-            <label class="ls-drv" data-dlab="both"><input type="checkbox" data-drv="both"><span class="ls-dbox"></span><span class="ls-dic">🗂️</span><span><b>Both C: and D:</b><small>Search both in one go</small></span></label>
+            <label class="ls-drv" data-dlab="C"><input type="checkbox" data-drv="C"><span class="ls-dbox"></span><span class="ls-dic">💻</span><span><b>C: drive</b><small>Opens the C: drive</small></span></label>
+            <label class="ls-drv" data-dlab="D"><input type="checkbox" data-drv="D"><span class="ls-dbox"></span><span class="ls-dic">💾</span><span><b>D: drive</b><small>Opens the D: drive</small></span></label>
+            <label class="ls-drv" data-dlab="both"><input type="checkbox" data-drv="both"><span class="ls-dbox"></span><span class="ls-dic">🗂️</span><span><b>Both (This PC)</b><small>C: and D: together</small></span></label>
           </div>
+          <div class="ls-guide hidden" data-guide></div>
           <div class="ls-dpanel hidden" data-dpD><b>D: drive</b> – in the window that opens, click <b>This PC</b> → <b>D:</b> → <b>Select folder</b>. <button class="btn sm" data-pickd>Choose D: again</button> <span class="small muted" data-dstD></span></div>
           <div class="ls-dpanel hidden" data-dpC><b>C: drive</b> – Windows does not let a browser open the whole C: drive (system files). Tick the parts of C: to search; each one opens a window – just press <b>Select folder</b>:
             <div class="ls-cparts">${[['desktop', '🖥️ Desktop'], ['documents', '📁 Documents'], ['downloads', '⬇️ Downloads'], ['pictures', '🖼️ Pictures'], ['videos', '🎞️ Videos'], ['', '➕ Other folder on C:']].map(([k, l]) => `<label class="ls-cpart"><input type="checkbox" data-cpart="${k}"> ${l}</label>`).join('')}</div></div>
@@ -169,13 +170,36 @@ const LocalSearch = (() => {
       }
       pendingTag = { tag, label }; q('[data-dirin]').click(); return true;
     };
-    const onD = async () => { const ok = await pickDir('D', '', 'D:'); syncDrives(); return ok; };
-    const onC = () => { q('[data-dpC]').classList.remove('hidden'); };
+    // one drive = one picker with its own remembered place (id drive-c / drive-d), so C: and D: never mix
+    const guide = (html, kind = 'info') => { const g = q('[data-guide]'); if (!html) { g.classList.add('hidden'); return; } g.className = 'ls-guide ' + kind; g.innerHTML = html; };
+    const pickDrive = async L => {
+      guide(`<b>Choose the ${L}: drive now.</b> In the window that opens: click <b>This PC</b> on the left → <b>${L === 'C' ? 'Local Disk (C:)' : 'D:'}</b> → press <b>Select folder</b>.`);
+      if (!window.showDirectoryPicker) { pendingTag = { tag: L, label: L + ':' }; q('[data-dirin]').click(); return true; }
+      try {
+        const hd = await window.showDirectoryPicker({ id: 'drive-' + L.toLowerCase(), mode: 'read' });
+        const nm = hd.name || '', root = new RegExp('^' + L + ':', 'i').test(nm), other = /^[A-Z]:/i.test(nm) && !root;
+        if (other) { guide(`You chose <b>${h(nm)}</b>, not the ${L}: drive. Tick ${L}: again and pick <b>${L}:</b> under <b>This PC</b>.`, 'warn'); return false; }
+        addSrc({ kind: 'dir', handle: hd, name: L + ': · ' + (root ? 'whole drive' : nm), drive: L });
+        guide(root ? `✔ <b>${L}: drive</b> added – the whole drive will be searched.` : `✔ Folder <b>${h(nm)}</b> added for ${L}:. To search the whole drive, pick <b>${L}:</b> itself under <b>This PC</b>.`, 'ok');
+        return true;
+      } catch (e) {
+        if (e && e.name === 'AbortError') { guide(''); return false; }
+        if (L === 'C') { guide(`Windows / the browser does not allow the <b>whole C: drive</b> (it holds system files). Tick the parts of C: below instead – Desktop, Documents, Downloads… – each opens a window, just press <b>Select folder</b>.`, 'warn'); q('[data-dpC]').classList.remove('hidden'); return false; }
+        guide(`The browser did not allow that folder${e && e.message ? ' (' + h(e.message) + ')' : ''}. Choose a folder inside it instead.`, 'warn'); return false;
+      }
+    };
+    const onD = async () => { const ok = await pickDrive('D'); syncDrives(); return ok; };
     w.querySelectorAll('[data-drv]').forEach(cb => cb.onchange = async () => {
       const k = cb.dataset.drv, on = cb.checked;
-      if (k === 'both') { if (on) { onC(); if (!hasDrive('D')) await onD(); } else { dropDrive('C'); dropDrive('D'); } syncDrives(); return; }
-      if (k === 'D') { if (on) { if (!hasDrive('D')) await onD(); } else dropDrive('D'); }
-      if (k === 'C') { if (on) onC(); else dropDrive('C'); }
+      if (k === 'both') {
+        if (on) {
+          if (!hasDrive('C')) await pickDrive('C');
+          if (!hasDrive('D')) await pickDrive('D');
+          if (hasDrive('C') && hasDrive('D')) guide('✔ <b>Both drives added</b> – C: and D: will be searched together, like the whole computer (This PC). A browser cannot open "This PC" as one folder, so the two drives are added one after the other.', 'ok');
+        } else { dropDrive('C'); dropDrive('D'); guide(''); }
+        syncDrives(); return;
+      }
+      if (on) { if (!hasDrive(k)) await pickDrive(k); } else { dropDrive(k); guide(''); }
       syncDrives();
     });
     q('[data-pickd]').onclick = onD;
@@ -221,7 +245,7 @@ const LocalSearch = (() => {
   const hasDrive = d => sources.some(s => s.drive && s.drive.startsWith(d));
   function dropDrive(d) { sources = sources.filter(s => !(s.drive && s.drive.startsWith(d))); const w = el(); if (d === 'C') { w.querySelectorAll('[data-cpart]').forEach(c => c.checked = false); w.querySelector('[data-dpC]').classList.add('hidden'); } drawSrcs(); }
   function syncDrives() {
-    const w = el(), C = hasDrive('C') || !w.querySelector('[data-dpC]').classList.contains('hidden'), D = hasDrive('D');
+    const w = el(), C = hasDrive('C'), D = hasDrive('D');
     w.querySelector('[data-drv="C"]').checked = C; w.querySelector('[data-drv="D"]').checked = D; w.querySelector('[data-drv="both"]').checked = C && D;
     w.querySelector('[data-dpD]').classList.toggle('hidden', !D);
     const nd = sources.filter(s => s.drive === 'D').length; w.querySelector('[data-dstD]').textContent = nd ? `✓ ${nd} D: location added` : '';
