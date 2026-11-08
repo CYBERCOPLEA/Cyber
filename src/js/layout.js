@@ -73,6 +73,13 @@ tabs = function (main, page, list, title, actions = '') {
   nav.innerHTML = MENU.map(([g, items]) => `<div class="nav-group">${esc(g)}</div>` + items.map(([id, ic, label, tip]) => `<div class="nav-item" data-page="${id}" title="${esc(tip)}" style="--c:${NAVC[id] || '#64748b'}"><span class="nib">${ico(ic)}</span><span>${esc(label)}</span></div>`).join('')).join('') +
     `<div class="nav-bottom"><div class="nav-item" data-page="settings" title="Login, password recovery, preferences" style="--c:${NAVC.settings}"><span class="nib">${ico('settings')}</span><span>Settings</span></div></div>`;
   nav.appendChild(info);
+  // Social Media sub-links: one per platform
+  const soc = $('.nav-item[data-page="social"]', nav);
+  if (soc) {
+    soc.insertAdjacentHTML('afterend', `<div class="nav-subs">${Analysis.SOC_PLAT.map(([id, l, c]) => `<div class="nav-sub" data-plat="${id}" style="--pc:${c}" title="Social Media · ${l}"><i></i><span>${l}</span></div>`).join('')}</div>`);
+    soc.addEventListener('click', () => { S.socPlat = ''; }, true);
+    $$('.nav-sub', nav).forEach(n => n.onclick = () => { S.socPlat = n.dataset.plat; go('social'); });
+  }
   // top bar icons
   const lockB = $('#btnLock'), thB = $('#btnTheme');
   lockB.innerHTML = ico('lock', 16) + 'Lock'; thB.innerHTML = ico('theme', 16); thB.title = 'Light / dark theme';
@@ -87,6 +94,7 @@ tabs = function (main, page, list, title, actions = '') {
   const orig = render;
   render = function () {
     orig();
+    $$('.nav-sub').forEach(n => n.classList.toggle('active', S.page === 'social' && S.socPlat === n.dataset.plat));
     const d = S.data; if (!d) return;
     const c = typeof activeCase === 'function' ? activeCase() : {};
     const n = Trail.complaints().length;

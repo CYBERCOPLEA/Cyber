@@ -129,11 +129,18 @@ const Analysis = {
     });
   },
 
+  /* social media platforms shown as sub-links under Social Media */
+  SOC_PLAT: [['whatsapp', 'WhatsApp', '#25D366', /whats\s*app|\bwa\b/i], ['telegram', 'Telegram', '#229ED9', /telegram/i], ['facebook', 'Facebook', '#1877F2', /facebook|\bfb\b|\bmeta\b/i], ['instagram', 'Instagram', '#E1306C', /insta/i], ['google', 'Google (Gmail)', '#EA4335', /google|gmail|youtube/i]],
+  platOf(r) {
+    const by = t => { for (const id of ['instagram', 'whatsapp', 'telegram', 'google', 'facebook']) if (this.SOC_PLAT.find(p => p[0] === id)[3].test(t)) return id; return ''; };
+    return (r.platform ? by(String(r.platform)) : '') || (!r.platform ? by(String(r._src || '')) : '') || '';
+  },
+  socRows() { return S.socPlat ? S.data.social.filter(r => this.platOf(r) === S.socPlat) : S.data.social; },
   SOC_COMMON: { mobile: 'Mobile', email: 'Email', imei: 'IMEI', ip: 'IP address', device: 'Device', name: 'Name', address: 'Address / location', profile: 'Profile / username' },
   socCommon(field) {
-    return this.cached('sc:' + field, () => {
+    return this.cached('sc:' + (S.socPlat || '') + ':' + field, () => {
       const G = new Map();
-      for (const r of S.data.social) {
+      for (const r of this.socRows()) {
         const vals = String(r[field] || '').split(field === 'name' || field === 'address' || field === 'device' ? /\n/ : /[,;\n]+/).map(s => s.trim()).filter(Boolean);
         for (let v of vals) {
           if (field === 'mobile') v = N.mobile(v); if (field === 'email') v = v.toLowerCase(); if (field === 'name') v = v.toUpperCase();

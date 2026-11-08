@@ -328,15 +328,24 @@ function manualEntry(type, store) {
 
 /* ======================= 2. SOCIAL MEDIA ======================= */
 Pages.social = main => {
+  const PL = Analysis.SOC_PLAT, pc = Analysis.SOC_PLAT.find(p => p[0] === S.socPlat);
+  if (S.socPlat && !pc) S.socPlat = '';
   const { cur, body } = tabs(main, 'social', [['data', 'Import & Data'], ['common', 'Commonality'], ['ip', 'IP Log Analysis'], ['graph', 'Link Graph']], '2 · Social Media Analysis',
     `<button class="btn primary" id="sImp">⬆ Import platform response</button>`);
   $('#sImp').onclick = () => openImport(['social'], render);
+  if (pc) { const h = $('h2', main); if (h) h.innerHTML += ` <span class="small" style="color:${pc[2]}">› ${pc[1]}</span>`; const cr = $('.crumb', main); if (cr) cr.innerHTML += ` <span>›</span> ${pc[1]}`; }
+  const all = S.data.social, cn = {}; all.forEach(r => { const p = Analysis.platOf(r); cn[p] = (cn[p] || 0) + 1; });
+  const bar = document.createElement('div'); bar.className = 'platbar';
+  bar.innerHTML = `<span class="pchip ${!S.socPlat ? 'on' : ''}" data-plat="" style="--pc:var(--accent)">All platforms <b>${fmtNum(all.length)}</b></span>` + PL.map(([id, l, c]) => `<span class="pchip ${S.socPlat === id ? 'on' : ''}" data-plat="${id}" style="--pc:${c}"><i></i>${l} <b>${fmtNum(cn[id] || 0)}</b></span>`).join('') + (cn[''] ? `<span class="muted small">${fmtNum(cn[''])} other / not set</span>` : '');
+  body.parentNode.insertBefore(bar, body.previousElementSibling);
+  $$('.pchip', bar).forEach(b => b.onclick = () => { S.socPlat = b.dataset.plat; render(); });
+  if (pc && !(cn[pc[0]] || 0)) { body.innerHTML = `<div class="card"><h3>${pc[1]}</h3><div class="muted">No ${pc[1]} records in this case yet. Import the ${pc[1]} reply with <b>⬆ Import platform response</b>. Rows are matched to ${pc[1]} by their Platform column (or the file name when Platform is empty).</div></div>`; return; }
   SocTabs[cur](body);
 };
 const PLATFORMS = ['WhatsApp', 'Facebook', 'Instagram', 'Threads', 'Google / Gmail / YouTube', 'X (Twitter)', 'Telegram', 'Snapchat', 'ShareChat', 'Moj', 'LinkedIn', 'Truecaller', 'Signal', 'Other'];
 const SocTabs = {
   data(el) {
-    const d = S.data.social;
+    const d = Analysis.socRows();
     el.innerHTML = `<div class="note">Import replies received from platforms (WhatsApp, Facebook, Instagram, Threads, Google, X, Telegram etc.) as CSV/Excel, or paste/load the text of a PDF reply in <b>Others → Identifier Extractor</b>. Each row = one profile or one IP-log entry. If the file has no "Platform" column, set it below after import.</div>
       ${UI.kpis([['Records', fmtNum(d.length)], ['Profiles', fmtNum(uniq(d.map(r => r.profile)).length)], ['Distinct mobiles', fmtNum(uniq(d.map(r => r.mobile)).length)], ['Distinct IPs', fmtNum(uniq(d.map(r => r.ip)).length)], ['Distinct IMEIs', fmtNum(uniq(d.map(r => r.imei)).length)]])}
       <div class="grid g2"><div class="card"><h3>By platform</h3><div id="sPl"></div></div><div class="card"><h3>Imported files</h3><div id="sF"></div>
@@ -365,8 +374,8 @@ const SocTabs = {
     });
   },
   ip(el) {
-    const logs = S.data.social.filter(r => r.ip);
-    const rows = Object.values(groupBy(logs, r => r.ip)).map(l => ({ ip: l[0].ip, kind: V.ipKind(l[0].ip), n: l.length, profiles: uniq(l.map(r => r.profile)).join(', '), platforms: uniq(l.map(r => r.platform)).join(', '), first: l.map(r => r.ip_time).filter(Boolean).sort()[0] || '', last: l.map(r => r.ip_time).filter(Boolean).sort().slice(-1)[0] || '', ports: uniq(l.map(r => r.port)).join(', ') }));
+    const logs = Analysis.socRows().filter(r => r.ip);
+    const rows = [...groupBy(logs, r => r.ip).values()].map(l => ({ ip: l[0].ip, kind: V.ipKind(l[0].ip), n: l.length, profiles: uniq(l.map(r => r.profile)).join(', '), platforms: uniq(l.map(r => r.platform)).join(', '), first: l.map(r => r.ip_time).filter(Boolean).sort()[0] || '', last: l.map(r => r.ip_time).filter(Boolean).sort().slice(-1)[0] || '', ports: uniq(l.map(r => r.port)).join(', ') }));
     el.innerHTML = `<div class="note">Offline tool: ISP / location lookup is not done automatically. Export this list and check ownership through WHOIS / the ISP. For <b>CGNAT</b> (100.64.x.x) and mobile-data IPs, the ISP needs the exact <b>timestamp with time zone and the source port</b>.</div>
       <div class="grid g2"><div class="card"><h3>Login activity by hour of day</h3><div class="sub">Usual active hours of the user (from IP timestamps)</div><div id="ipH"></div></div><div class="card"><h3>IP types</h3><div id="ipK"></div></div></div>
       <div class="card"><h3>IP addresses</h3><div id="ipT"></div></div>`;
@@ -382,7 +391,7 @@ const SocTabs = {
     const nodes = new Map(), edges = [];
     const fields = ['mobile', 'email', 'imei', 'ip'];
     const cnt = {}; fields.forEach(f => Analysis.socCommon(f).forEach(g => cnt[f + ':' + g.value] = g.profiles));
-    for (const r of S.data.social) {
+    for (const r of Analysis.socRows()) {
       const pid = 'P:' + (r.platform || '') + ':' + (r.profile || r.name || r.id);
       if (!nodes.has(pid)) nodes.set(pid, { id: pid, label: r.profile || r.name || '(profile)', sub: r.platform, kind: 'profile', value: 1 });
       for (const f of fields) for (let v of String(r[f] || '').split(/[,;]/).map(s => s.trim()).filter(Boolean)) {
@@ -535,7 +544,7 @@ const AnaTabs = {
     const round = tx.filter(t => t.amount >= 1000 && t.amount % 1000 === 0);
     const { E } = Analysis.fin();
     const back = [...E.values()].filter(e => E.has(e.to + '→' + e.from) && e.from < e.to && !isSynthetic(e.from) && !isSynthetic(e.to));
-    const split = Object.values(groupBy(tx.filter(t => t.from_acc && t.date), t => t.from_acc + '|' + t.date.slice(0, 10))).filter(l => l.length >= 3).map(l => ({ acc: l[0].from_acc, day: l[0].date.slice(0, 10), n: l.length, total: sum(l, t => t.amount), to: uniq(l.map(t => t.to_acc)).length }));
+    const split = [...groupBy(tx.filter(t => t.from_acc && t.date), t => t.from_acc + '|' + t.date.slice(0, 10)).values()].filter(l => l.length >= 3).map(l => ({ acc: l[0].from_acc, day: l[0].date.slice(0, 10), n: l.length, total: sum(l, t => t.amount), to: uniq(l.map(t => t.to_acc)).length }));
     const below = tx.filter(t => t.amount >= 45000 && t.amount < 50000);
     el.innerHTML = UI.kpis([['Round-figure txns', fmtNum(round.length), 'multiples of ₹1,000'], ['Two-way transfers', fmtNum(back.length), 'A→B and B→A'], ['Split / fan-out days', fmtNum(split.length), '≥ 3 transfers from one account in a day'], ['Just-below ₹50K', fmtNum(below.length), 'possible limit avoidance']]) +
       `<div class="card"><h3>Fan-out: one account sending to many in a day</h3><div id="p1"></div></div><div class="card"><h3>Two-way (circular) transfers</h3><div id="p2"></div></div>`;
