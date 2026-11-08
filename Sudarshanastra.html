@@ -530,6 +530,9 @@ table.tbl{font-size:12.5px}
 .nav-subs{max-height:0;opacity:0;overflow:hidden;margin-top:0;margin-bottom:0;transition:max-height .25s ease,opacity .2s,margin .2s}
 .nav-subs.open{max-height:260px;opacity:1;margin-top:-2px;margin-bottom:6px}
 
+/* sidebar items never squeeze: the menu scrolls instead */
+#sidebar>*{flex-shrink:0}
+
 </style>
 </head>
 <body>
