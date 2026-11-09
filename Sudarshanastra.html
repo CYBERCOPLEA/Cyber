@@ -3716,17 +3716,39 @@ $$('[data-login]').forEach(b => b.onclick = () => showLogin());
 $('#lgClose').onclick = () => showLogin(false);
 $('#lgWrap').onclick = e => { if (e.target.id === 'lgWrap') showLogin(false); };
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && $('#lgWrap').classList.contains('open') && $('#modal').classList.contains('hidden')) showLogin(false); });
-function lock() { $('#app').classList.add('hidden'); $('#login').classList.remove('hidden'); showLogin(); $('#lgPass').value = ''; $('#lgErr').textContent = ''; UI.closeDrawer(); UI.closeModal(); $('#lgUser').focus(); }
+/* stay signed in across a page refresh: the sign-in is kept for this browser tab only (sessionStorage) and ends
+   when the tab or browser is closed, on Lock, on auto-lock, or when the password changes */
+const Sess = {
+  K: 'sud-session',
+  sig: tok => sha256(tok + '|' + S.settings.user + '|' + S.settings.hash),
+  save() { try { const tok = uid() + uid(); sessionStorage.setItem(this.K, JSON.stringify({ tok, sig: this.sig(tok), at: Date.now() })); } catch (e) { } },
+  touch(active = true) { try { const o = JSON.parse(sessionStorage.getItem(this.K) || 'null'); if (o) { if (active) o.at = Date.now(); o.page = S.page; o.sub = S.sub; sessionStorage.setItem(this.K, JSON.stringify(o)); } } catch (e) { } },
+  clear() { try { sessionStorage.removeItem(this.K); } catch (e) { } },
+  valid() {
+    try {
+      const o = JSON.parse(sessionStorage.getItem(this.K) || 'null'); if (!o || !o.tok || o.sig !== this.sig(o.tok)) return null;
+      if (S.settings.lockMins > 0 && Date.now() - (o.at || 0) > S.settings.lockMins * 60000) { this.clear(); return null; }
+      return o;
+    } catch (e) { return null; }
+  }
+};
+function lock() { Sess.clear(); $('#app').classList.add('hidden'); $('#login').classList.remove('hidden'); showLogin(); $('#lgPass').value = ''; $('#lgErr').textContent = ''; UI.closeDrawer(); UI.closeModal(); $('#lgUser').focus(); }
 async function boot() {
   await DB.open();
   S.settings = await DB.get('settings');
   if (!S.settings) { const salt = uid(); S.settings = { user: 'admin', salt, hash: hashPass('admin@123', salt), theme: 'dark', lockMins: 15, mustChange: true }; await DB.set('settings', S.settings); }
   applyTheme();
   if (S.settings.mustChange) $('#lgFirst').innerHTML = 'First time? Default login ID <b>admin</b>, password <b>admin@123</b>. You will be asked to change it.';
+  const back = Sess.valid();
+  if (back && !S.settings.mustChange) { // page was refreshed while signed in: go straight back to where you were
+    if (back.sub && typeof back.sub === 'object') S.sub = Object.assign(S.sub || {}, back.sub);
+    if (back.page && back.page !== 'search') S.page = back.page;
+    $('#login').classList.add('hidden'); $('#app').classList.remove('hidden'); lastAct = Date.now(); Sess.save(); await start();
+  }
   $('#loginForm').onsubmit = async e => {
     e.preventDefault();
     if ($('#lgUser').value.trim() !== S.settings.user || hashPass($('#lgPass').value, S.settings.salt) !== S.settings.hash) { $('#lgErr').textContent = 'Wrong login ID or password'; return; }
-    $('#login').classList.add('hidden'); $('#app').classList.remove('hidden'); showLogin(false); lastAct = Date.now();
+    $('#login').classList.add('hidden'); $('#app').classList.remove('hidden'); showLogin(false); lastAct = Date.now(); Sess.save();
     if (!S.data) await start();
     if (S.settings.mustChange) { go('settings'); UI.toast('Please set your own login ID and password now', 5000); }
   };
@@ -3744,9 +3766,9 @@ async function start() {
   $('#btnTheme').onclick = async () => { S.settings.theme = S.settings.theme === 'light' ? 'dark' : 'light'; applyTheme(); await saveMeta(); render(); };
   $('#drClose').onclick = UI.closeDrawer; $('#mdClose').onclick = UI.closeModal;
   $('#gsearch').onkeydown = e => { if (e.key === 'Enter') { S.searchQ = e.target.value; go('search'); } };
-  ['mousemove', 'keydown', 'click', 'wheel'].forEach(ev => document.addEventListener(ev, () => lastAct = Date.now(), { passive: true }));
+  let tT = 0; ['mousemove', 'keydown', 'click', 'wheel'].forEach(ev => document.addEventListener(ev, () => { lastAct = Date.now(); if (Date.now() - tT > 20000 && !$('#app').classList.contains('hidden')) { tT = Date.now(); Sess.touch(); } }, { passive: true }));
   setInterval(() => { if (S.settings.lockMins > 0 && !$('#app').classList.contains('hidden') && Date.now() - lastAct > S.settings.lockMins * 60000) lock(); }, 15000);
-  window.addEventListener('beforeunload', () => { if (S.caseId) DB.set('case:' + S.caseId, S.data); });
+  window.addEventListener('beforeunload', () => { if (S.caseId) DB.set('case:' + S.caseId, S.data); if (!$('#app').classList.contains('hidden')) Sess.touch(Date.now() - lastAct < 60000); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') { UI.closeDrawer(); } });
   render();
 }
