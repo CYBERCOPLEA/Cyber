@@ -1130,3 +1130,13 @@ svg.c2.dn .dn-c2{font-size:24px}
 .hp-art{overflow:visible;contain:none}
 .emblem-big{filter:drop-shadow(0 0 18px rgba(251,191,36,.18))!important}
 .chakra-big{filter:drop-shadow(0 0 18px rgba(251,191,36,.35))!important}
+
+/* home header: larger logo and readable text */
+.hp-brand .hp-mark{width:96px;height:96px}
+.hp-brand b{font-size:31px;line-height:1.15;letter-spacing:.3px}
+.hp-brand .hp-hi{font-size:.92em;margin-left:8px}
+.hp-brand small{font-size:14px;letter-spacing:1.8px;color:#cbd5e1;font-weight:600;margin-top:2px}
+.hp-by{font-size:16.5px;margin-top:7px}.hp-by i{font-size:15px;padding:2px 12px}
+.hp-top{padding:20px 0 18px}
+@media (max-height:760px){.hp-brand .hp-mark{width:84px;height:84px}.hp-brand b{font-size:28px}.hp-top{padding:12px 0 12px}}
+@media (max-width:620px){.hp-brand b{font-size:21px}.hp-brand .hp-mark{width:56px;height:56px}}
