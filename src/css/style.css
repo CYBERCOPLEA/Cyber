@@ -1048,3 +1048,8 @@ svg.c2.dn .dn-c2{font-size:24px}
 .hx-ic{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-size:17px;background:color-mix(in srgb,var(--xc) 22%,var(--surface-2));border:1px solid color-mix(in srgb,var(--xc) 50%,transparent)}
 .hx-menu b{display:block;font-size:14px;color:color-mix(in srgb,var(--xc) 55%,var(--text-primary))}.hx-menu small{color:var(--text-muted);font-size:11.5px}
 .hx-f{font-size:11px;color:var(--text-muted);padding:6px 8px 2px;border-top:1px solid var(--border);margin-top:4px}
+
+/* records drawer: keep cells on one line, scroll sideways */
+#drawer.dr-wide #recT td{white-space:nowrap;max-width:280px;overflow:hidden;text-overflow:ellipsis}
+#drawer.dr-wide #recT .tbl-wrap{max-height:calc(100vh - 260px)}
+.rec-click .vl,.rec-click .vt{cursor:pointer}

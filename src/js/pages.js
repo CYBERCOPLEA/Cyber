@@ -61,15 +61,15 @@ Pages.dashboard = main => {
   if ($('#dCmp')) Table($('#dCmp'), { rows: comps, pageSize: 10, exportName: 'complaints', sortKey: 'amount', sortDir: -1, columns: [{ key: 'ack', label: 'Ack No', render: r => `<b class="mono">${esc(r.ack)}</b>` }, { key: 'victim', label: 'Victim' }, { key: 'district', label: 'District' }, { key: 'date', label: 'Date' }, { key: 'amount', label: 'Amount', num: true, fmt: fmtINR }, { key: 'layers', label: 'Layers', num: true }, { key: 'accounts', label: 'Accounts', num: true }, { key: 'hold', label: 'On hold', num: true, fmt: v => v ? fmtINR(v) : '' }], onRow: r => { S.trailAck = r.ack; go('trail'); } });
   const dm = $('#dDemo'); if (dm) dm.onclick = e => { e.preventDefault(); Demo.load(); };
   const byLayer = groupBy(acc.filter(a => a.layer > 0), a => a.layer);
-  Charts.vbar($('#chLayer'), [...byLayer.keys()].sort((a, b) => a - b).map(k => ({ label: 'L' + k, value: sum(byLayer.get(k), a => a.inAmt), sub: byLayer.get(k).length + ' accounts' })), { fmt: fmtINR });
+  Charts.vbar($('#chLayer'), [...byLayer.keys()].sort((a, b) => a - b).map(k => ({ label: 'L' + k, value: sum(byLayer.get(k), a => a.inAmt), sub: byLayer.get(k).length + ' accounts', recs: byLayer.get(k) })), { fmt: fmtINR });
   const banks = groupBy(acc.filter(a => a.layer > 0 && a.bank && !isSynthetic(a.acc)), a => a.bank.split(' / ')[0]);
   Charts.hbar($('#chBank'), [...banks].map(([k, v]) => ({ label: k, value: sum(v, a => a.inAmt), sub: v.length + ' accounts' })).sort((a, b) => b.value - a.value), { fmt: fmtINR, onClick: dd => { S.sub.financial = 'suspects'; S.filterBank = dd.label; go('financial', 'suspects'); } });
   const days = groupBy(d.txns.filter(t => t.date), t => t.date.slice(0, 10));
-  Charts.line($('#chDay'), [...days.keys()].sort().map(k => ({ label: k, value: sum(days.get(k), t => t.amount) })), { fmt: fmtINR });
+  Charts.line($('#chDay'), [...days.keys()].sort().map(k => ({ label: k, value: sum(days.get(k), t => t.amount), sub: days.get(k).length + ' txns', recs: days.get(k) })), { fmt: fmtINR });
   const drawSD = () => {
-    const f = S.dashSD || 'state', st = groupBy([...d.kyc.map(k => k[f]), ...d.txns.map(t => t[f] || t['to_ifsc_' + f]), ...d.ncrp.map(n => n[f])].filter(Boolean).map(x => String(x).trim().toUpperCase()), x => x);
+    const f = S.dashSD || 'state', st = groupBy([...d.kyc.map(k => [k[f], k]), ...d.txns.map(t => [t[f] || t['to_ifsc_' + f], t]), ...d.ncrp.map(n => [n[f], n])].filter(p => p[0] && String(p[0]).trim()), p => String(p[0]).trim().toUpperCase());
     $$('#stSw button').forEach(b => b.classList.toggle('on', b.dataset.sd === f));
-    Charts.hbar($('#chState'), [...st].map(([k, v]) => ({ label: k, value: v.length })).sort((a, b) => b.value - a.value), { fmt: v => v + (v === 1 ? ' record' : ' records') });
+    Charts.hbar($('#chState'), [...st].map(([k, v]) => ({ label: k, value: v.length, recs: v.map(p => p[1]) })).sort((a, b) => b.value - a.value), { fmt: v => v + (v === 1 ? ' record' : ' records'), recTitle: f === 'district' ? 'Beneficiary district' : 'Beneficiary state' });
   };
   $$('#stSw button').forEach(b => b.onclick = () => { S.dashSD = b.dataset.sd; drawSD(); });
   drawSD();
@@ -364,7 +364,7 @@ const SocTabs = {
       <div class="row" style="margin-top:10px"><label>Set platform for rows with no platform</label><select id="sSet">${PLATFORMS.map(p => `<option>${p}</option>`).join('')}</select><button class="btn sm" id="sSetGo">Apply</button></div></div></div>
       <div class="card"><div class="row"><h3 class="grow">All records</h3><button class="btn sm" id="sAdd">+ Add manually</button></div><div id="sT"></div></div>`;
     const P = groupBy(d, r => r.platform || '(not set)');
-    Charts.hbar($('#sPl', el), [...P].map(([k, v]) => ({ label: k, value: v.length })).sort((a, b) => b.value - a.value), { fmt: v => v + ' records' });
+    Charts.hbar($('#sPl', el), [...P].map(([k, v]) => ({ label: k, value: v.length, recs: v })).sort((a, b) => b.value - a.value), { fmt: v => v + ' records' });
     importsTable($('#sF', el), ['social']);
     $('#sSetGo', el).onclick = () => { let n = 0; d.forEach(r => { if (!r.platform) { r.platform = $('#sSet', el).value; n++; } }); saveCase(); UI.toast(n + ' rows updated'); render(); };
     $('#sAdd', el).onclick = () => manualEntry('social', 'social');
@@ -391,9 +391,9 @@ const SocTabs = {
     el.innerHTML = `<div class="note">Offline tool: ISP / location lookup is not done automatically. Export this list and check ownership through WHOIS / the ISP. For <b>CGNAT</b> (100.64.x.x) and mobile-data IPs, the ISP needs the exact <b>timestamp with time zone and the source port</b>.</div>
       <div class="grid g2"><div class="card"><h3>Login activity by hour of day</h3><div class="sub">Usual active hours of the user (from IP timestamps)</div><div id="ipH"></div></div><div class="card"><h3>IP types</h3><div id="ipK"></div></div></div>
       <div class="card"><h3>IP addresses</h3><div id="ipT"></div></div>`;
-    const hrs = Array.from({ length: 24 }, (_, h) => ({ label: String(h).padStart(2, '0'), value: logs.filter(r => /\d{2}:\d{2}/.test(r.ip_time) && +r.ip_time.match(/(\d{2}):\d{2}/)[1] === h).length }));
+    const hrs = Array.from({ length: 24 }, (_, h) => ({ label: String(h).padStart(2, '0'), recs: logs.filter(r => /\d{2}:\d{2}/.test(r.ip_time) && +r.ip_time.match(/(\d{2}):\d{2}/)[1] === h) })).map(x => ({ ...x, value: x.recs.length }));
     Charts.vbar($('#ipH', el), hrs, { fmt: v => v + ' logins' });
-    const K = groupBy(rows, r => r.kind); Charts.hbar($('#ipK', el), [...K].map(([k, v]) => ({ label: k, value: v.length })), { fmt: v => v + ' IPs' });
+    const K = groupBy(rows, r => r.kind); Charts.hbar($('#ipK', el), [...K].map(([k, v]) => ({ label: k, value: v.length, recs: v })), { fmt: v => v + ' IPs' });
     Table($('#ipT', el), { rows, exportName: 'ip_addresses', sortKey: 'n', sortDir: -1, columns: [{ key: 'ip', label: 'IP', render: r => `<span class="mono">${esc(r.ip)}</span>` }, { key: 'kind', label: 'Type' }, { key: 'n', label: 'Hits', num: true }, { key: 'ports', label: 'Ports' }, { key: 'platforms', label: 'Platforms' }, { key: 'profiles', label: 'Profiles' }, { key: 'first', label: 'First' }, { key: 'last', label: 'Last' }] });
   },
   graph(el) {
@@ -442,11 +442,11 @@ const NcrpTabs = {
       `<div class="grid g2"><div class="card"><h3>By category</h3><div id="n1"></div></div><div class="card"><h3>By sub-category</h3><div id="n2"></div></div>
        <div class="card"><h3>Complaints per day</h3><div id="n3"></div></div><div class="card"><h3>Amount by district</h3><div id="n4"></div></div>
        <div class="card"><h3>Amount brackets</h3><div id="n5"></div></div><div class="card"><h3>Status</h3><div id="n6"></div></div></div>`;
-    const bar = (id, key, val = l => l.length, fmt) => { const G = groupBy(d.filter(r => r[key]), r => r[key]); Charts.hbar($(id, el), [...G].map(([k, v]) => ({ label: k, value: val(v) })).sort((a, b) => b.value - a.value), { fmt }); };
+    const bar = (id, key, val = l => l.length, fmt) => { const G = groupBy(d.filter(r => r[key]), r => r[key]); Charts.hbar($(id, el), [...G].map(([k, v]) => ({ label: k, value: val(v), recs: v })).sort((a, b) => b.value - a.value), { fmt }); };
     bar('#n1', 'category'); bar('#n2', 'sub_category'); bar('#n4', 'district', l => sum(l, r => r.amount), fmtINR); bar('#n6', 'status');
-    const days = groupBy(d.filter(r => r.date), r => r.date.slice(0, 10)); Charts.line($('#n3', el), [...days.keys()].sort().map(k => ({ label: k, value: days.get(k).length })));
+    const days = groupBy(d.filter(r => r.date), r => r.date.slice(0, 10)); Charts.line($('#n3', el), [...days.keys()].sort().map(k => ({ label: k, value: days.get(k).length, recs: days.get(k) })));
     const br = [[0, 10000, '< 10K'], [10000, 50000, '10K–50K'], [50000, 100000, '50K–1L'], [100000, 500000, '1L–5L'], [500000, 1e12, '> 5L']];
-    Charts.vbar($('#n5', el), br.map(([a, b, l]) => ({ label: l, value: d.filter(r => r.amount >= a && r.amount < b).length })), { fmt: v => v + ' complaints' });
+    Charts.vbar($('#n5', el), br.map(([a, b, l]) => { const recs = d.filter(r => r.amount >= a && r.amount < b); return { label: l, value: recs.length, recs }; }), { fmt: v => v + ' complaints' });
   },
   common(el) {
     const fields = [['suspect_mobile', 'Suspect mobile'], ['suspect_acc', 'Suspect account'], ['suspect_upi', 'Suspect UPI'], ['suspect_url', 'Suspect URL / app'], ['suspect_email', 'Suspect email'], ['victim_mobile', 'Victim mobile (repeat victim)']];
@@ -526,10 +526,10 @@ const AnaTabs = {
     el.innerHTML = `<div class="grid g2"><div class="card"><h3>Amount per day</h3><div id="t1"></div></div><div class="card"><h3>Transactions by hour of day</h3><div class="sub">When the money moves (only rows with time)</div><div id="t2"></div></div>
       <div class="card"><h3>Transactions by weekday</h3><div id="t3"></div></div><div class="card"><h3>Mode of transfer</h3><div id="t4"></div></div></div>
       <div class="card"><h3>Chronology</h3><div class="sub">All dated events (transactions, complaints, social logins) in one list</div><div id="t5"></div></div>`;
-    const D = groupBy(tx, t => t.date.slice(0, 10)); Charts.line($('#t1', el), [...D.keys()].sort().map(k => ({ label: k, value: sum(D.get(k), t => t.amount) })), { fmt: fmtINR });
-    Charts.vbar($('#t2', el), Array.from({ length: 24 }, (_, h) => ({ label: String(h).padStart(2, '0'), value: tx.filter(t => t.date.length > 10 && +t.date.slice(11, 13) === h).length })), { fmt: v => v + ' txns' });
-    const wd = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']; Charts.vbar($('#t3', el), wd.map((w, i) => ({ label: w, value: tx.filter(t => new Date(t.date.slice(0, 10)).getDay() === i).length })), { fmt: v => v + ' txns' });
-    const M = groupBy(S.data.txns, t => t.mode || 'Unknown'); Charts.hbar($('#t4', el), [...M].map(([k, v]) => ({ label: k, value: sum(v, t => t.amount), sub: v.length + ' txns' })).sort((a, b) => b.value - a.value), { fmt: fmtINR });
+    const D = groupBy(tx, t => t.date.slice(0, 10)); Charts.line($('#t1', el), [...D.keys()].sort().map(k => ({ label: k, value: sum(D.get(k), t => t.amount), sub: D.get(k).length + ' txns', recs: D.get(k) })), { fmt: fmtINR });
+    Charts.vbar($('#t2', el), Array.from({ length: 24 }, (_, h) => { const recs = tx.filter(t => t.date.length > 10 && +t.date.slice(11, 13) === h); return { label: String(h).padStart(2, '0'), value: recs.length, recs }; }), { fmt: v => v + ' txns' });
+    const wd = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']; Charts.vbar($('#t3', el), wd.map((w, i) => { const recs = tx.filter(t => new Date(t.date.slice(0, 10)).getDay() === i); return { label: w, value: recs.length, recs }; }), { fmt: v => v + ' txns' });
+    const M = groupBy(S.data.txns, t => t.mode || 'Unknown'); Charts.hbar($('#t4', el), [...M].map(([k, v]) => ({ label: k, value: sum(v, t => t.amount), sub: v.length + ' txns', recs: v })).sort((a, b) => b.value - a.value), { fmt: fmtINR });
     const ev = [...tx.map(t => ({ when: t.date, kind: 'Transaction', what: `${accLabel(t.from_acc || '?')} → ${accLabel(t.to_acc || '?')} ${fmtINR(t.amount)} ${t.mode}`, ref: t.ack_no || t.txn_id })),
       ...S.data.ncrp.filter(c => c.date).map(c => ({ when: c.date, kind: 'Complaint', what: `${c.victim_name} – ${c.category} ${fmtINR(c.amount)}`, ref: c.ack_no })),
       ...S.data.social.filter(s => s.ip_time).map(s => ({ when: s.ip_time, kind: 'Social login', what: `${s.platform} ${s.profile} from ${s.ip}`, ref: s._src }))];
@@ -539,9 +539,9 @@ const AnaTabs = {
     el.innerHTML = `<div class="grid g2"><div class="card"><h3>States (beneficiary KYC & trail)</h3><div id="g1"></div></div><div class="card"><h3>Districts (beneficiary KYC & trail)</h3><div id="g2"></div></div>
       <div class="card"><h3>Victim states (NCRP)</h3><div id="g3"></div></div><div class="card"><h3>ATM / cash-out locations</h3><div id="g4"></div></div></div>
       <div class="card"><h3>PIN codes of beneficiaries</h3><div class="sub">Many mule accounts from one PIN code often means one recruiter / one area to raid.</div><div id="g5"></div></div>`;
-    const cnt = (arr, id, fmt) => { const G = groupBy(arr.filter(Boolean), x => x); Charts.hbar($(id, el), [...G].map(([k, v]) => ({ label: k, value: v.length })).sort((a, b) => b.value - a.value), { fmt: fmt || (v => v + ' records'), max: 15 }); };
-    cnt([...S.data.kyc.map(k => k.state), ...S.data.txns.map(t => t.state)], '#g1'); cnt([...S.data.kyc.map(k => k.district), ...S.data.txns.map(t => t.district)], '#g2');
-    cnt(S.data.ncrp.map(c => c.state), '#g3'); cnt(S.data.txns.map(t => t.atm_loc ? N.upper(t.atm_loc) : ''), '#g4');
+    const cnt = (arr, id, fmt) => { const G = groupBy(arr.filter(p => p[0]), p => p[0]); Charts.hbar($(id, el), [...G].map(([k, v]) => ({ label: k, value: v.length, recs: v.map(p => p[1]) })).sort((a, b) => b.value - a.value), { fmt: fmt || (v => v + ' records'), max: 15 }); };
+    cnt([...S.data.kyc.map(k => [k.state, k]), ...S.data.txns.map(t => [t.state, t])], '#g1'); cnt([...S.data.kyc.map(k => [k.district, k]), ...S.data.txns.map(t => [t.district, t])], '#g2');
+    cnt(S.data.ncrp.map(c => [c.state, c]), '#g3'); cnt(S.data.txns.map(t => [t.atm_loc ? N.upper(t.atm_loc) : '', t]), '#g4');
     const P = groupBy(S.data.kyc.filter(k => k.pincode || /\b\d{6}\b/.test(k.address)), k => k.pincode || k.address.match(/\b\d{6}\b/)[0]);
     Table($('#g5', el), { rows: [...P].map(([pin, l]) => ({ pin, n: l.length, accs: l.map(k => k.acc).join(', '), names: uniq(l.map(k => k.name)).join(', '), district: uniq(l.map(k => k.district)).join(', ') })), sortKey: 'n', sortDir: -1, exportName: 'pincodes', columns: [{ key: 'pin', label: 'PIN' }, { key: 'n', label: 'Accounts', num: true }, { key: 'district', label: 'District' }, { key: 'names', label: 'Names' }, { key: 'accs', label: 'Accounts list' }] });
   },

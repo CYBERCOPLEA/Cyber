@@ -21,15 +21,26 @@ const Records = {
   },
   // hook a glance chart: el = chart host, data = its [{label, value, recs}], max = bars shown before "Others"
   bind(el, title, data, max) {
-    if (!data.some(d => d.recs && d.recs.length)) return;
-    el.classList.add('rec-click');
+    el._ri = { title, data, max };
+    const has = data.some(d => d.recs && d.recs.length); el.classList.toggle('rec-click', has);
+    if (!has || el._rb) return; el._rb = 1;
     el.addEventListener('click', e => {
+      const { title, data, max } = el._ri; if (!data.some(d => d.recs && d.recs.length)) return;
       if (e.target.closest('.ch-sw')) return;
       const it = e.target.closest('[data-i],[data-li]'); if (!it || !el.contains(it)) return;
-      const i = +(it.dataset.i ?? it.dataset.li); let d = data[i], recs, lab;
+      let i = +(it.dataset.i ?? it.dataset.li);
+      if (it.closest('.dn, .ch-leg') && el._dd) { const dl = el._dd[i]; const j = dl ? data.findIndex(x => x.label === dl.label) : -1; i = j < 0 ? 1e9 : j; }
+      let d = data[i], recs, lab;
       if (i >= max || !d) { recs = data.slice(max).flatMap(x => x.recs || []); lab = 'Others'; } else { recs = d.recs || []; lab = d.label; }
+      if (!recs.length) return;
       Charts.tip(e, null); Records.show(`${title} – ${lab}`, recs);
     });
+  },
+  // any chart whose items carry recs opens them on click
+  auto(el, data, o) {
+    if (!el || o.onClick || !data.some(d => d.recs && d.recs.length)) { if (el && el._ri) el._ri.data = []; if (el) el.classList.remove('rec-click'); return; }
+    const h = el.closest('.card') && el.closest('.card').querySelector('h3');
+    this.bind(el, o.recTitle || (h ? h.textContent.trim() : 'Records'), data, o.max || 12);
   }
 };
 (() => { const od = UI.drawer; UI.drawer = function () { $('#drawer').classList.remove('dr-wide'); return od.apply(this, arguments); }; })();

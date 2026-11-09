@@ -517,15 +517,15 @@ NcrpTabs.summary = el => {
       <div class="card"><h3>${list.length > 1 ? 'Complaints by amount' : 'Action / status in bank reply'}</h3><div id="s6"></div></div>
       ${S.data.ncrp.length ? '<div class="card"><h3>By category (NCRP export)</h3><div id="s7"></div></div><div class="card"><h3>Amount by district (NCRP export)</h3><div id="s8"></div></div>' : ''}</div>`;
   NcrpData.bar(el, () => NcrpTabs.summary(el));
-  const hb = (id, G, fmt = fmtINR, max = 12) => Charts.hbar($(id, el), [...G].map(([k, v]) => ({ label: k, value: v })).sort((a, b) => b.value - a.value), { fmt, max });
-  const by = (rows, key, val) => { const m = new Map(); rows.forEach(r => { const k = key(r); if (k == null || k === '') return; m.set(k, (m.get(k) || 0) + val(r)); }); return m; };
+  const hb = (id, G, fmt = fmtINR, max = 12) => Charts.hbar($(id, el), [...G].map(([k, v]) => ({ label: k, value: v, recs: G._r && G._r.get(k) })).sort((a, b) => b.value - a.value), { fmt, max });
+  const by = (rows, key, val) => { const m = new Map(), R = new Map(); rows.forEach(r => { const k = key(r); if (k == null || k === '') return; m.set(k, (m.get(k) || 0) + val(r)); (R.get(k) || R.set(k, []).get(k)).push(r); }); m._r = R; return m; };
   const amt = t => Math.abs(t.amount || 0);
-  Charts.hbar($('#s1', el), [...by(mv, t => t.layer || 0, amt)].sort((a, b) => a[0] - b[0]).map(([k, v]) => ({ label: k ? 'Layer ' + k : 'Victim / no layer', value: v })), { fmt: fmtINR, max: 30 });
+  const L1 = by(mv, t => t.layer || 0, amt); Charts.hbar($('#s1', el), [...L1].sort((a, b) => a[0] - b[0]).map(([k, v]) => ({ label: k ? 'Layer ' + k : 'Victim / no layer', value: v, recs: L1._r.get(k) })), { fmt: fmtINR, max: 30 });
   hb('#s2', by(mv, t => t.to_bank, amt));
-  const days = by(mv.filter(t => t.date), t => t.date.slice(0, 10), () => 1); Charts.line($('#s3', el), [...days.keys()].sort().map(k => ({ label: k, value: days.get(k) })));
+  const days = by(mv.filter(t => t.date), t => t.date.slice(0, 10), () => 1); Charts.line($('#s3', el), [...days.keys()].sort().map(k => ({ label: k, value: days.get(k), recs: days._r.get(k) })));
   hb('#s4', by(mv, t => (t.mode || (/^CASH-OUT/.test(t.to_acc || '') ? 'ATM / cash' : 'Not given')).toUpperCase(), () => 1), v => fmtNum(v) + ' txns');
   hb('#s5', by(mv.filter(t => t.to_acc && !isSynthetic(t.to_acc)), t => t.to_acc + (t.to_name ? ' · ' + t.to_name.slice(0, 14) : ''), amt), fmtINR, 10);
-  if (list.length > 1) { const br = [[0, 10000, '< 10K'], [10000, 50000, '10K–50K'], [50000, 100000, '50K–1L'], [100000, 500000, '1L–5L'], [500000, 1e13, '> 5L']]; Charts.vbar($('#s6', el), br.map(([a, b, l]) => ({ label: l, value: st.filter(c => (c.amount || 0) >= a && (c.amount || 0) < b).length })), { fmt: v => v + ' complaints' }); }
+  if (list.length > 1) { const br = [[0, 10000, '< 10K'], [10000, 50000, '10K–50K'], [50000, 100000, '50K–1L'], [100000, 500000, '1L–5L'], [500000, 1e13, '> 5L']]; Charts.vbar($('#s6', el), br.map(([a, b, l]) => { const recs = st.filter(c => (c.amount || 0) >= a && (c.amount || 0) < b); return { label: l, value: recs.length, recs }; }), { fmt: v => v + ' complaints' }); }
   else hb('#s6', by(tx, t => String(t.action || '').trim() || null, () => 1), v => fmtNum(v) + ' rows');
   if (S.data.ncrp.length) { const nc = S.data.ncrp.filter(n => list.some(c => c.ack === n.ack_no)); hb('#s7', by(nc, n => n.category, () => 1), v => v + ' complaints'); hb('#s8', by(nc, n => n.district, n => n.amount || 0)); }
 };

@@ -120,10 +120,10 @@ const GamePlayer = {
         <div><h3 style="font-size:15px">Bulk accounts paying the most receivers</h3><div id="gpC3"></div></div><div><h3 style="font-size:15px">Receivers paid by many bulk accounts</h3><div id="gpC4"></div></div></div>`;
       Charts.hbar($('#gpC1', body), D.recv.slice().sort((a, b) => b.amount - a.amount).slice(0, 15).map(r => ({ label: accLabel(r.acc), value: r.amount, sub: r.n + ' txns · ' + r.senders + ' bulk acc.' })), { fmt: fmtINR, onClick: d => showAccount(D.recv.find(r => accLabel(r.acc) === d.label).acc) });
       const B = [[1000, 'Up to ₹1,000'], [2000, '₹1,001 – 2,000'], [5000, '₹2,001 – 5,000'], [10000, '₹5,001 – 10,000'], [Infinity, 'Above ₹10,000']];
-      Charts.hbar($('#gpC2', body), B.map(([m, l], i) => ({ label: l, value: D.tx.filter(t => t._amt <= m && t._amt > (i ? B[i - 1][0] : 0)).length })).filter(x => x.value), { fmt: v => fmtNum(v) + ' txns' });
+      Charts.hbar($('#gpC2', body), B.map(([m, l], i) => { const recs = D.tx.filter(t => t._amt <= m && t._amt > (i ? B[i - 1][0] : 0)); return { label: l, value: recs.length, recs }; }).filter(x => x.value), { fmt: v => fmtNum(v) + ' txns' });
       const P = groupBy(D.tx, t => t.s_acc);
-      Charts.hbar($('#gpC3', body), [...P].map(([k, v]) => ({ label: accLabel(k), value: new Set(v.map(t => t.r_acc)).size, sub: fmtINR(sum(v, t => t._amt)) })).sort((a, b) => b.value - a.value).slice(0, 15), { fmt: v => fmtNum(v) + ' receivers' });
-      Charts.hbar($('#gpC4', body), D.recv.filter(r => r.senders >= 2).sort((a, b) => b.senders - a.senders).slice(0, 15).map(r => ({ label: accLabel(r.acc), value: r.senders, sub: fmtINR(r.amount) })), { fmt: v => v + ' bulk accounts' });
+      Charts.hbar($('#gpC3', body), [...P].map(([k, v]) => ({ label: accLabel(k), value: new Set(v.map(t => t.r_acc)).size, sub: fmtINR(sum(v, t => t._amt)), recs: v })).sort((a, b) => b.value - a.value).slice(0, 15), { fmt: v => fmtNum(v) + ' receivers' });
+      Charts.hbar($('#gpC4', body), D.recv.filter(r => r.senders >= 2).sort((a, b) => b.senders - a.senders).slice(0, 15).map(r => ({ label: accLabel(r.acc), value: r.senders, sub: fmtINR(r.amount), recs: D.tx.filter(t => t.r_acc === r.acc) })), { fmt: v => v + ' bulk accounts' });
       return;
     }
     if (view === 'common') return this.common(body, D);

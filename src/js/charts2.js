@@ -81,14 +81,15 @@
     if (!data.length) { el.innerHTML = '<div class="muted small ch-empty">No data</div>'; return; }
     const tot = all.reduce((a, d) => a + Math.max(0, d.value), 0);
     const { body, v } = frame(el, 'hbar', all, o, el.clientWidth && el.clientWidth < 420 ? 'bar' : 'both');
-    const dd = data.slice(); if (all.length > max && v !== 'bar') { const rest = all.slice(max).reduce((a, d) => a + d.value, 0); if (rest > 0) dd.push({ label: 'Others', value: rest, sub: (all.length - max) + ' more' }); }
+    const dd = data.slice(); el._dd = dd; if (all.length > max && v !== 'bar') { const rest = all.slice(max).reduce((a, d) => a + d.value, 0); if (rest > 0) dd.push({ label: 'Others', value: rest, sub: (all.length - max) + ' more' }); }
     if (v === 'bar') body.innerHTML = hbarSvg(data, fmt, tot, onClick, true);
     else if (v === 'donut') body.innerHTML = `<div class="ch-dwrap">${donutSvg(dd, fmt, tot, o.title)}${legend(dd, fmt, tot)}</div>`;
     else body.innerHTML = `<div class="ch-both"><div class="ch-dwrap sm">${donutSvg(dd, fmt, tot, o.title)}</div><div class="ch-bw">${hbarSvg(data, fmt, tot, onClick, false)}</div></div>`;
     Charts.bindTips(body); linkDonut(body, dd, fmt, tot, o.title);
     if (onClick) $$('.hb [data-i]', body).forEach(g => g.onclick = () => onClick(data[+g.dataset.i]));
   };
-  Charts.hbar = function (el, data, o = {}) { el._ch = el._ch && el._ch.kind === 'hbar' ? el._ch : null; Charts._hbar(el, data, o); };
+  const RA = (el, data, o) => { if (typeof Records !== 'undefined') Records.auto(el, data, o); };
+  Charts.hbar = function (el, data, o = {}) { el._ch = el._ch && el._ch.kind === 'hbar' ? el._ch : null; Charts._hbar(el, data, o); RA(el, data, { max: 12, ...o }); };
 
   const vbarSvg = (data, fmt, tot, W = 560) => {
     const H = W < 560 ? 250 : 236, pl = 56, pb = 34, pt = 16, mx = Math.max(...data.map(d => d.value)) || 1, bw = (W - pl - 10) / data.length, g = ++gid;
@@ -107,13 +108,13 @@
     if (!data.length) { el.innerHTML = '<div class="muted small ch-empty">No data</div>'; return; }
     const tot = data.reduce((a, d) => a + Math.max(0, d.value), 0);
     const { body, v } = frame(el, 'vbar', data, { ...o, round: o.round !== false && data.length <= 16 }, data.length <= 8 && !(el.clientWidth && el.clientWidth < 460) ? 'both' : 'bar');
-    const dd = data.filter(d => d.value > 0);
+    const dd = data.filter(d => d.value > 0); el._dd = dd;
     if (v === 'bar') body.innerHTML = vbarSvg(data, fmt, tot);
     else if (v === 'donut') body.innerHTML = `<div class="ch-dwrap">${donutSvg(dd, fmt, tot, o.title)}${legend(dd, fmt, tot)}</div>`;
     else body.innerHTML = `<div class="ch-both"><div class="ch-dwrap sm">${donutSvg(dd, fmt, tot, o.title)}</div><div class="ch-bw">${vbarSvg(data, fmt, tot, 360)}</div></div>`;
     Charts.bindTips(body); linkDonut(body, dd, fmt, tot, o.title);
   };
-  Charts.vbar = function (el, data, o = {}) { el._ch = el._ch && el._ch.kind === 'vbar' ? el._ch : null; Charts._vbar(el, data, o); };
+  Charts.vbar = function (el, data, o = {}) { el._ch = el._ch && el._ch.kind === 'vbar' ? el._ch : null; Charts._vbar(el, data, o); RA(el, data, { ...o, max: 1e9 }); };
 
   // line over time: points pop on hover with a guide line
   Charts.line = function (el, data, { fmt = fmtNum } = {}) {
@@ -126,9 +127,9 @@
       ${[...new Map([0, .5, 1].map(t => [Charts.short(mx * t), t])).values()].map(t => `<line class="gridline" x1="${pl}" x2="${W}" y1="${y(mx * t)}" y2="${y(mx * t)}"/><text x="${pl - 6}" y="${y(mx * t) + 4}" text-anchor="end">${esc(Charts.short(mx * t))}</text>`).join('')}
       <path d="${path} L${x(data.length - 1)},${H - pb} L${pl},${H - pb} Z" fill="url(#lg${g})"/>
       <path d="${path}" fill="none" stroke="${c}" stroke-width="2.2" stroke-linejoin="round"/>
-      ${data.map((d, i) => { const cc = d.value >= mx * .5 ? '#ef4444' : d.value >= mx * .2 ? '#f97316' : c; return `<g class="it pt" data-tip="${esc(tipHtml(d, cc, fmt, tot))}" style="--c:${cc}"><rect x="${x(i) - (W / data.length) / 2}" y="${pt}" width="${W / data.length}" height="${H - pb - pt}" fill="transparent"/><line class="guide" x1="${x(i)}" x2="${x(i)}" y1="${pt}" y2="${H - pb}"/><circle class="dot ${data.length < 60 || d.value >= mx * .5 ? '' : 'hid'}" cx="${x(i)}" cy="${y(d.value)}" r="${d.value >= mx * .5 ? 4.5 : 3.5}" fill="${cc}" stroke="var(--surface-1)" stroke-width="2"/>${i % step === 0 ? `<text x="${x(i)}" y="${H - pb + 15}" text-anchor="middle">${esc(String(d.label).slice(5, 10) || d.label)}</text>` : ''}</g>`; }).join('')}
+      ${data.map((d, i) => { const cc = d.value >= mx * .5 ? '#ef4444' : d.value >= mx * .2 ? '#f97316' : c; return `<g class="it pt" data-i="${i}" data-tip="${esc(tipHtml(d, cc, fmt, tot))}" style="--c:${cc}"><rect x="${x(i) - (W / data.length) / 2}" y="${pt}" width="${W / data.length}" height="${H - pb - pt}" fill="transparent"/><line class="guide" x1="${x(i)}" x2="${x(i)}" y1="${pt}" y2="${H - pb}"/><circle class="dot ${data.length < 60 || d.value >= mx * .5 ? '' : 'hid'}" cx="${x(i)}" cy="${y(d.value)}" r="${d.value >= mx * .5 ? 4.5 : 3.5}" fill="${cc}" stroke="var(--surface-1)" stroke-width="2"/>${i % step === 0 ? `<text x="${x(i)}" y="${H - pb + 15}" text-anchor="middle">${esc(String(d.label).slice(5, 10) || d.label)}</text>` : ''}</g>`; }).join('')}
       <line x1="${pl}" x2="${W}" y1="${H - pb}" y2="${H - pb}" stroke="var(--grid)"/></svg>`;
-    Charts.bindTips(el);
+    Charts.bindTips(el); el._dd = null; RA(el, data, { max: 1e9 });
   };
   // stand-alone donut
   Charts.donut = function (el, data, o = {}) { o = { ...o, view: 'donut' }; el._ch = { view: 'donut' }; Charts._hbar(el, data, o); };
