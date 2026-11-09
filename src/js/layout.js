@@ -29,7 +29,7 @@ const NAVC = { dashboard: '#3b82f6', ncrp: '#f97316', trail: '#8b5cf6', financia
 const MENU = [
   ['Overview', [['dashboard', 'home', 'Dashboard', 'Case summary and next steps']]],
   ['Investigation', [
-    ['financial', 'bank', 'Bank & Financial', 'Statements, KYC, suspects, charts · drop-down: Complaints (NCRP), Money Trail'],
+    ['financial', 'bank', 'Financial Trail', 'Complaints (NCRP), Money Trail, Bank & Financial'],
     ['social', 'social', 'Social Media', 'Platform replies, IP logs, links']]],
   ['Analysis', [['analytics', 'analytics', 'Analytics', 'Mule flags, cross-links, timeline, hotspots'], ['osint', 'osint', 'OSINT', 'Open OSINT Framework (osintframework.com) in a new tab'], ['caf', 'caf', 'CAF Analysis', 'SIM application forms: table, common POS, agent, date, number, photo'], ['tools', 'tools', 'Tools', 'IP Lookup, MNP, IMEI, MAC, Email Header, WhoIS and your own lookup links']]],
   ['Action', [['others', 'file', 'Case File & Notices', 'Notes, notices, reports, tools']]],
@@ -137,21 +137,21 @@ let LayoutSoc = null;
   new MutationObserver(() => { if (!busy) { busy = true; requestAnimationFrame(paint); } }).observe($('#main'), { childList: true, subtree: true });
 })();
 
-/* Bank & Financial drop-down: 1. Complaints (NCRP), 2. Money Trail */
+/* Financial Trail drop-down: 1. Complaints (NCRP), 2. Money Trail, 3. Bank & Financial (the parent only opens / closes the list) */
 (() => {
   const nav = $('#sidebar'), it = $('.nav-item[data-page="financial"]', nav); if (!it) return;
-  const SUB = [['ncrp', 'Complaints (NCRP)', 'Start here: pick a complaint by Acknowledgement No'], ['trail', 'Money Trail', 'Victim → Layer 1 → Layer 2 … cards']];
-  it.insertAdjacentHTML('beforeend', '<span class="nav-chev" title="Show / hide Complaints and Money Trail">▾</span>');
+  const SUB = [['ncrp', 'Complaints (NCRP)', 'Start here: pick a complaint by Acknowledgement No'], ['trail', 'Money Trail', 'Victim → Layer 1 → Layer 2 … cards'], ['financial', 'Bank & Financial', 'Statements, KYC, suspects, charts']];
+  it.insertAdjacentHTML('beforeend', '<span class="nav-chev" title="Show / hide Complaints, Money Trail, Bank & Financial">▾</span>');
   it.insertAdjacentHTML('afterend', `<div class="nav-subs fin-subs">${SUB.map(([id, l, t], i) => `<div class="nav-sub" data-fin="${id}" style="--pc:${NAVC[id] || '#64748b'}" title="${esc(t)}"><i></i><span>${i + 1}. ${esc(l)}</span></div>`).join('')}</div>`);
   const subs = $('.fin-subs', nav), setOpen = on => { S.finOpen = on; subs.classList.toggle('open', on); it.classList.toggle('open', on); };
   setOpen(false);
   $('.nav-chev', it).addEventListener('click', e => { e.stopPropagation(); setOpen(!S.finOpen); });
-  it.addEventListener('click', e => { if (e.target.closest('.nav-chev')) return; setOpen(S.page === 'financial' ? !S.finOpen : true); }, true);
+  it.addEventListener('click', e => { e.stopImmediatePropagation(); e.stopPropagation(); setOpen(!S.finOpen); }, true);
   $$('.nav-sub[data-fin]', nav).forEach(n => n.onclick = () => go(n.dataset.fin));
   const orig = render;
   render = function () {
     orig();
     $$('.nav-sub[data-fin]').forEach(n => n.classList.toggle('active', S.page === n.dataset.fin));
-    if (S.page === 'ncrp' || S.page === 'trail') { it.classList.add('active'); if (!S.finOpen) setOpen(true); }
+    if (['ncrp', 'trail', 'financial'].includes(S.page)) { it.classList.add('active'); if (!S.finOpen) setOpen(true); }
   };
 })();
