@@ -28,6 +28,7 @@
     'analytics/round': () => [['Accounts by risk level', cnt(accs(), risk), recs('accounts')]],
     'caf/data': () => { const L = CAF.list(); return [['CAFs by operator', cnt(L, c => c.operator || 'Not known'), recs('CAFs')], ['SIMs by POS', cnt(L, c => c.pos_name || c.pos_code), recs('SIMs')], ['Activations by month', months(L, 'act_date'), recs('SIMs'), 'v']]; },
     'caf/common': () => { const L = CAF.list(); return [['SIMs by POS agent', cnt(L, 'pos_agent'), recs('SIMs')], ['SIMs by activation date', cnt(L, 'act_date').slice(0, 15).sort((a, b) => a.label.localeCompare(b.label)), recs('SIMs'), 'v']]; },
+    'trail/trail': () => G['trail/'](),
     'trail/': () => [['Money received by layer', add(accs().filter(a => a.layer > 0), a => 'Layer ' + a.layer, a => a.inAmt).sort((a, b) => a.label.localeCompare(b.label, 'en', { numeric: true })), fmtINR, 'v'], ['Money received by bank', add(accs().filter(a => a.layer > 0), bank1, a => a.inAmt), fmtINR]],
     'others/notes': () => [['Tasks', [{ label: 'Done', value: S.data.tasks.filter(t => t.done).length }, { label: 'Pending', value: S.data.tasks.filter(t => !t.done).length }].filter(d => d.value), recs('tasks')], ['Notes by tag', cnt(S.data.notes, n => n.tag || 'Note'), recs('notes')]]
   };

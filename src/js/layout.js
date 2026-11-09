@@ -58,6 +58,7 @@ const PAGE_META = {
 tabs = function (main, page, list, title, actions = '') {
   const M = PAGE_META[page];
   if (M) {
+    if (M.extra) list = [...list, ...M.extra.filter(([k]) => !list.some(t => t[0] === k))];
     const by = new Map(list.map(t => [t[0], t]));
     const ordered = [...M.order.filter(k => by.has(k)).map(k => by.get(k)), ...list.filter(t => !M.order.includes(t[0]))];
     // keep counts like "Complaints (12)" from the original label

@@ -941,3 +941,33 @@ svg.c2.dn .dn-c2{font-size:24px}
 [data-theme=light] .kpi.kc2 .label{color:color-mix(in srgb,var(--kc) 75%,#0f172a)}
 #main .kpis-c{grid-template-columns:repeat(auto-fit,minmax(135px,1fr))}
 #main .kpis-c .kpi .value{font-size:min(22px,15.5cqi)}
+
+/* ===== Tabs as coloured pill buttons (every page) ===== */
+#main .tabs{display:flex;flex-wrap:wrap;gap:8px;border-bottom:none;padding:2px 0 6px;margin:4px 0 16px}
+#main .tabs .tab{--tc:#3b82f6;margin:0;padding:8px 17px;border-radius:999px;font-size:13.5px;font-weight:700;letter-spacing:.1px;color:var(--text-primary);
+  border:1.5px solid color-mix(in srgb,var(--tc) 60%,transparent);border-bottom:1.5px solid color-mix(in srgb,var(--tc) 60%,transparent);
+  background:linear-gradient(180deg,color-mix(in srgb,var(--tc) 30%,var(--surface-1)),color-mix(in srgb,var(--tc) 10%,var(--surface-1)));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 2px 6px -3px rgba(0,0,0,.5);transition:transform .15s,box-shadow .15s,background .15s}
+#main .tabs .tab:hover{transform:translateY(-1px);box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 6px 16px -6px var(--tc);background:linear-gradient(180deg,color-mix(in srgb,var(--tc) 42%,var(--surface-1)),color-mix(in srgb,var(--tc) 18%,var(--surface-1)))}
+#main .tabs .tab.active{color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.45);border-color:color-mix(in srgb,var(--tc) 55%,#fff);border-bottom-color:color-mix(in srgb,var(--tc) 55%,#fff);
+  background:linear-gradient(180deg,color-mix(in srgb,var(--tc) 82%,#fff),var(--tc));box-shadow:0 0 0 3px color-mix(in srgb,var(--tc) 28%,transparent),0 8px 20px -8px var(--tc)}
+#main .tabs .tab .tcount{background:rgba(0,0,0,.25);color:inherit;border-radius:999px;padding:0 7px;font-size:11.5px}
+[data-theme=light] #main .tabs .tab{background:linear-gradient(180deg,color-mix(in srgb,var(--tc) 18%,#fff),color-mix(in srgb,var(--tc) 6%,#fff));color:color-mix(in srgb,var(--tc) 55%,#0f172a);box-shadow:0 1px 3px rgba(15,23,42,.08)}
+[data-theme=light] #main .tabs .tab.active{color:#fff;background:linear-gradient(180deg,color-mix(in srgb,var(--tc) 85%,#fff),var(--tc))}
+.tr-scope{margin:-6px 0 12px}
+/* Match view */
+.mt-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.mt-chip{display:flex;align-items:center;gap:8px;padding:6px 6px 6px 12px;border-radius:999px;border:1px solid var(--border);background:var(--surface-2);color:var(--text-secondary);cursor:pointer;font:inherit;font-size:13px}
+.mt-chip b{min-width:26px;text-align:center;padding:1px 7px;border-radius:999px;background:var(--surface-3)}
+.mt-chip.on{color:var(--text-primary);border-color:color-mix(in srgb,#ec4899 55%,var(--border));background:color-mix(in srgb,#ec4899 12%,var(--surface-2))}
+.mt-chip.on b{background:#db2777;color:#fff}
+.mt-chip:hover{transform:translateY(-1px)}
+.mt-filters{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 10px}
+.mt-f{padding:6px 12px;border-radius:999px;border:1px solid var(--border);background:var(--surface-2);color:var(--text-secondary);cursor:pointer;font:inherit;font-size:12.5px;font-weight:600}
+.mt-f b{margin-left:4px;color:var(--text-primary)}
+.mt-f.on{background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;border-color:transparent}.mt-f.on b{color:#fff}
+.mt-y,.mt-n{display:inline-flex;width:22px;height:22px;align-items:center;justify-content:center;border-radius:6px;margin-right:3px;font-weight:800;font-size:12px}
+.mt-y{background:color-mix(in srgb,#10b981 25%,transparent);color:#10b981}.mt-n{background:var(--surface-3);color:var(--text-muted)}
+/* CAF data check */
+.ck-bar{display:inline-block;width:70px;height:8px;border-radius:4px;background:var(--surface-3);vertical-align:middle;overflow:hidden}.ck-bar i{display:block;height:100%}
+#main .tabs{gap:7px}#main .tabs .tab{padding:7px 14px;font-size:13px}
