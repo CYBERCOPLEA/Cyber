@@ -1170,6 +1170,14 @@ svg.c2.dn .dn-c2{font-size:24px}
 .hp-art,.hp-art *,.hp-brand,.hp-brand *,.ck-wrap,.ck-wrap *,.db-mark,.db-mark *,.lg-hi,.br-hi,.hp-hi{text-shadow:none!important;filter:none!important;box-shadow:none!important}
 .hp-art::before,.hp-art::after,.ck-wrap::before,.ck-wrap::after,.db-mark::before,.db-mark::after{display:none!important}
 
+/* hero name +20% with space below */
+.hp-nhi{font-size:clamp(35px,3.48vw,58px)!important}
+.hp-nen{font-size:clamp(25px,2.7vw,46px)!important}
+@media (max-height:760px){.hp-nhi{font-size:clamp(32px,3.24vw,50px)!important}.hp-nen{font-size:clamp(24px,2.58vw,41px)!important}}
+.hp-name{margin-bottom:22px!important}
+@media (max-height:760px){.hp-name{margin-bottom:14px!important}}
+.hp-name{column-gap:12px!important}.hp-nen{letter-spacing:1px!important;padding-left:14px!important}
+
 </style>
 </head>
 <body>
@@ -1217,7 +1225,7 @@ svg.c2.dn .dn-c2{font-size:24px}
         <div class="hp-feat" style="--fc:#06b6d4"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><div><b>Analytics</b><p>The same mobile, account, IP or e-mail across complaints, banks and platforms.</p></div></div>
         <div class="hp-feat" style="--fc:#eab308"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h5"/></svg></span><div><b>Case File &amp; Notices</b><p>Case reports, notices to banks and platforms, and CSV / PDF exports.</p></div></div>
     </section>
-    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-09 20:57 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
+    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-09 21:36 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
   </div>
 
   <div class="lg-wrap" id="lgWrap" aria-hidden="true">
@@ -7011,6 +7019,25 @@ CafTabs.check = (el, L) => {
 };
 (() => {
   PAGE_META.caf.order = ['data', 'check', 'common', 'photo']; PAGE_META.caf.names = Object.assign(PAGE_META.caf.names || {}, { check: '✅ Data Check (found / missing)' }); PAGE_META.caf.extra = [['check', 'Data Check']];
+})();
+
+</script>
+<script>
+// Keep the hero name "सुदर्शनास्त्र | SUDARSHANASHTRA" on one line: shrink it a little only if the fonts on this computer make it too wide.
+(function () {
+  function fit() {
+    var n = document.querySelector('.hp-name'); if (!n || !n.offsetParent) return;
+    n.style.zoom = '';
+    var w = n.parentElement.clientWidth, s = n.scrollWidth;
+    var kids = n.children, used = 0;
+    for (var i = 0; i < kids.length; i++) used += kids[i].getBoundingClientRect().width;
+    used += 12 * (kids.length - 1);
+    if (getComputedStyle(n).flexWrap === 'nowrap' && used > w) n.style.zoom = Math.max(0.7, (w - 4) / used).toFixed(3);
+  }
+  window.addEventListener('resize', fit);
+  window.addEventListener('load', fit);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+  setTimeout(fit, 300);
 })();
 
 </script>

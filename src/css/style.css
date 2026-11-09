@@ -1161,3 +1161,11 @@ svg.c2.dn .dn-c2{font-size:24px}
 @media (max-height:760px){.hp-nhi{font-size:clamp(27px,2.7vw,42px)!important}}
 .hp-art,.hp-art *,.hp-brand,.hp-brand *,.ck-wrap,.ck-wrap *,.db-mark,.db-mark *,.lg-hi,.br-hi,.hp-hi{text-shadow:none!important;filter:none!important;box-shadow:none!important}
 .hp-art::before,.hp-art::after,.ck-wrap::before,.ck-wrap::after,.db-mark::before,.db-mark::after{display:none!important}
+
+/* hero name +20% with space below */
+.hp-nhi{font-size:clamp(35px,3.48vw,58px)!important}
+.hp-nen{font-size:clamp(25px,2.7vw,46px)!important}
+@media (max-height:760px){.hp-nhi{font-size:clamp(32px,3.24vw,50px)!important}.hp-nen{font-size:clamp(24px,2.58vw,41px)!important}}
+.hp-name{margin-bottom:22px!important}
+@media (max-height:760px){.hp-name{margin-bottom:14px!important}}
+.hp-name{column-gap:12px!important}.hp-nen{letter-spacing:1px!important;padding-left:14px!important}
