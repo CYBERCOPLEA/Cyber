@@ -68,7 +68,7 @@ const S = {
   data: null,       // active case data
   page: 'dashboard', sub: {}
 };
-const emptyCase = () => ({ txns: [], kyc: [], social: [], ncrp: [], caf: [], notes: [], tasks: [], idents: [], imports: [] });
+const emptyCase = () => ({ txns: [], kyc: [], social: [], ncrp: [], caf: [], notes: [], tasks: [], idents: [], imports: [], google: [] });
 let saveTimer = null;
 function saveCase() {
   clearTimeout(saveTimer);
