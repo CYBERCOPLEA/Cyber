@@ -911,3 +911,8 @@ svg.c2.dn .dn-c2{font-size:24px}
 .btn.rst{background:#1e3a4c!important;color:#bae6fd!important;border:1px solid #3b6e8c!important;font-weight:600}
 .btn.rst:hover{background:#25475d!important}
 [data-theme=light] .btn.rst{background:#e0f2fe!important;color:#075985!important;border-color:#7dd3fc!important}
+
+/* Game Player ⚑ Common view */
+.gp-common-kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+.gp-common-kpi>div{display:flex;flex-direction:column;gap:2px;padding:10px 12px;border-radius:12px;border:1px solid rgba(239,68,68,.45);background:linear-gradient(135deg,rgba(239,68,68,.14),rgba(22,163,74,.10))}
+.gp-common-kpi span{font-size:18px}.gp-common-kpi b{font-size:20px}.gp-common-kpi small{opacity:.8}

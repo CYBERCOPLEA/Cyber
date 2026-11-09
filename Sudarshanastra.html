@@ -920,6 +920,11 @@ svg.c2.dn .dn-c2{font-size:24px}
 .btn.rst:hover{background:#25475d!important}
 [data-theme=light] .btn.rst{background:#e0f2fe!important;color:#075985!important;border-color:#7dd3fc!important}
 
+/* Game Player ⚑ Common view */
+.gp-common-kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+.gp-common-kpi>div{display:flex;flex-direction:column;gap:2px;padding:10px 12px;border-radius:12px;border:1px solid rgba(239,68,68,.45);background:linear-gradient(135deg,rgba(239,68,68,.14),rgba(22,163,74,.10))}
+.gp-common-kpi span{font-size:18px}.gp-common-kpi b{font-size:20px}.gp-common-kpi small{opacity:.8}
+
 </style>
 </head>
 <body>
@@ -6442,6 +6447,57 @@ const GamePlayer = {
       return { tx, recv, snd };
     });
   },
+  // ⚑ Common: receivers paid by 2+ bulk-split accounts, with IFSC / bank / layer, live-linked to their senders
+  common(body, D) {
+    const C = D.recv.filter(r => r.senders >= 2).sort((a, b) => b.senders - a.senders || b.amount - a.amount);
+    if (!C.length) { body.innerHTML = `<div class="muted" style="padding:24px;text-align:center">No common account yet – no receiver was paid by 2 or more bulk-split accounts. Raise the small-amount limit above to widen the search.</div>`; return; }
+    const sInfo = id => { const s = D.snd.get(id) || {}; return { acc: id, name: s.name || '', ifsc: s.ifsc || '', bank: s.bank || '', layer: s.layer || '', fan: s.receivers || 0, out: s.outAmt || 0 }; };
+    const L = v => v ? 'L' + v : 'L?';
+    const top = C.slice(0, 200), keep = new Set(top.map(r => r.acc));
+    const E = new Map(), per = new Map();
+    D.tx.forEach(t => {
+      if (!keep.has(t.r_acc)) return;
+      const k = t.s_acc + '>' + t.r_acc; let e = E.get(k); if (!e) E.set(k, e = { from: t.s_acc, to: t.r_acc, amount: 0, count: 0, txns: [] }); e.amount += t._amt; e.count++; e.txns.push(t);
+      let m = per.get(t.r_acc); if (!m) per.set(t.r_acc, m = new Map()); const x = m.get(t.s_acc) || { n: 0, amt: 0 }; x.n++; x.amt += t._amt; m.set(t.s_acc, x);
+    });
+    const edges = [...E.values()], sIds = [...new Set(edges.map(e => e.from))];
+    const nodes = [...sIds.map(id => { const s = sInfo(id); return { id, label: accLabel(id), sub: [s.ifsc, s.bank].filter(Boolean).join(' · '), det: L(s.layer) + ' · Bulk ⇉' + s.fan, kind: 'risk', value: s.out, layer: 1, badge: 'B',
+        title: `${accLabel(id)} – bulk-split sender\nIFSC: ${s.ifsc || '-'}\nBank: ${s.bank || '-'}\nLayer: ${s.layer || '-'}\nSent to ${s.fan} accounts` }; }),
+      ...top.map(r => ({ id: r.acc, label: accLabel(r.acc), sub: [r.ifsc, r.bank].filter(Boolean).join(' · '), det: L(r.layer) + ' · ⚑ ' + r.senders + ' bulk · ' + fmtINR(r.amount), kind: 'hold', value: r.amount, layer: 2, badge: '⚑',
+        title: `${accLabel(r.acc)} – COMMON receiver\nIFSC: ${r.ifsc || '-'}\nBank: ${r.bank || '-'}\nLayer: ${r.layer || '-'}\nPaid by ${r.senders} bulk accounts · ${fmtINR(r.amount)} in ${r.n} txns` }))];
+    // common IFSC / bank: where the common receivers bank
+    const byI = new Map(); C.forEach(r => { const k = r.ifsc || '(no IFSC)'; let g = byI.get(k); if (!g) byI.set(k, g = { ifsc: k, bank: r.bank, recv: 0, snd: new Set(), amount: 0, layers: new Set(), accs: [] }); g.recv++; g.amount += r.amount; (r.senderList || '').split(', ').forEach(x => x && g.snd.add(x)); if (r.layer) g.layers.add(r.layer); g.accs.push(r.acc); });
+    const I = [...byI.values()].map(g => ({ ...g, snd: g.snd.size, layers: [...g.layers].sort((a, b) => a - b).map(L).join(', '), accs: g.accs.join(', ') })).sort((a, b) => b.recv - a.recv || b.amount - a.amount);
+    const rows = C.map(r => { const m = per.get(r.acc) || new Map(); const list = (m.size ? [...m.keys()] : r.senderList.split(', ')).map(sInfo);
+      return { ...r, sDet: list, sText: list.map(s => [s.acc, s.ifsc, s.bank, L(s.layer)].join(' · ')).join(' | ') }; });
+    body.innerHTML = `<div class="gp-common-kpi">${[['⚑', fmtNum(C.length), 'common receivers (2+ bulk senders)'], ['⇉', fmtNum(new Set(C.flatMap(r => r.senderList.split(', '))).size), 'bulk senders linked to them'], ['🏦', fmtNum(I.length), 'IFSC codes involved'], ['₹', fmtINR(sum(C, r => r.amount)), 'paid to common receivers']].map(([i, v, l]) => `<div><span>${i}</span><b>${v}</b><small>${l}</small></div>`).join('')}</div>
+      <div class="small muted" style="margin:8px 0 6px"><b style="color:#ef4444">B</b> = bulk-split sender (left) &nbsp; <b style="color:#16a34a">⚑</b> = common receiver (right), each shown with <b>IFSC · bank · layer</b>. Moving dots show the money going from sender to receiver. ${C.length > top.length ? `Chart shows the top ${top.length} of ${fmtNum(C.length)} common receivers. ` : ''}Click a row in the table to highlight that account on the chart.</div>
+      <div class="graph-box" id="gpCG" style="height:640px"></div>
+      <h3 style="font-size:15px;margin:16px 0 6px">⚑ Common receivers – who paid them</h3><div id="gpCT"></div>
+      <h3 style="font-size:15px;margin:16px 0 6px">🏦 Common IFSC / bank</h3><div id="gpCI"></div>`;
+    const g = Graph.mount($('#gpCG', body), nodes, edges, { mode: 'flow', tag: n => n.layer === 1 ? 'B' : '⚑', ringName: k => k === 1 ? 'Bulk-split senders' : 'Common receivers', live: true, labels: 'full',
+      onTrail: (hops, api, info) => { const id = info && info.node && info.node.id; if (id) showAccount(id); } });
+    const focus = id => { if (!g || !keep.has(id) && !sIds.includes(id)) return UI.toast('This account is outside the top ' + top.length + ' shown on the chart'); $('#gpCG', body).scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(() => g.highlightNode(id), 350); };
+    Table($('#gpCT', body), {
+      rows, exportName: 'common_receivers_bulk_senders', sortKey: 'senders', sortDir: -1, pageSize: 25,
+      columns: [
+        { key: 'acc', label: '⚑ Common receiver', render: r => `<b>${accLink(r.acc)}</b>` }, { key: 'name', label: 'Name' },
+        { key: 'ifsc', label: 'IFSC', render: r => `<span class="mono">${esc(r.ifsc)}</span>` }, { key: 'bank', label: 'Bank' },
+        { key: 'layer', label: 'Layer', num: true, render: r => `<span class="badge">${L(r.layer)}</span>` },
+        { key: 'senders', label: 'Bulk senders', num: true, render: r => `<span class="badge bad">⚑ ${r.senders}</span>` },
+        { key: 'sText', label: 'Paid by – account · IFSC · bank · layer', render: r => r.sDet.slice(0, 6).map(s => `<div class="small">${accLink(s.acc)} · <span class="mono">${esc(s.ifsc || '-')}</span> · ${esc(s.bank || '-')} · <span class="badge">${L(s.layer)}</span></div>`).join('') + (r.sDet.length > 6 ? `<div class="small muted">+${r.sDet.length - 6} more</div>` : '') },
+        { key: 'n', label: 'Txns', num: true }, { key: 'amount', label: 'Total received', num: true, render: r => fmtINR(r.amount) },
+        { key: 'complaints', label: 'Complaints', num: true }, { key: 'nosort', label: '', nosort: true, render: () => '<button class="btn sm srch" data-on="1">◎ On chart</button>' }
+      ], after: el => { bindAccLinks(el); }, onRow: r => focus(r.acc) });
+    Table($('#gpCI', body), {
+      rows: I, exportName: 'common_ifsc_bank', sortKey: 'recv', sortDir: -1, pageSize: 20,
+      columns: [
+        { key: 'ifsc', label: 'IFSC', render: r => `<span class="mono">${esc(r.ifsc)}</span>` }, { key: 'bank', label: 'Bank' },
+        { key: 'recv', label: 'Common receivers', num: true, render: r => `<span class="badge bad">⚑ ${r.recv}</span>` }, { key: 'snd', label: 'Bulk senders', num: true },
+        { key: 'layers', label: 'Layers' }, { key: 'amount', label: 'Amount', num: true, render: r => fmtINR(r.amount) },
+        { key: 'accs', label: 'Accounts', render: r => `<span class="small mono">${esc(r.accs.slice(0, 120))}${r.accs.length > 120 ? '…' : ''}</span>` }
+      ], onRow: r => focus(r.accs.split(', ')[0]) });
+  },
   mount(host) {
     const R = this.rule(), D = this.data(), view = S.gpView || 'table';
     const multi = D.recv.filter(r => r.senders >= 2).length, usedSnd = new Set(D.tx.map(t => t.s_acc)).size;
@@ -6452,7 +6508,7 @@ const GamePlayer = {
         <button class="btn sm srch" id="gpGo">🔍 Search</button><button class="btn sm rst" id="gpReset">Reset</button>
         <span class="small muted">Bulk split = sent to ${Flags.rule().fan}+ accounts (change it in the box below)</span></div>
       <div class="gp-kpis">${[['🎮', fmtNum(D.recv.length), 'receiver accounts', '#a855f7'], ['🔁', fmtNum(D.tx.length), 'small transactions', '#3b82f6'], ['₹', fmtINR(sum(D.tx, t => t._amt)), 'total paid to them', '#10b981'], ['⇉', fmtNum(usedSnd), 'bulk accounts paying', '#f97316'], ['⚑', fmtNum(multi), 'paid by 2+ bulk accounts', '#ef4444']].map(([i, v, l, c]) => `<div class="gp-k" style="--gc:${c}"><span>${i}</span><b>${v}</b><small>${l}</small></div>`).join('')}</div>
-      <div class="row" style="margin:12px 0 8px;flex-wrap:wrap"><span class="pill-group">${[['table', '📋 Transactions'], ['recv', '👤 Receivers'], ['net', '🕸 Network'], ['flow', '➜ Flow chart'], ['chart', '📊 Charts']].map(([k, l]) => `<button data-gv="${k}" class="${k === view ? 'active' : ''}">${l}</button>`).join('')}</span></div>
+      <div class="row" style="margin:12px 0 8px;flex-wrap:wrap"><span class="pill-group">${[['table', '📋 Transactions'], ['recv', '👤 Receivers'], ['net', '🕸 Network'], ['flow', '➜ Flow chart'], ['chart', '📊 Charts'], ['common', '⚑ Common']].map(([k, l]) => `<button data-gv="${k}" class="${k === view ? 'active' : ''}">${l}</button>`).join('')}</span></div>
       <div id="gpBody"></div>`;
     const redo = () => this.mount(host);
     $('#gpMax', host).onchange = e => { const v = Math.max(1, +e.target.value || 10000); R.max = v; DB.set('settings', S.settings); redo(); };
@@ -6492,6 +6548,7 @@ const GamePlayer = {
       Charts.hbar($('#gpC4', body), D.recv.filter(r => r.senders >= 2).sort((a, b) => b.senders - a.senders).slice(0, 15).map(r => ({ label: accLabel(r.acc), value: r.senders, sub: fmtINR(r.amount) })), { fmt: v => v + ' bulk accounts' });
       return;
     }
+    if (view === 'common') return this.common(body, D);
     // network / flow chart: bulk accounts → receivers (biggest 250 receivers)
     const top = D.recv.slice().sort((a, b) => b.senders - a.senders || b.amount - a.amount).slice(0, 250), keep = new Set(top.map(r => r.acc));
     const E = new Map(); D.tx.forEach(t => { if (!keep.has(t.r_acc)) return; const k = t.s_acc + '>' + t.r_acc; let e = E.get(k); if (!e) E.set(k, e = { from: t.s_acc, to: t.r_acc, amount: 0, count: 0, txns: [] }); e.amount += t._amt; e.count++; e.txns.push(t); });
