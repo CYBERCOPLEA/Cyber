@@ -103,14 +103,9 @@ const LocalSearch = (() => {
         <section class="ls-step"><div class="ls-num">1</div><div class="ls-sec">
           <div class="ls-t">Where to search</div>
           <div class="ls-drives"><span class="ls-dl">Select hard drive</span>
-            <label class="ls-drv" data-dlab="C"><input type="checkbox" data-drv="C"><span class="ls-dbox"></span><span class="ls-dic">💻</span><span><b>C: drive</b><small>Opens the C: drive</small></span></label>
-            <label class="ls-drv" data-dlab="D"><input type="checkbox" data-drv="D"><span class="ls-dbox"></span><span class="ls-dic">💾</span><span><b>D: drive</b><small>Opens the D: drive</small></span></label>
-            <label class="ls-drv" data-dlab="both"><input type="checkbox" data-drv="both"><span class="ls-dbox"></span><span class="ls-dic">🗂️</span><span><b>Both (This PC)</b><small>C: and D: together</small></span></label>
+            <label class="ls-drv on" data-dlab="pc"><input type="checkbox" data-pc checked><span class="ls-dbox"></span><span class="ls-dic">🖥️</span><span><b>Whole PC</b><small>Every drive you add (C:, D:, E:…) · remembered for next time</small></span></label>
           </div>
           <div class="ls-guide hidden" data-guide></div>
-          <div class="ls-dpanel hidden" data-dpD><b>D: drive</b> – click <b>This PC</b> → <b>OFFICE (D:)</b> → <b>Select Folder</b>. <button class="btn sm" data-pickd>Choose D: again</button> <span class="small muted" data-dstD></span></div>
-          <div class="ls-dpanel hidden" data-dpC><b>C: drive</b> – Windows does not let a browser open the whole C: drive (system files). Tick the parts of C: to search; each one opens a window – just press <b>Select folder</b>:
-            <div class="ls-cparts">${[['desktop', '🖥️ Desktop'], ['documents', '📁 Documents'], ['downloads', '⬇️ Downloads'], ['pictures', '🖼️ Pictures'], ['videos', '🎞️ Videos'], ['', '➕ Other folder on C:']].map(([k, l]) => `<label class="ls-cpart"><input type="checkbox" data-cpart="${k}"> ${l}</label>`).join('')}</div></div>
           <div class="ls-drop" data-drop>
             <button class="btn primary" data-adddir>💽 Add drive / folder</button>
             <button class="btn" data-addfiles>📄 Add files</button>
@@ -118,11 +113,8 @@ const LocalSearch = (() => {
             <input type="file" data-dirin webkitdirectory directory multiple hidden><input type="file" data-filein multiple hidden>
           </div>
           <div class="ls-srcs" data-srcs></div>
-          <details class="ls-help"><summary>Searching a whole drive (C:, D:)</summary>
-            <div>• <b>D: or other data drives</b>: click <i>Add drive / folder</i>, open <b>This PC</b>, pick the drive (e.g. <b>OFFICE (D:)</b>) and press <b>Select folder</b>.<br>
-            • <b>C: drive</b>: Chrome and Edge do not allow the whole C: drive or Windows system folders, for safety. Add your own folders instead: <b>Desktop, Documents, Downloads, Pictures</b> (inside C:\\Users\\<i>your name</i>), or any folder you keep case files in.<br>
-            • If the browser says a folder "contains system files", choose the folders inside it one by one.<br>
-            • Big drives take time. You can press <b>Stop</b> at any moment and still see what was found.</div></details>
+          <details class="ls-help"><summary>How to add a drive</summary>
+            <div>Click <i>Add drive / folder</i> → <b>This PC</b> → pick the drive (e.g. <b>OFFICE (D:)</b>) → <b>Select folder</b>. Windows does not let a browser open the whole C: drive: add <b>Desktop, Documents, Downloads</b> instead. Press <b>Stop</b> any time to see what was found so far.</div></details>
           <div class="ls-opts"><label><input type="checkbox" data-skipsys checked> Skip system & program folders (Windows, Program Files, AppData…)</label>
             <label>Skip files bigger than <select data-max><option value="10">10 MB</option><option value="50">50 MB</option><option value="100" selected>100 MB</option><option value="500">500 MB</option></select></label></div>
         </div></section>
@@ -157,19 +149,11 @@ const LocalSearch = (() => {
     // places
     q('[data-adddir]').onclick = async () => {
       if (window.showDirectoryPicker) {
-        try { const hd = await window.showDirectoryPicker({ id: 'lsearch', mode: 'read' }); addSrc({ kind: 'dir', handle: hd, name: hd.name || 'Drive' }); }
+        try { const hd = await window.showDirectoryPicker({ id: 'lsearch', mode: 'read' }); addSrc({ kind: 'dir', handle: hd, name: hd.name || 'Drive' }); if (q('[data-pc]').checked) putH('pc-' + hd.name, hd); }
         catch (e) { if (e && e.name !== 'AbortError') note(`The browser did not allow that folder${e.message ? ' (' + h(e.message) + ')' : ''}. This happens for the whole C: drive and Windows system folders – add the folders inside it instead (Desktop, Documents, Downloads…).`); }
       } else q('[data-dirin]').click();
     };
     q('[data-addfiles]').onclick = () => q('[data-filein]').click();
-    // C: / D: / both
-    const pickDir = async (tag, startIn, label) => {
-      if (window.showDirectoryPicker) {
-        try { const o = { id: 'ls' + tag.replace(/\W/g, ''), mode: 'read' }; if (startIn) o.startIn = startIn; const hd = await window.showDirectoryPicker(o); addSrc({ kind: 'dir', handle: hd, name: (label ? label + ' · ' : '') + (hd.name || tag), drive: tag }); return true; }
-        catch (e) { if (e && e.name !== 'AbortError') note(`The browser did not allow that folder${e.message ? ' (' + h(e.message) + ')' : ''}. For C: choose Desktop, Documents, Downloads or another folder of your own.`); return false; }
-      }
-      pendingTag = { tag, label }; q('[data-dirin]').click(); return true;
-    };
     // each drive is remembered on this computer (IndexedDB), so the next time it opens straight away – no window
     const idb = (mode, fn) => new Promise((res, rej) => {
       const r = indexedDB.open('sud-ls', 1);
@@ -179,73 +163,21 @@ const LocalSearch = (() => {
     });
     const getH = L => window.indexedDB ? idb('readonly', st => st.get('drive-' + L)).catch(() => null) : Promise.resolve(null);
     const putH = (L, hd) => window.indexedDB ? idb('readwrite', st => { st.put(hd, 'drive-' + L); }).catch(() => { }) : Promise.resolve();
-    const DNAME = { C: 'OS (C:)', D: 'OFFICE (D:)' };
     const guide = (html, kind = 'info') => { const g = q('[data-guide]'); if (!html) { g.classList.add('hidden'); return; } g.className = 'ls-guide ' + kind; g.innerHTML = html; };
-    const how = L => `In the left pane click <b>This PC</b> → <b>${DNAME[L]}</b> → press <b>Select Folder</b>.`;
-    const useHandle = (L, hd, remembered) => {
-      const nm = hd.name || '', root = new RegExp('^' + L + ':', 'i').test(nm) || /^[A-Z]:?\\?$/i.test(nm);
-      addSrc({ kind: 'dir', handle: hd, name: L + ': · ' + (root ? 'whole drive' : nm), drive: L });
-      guide(`✔ <b>${L}: drive</b> added${root ? ' – the whole drive will be searched' : ` (folder <b>${h(nm)}</b>)`}.${remembered ? ' Opened from memory – no window needed.' : ' Next time it opens straight away.'} <button class="btn sm" data-gagain>Choose a different ${L}: folder</button>`, 'ok');
-      q('[data-gagain]').onclick = async () => { dropDrive(L); await pickDrive(L, true); syncDrives(); };
-    };
-    // fresh = always show the window (the "Choose again" button)
-    const pickDrive = async (L, fresh) => {
-      if (!window.showDirectoryPicker) { guide(`<b>Choose the ${L}: drive.</b> ${how(L)}`); pendingTag = { tag: L, label: L + ':' }; q('[data-dirin]').click(); return true; }
-      const saved = await getH(L);
-      if (saved && !fresh && saved.queryPermission) {
-        try {
-          let p = await saved.queryPermission({ mode: 'read' });
-          if (p !== 'granted') p = await saved.requestPermission({ mode: 'read' });
-          if (p === 'granted') { useHandle(L, saved, true); return true; }
-        } catch (e) { /* fall through to the window */ }
+    // Whole PC: reuse every drive / folder remembered on this computer, else ask for one
+    const wholePc = async () => {
+      let hs = []; try { hs = window.indexedDB ? await idb('readonly', st => st.getAll()) : []; } catch (e) { }
+      const seen = new Set();
+      for (const hd of hs || []) {
+        if (!hd || hd.kind !== 'directory' || seen.has(hd.name)) continue; seen.add(hd.name);
+        try { let pm = await hd.queryPermission({ mode: 'read' }); if (pm !== 'granted') pm = await hd.requestPermission({ mode: 'read' }); if (pm === 'granted') addSrc({ kind: 'dir', handle: hd, name: (hd.name || 'Drive') + ' · remembered', drive: 'pc' }); } catch (e) { }
       }
-      guide(`<b>Choose the ${L}: drive now.</b> ${how(L)}`);
-      try {
-        const o = { id: 'drive-' + L.toLowerCase(), mode: 'read' }; if (saved) o.startIn = saved;
-        const hd = await window.showDirectoryPicker(o);
-        const nm = hd.name || '', other = /^[A-Z]:/i.test(nm) && !new RegExp('^' + L + ':', 'i').test(nm);
-        if (other) { guide(`You chose <b>${h(nm)}</b>, not the ${L}: drive. ${how(L)}`, 'warn'); return false; }
-        useHandle(L, hd, false); putH(L, hd); return true;
-      } catch (e) {
-        if (e && e.name === 'AbortError') { guide(''); return false; }
-        if (e && /activation|gesture/i.test(e.message || '')) { askNext(L); return false; }
-        if (L === 'C') { guide(`Windows does not allow the <b>whole C: drive</b> (it holds system files). Tick the parts of C: below instead – Desktop, Documents, Downloads…`, 'warn'); q('[data-dpC]').classList.remove('hidden'); return false; }
-        guide(`The browser did not allow that folder${e && e.message ? ' (' + h(e.message) + ')' : ''}. Choose a folder inside it instead.`, 'warn'); return false;
-      }
+      if (sources.length) { guide(`✔ Searching ${sources.length} remembered drive(s) / folder(s). Add more with <b>Add drive / folder</b>.`, 'ok'); return; }
+      guide('<b>Pick a drive:</b> in the window click <b>This PC</b> → a drive (e.g. <b>OFFICE (D:)</b>) → <b>Select Folder</b>. Each drive you add is remembered, so next time the whole PC is searched straight away.');
+      if (window.showDirectoryPicker) { try { const hd = await window.showDirectoryPicker({ id: 'lsearch', mode: 'read' }); addSrc({ kind: 'dir', handle: hd, name: hd.name || 'Drive', drive: 'pc' }); putH('pc-' + hd.name, hd); } catch (e) { } }
+      else q('[data-dirin]').click();
     };
-    // a browser opens only one window per click, so the next drive gets its own button
-    const askNext = (L, pre = '') => {
-      guide(`${pre}<button class="btn primary sm ls-next" data-gnext>Now pick ${L}: ➜</button> <span>${how(L)}</span>`, pre ? 'ok' : 'info');
-      q('[data-gnext]').onclick = async () => { await pickDrive(L); bothDone(); syncDrives(); };
-    };
-    const bothDone = () => { if (hasDrive('C') && hasDrive('D')) guide('✔ <b>Both drives added</b> – C: and D: will be searched together (whole computer).', 'ok'); };
-    const onD = async () => { const ok = await pickDrive('D', true); syncDrives(); return ok; };
-    w.querySelectorAll('[data-drv]').forEach(cb => cb.onchange = async () => {
-      const k = cb.dataset.drv, on = cb.checked;
-      if (k === 'both') {
-        if (on) {
-          if (!hasDrive('C')) await pickDrive('C');
-          if (!hasDrive('D')) {
-            // D: opens on its own only if it is remembered and still allowed; otherwise one more click
-            const saved = await getH('D'); let ok = false;
-            try { ok = !!(saved && saved.queryPermission && await saved.queryPermission({ mode: 'read' }) === 'granted'); } catch (e) { }
-            if (ok) useHandle('D', saved, true);
-            else askNext('D', hasDrive('C') ? '✔ <b>C: added.</b> ' : '');
-          }
-          bothDone();
-        } else { dropDrive('C'); dropDrive('D'); guide(''); }
-        syncDrives(); return;
-      }
-      if (on) { if (!hasDrive(k)) await pickDrive(k); } else { dropDrive(k); guide(''); }
-      syncDrives();
-    });
-    q('[data-pickd]').onclick = onD;
-    w.querySelectorAll('[data-cpart]').forEach(cb => cb.onchange = async () => {
-      const k = cb.dataset.cpart, tag = 'C:' + (k || 'other');
-      if (cb.checked) { const lab = { desktop: 'C: Desktop', documents: 'C: Documents', downloads: 'C: Downloads', pictures: 'C: Pictures', videos: 'C: Videos' }[k] || 'C:'; if (!(await pickDir(tag, k || 'documents', lab)) && window.showDirectoryPicker) cb.checked = false; }
-      else { sources = sources.filter(s => s.drive !== tag); drawSrcs(); }
-      syncDrives();
-    });
+    q('[data-pc]').onchange = () => syncDrives();
     const fromInput = inp => { const fs = [...inp.files], pt = pendingTag; pendingTag = null; inp.value = ''; if (!fs.length) return; const root = fs[0].webkitRelativePath ? fs[0].webkitRelativePath.split('/')[0] : (fs.length === 1 ? fs[0].name : fs.length + ' files'); addSrc({ kind: 'files', files: fs, name: (pt && pt.label ? pt.label + ' · ' : '') + root, count: fs.length, bytes: fs.reduce((a, f) => a + f.size, 0), drive: pt ? pt.tag : undefined }); syncDrives(); };
     q('[data-dirin]').onchange = e => fromInput(e.target);
     q('[data-filein]').onchange = e => fromInput(e.target);
@@ -270,7 +202,7 @@ const LocalSearch = (() => {
     w.querySelectorAll('[data-mode]').forEach(b => b.onclick = () => { mode = b.dataset.mode; w.querySelectorAll('[data-mode]').forEach(x => x.classList.toggle('on', x === b)); q('[data-pfind]').classList.toggle('hidden', mode !== 'find'); q('[data-pcommon]').classList.toggle('hidden', mode !== 'common'); });
     const HELP = { any: 'Finds the text anywhere. Numbers are matched even with spaces or dashes.', mobile: 'Matches +91 98765-43210, 098765 43210 …', account: 'Digits only; leading zeros ignored.', ifsc: 'e.g. SBIN0001234', ip: 'IPv4 or IPv6, exact address', imei: '15 digits, spaces allowed', mac: 'AA:BB:CC:DD:EE:FF, AA-BB-…, aabb.ccdd.eeff', email: 'Exact e-mail address', upi: 'e.g. name@ybl', pan: 'e.g. ABCDE1234F', name: 'All words in this order, any spacing or case' };
     const qt = q('[data-qtype]'); qt.onchange = () => q('[data-qhelp]').textContent = HELP[qt.value] || ''; qt.onchange();
-    q('[data-go]').onclick = run;
+    q('[data-go]').onclick = async () => { if (!sources.length && q('[data-pc]').checked) await wholePc(); run(); };
     q('[data-stop]').onclick = () => { stop = true; };
     q('[data-q]').onkeydown = e => { if (e.key === 'Enter' && e.ctrlKey) { e.preventDefault(); run(); } };
     drawSrcs(); syncTypes();
@@ -280,21 +212,14 @@ const LocalSearch = (() => {
   function addSrc(s) { sources.push(s); drawSrcs(); note('', false); }
   let pendingTag = null;
   const hasDrive = d => sources.some(s => s.drive && s.drive.startsWith(d));
-  function dropDrive(d) { sources = sources.filter(s => !(s.drive && s.drive.startsWith(d))); const w = el(); if (d === 'C') { w.querySelectorAll('[data-cpart]').forEach(c => c.checked = false); w.querySelector('[data-dpC]').classList.add('hidden'); } drawSrcs(); }
-  function syncDrives() {
-    const w = el(), C = hasDrive('C'), D = hasDrive('D');
-    w.querySelector('[data-drv="C"]').checked = C; w.querySelector('[data-drv="D"]').checked = D; w.querySelector('[data-drv="both"]').checked = C && D;
-    w.querySelector('[data-dpD]').classList.toggle('hidden', !D);
-    const nd = sources.filter(s => s.drive === 'D').length; w.querySelector('[data-dstD]').textContent = nd ? `✓ ${nd} D: location added` : '';
-    w.querySelectorAll('[data-dlab]').forEach(l => l.classList.toggle('on', l.querySelector('input').checked));
-    w.querySelectorAll('[data-cpart]').forEach(c => { c.checked = sources.some(s => s.drive === 'C:' + (c.dataset.cpart || 'other')); c.parentElement.classList.toggle('on', c.checked); });
-  }
+  function dropDrive(d) { sources = sources.filter(s => !(s.drive && s.drive.startsWith(d))); drawSrcs(); }
+  function syncDrives() { const cb = el().querySelector('[data-pc]'); if (cb) cb.parentElement.classList.toggle('on', cb.checked); }
   function drawSrcs() {
     const box = el().querySelector('[data-srcs]');
     box.innerHTML = sources.length ? sources.map((s, i) => `<span class="ls-src">${s.kind === 'dir' ? '💽' : '📄'} <b>${h(s.name)}</b>${s.kind === 'files' ? ` <span class="muted">${num(s.count)} files · ${size(s.bytes)}</span>` : ' <span class="muted">folder · all sub-folders</span>'}<button data-rm="${i}" title="Remove">✕</button></span>`).join('') + '<button class="btn sm" data-clr>Clear all</button>'
       : '<span class="small muted">Nothing added yet.</span>';
     box.querySelectorAll('[data-rm]').forEach(b => b.onclick = () => { sources.splice(+b.dataset.rm, 1); drawSrcs(); syncDrives(); });
-    const c = box.querySelector('[data-clr]'); if (c) c.onclick = () => { sources = []; const w = el(); w.querySelector('[data-dpC]').classList.add('hidden'); drawSrcs(); syncDrives(); };
+    const c = box.querySelector('[data-clr]'); if (c) c.onclick = () => { sources = []; drawSrcs(); syncDrives(); };
   }
   function syncTypes() { const w = el(); w.querySelectorAll('[data-ft]').forEach(b => b.classList.toggle('on', types.has(b.dataset.ft))); w.querySelector('[data-all]').classList.toggle('on', types.size === FT.length); }
   function open() { el().classList.add('open'); }
