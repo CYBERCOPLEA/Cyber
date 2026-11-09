@@ -1155,3 +1155,9 @@ svg.c2.dn .dn-c2{font-size:24px}
 .hp-name{flex-wrap:nowrap}.hp-nhi{font-size:clamp(36px,3.6vw,60px);filter:none}.hp-nen{font-size:clamp(21px,2.25vw,38px);letter-spacing:1.6px;white-space:nowrap}
 @media (max-height:760px){.hp-nen{font-size:clamp(20px,2.15vw,34px)}.hp-nhi{font-size:clamp(34px,3.4vw,52px)}}
 @media (max-width:1000px){.hp-name{flex-wrap:wrap;justify-content:center}}
+
+/* hero name: Hindi 20% smaller, no glow anywhere on heading or logos */
+.hp-nhi{font-size:clamp(29px,2.9vw,48px)!important;text-shadow:none!important;filter:none!important}
+@media (max-height:760px){.hp-nhi{font-size:clamp(27px,2.7vw,42px)!important}}
+.hp-art,.hp-art *,.hp-brand,.hp-brand *,.ck-wrap,.ck-wrap *,.db-mark,.db-mark *,.lg-hi,.br-hi,.hp-hi{text-shadow:none!important;filter:none!important;box-shadow:none!important}
+.hp-art::before,.hp-art::after,.ck-wrap::before,.ck-wrap::after,.db-mark::before,.db-mark::after{display:none!important}
