@@ -2080,7 +2080,9 @@ const Graph = {
     let vert = !!opt.vert;
     // portrait: layers go top → bottom instead of left → right
     const rot = () => { const fx = lay ? (isMind ? (Math.max(150, ...nodes.map(n => n.w)) + 30) / 50 : 1.9) : .75, fy = lay ? (isMind ? .55 : .62) : 1.33; nodes.forEach(n => { const x = n.x; n.x = n.y * fx; n.y = x * fy; }); };
-    const layout = () => { if (mode === 'flow') this.layoutFlow(nodes, edges); else if (isMind) this.layoutMind(nodes, edges, opt.root); else if (opt.radial) this.layoutRadial(nodes, edges, opt.root); else this.layoutForce(nodes, edges, opt.root); if (vert) rot(); };
+    // network of a money trail: one ring per layer – Victim in the centre, then Layer 1, Layer 2 … outward
+    const ringMode = mode === 'net' && nodes.some(n => n.layer); let rings = [];
+    const layout = () => { if (ringMode) { rings = this.layoutRings(nodes, edges); return; } if (mode === 'flow') this.layoutFlow(nodes, edges); else if (isMind) this.layoutMind(nodes, edges, opt.root); else if (opt.radial) this.layoutRadial(nodes, edges, opt.root); else this.layoutForce(nodes, edges, opt.root); if (vert) rot(); };
     layout();
     const outE = new Map(), inE = new Map();
     edges.forEach((e, i) => { (outE.get(e.from) || outE.set(e.from, []).get(e.from)).push(i); (inE.get(e.to) || inE.set(e.to, []).get(e.to)).push(i); });
@@ -2173,6 +2175,11 @@ const Graph = {
     // layer titles (flow chart): drag a title to move the whole layer
     const colsOf = () => mode === 'flow' || (isMind && nodes.some(n => n.layer)) ? [...groupBy(nodes, n => n.layer || 0)].sort((a, b) => a[0] - b[0]) : [];
     const drawCols = () => {
+      if (ringMode) {
+        gC.innerHTML = rings.map(([k, R, cnt]) => { const c = LPAL[k % LPAL.length], ly = R ? -R : -70;
+          return `${R ? `<circle r="${R}" fill="none" stroke="${c}" stroke-opacity=".38" stroke-width="2.5" stroke-dasharray="10 8"/>` : ''}<g><rect x="-78" y="${ly - 17}" width="156" height="32" rx="16" fill="${C.surface}" stroke="${c}" stroke-width="2.5"/><text x="0" y="${ly + 5}" text-anchor="middle" font-size="16" font-weight="800" fill="${C.text}">${k === 0 ? 'Victim' : 'Layer ' + k} · ${cnt}</text></g>`; }).join('');
+        return;
+      }
       gC.innerHTML = colsOf().map(([k, list]) => { const left = n => n.x - (isMind ? n.w / 2 : n.r), bw = isMind ? 132 : 104, lc = isMind ? LPAL[k % LPAL.length] : C.border;
         const x = vert ? Math.min(...list.map(left)) - bw / 2 - 24 : list.reduce((a, n) => a + n.x, 0) / list.length, y = vert ? list.reduce((a, n) => a + n.y, 0) / list.length : Math.min(...list.map(n => n.y)) - (isMind ? 56 : 48);
         return `<g data-col="${k}" style="cursor:move"><rect x="${x - bw / 2}" y="${y - (isMind ? 19 : 16)}" width="${bw}" height="${isMind ? 30 : 24}" rx="${isMind ? 15 : 12}" fill="${C.surface}" stroke="${lc}" stroke-width="${isMind ? 2 : 1}"/><text x="${x}" y="${y + 1}" text-anchor="middle" font-size="${isMind ? 15 : 12}" font-weight="700" fill="${C.text}">${k === 0 ? 'Victim' : 'Layer ' + k} · ${list.length}</text></g>`; }).join('');
@@ -2337,6 +2344,31 @@ const Graph = {
 
   /* mind map: left-to-right tree. Each account sits under the account that sent it the most money
      one step closer to the victim; other payments are still drawn as extra lines. */
+  layoutRings(nodes, edges) {
+    if (!nodes.length) return [];
+    const byId = new Map(nodes.map(n => [n.id, n])), rk = n => n.kind === 'victim' ? 0 : (n.layer || 0);
+    const inc = new Map(); edges.forEach(e => { if (e.from !== e.to && byId.has(e.from) && byId.has(e.to)) (inc.get(e.to) || inc.set(e.to, []).get(e.to)).push(e); });
+    const ranks = [...new Set(nodes.map(rk))].sort((a, b) => a - b), out = [];
+    let R = 0;
+    ranks.forEach((k, i) => {
+      const list = nodes.filter(n => rk(n) === k);
+      // order around the ring by the angle of the account that paid it most (from an inner ring), so lines stay short
+      list.forEach(n => { let best = null; for (const e of inc.get(n.id) || []) { const p = byId.get(e.from); if (p._a != null && rk(p) < k && (!best || e.amount > best.amount)) best = e; } n._pa = best ? byId.get(best.from)._a : 9 + (1 - Math.min(1, (n.value || 0) / 1e9)); });
+      list.sort((a, b) => a._pa - b._pa || (b.value || 0) - (a.value || 0));
+      const need = list.reduce((a, n) => a + Math.max(2 * (n.r || 12) + 18, 100), 0) / (2 * Math.PI);
+      R = i === 0 ? (list.length === 1 ? 0 : Math.max(120, need)) : Math.max(R + 280, need);
+      let acc = 0; const tot = list.reduce((a, n) => a + Math.max(2 * (n.r || 12) + 18, 100), 0);
+      list.forEach(n => { const w = Math.max(2 * (n.r || 12) + 18, 100); n._a = -Math.PI / 2 + 2 * Math.PI * (acc + w / 2) / tot; acc += w; });
+      // turn the whole ring so accounts sit as close as possible to the account that paid them
+      let sx = 0, sy = 0; list.forEach(n => { if (n._pa < 8) { sx += Math.cos(n._pa - n._a); sy += Math.sin(n._pa - n._a); } });
+      const off = sx || sy ? Math.atan2(sy, sx) : 0;
+      list.forEach(n => { n._a += off; n.x = Math.cos(n._a) * R; n.y = Math.sin(n._a) * R; });
+      out.push([k, R, list.length]);
+    });
+    nodes.forEach(n => { delete n._a; delete n._pa; });
+    return out;
+  },
+
   layoutMind(nodes, edges, rootId) {
     if (!nodes.length) return; const byId = new Map(nodes.map(n => [n.id, n]));
     const out = new Map(), inc = new Map();
