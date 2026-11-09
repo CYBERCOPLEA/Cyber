@@ -1178,6 +1178,11 @@ svg.c2.dn .dn-c2{font-size:24px}
 @media (max-height:760px){.hp-name{margin-bottom:14px!important}}
 .hp-name{column-gap:12px!important}.hp-nen{letter-spacing:1px!important;padding-left:14px!important}
 
+/* Hindi name in Utsaah (Windows font); Nirmala UI / Noto as fallback */
+[lang=hi],.hp-hi,.hp-nhi,.lg-hi,.br-hi,.db-hi{font-family:"Utsaah","Nirmala UI","Noto Sans Devanagari","Mangal","Kohinoor Devanagari",sans-serif!important}
+html.has-utsaah .br-hi,html.has-utsaah .hp-hi,html.has-utsaah .lg-hi,html.has-utsaah .db-hi,html.has-utsaah .hp-foot [lang=hi]{font-size:1.28em}
+html.has-utsaah .lg-hi{font-size:28px}html.has-utsaah .db-hi{font-size:33px}
+
 </style>
 </head>
 <body>
@@ -1225,7 +1230,7 @@ svg.c2.dn .dn-c2{font-size:24px}
         <div class="hp-feat" style="--fc:#06b6d4"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><div><b>Analytics</b><p>The same mobile, account, IP or e-mail across complaints, banks and platforms.</p></div></div>
         <div class="hp-feat" style="--fc:#eab308"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h5"/></svg></span><div><b>Case File &amp; Notices</b><p>Case reports, notices to banks and platforms, and CSV / PDF exports.</p></div></div>
     </section>
-    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-09 21:36 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
+    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-09 21:47 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
   </div>
 
   <div class="lg-wrap" id="lgWrap" aria-hidden="true">
@@ -7023,15 +7028,32 @@ CafTabs.check = (el, L) => {
 
 </script>
 <script>
-// Keep the hero name "सुदर्शनास्त्र | SUDARSHANASHTRA" on one line: shrink it a little only if the fonts on this computer make it too wide.
+// Hero name "सुदर्शनास्त्र | SUDARSHANASHTRA":
+// 1) if the Utsaah font is installed, size the Hindi so its letter height matches the English capitals;
+// 2) keep it on one line: shrink a little only if the fonts on this computer make it too wide.
 (function () {
+  var cv = document.createElement('canvas').getContext('2d');
+  function wid(f) { cv.font = '100px ' + f; return cv.measureText('सुदर्शनास्त्र').width; }
+  var hasU = false;
+  function detect() {
+    if (hasU) return;
+    try { hasU = wid('Utsaah, monospace') !== wid('monospace') && wid('Utsaah, serif') !== wid('serif'); } catch (e) {}
+    if (hasU) document.documentElement.classList.add('has-utsaah');
+  }
+  detect();
+  function asc(font, txt) { cv.font = font; var m = cv.measureText(txt); return m.actualBoundingBoxAscent || 0; }
   function fit() {
+    detect();
     var n = document.querySelector('.hp-name'); if (!n || !n.offsetParent) return;
-    n.style.zoom = '';
-    var w = n.parentElement.clientWidth, s = n.scrollWidth;
-    var kids = n.children, used = 0;
+    var hi = n.querySelector('.hp-nhi'), en = n.querySelector('.hp-nen');
+    n.style.zoom = ''; if (hi) hi.style.fontSize = '';
+    if (hasU && hi && en) {
+      var es = getComputedStyle(en), cap = asc(es.fontWeight + ' 100px ' + es.fontFamily, 'SUDARSH');
+      var hs = getComputedStyle(hi), body = asc(hs.fontWeight + ' 100px ' + hs.fontFamily, 'दनस');
+      if (cap > 0 && body > 0) hi.style.setProperty('font-size', (parseFloat(es.fontSize) * cap / body * 1.08).toFixed(1) + 'px', 'important');
+    }
+    var w = n.parentElement.clientWidth, kids = n.children, used = 12 * (kids.length - 1);
     for (var i = 0; i < kids.length; i++) used += kids[i].getBoundingClientRect().width;
-    used += 12 * (kids.length - 1);
     if (getComputedStyle(n).flexWrap === 'nowrap' && used > w) n.style.zoom = Math.max(0.7, (w - 4) / used).toFixed(3);
   }
   window.addEventListener('resize', fit);

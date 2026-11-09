@@ -1169,3 +1169,8 @@ svg.c2.dn .dn-c2{font-size:24px}
 .hp-name{margin-bottom:22px!important}
 @media (max-height:760px){.hp-name{margin-bottom:14px!important}}
 .hp-name{column-gap:12px!important}.hp-nen{letter-spacing:1px!important;padding-left:14px!important}
+
+/* Hindi name in Utsaah (Windows font); Nirmala UI / Noto as fallback */
+[lang=hi],.hp-hi,.hp-nhi,.lg-hi,.br-hi,.db-hi{font-family:"Utsaah","Nirmala UI","Noto Sans Devanagari","Mangal","Kohinoor Devanagari",sans-serif!important}
+html.has-utsaah .br-hi,html.has-utsaah .hp-hi,html.has-utsaah .lg-hi,html.has-utsaah .db-hi,html.has-utsaah .hp-foot [lang=hi]{font-size:1.28em}
+html.has-utsaah .lg-hi{font-size:28px}html.has-utsaah .db-hi{font-size:33px}
