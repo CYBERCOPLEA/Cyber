@@ -2,3 +2,7 @@
 *backup*.json
 case_data/
 .DS_Store
+ch/
+ex/
+*.png
+!src/**/*.png
