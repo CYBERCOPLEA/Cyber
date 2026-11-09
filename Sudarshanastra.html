@@ -1041,6 +1041,22 @@ svg.c2.dn .dn-c2{font-size:24px}
 .ifsc-grid span{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted)}.ifsc-grid b{font-size:14px}
 .badge.good{background:color-mix(in srgb,#10b981 22%,transparent);color:#10b981}
 
+/* header Export button (under Import) */
+.ph-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;align-items:center;gap:8px}
+.hx-wrap{position:relative;flex-basis:100%;display:flex;justify-content:flex-end}
+.page-title .hx-wrap{flex-basis:auto}
+.hx-btn{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:999px;border:1.5px solid rgba(255,255,255,.18);cursor:pointer;font:inherit;font-weight:800;font-size:13.5px;color:#fff;
+  background:linear-gradient(135deg,#7c3aed,#db2777 55%,#f97316);box-shadow:0 8px 20px -8px #db2777;transition:transform .15s,box-shadow .15s}
+.hx-btn svg{width:16px;height:16px}.hx-btn i{font-style:normal;opacity:.85;font-size:11px}
+.hx-btn:hover{transform:translateY(-1px);box-shadow:0 12px 26px -8px #db2777}
+.hx-menu{position:absolute;right:0;top:calc(100% + 8px);z-index:60;width:250px;padding:8px;border-radius:14px;background:var(--surface-1);border:1px solid var(--border);box-shadow:0 18px 40px -12px rgba(0,0,0,.6)}
+.hx-h{font-size:11px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--text-muted);padding:4px 8px 6px}
+.hx-menu button{display:flex;align-items:center;gap:10px;width:100%;padding:8px 10px;margin:2px 0;border-radius:10px;border:1px solid transparent;background:transparent;color:var(--text-primary);cursor:pointer;font:inherit;text-align:left}
+.hx-menu button:hover{background:color-mix(in srgb,var(--xc) 16%,transparent);border-color:color-mix(in srgb,var(--xc) 45%,transparent)}
+.hx-ic{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-size:17px;background:color-mix(in srgb,var(--xc) 22%,var(--surface-2));border:1px solid color-mix(in srgb,var(--xc) 50%,transparent)}
+.hx-menu b{display:block;font-size:14px;color:color-mix(in srgb,var(--xc) 55%,var(--text-primary))}.hx-menu small{color:var(--text-muted);font-size:11.5px}
+.hx-f{font-size:11px;color:var(--text-muted);padding:6px 8px 2px;border-top:1px solid var(--border);margin-top:4px}
+
 </style>
 </head>
 <body>
@@ -2222,7 +2238,11 @@ const Graph = {
     edges.forEach(e => { let s = fanOut.get(e.from); if (!s) fanOut.set(e.from, s = new Set()); s.add(e.to); });
     nodes.forEach(n => n.fan = (fanOut.get(n.id) || new Set()).size);
     const maxF = Math.max(1, ...nodes.map(n => n.fan)), BULK = Math.max(4, Math.ceil(maxF * .35));
-    nodes.forEach(n => { n.bulk = money && n.fan >= BULK && n.fan >= 4; n.r = money ? 12 + 22 * Math.sqrt(n.fan / maxF) + 6 * Math.sqrt((n.value || 0) / maxV) : 7 + 15 * Math.sqrt((n.value || 0) / maxV); });
+    // circle size = the most money the account received or sent (bigger amount → bigger circle)
+    const mIn = new Map(), mOut = new Map(); edges.forEach(e => { const a = Math.abs(e.amount || 0); mOut.set(e.from, (mOut.get(e.from) || 0) + a); mIn.set(e.to, (mIn.get(e.to) || 0) + a); });
+    nodes.forEach(n => { n.moneyIn = mIn.get(n.id) || 0; n.moneyOut = mOut.get(n.id) || 0; n.money = Math.max(n.moneyIn, n.moneyOut, n.value || 0); });
+    const maxM = Math.max(1, ...nodes.map(n => n.money)), big = nodes.length > 800 ? .7 : nodes.length > 300 ? .85 : 1;
+    nodes.forEach(n => { n.bulk = money && n.fan >= BULK && n.fan >= 4; n.r = money ? (10 + 32 * Math.sqrt(n.money / maxM) * big) + (n.bulk ? 2 : 0) : 7 + 15 * Math.sqrt((n.value || 0) / maxV); });
     const tag = n => opt.tag ? opt.tag(n) : n.layer ? 'L' + n.layer : 'V', ringName = k => opt.ringName ? opt.ringName(k) : k === 0 ? 'Victim' : 'Layer ' + k;
     const lab = n => (money && n.layer ? tag(n) + ' · ' : '') + String(n.label).slice(0, 24) + (n.bulk ? ' ⇉' + n.fan : '');
     const mode = opt.mode || 'flow', isMind = mode === 'mind', lay = mode === 'flow' || isMind;
@@ -2258,7 +2278,7 @@ const Graph = {
     const fmtD = d => { d = String(d || ''); const m = d.match(/^(\d{4})-(\d{2})-(\d{2})(?: (\d{2}:\d{2}))?/); return m ? `${m[3]}-${m[2]}-${m[1].slice(2)}${m[4] ? ' ' + m[4] : ''}` : d; };
     const edgeDate = e => { const ds = (e.txns || []).map(t => t.date).filter(Boolean).sort(); return ds.length ? fmtD(ds[0]) + (ds.length > 1 && ds[ds.length - 1].slice(0, 10) !== ds[0].slice(0, 10) ? ' → ' + fmtD(ds[ds.length - 1]).slice(0, 8) : '') : ''; };
 
-    const sizeKey = () => money ? `<span class="g-size" title="Circle size"><svg width="62" height="22" viewBox="0 0 62 22"><circle cx="8" cy="11" r="5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="24" cy="11" r="7.5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="48" cy="11" r="10" fill="none" stroke="#fbbf24" stroke-width="2" stroke-dasharray="3 2"/></svg>Bigger circle = sent to more accounts · <b style="color:#fbbf24">gold ring ⇉N</b> = bulk split to N accounts (${BULK}+) · <b>L1, L2…</b> = layer</span>` : '';
+    const sizeKey = () => money ? `<span class="g-size" title="Circle size"><svg width="62" height="22" viewBox="0 0 62 22"><circle cx="8" cy="11" r="5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="24" cy="11" r="7.5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="48" cy="11" r="10" fill="none" stroke="#fbbf24" stroke-width="2" stroke-dasharray="3 2"/></svg>Bigger circle = more money received / sent · <b style="color:#fbbf24">gold ring ⇉N</b> = bulk split to N accounts (${BULK}+) · <b>L1, L2…</b> = layer</span>` : '';
     const legend = () => sizeKey() + legend0();
     const legend0 = () => {
       const sel = opt.trailColors ? `<select class="gcol" title="How to colour the chart">${[['layer', 'Colour: each layer'], ['victim', 'Colour: each victim\'s trail'], ['kind', 'Colour: account type']].map(([v, l]) => `<option value="${v}" ${v === colorBy ? 'selected' : ''}>${l}</option>`).join('')}</select>` : '';
@@ -2281,7 +2301,7 @@ const Graph = {
       const a = byId.get(e.from), b = byId.get(e.to);
       if (a === b) return `M${a.x},${a.y - a.r} c40,-50 60,10 ${a.r},${a.r}`;
       if (lay && vert) {
-        const bot = n => isMind ? 52 : n.r + 40, top = n => isMind ? 20 : n.r + 4;
+        const bot = n => isMind ? 52 : n.r + 48, top = n => isMind ? 20 : n.r + 6;
         if (Math.abs(b.y - a.y) <= 20) { const y1 = a.y + bot(a), cy = y1 + 70 + Math.abs(b.x - a.x) * .12; return `M${a.x},${y1} C${a.x},${cy} ${b.x},${cy} ${b.x},${b.y + bot(b)}`; }
         if (b.y > a.y + 20) { const y1 = a.y + bot(a), y2 = b.y - top(b), my = (y1 + y2) / 2; return `M${a.x},${y1} C${a.x},${my} ${b.x},${my} ${b.x},${y2}`; }
         return `M${a.x + hw(a)},${a.y} Q${Math.max(a.x, b.x) + 140},${(a.y + b.y) / 2} ${b.x + hw(b) + 4},${b.y}`;
@@ -6439,7 +6459,7 @@ const Exporter = {
   },
   // which view is on screen, for the title and the file name
   title(el) {
-    const h = $('#main .page-title h2'), t = $('#main .tabs .tab.active');
+    const h = $('#main .page-title h2') || $('#main .page-head h2'), t = $('#main .tabs .tab.active');
     const m = $('#main .pill-group [data-m].active');
     const parts = [h && h.textContent.trim(), m ? m.textContent.replace(/\s*\(.*\)/, '').trim() : t && t.childNodes[0] && t.childNodes[0].textContent.trim()].filter(Boolean);
     if (el.classList.contains('trail-main')) return parts[0] || 'Money Trail';
@@ -6450,12 +6470,13 @@ const Exporter = {
   // the view as one SVG: a title band on top, then the drawing
   build(el) {
     let inner, w, h;
-    if (el.classList.contains('trail-main')) {
-      const cv = el.querySelector('#trCanvas'); if (!cv) return null;
+    if (el.classList.contains('trail-main') || el.dataset.exPage) {
+      const cv = el.dataset.exPage ? el : el.querySelector('#trCanvas'); if (!cv) return null;
       w = cv.scrollWidth; h = cv.scrollHeight;
       const c = this.inline(cv, cv.cloneNode(true));
       c.style.width = w + 'px'; c.style.height = h + 'px'; c.style.background = this.bg();
       c.querySelectorAll('*').forEach(x => { if (x.style.position === 'sticky') x.style.position = 'relative'; });
+      if (el.dataset.exPage) { c.removeAttribute('data-ex-page'); c.querySelectorAll('input[type=file]').forEach(x => x.remove()); }
       c.setAttribute('xmlns', 'http://www.w3.org/1999/xhtml');
       inner = `<foreignObject x="0" y="0" width="${w}" height="${h}">${new XMLSerializer().serializeToString(c)}</foreignObject>`;
     } else {
@@ -6529,7 +6550,21 @@ body{margin:0;background:${this.bg()};font-family:Segoe UI,Arial,sans-serif;colo
     const main = $('#main'); if (!main) return [];
     return [...$$('.graph-box', main).filter(g => g.querySelector('svg .nodes')), ...$$('.trail-main', main)];
   },
+  // header button: the chart on this tab if there is one, otherwise the whole tab
+  page() { const g = this.targets().find(t => t.offsetParent); if (g) return g; const b = $('#tabBody') || $('#main'); b.dataset.exPage = '1'; return b; },
+  head() {
+    const host = $('#main .ph-actions') || $('#main .page-title'); if (!host || host.querySelector('.hx-wrap')) return;
+    const w = document.createElement('div'); w.className = 'hx-wrap';
+    w.innerHTML = `<button type="button" class="hx-btn" title="Save this page or chart as a file"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg><span>Export</span><i>▾</i></button>
+      <div class="hx-menu hidden"><div class="hx-h">Save as</div>${[['html', '🌐', 'HTML', 'opens in any browser', '#3b82f6'], ['pdf', '📄', 'PDF', 'for print / case file', '#ef4444'], ['svg', '✏️', 'SVG', 'sharp at any zoom', '#10b981'], ['png', '🖼', 'PNG', 'picture', '#f97316']].map(([k, ic, a, b, c]) => `<button type="button" data-hx="${k}" style="--xc:${c}"><span class="hx-ic">${ic}</span><span><b>.${k}</b><small>${b}</small></span></button>`).join('')}
+      <div class="hx-f">Chart on this tab, or the whole tab · made on this computer</div></div>`;
+    const m = w.querySelector('.hx-menu');
+    w.querySelector('.hx-btn').onclick = ev => { ev.stopPropagation(); m.classList.toggle('hidden'); };
+    m.querySelectorAll('[data-hx]').forEach(b => b.onclick = async ev => { ev.stopPropagation(); m.classList.add('hidden'); const el = this.page(); UI.toast('Preparing ' + b.dataset.hx.toUpperCase() + '…'); await this.run(el, b.dataset.hx); delete el.dataset.exPage; });
+    host.appendChild(w);
+  },
   scan() {
+    try { this.head(); } catch (e) { }
     for (const el of this.targets()) {
       if (el.querySelector(':scope > .ex-wrap')) continue;
       const w = document.createElement('div'); w.className = 'ex-wrap';
@@ -6545,7 +6580,7 @@ body{margin:0;background:${this.bg()};font-family:Segoe UI,Arial,sans-serif;colo
 (() => {
   let t = 0; const later = () => { clearTimeout(t); t = setTimeout(() => { try { Exporter.scan(); } catch (e) { } }, 150); };
   new MutationObserver(later).observe($('#main'), { childList: true, subtree: true });
-  document.addEventListener('click', () => $$('.ex-menu').forEach(m => m.classList.add('hidden')));
+  document.addEventListener('click', () => $$('.ex-menu, .hx-menu').forEach(m => m.classList.add('hidden')));
 })();
 
 </script>

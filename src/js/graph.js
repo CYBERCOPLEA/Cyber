@@ -16,7 +16,11 @@ const Graph = {
     edges.forEach(e => { let s = fanOut.get(e.from); if (!s) fanOut.set(e.from, s = new Set()); s.add(e.to); });
     nodes.forEach(n => n.fan = (fanOut.get(n.id) || new Set()).size);
     const maxF = Math.max(1, ...nodes.map(n => n.fan)), BULK = Math.max(4, Math.ceil(maxF * .35));
-    nodes.forEach(n => { n.bulk = money && n.fan >= BULK && n.fan >= 4; n.r = money ? 12 + 22 * Math.sqrt(n.fan / maxF) + 6 * Math.sqrt((n.value || 0) / maxV) : 7 + 15 * Math.sqrt((n.value || 0) / maxV); });
+    // circle size = the most money the account received or sent (bigger amount → bigger circle)
+    const mIn = new Map(), mOut = new Map(); edges.forEach(e => { const a = Math.abs(e.amount || 0); mOut.set(e.from, (mOut.get(e.from) || 0) + a); mIn.set(e.to, (mIn.get(e.to) || 0) + a); });
+    nodes.forEach(n => { n.moneyIn = mIn.get(n.id) || 0; n.moneyOut = mOut.get(n.id) || 0; n.money = Math.max(n.moneyIn, n.moneyOut, n.value || 0); });
+    const maxM = Math.max(1, ...nodes.map(n => n.money)), big = nodes.length > 800 ? .7 : nodes.length > 300 ? .85 : 1;
+    nodes.forEach(n => { n.bulk = money && n.fan >= BULK && n.fan >= 4; n.r = money ? (10 + 32 * Math.sqrt(n.money / maxM) * big) + (n.bulk ? 2 : 0) : 7 + 15 * Math.sqrt((n.value || 0) / maxV); });
     const tag = n => opt.tag ? opt.tag(n) : n.layer ? 'L' + n.layer : 'V', ringName = k => opt.ringName ? opt.ringName(k) : k === 0 ? 'Victim' : 'Layer ' + k;
     const lab = n => (money && n.layer ? tag(n) + ' · ' : '') + String(n.label).slice(0, 24) + (n.bulk ? ' ⇉' + n.fan : '');
     const mode = opt.mode || 'flow', isMind = mode === 'mind', lay = mode === 'flow' || isMind;
@@ -52,7 +56,7 @@ const Graph = {
     const fmtD = d => { d = String(d || ''); const m = d.match(/^(\d{4})-(\d{2})-(\d{2})(?: (\d{2}:\d{2}))?/); return m ? `${m[3]}-${m[2]}-${m[1].slice(2)}${m[4] ? ' ' + m[4] : ''}` : d; };
     const edgeDate = e => { const ds = (e.txns || []).map(t => t.date).filter(Boolean).sort(); return ds.length ? fmtD(ds[0]) + (ds.length > 1 && ds[ds.length - 1].slice(0, 10) !== ds[0].slice(0, 10) ? ' → ' + fmtD(ds[ds.length - 1]).slice(0, 8) : '') : ''; };
 
-    const sizeKey = () => money ? `<span class="g-size" title="Circle size"><svg width="62" height="22" viewBox="0 0 62 22"><circle cx="8" cy="11" r="5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="24" cy="11" r="7.5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="48" cy="11" r="10" fill="none" stroke="#fbbf24" stroke-width="2" stroke-dasharray="3 2"/></svg>Bigger circle = sent to more accounts · <b style="color:#fbbf24">gold ring ⇉N</b> = bulk split to N accounts (${BULK}+) · <b>L1, L2…</b> = layer</span>` : '';
+    const sizeKey = () => money ? `<span class="g-size" title="Circle size"><svg width="62" height="22" viewBox="0 0 62 22"><circle cx="8" cy="11" r="5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="24" cy="11" r="7.5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="48" cy="11" r="10" fill="none" stroke="#fbbf24" stroke-width="2" stroke-dasharray="3 2"/></svg>Bigger circle = more money received / sent · <b style="color:#fbbf24">gold ring ⇉N</b> = bulk split to N accounts (${BULK}+) · <b>L1, L2…</b> = layer</span>` : '';
     const legend = () => sizeKey() + legend0();
     const legend0 = () => {
       const sel = opt.trailColors ? `<select class="gcol" title="How to colour the chart">${[['layer', 'Colour: each layer'], ['victim', 'Colour: each victim\'s trail'], ['kind', 'Colour: account type']].map(([v, l]) => `<option value="${v}" ${v === colorBy ? 'selected' : ''}>${l}</option>`).join('')}</select>` : '';
@@ -75,7 +79,7 @@ const Graph = {
       const a = byId.get(e.from), b = byId.get(e.to);
       if (a === b) return `M${a.x},${a.y - a.r} c40,-50 60,10 ${a.r},${a.r}`;
       if (lay && vert) {
-        const bot = n => isMind ? 52 : n.r + 40, top = n => isMind ? 20 : n.r + 4;
+        const bot = n => isMind ? 52 : n.r + 48, top = n => isMind ? 20 : n.r + 6;
         if (Math.abs(b.y - a.y) <= 20) { const y1 = a.y + bot(a), cy = y1 + 70 + Math.abs(b.x - a.x) * .12; return `M${a.x},${y1} C${a.x},${cy} ${b.x},${cy} ${b.x},${b.y + bot(b)}`; }
         if (b.y > a.y + 20) { const y1 = a.y + bot(a), y2 = b.y - top(b), my = (y1 + y2) / 2; return `M${a.x},${y1} C${a.x},${my} ${b.x},${my} ${b.x},${y2}`; }
         return `M${a.x + hw(a)},${a.y} Q${Math.max(a.x, b.x) + 140},${(a.y + b.y) / 2} ${b.x + hw(b) + 4},${b.y}`;

@@ -20,7 +20,7 @@ const Exporter = {
   },
   // which view is on screen, for the title and the file name
   title(el) {
-    const h = $('#main .page-title h2'), t = $('#main .tabs .tab.active');
+    const h = $('#main .page-title h2') || $('#main .page-head h2'), t = $('#main .tabs .tab.active');
     const m = $('#main .pill-group [data-m].active');
     const parts = [h && h.textContent.trim(), m ? m.textContent.replace(/\s*\(.*\)/, '').trim() : t && t.childNodes[0] && t.childNodes[0].textContent.trim()].filter(Boolean);
     if (el.classList.contains('trail-main')) return parts[0] || 'Money Trail';
@@ -31,12 +31,13 @@ const Exporter = {
   // the view as one SVG: a title band on top, then the drawing
   build(el) {
     let inner, w, h;
-    if (el.classList.contains('trail-main')) {
-      const cv = el.querySelector('#trCanvas'); if (!cv) return null;
+    if (el.classList.contains('trail-main') || el.dataset.exPage) {
+      const cv = el.dataset.exPage ? el : el.querySelector('#trCanvas'); if (!cv) return null;
       w = cv.scrollWidth; h = cv.scrollHeight;
       const c = this.inline(cv, cv.cloneNode(true));
       c.style.width = w + 'px'; c.style.height = h + 'px'; c.style.background = this.bg();
       c.querySelectorAll('*').forEach(x => { if (x.style.position === 'sticky') x.style.position = 'relative'; });
+      if (el.dataset.exPage) { c.removeAttribute('data-ex-page'); c.querySelectorAll('input[type=file]').forEach(x => x.remove()); }
       c.setAttribute('xmlns', 'http://www.w3.org/1999/xhtml');
       inner = `<foreignObject x="0" y="0" width="${w}" height="${h}">${new XMLSerializer().serializeToString(c)}</foreignObject>`;
     } else {
@@ -110,7 +111,21 @@ body{margin:0;background:${this.bg()};font-family:Segoe UI,Arial,sans-serif;colo
     const main = $('#main'); if (!main) return [];
     return [...$$('.graph-box', main).filter(g => g.querySelector('svg .nodes')), ...$$('.trail-main', main)];
   },
+  // header button: the chart on this tab if there is one, otherwise the whole tab
+  page() { const g = this.targets().find(t => t.offsetParent); if (g) return g; const b = $('#tabBody') || $('#main'); b.dataset.exPage = '1'; return b; },
+  head() {
+    const host = $('#main .ph-actions') || $('#main .page-title'); if (!host || host.querySelector('.hx-wrap')) return;
+    const w = document.createElement('div'); w.className = 'hx-wrap';
+    w.innerHTML = `<button type="button" class="hx-btn" title="Save this page or chart as a file"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg><span>Export</span><i>▾</i></button>
+      <div class="hx-menu hidden"><div class="hx-h">Save as</div>${[['html', '🌐', 'HTML', 'opens in any browser', '#3b82f6'], ['pdf', '📄', 'PDF', 'for print / case file', '#ef4444'], ['svg', '✏️', 'SVG', 'sharp at any zoom', '#10b981'], ['png', '🖼', 'PNG', 'picture', '#f97316']].map(([k, ic, a, b, c]) => `<button type="button" data-hx="${k}" style="--xc:${c}"><span class="hx-ic">${ic}</span><span><b>.${k}</b><small>${b}</small></span></button>`).join('')}
+      <div class="hx-f">Chart on this tab, or the whole tab · made on this computer</div></div>`;
+    const m = w.querySelector('.hx-menu');
+    w.querySelector('.hx-btn').onclick = ev => { ev.stopPropagation(); m.classList.toggle('hidden'); };
+    m.querySelectorAll('[data-hx]').forEach(b => b.onclick = async ev => { ev.stopPropagation(); m.classList.add('hidden'); const el = this.page(); UI.toast('Preparing ' + b.dataset.hx.toUpperCase() + '…'); await this.run(el, b.dataset.hx); delete el.dataset.exPage; });
+    host.appendChild(w);
+  },
   scan() {
+    try { this.head(); } catch (e) { }
     for (const el of this.targets()) {
       if (el.querySelector(':scope > .ex-wrap')) continue;
       const w = document.createElement('div'); w.className = 'ex-wrap';
@@ -126,5 +141,5 @@ body{margin:0;background:${this.bg()};font-family:Segoe UI,Arial,sans-serif;colo
 (() => {
   let t = 0; const later = () => { clearTimeout(t); t = setTimeout(() => { try { Exporter.scan(); } catch (e) { } }, 150); };
   new MutationObserver(later).observe($('#main'), { childList: true, subtree: true });
-  document.addEventListener('click', () => $$('.ex-menu').forEach(m => m.classList.add('hidden')));
+  document.addEventListener('click', () => $$('.ex-menu, .hx-menu').forEach(m => m.classList.add('hidden')));
 })();
