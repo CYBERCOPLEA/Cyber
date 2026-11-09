@@ -12,6 +12,7 @@ const ICON = {
   caf: '<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2.2"/><path d="M5.5 16c.6-1.7 2-2.6 3.5-2.6s2.9.9 3.5 2.6M14 10h4M14 13h4"/>',
   lsearch: '<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><circle cx="12" cy="13" r="2.6"/><path d="M14 15l2 2"/>',
   analytics: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+  office: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/><path d="M3 12.5h18"/><path d="M11 12v2h2v-2"/>',
   file: '<path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/><path d="M10 13h6M10 17h6"/>',
   settings: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
   search: '<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>',
@@ -21,7 +22,7 @@ const ICON = {
 const ico = (k, s = 18) => `<svg class="ico" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[k] || ''}</svg>`;
 
 /* each menu button has its own colour */
-const NAVC = { dashboard: '#3b82f6', ncrp: '#f97316', trail: '#8b5cf6', financial: '#10b981', social: '#ec4899', analytics: '#06b6d4', osint: '#ef4444', caf: '#84cc16', lsearch: '#6366f1', others: '#eab308', settings: '#94a3b8' };
+const NAVC = { dashboard: '#3b82f6', ncrp: '#f97316', trail: '#8b5cf6', financial: '#10b981', social: '#ec4899', analytics: '#06b6d4', osint: '#ef4444', caf: '#84cc16', lsearch: '#6366f1', others: '#eab308', office: '#14b8a6', settings: '#94a3b8' };
 
 /* menu: in the order an investigation is done */
 const MENU = [
@@ -32,7 +33,8 @@ const MENU = [
     ['financial', 'bank', 'Bank & Financial', 'Statements, KYC, suspects, charts'],
     ['social', 'social', 'Social Media', 'Platform replies, IP logs, links']]],
   ['Analysis', [['analytics', 'analytics', 'Analytics', 'Mule flags, cross-links, timeline, hotspots'], ['osint', 'osint', 'OSINT', 'Open OSINT Framework (osintframework.com) in a new tab'], ['caf', 'caf', 'CAF Analysis', 'SIM application forms: table, common POS, agent, date, number, photo'], ['lsearch', 'lsearch', 'Search in Local Drive', 'Search inside files and folders on this computer']]],
-  ['Action', [['others', 'file', 'Case File & Notices', 'Notes, notices, reports, tools']]]
+  ['Action', [['others', 'file', 'Case File & Notices', 'Notes, notices, reports, tools']]],
+  ['Office', [['office', 'office', 'SOP', 'SOPs and guidelines: TRAI & DoT, RBI, MHA-I4C, UP-DGP & S4C, Comm. GZB']]]
 ];
 
 /* every page: group, title, one-line purpose, and tabs in working order */

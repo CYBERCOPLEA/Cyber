@@ -1198,3 +1198,25 @@ svg.c2.dn .dn-c2{font-size:24px}
 .nowrap{white-space:nowrap}
 .tbl td .ipv{overflow-wrap:anywhere;white-space:normal!important}
 .tbl td .badge.warn{white-space:normal;max-width:260px}
+/* Office › SOP */
+.sop-subs{border-left-color:color-mix(in srgb,#14b8a6 40%,transparent)}
+.nav-sub.sop-upl{color:#14b8a6;font-weight:600;border:1px dashed color-mix(in srgb,#14b8a6 55%,transparent);margin-top:4px}
+.nav-sub.sop-upl.active{background:color-mix(in srgb,#14b8a6 20%,transparent)}
+.sop-cats{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:14px}
+.sop-cat{cursor:pointer;padding:14px;border-radius:12px;background:color-mix(in srgb,var(--sc) 12%,var(--surface));border:1px solid color-mix(in srgb,var(--sc) 40%,transparent);display:flex;flex-direction:column;gap:4px;transition:transform .15s}
+.sop-cat:hover{transform:translateY(-2px)}
+.sop-cat b{color:var(--sc);font-size:15px}.sop-cat span{font-size:12.5px;color:var(--text-secondary)}.sop-cat i{font-style:normal;font-size:12px;font-weight:600;margin-top:4px}
+.sop-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;border-left:4px solid var(--sc)!important}
+.sop-head h3{color:var(--sc);margin:0}
+.sop-list{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.sop-item{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;background:var(--surface-2);border-left:4px solid var(--sc);flex-wrap:wrap}
+.sop-kind{flex:none;width:52px;text-align:center;font-size:11.5px;font-weight:700;padding:6px 0;border-radius:7px;background:color-mix(in srgb,var(--sc) 22%,transparent);color:var(--sc)}
+.sop-txt{flex:1;min-width:200px;overflow-wrap:anywhere}.sop-txt b{font-size:14px}
+.sop-tag{color:var(--sc);font-weight:600}
+.sop-acts{display:flex;gap:6px}
+.sop-form{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}
+.sop-form label{display:flex;flex-direction:column;gap:5px}.sop-form .sop-wide{grid-column:1/-1}
+.sop-drop{border:2px dashed var(--border);border-radius:10px;padding:18px;text-align:center;cursor:pointer;display:block!important}
+.sop-drop.on,.sop-drop:hover{border-color:#14b8a6;background:color-mix(in srgb,#14b8a6 8%,transparent)}
+.sop-drop b{color:#14b8a6}
+@media(max-width:700px){.sop-form{grid-template-columns:1fr}}

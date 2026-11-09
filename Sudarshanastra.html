@@ -1206,6 +1206,28 @@ svg.c2.dn .dn-c2{font-size:24px}
 .nowrap{white-space:nowrap}
 .tbl td .ipv{overflow-wrap:anywhere;white-space:normal!important}
 .tbl td .badge.warn{white-space:normal;max-width:260px}
+/* Office › SOP */
+.sop-subs{border-left-color:color-mix(in srgb,#14b8a6 40%,transparent)}
+.nav-sub.sop-upl{color:#14b8a6;font-weight:600;border:1px dashed color-mix(in srgb,#14b8a6 55%,transparent);margin-top:4px}
+.nav-sub.sop-upl.active{background:color-mix(in srgb,#14b8a6 20%,transparent)}
+.sop-cats{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:14px}
+.sop-cat{cursor:pointer;padding:14px;border-radius:12px;background:color-mix(in srgb,var(--sc) 12%,var(--surface));border:1px solid color-mix(in srgb,var(--sc) 40%,transparent);display:flex;flex-direction:column;gap:4px;transition:transform .15s}
+.sop-cat:hover{transform:translateY(-2px)}
+.sop-cat b{color:var(--sc);font-size:15px}.sop-cat span{font-size:12.5px;color:var(--text-secondary)}.sop-cat i{font-style:normal;font-size:12px;font-weight:600;margin-top:4px}
+.sop-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;border-left:4px solid var(--sc)!important}
+.sop-head h3{color:var(--sc);margin:0}
+.sop-list{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.sop-item{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;background:var(--surface-2);border-left:4px solid var(--sc);flex-wrap:wrap}
+.sop-kind{flex:none;width:52px;text-align:center;font-size:11.5px;font-weight:700;padding:6px 0;border-radius:7px;background:color-mix(in srgb,var(--sc) 22%,transparent);color:var(--sc)}
+.sop-txt{flex:1;min-width:200px;overflow-wrap:anywhere}.sop-txt b{font-size:14px}
+.sop-tag{color:var(--sc);font-weight:600}
+.sop-acts{display:flex;gap:6px}
+.sop-form{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}
+.sop-form label{display:flex;flex-direction:column;gap:5px}.sop-form .sop-wide{grid-column:1/-1}
+.sop-drop{border:2px dashed var(--border);border-radius:10px;padding:18px;text-align:center;cursor:pointer;display:block!important}
+.sop-drop.on,.sop-drop:hover{border-color:#14b8a6;background:color-mix(in srgb,#14b8a6 8%,transparent)}
+.sop-drop b{color:#14b8a6}
+@media(max-width:700px){.sop-form{grid-template-columns:1fr}}
 
 </style>
 </head>
@@ -1254,7 +1276,7 @@ svg.c2.dn .dn-c2{font-size:24px}
         <div class="hp-feat" style="--fc:#06b6d4"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><div><b>Analytics</b><p>The same mobile, account, IP or e-mail across complaints, banks and platforms.</p></div></div>
         <div class="hp-feat" style="--fc:#eab308"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h5"/></svg></span><div><b>Case File &amp; Notices</b><p>Case reports, notices to banks and platforms, and CSV / PDF exports.</p></div></div>
     </section>
-    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-09 22:46 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
+    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-09 22:55 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
   </div>
 
   <div class="lg-wrap" id="lgWrap" aria-hidden="true">
@@ -6276,6 +6298,7 @@ const ICON = {
   caf: '<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2.2"/><path d="M5.5 16c.6-1.7 2-2.6 3.5-2.6s2.9.9 3.5 2.6M14 10h4M14 13h4"/>',
   lsearch: '<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><circle cx="12" cy="13" r="2.6"/><path d="M14 15l2 2"/>',
   analytics: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+  office: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/><path d="M3 12.5h18"/><path d="M11 12v2h2v-2"/>',
   file: '<path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/><path d="M10 13h6M10 17h6"/>',
   settings: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
   search: '<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>',
@@ -6285,7 +6308,7 @@ const ICON = {
 const ico = (k, s = 18) => `<svg class="ico" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[k] || ''}</svg>`;
 
 /* each menu button has its own colour */
-const NAVC = { dashboard: '#3b82f6', ncrp: '#f97316', trail: '#8b5cf6', financial: '#10b981', social: '#ec4899', analytics: '#06b6d4', osint: '#ef4444', caf: '#84cc16', lsearch: '#6366f1', others: '#eab308', settings: '#94a3b8' };
+const NAVC = { dashboard: '#3b82f6', ncrp: '#f97316', trail: '#8b5cf6', financial: '#10b981', social: '#ec4899', analytics: '#06b6d4', osint: '#ef4444', caf: '#84cc16', lsearch: '#6366f1', others: '#eab308', office: '#14b8a6', settings: '#94a3b8' };
 
 /* menu: in the order an investigation is done */
 const MENU = [
@@ -6296,7 +6319,8 @@ const MENU = [
     ['financial', 'bank', 'Bank & Financial', 'Statements, KYC, suspects, charts'],
     ['social', 'social', 'Social Media', 'Platform replies, IP logs, links']]],
   ['Analysis', [['analytics', 'analytics', 'Analytics', 'Mule flags, cross-links, timeline, hotspots'], ['osint', 'osint', 'OSINT', 'Open OSINT Framework (osintframework.com) in a new tab'], ['caf', 'caf', 'CAF Analysis', 'SIM application forms: table, common POS, agent, date, number, photo'], ['lsearch', 'lsearch', 'Search in Local Drive', 'Search inside files and folders on this computer']]],
-  ['Action', [['others', 'file', 'Case File & Notices', 'Notes, notices, reports, tools']]]
+  ['Action', [['others', 'file', 'Case File & Notices', 'Notes, notices, reports, tools']]],
+  ['Office', [['office', 'office', 'SOP', 'SOPs and guidelines: TRAI & DoT, RBI, MHA-I4C, UP-DGP & S4C, Comm. GZB']]]
 ];
 
 /* every page: group, title, one-line purpose, and tabs in working order */
@@ -9001,6 +9025,127 @@ USER NAME /ID:- @helpdesk_dummy
 USER LINK:- https://t.me/vip_signals_dummy
 `
 };
+
+</script>
+<script>
+/* office.js - Office › SOP: keep SOPs and guidelines by authority (TRAI & DoT, RBI, MHA-I4C, UP-DGP & S4C, Comm. GZB).
+   Files stay in this browser (IndexedDB), apart from the case data. */
+'use strict';
+
+const SOP = {
+  CATS: [
+    ['tele', 'TRAI & DOT-Telecom', '#0ea5e9', 'Telecom: TRAI, DoT, SIM / CAF, CDR, bulk SMS'],
+    ['rbi', 'RBI-Financial', '#10b981', 'Banks, payment apps, lien / freeze, refund'],
+    ['i4c', 'MHA-I4C', '#f97316', 'NCRP, CFCFRMS, Sahyog, I4C advisories'],
+    ['dgp', 'UP-DGP & S4C', '#8b5cf6', 'UP Police HQ and State Cyber Crime Coordination Centre'],
+    ['gzb', 'Comm. GZB', '#ec4899', 'Commissionerate Ghaziabad orders and circulars']
+  ],
+  list: null,
+  cat(id) { return this.CATS.find(c => c[0] === id); },
+  async load() { if (!this.list) { try { this.list = (await DB.get('sop:list')) || []; } catch (e) { this.list = []; } } return this.list; },
+  async saveList() { await DB.set('sop:list', this.list); },
+  size(n) { return n > 1048576 ? (n / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(n / 1024)) + ' KB'; },
+  kind(name) { const e = (String(name).split('.').pop() || '').toLowerCase(); return e === 'pdf' ? 'PDF' : /^(docx?|odt|rtf)$/.test(e) ? 'Word' : /^(xlsx?|csv|ods)$/.test(e) ? 'Excel' : /^(pptx?)$/.test(e) ? 'PPT' : /^(jpe?g|png|gif|webp|bmp)$/.test(e) ? 'Image' : /^(txt|html?)$/.test(e) ? 'Text' : (e || 'File').toUpperCase(); },
+  async add(cat, files, meta) {
+    await this.load();
+    for (const f of files) {
+      const id = uid();
+      await DB.set('sopf:' + id, f);
+      this.list.push({ id, cat, title: (files.length === 1 && meta.title) || f.name.replace(/\.[^.]+$/, ''), name: f.name, type: f.type, size: f.size, ref: meta.ref || '', date: meta.date || '', note: meta.note || '', added: new Date().toISOString() });
+    }
+    await this.saveList();
+  },
+  async remove(id) { await this.load(); this.list = this.list.filter(x => x.id !== id); await DB.del('sopf:' + id); await this.saveList(); },
+  async file(id) { return DB.get('sopf:' + id); },
+  async open(id) {
+    const x = this.list.find(r => r.id === id), f = await this.file(id); if (!f) return UI.toast('File not found');
+    const w = window.open(URL.createObjectURL(f instanceof Blob ? f : new Blob([f], { type: x.type })), '_blank');
+    if (!w) UI.toast('Allow pop-ups to open the file, or use Download');
+  },
+  async download(id) { const x = this.list.find(r => r.id === id), f = await this.file(id); if (!f) return UI.toast('File not found'); UI.download(x.name, f instanceof Blob ? f : new Blob([f], { type: x.type })); }
+};
+
+PAGE_META.office = { group: 'Office', title: 'SOP', desc: 'Standard Operating Procedures, guidelines and circulars, kept by authority. Upload once, then open or download any time. Files stay on this computer.',
+  order: ['all', ...SOP.CATS.map(c => c[0]), 'upload'], names: { all: 'All SOPs', upload: '⬆ Upload SOP' } };
+
+Pages.office = function (main) {
+  if (!SOP.list) { main.innerHTML = '<div class="card muted">Loading SOPs…</div>'; SOP.load().then(() => { if (S.page === 'office') render(); }); return; }
+  const L = SOP.list, cnt = id => L.filter(x => x.cat === id).length;
+  const { cur, body } = tabs(main, 'office', [['all', `All SOPs (${L.length})`], ...SOP.CATS.map(c => [c[0], `${c[1]}${cnt(c[0]) ? ` (${cnt(c[0])})` : ''}`]), ['upload', 'Upload SOP']], 'SOP',
+    `<button class="btn primary" id="sopUp">⬆ Upload SOP</button>`);
+  $('#sopUp', main).onclick = () => { S.sopCat = SOP.cat(cur) ? cur : S.sopCat; S.sub.office = 'upload'; render(); };
+  if (cur === 'upload') return SOP.uploadView(body);
+  SOP.listView(body, cur);
+};
+
+SOP.uploadView = function (body) {
+  const pre = S.sopCat || '';
+  body.innerHTML = `<div class="card sop-up"><h3>Upload SOP</h3><div class="sub">Choose the section, then pick one or more files (PDF, Word, Excel, image…). They are saved in this browser only.</div>
+    <div class="sop-form">
+      <label class="sop-wide">Section<select id="sopCat"><option value="">— choose section —</option>${SOP.CATS.map(c => `<option value="${c[0]}" ${c[0] === pre ? 'selected' : ''}>${esc(c[1])}</option>`).join('')}</select></label>
+      <label class="sop-wide">Title<input id="sopTitle" placeholder="e.g. SOP for blocking of mobile numbers (leave blank to use the file name)"></label>
+      <label>Letter / Ref No<input id="sopRef" placeholder="optional"></label>
+      <label>Dated<input id="sopDate" type="date"></label>
+      <label class="sop-wide">Note<input id="sopNote" placeholder="optional – what it covers"></label>
+      <label class="sop-wide sop-drop" id="sopDrop"><input id="sopFile" type="file" multiple hidden><b>Click to choose files</b> or drop them here<span id="sopPicked" class="muted"></span></label>
+    </div>
+    <div class="row"><button class="btn primary" id="sopSave">Save SOP</button><span class="muted small">Tip: SOPs are kept apart from case data, so they stay when you switch or delete a case.</span></div></div>
+    <div class="sop-cats">${SOP.CATS.map(c => `<div class="sop-cat" data-c="${c[0]}" style="--sc:${c[2]}"><b>${esc(c[1])}</b><span>${esc(c[3])}</span><i>${SOP.list.filter(x => x.cat === c[0]).length} files</i></div>`).join('')}</div>`;
+  let picked = [];
+  const fi = $('#sopFile', body), show = () => { $('#sopPicked', body).textContent = picked.length ? ' · ' + picked.map(f => f.name).join(', ') : ''; };
+  fi.onchange = () => { picked = [...fi.files]; show(); };
+  const dr = $('#sopDrop', body);
+  dr.ondragover = e => { e.preventDefault(); dr.classList.add('on'); }; dr.ondragleave = () => dr.classList.remove('on');
+  dr.ondrop = e => { e.preventDefault(); dr.classList.remove('on'); picked = [...e.dataTransfer.files]; show(); };
+  $$('.sop-cat', body).forEach(c => c.onclick = () => { $('#sopCat', body).value = c.dataset.c; });
+  $('#sopSave', body).onclick = async () => {
+    const cat = $('#sopCat', body).value;
+    if (!cat) return UI.toast('Choose the section first');
+    if (!picked.length) return UI.toast('Choose a file to upload');
+    try {
+      await SOP.add(cat, picked, { title: $('#sopTitle', body).value.trim(), ref: $('#sopRef', body).value.trim(), date: $('#sopDate', body).value, note: $('#sopNote', body).value.trim() });
+      UI.toast(`${picked.length} file${picked.length > 1 ? 's' : ''} saved in ${SOP.cat(cat)[1]}`);
+      S.sopCat = cat; S.sub.office = cat; render();
+    } catch (e) { UI.toast('Could not save: ' + e.message, 5000); }
+  };
+};
+
+SOP.listView = function (body, cur) {
+  const C = SOP.cat(cur), q = (S.sopQ || '').toLowerCase();
+  const rows = SOP.list.filter(x => (!C || x.cat === cur) && (!q || [x.title, x.name, x.ref, x.note].join(' ').toLowerCase().includes(q)))
+    .sort((a, b) => (b.date || b.added).localeCompare(a.date || a.added));
+  const head = C ? `<div class="card sop-head" style="--sc:${C[2]}"><div><h3>${esc(C[1])}</h3><div class="sub">${esc(C[3])}</div></div><button class="btn" id="sopAddHere">⬆ Upload to ${esc(C[1])}</button></div>`
+    : `<div class="sop-cats">${SOP.CATS.map(c => `<div class="sop-cat" data-c="${c[0]}" style="--sc:${c[2]}"><b>${esc(c[1])}</b><span>${esc(c[3])}</span><i>${SOP.list.filter(x => x.cat === c[0]).length} files</i></div>`).join('')}</div>`;
+  const item = x => { const c = SOP.cat(x.cat) || ['', '', '#64748b']; return `<div class="sop-item" style="--sc:${c[2]}"><span class="sop-kind">${esc(SOP.kind(x.name))}</span>
+    <div class="sop-txt"><b>${esc(x.title)}</b><div class="muted small">${C ? '' : `<span class="sop-tag">${esc(c[1])}</span> `}${x.ref ? 'Ref ' + esc(x.ref) + ' · ' : ''}${x.date ? 'Dated ' + esc(x.date.split('-').reverse().join('-')) + ' · ' : ''}${esc(x.name)} · ${SOP.size(x.size)} · added ${esc(x.added.slice(0, 10).split('-').reverse().join('-'))}</div>${x.note ? `<div class="small">${esc(x.note)}</div>` : ''}</div>
+    <div class="sop-acts"><button class="btn" data-o="${x.id}">Open</button><button class="btn" data-d="${x.id}">Download</button><button class="btn danger" data-x="${x.id}" title="Delete">✕</button></div></div>`; };
+  body.innerHTML = head + `<div class="card"><div class="row"><h3 class="grow">${C ? 'Files' : 'All SOPs'} <span class="muted small">(${rows.length})</span></h3><input id="sopQ" placeholder="Search title, ref no, file name…" value="${esc(S.sopQ || '')}"></div>
+    ${rows.length ? `<div class="sop-list">${rows.map(item).join('')}</div>` : `<div class="muted" style="padding:24px;text-align:center">${q ? 'No SOP matches the search.' : `No SOP uploaded${C ? ' in ' + esc(C[1]) : ''} yet. Use <b>Upload SOP</b> to add one.`}</div>`}</div>`;
+  $$('.sop-cat', body).forEach(c => c.onclick = () => { S.sub.office = c.dataset.c; render(); });
+  const add = $('#sopAddHere', body); if (add) add.onclick = () => { S.sopCat = cur; S.sub.office = 'upload'; render(); };
+  const qi = $('#sopQ', body); qi.oninput = () => { S.sopQ = qi.value; clearTimeout(qi._t); qi._t = setTimeout(() => { render(); const n = $('#sopQ'); if (n) { n.focus(); n.setSelectionRange(n.value.length, n.value.length); } }, 250); };
+  $$('[data-o]', body).forEach(b => b.onclick = () => SOP.open(b.dataset.o));
+  $$('[data-d]', body).forEach(b => b.onclick = () => SOP.download(b.dataset.d));
+  $$('[data-x]', body).forEach(b => b.onclick = async () => { const x = SOP.list.find(r => r.id === b.dataset.x); if (!UI.confirm(`Delete "${x.title}"?`)) return; await SOP.remove(x.id); UI.toast('Deleted'); render(); });
+};
+
+/* sidebar: SOP opens a drop-down with the five sections and Upload SOP */
+(() => {
+  const nav = $('#sidebar'), it = $('.nav-item[data-page="office"]', nav); if (!it) return;
+  it.insertAdjacentHTML('beforeend', '<span class="nav-chev" title="Show / hide sections">▾</span>');
+  it.insertAdjacentHTML('afterend', `<div class="nav-subs sop-subs">${SOP.CATS.map(c => `<div class="nav-sub" data-sop="${c[0]}" style="--pc:${c[2]}" title="SOP · ${esc(c[1])}"><i></i><span>${esc(c[1])}</span></div>`).join('')}<div class="nav-sub sop-upl" data-sop="upload" title="Upload an SOP into one of the sections above"><span>⬆ Upload SOP</span></div></div>`);
+  const subs = $('.sop-subs', nav), setOpen = on => { S.sopOpen = on; subs.classList.toggle('open', on); it.classList.toggle('open', on); };
+  setOpen(false);
+  $('.nav-chev', it).addEventListener('click', e => { e.stopPropagation(); setOpen(!S.sopOpen); });
+  it.addEventListener('click', e => { if (e.target.closest('.nav-chev')) return; const here = S.page === 'office' && S.sub.office === 'all'; S.sub.office = 'all'; setOpen(here ? !S.sopOpen : true); }, true);
+  $$('.nav-sub[data-sop]', nav).forEach(n => n.onclick = () => { if (n.dataset.sop === 'upload') S.sopCat = S.page === 'office' && SOP.cat(S.sub.office) ? S.sub.office : S.sopCat; go('office', n.dataset.sop); });
+  const orig = render;
+  render = function () {
+    orig();
+    $$('.nav-sub[data-sop]').forEach(n => n.classList.toggle('active', S.page === 'office' && S.sub.office === n.dataset.sop));
+    if (S.page === 'office' && S.sub.office && S.sub.office !== 'all' && !S.sopOpen) setOpen(true);
+  };
+})();
 
 </script>
 </body>
