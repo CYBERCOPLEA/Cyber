@@ -2075,7 +2075,7 @@ const Graph = {
     nodes.forEach(n => { n.bulk = money && n.fan >= BULK && n.fan >= 4; n.r = money ? 12 + 22 * Math.sqrt(n.fan / maxF) + 6 * Math.sqrt((n.value || 0) / maxV) : 7 + 15 * Math.sqrt((n.value || 0) / maxV); });
     const lab = n => (money && n.layer ? 'L' + n.layer + ' · ' : '') + String(n.label).slice(0, 24) + (n.bulk ? ' ⇉' + n.fan : '');
     const mode = opt.mode || 'flow', isMind = mode === 'mind', lay = mode === 'flow' || isMind;
-    nodes.forEach(n => n.w = isMind ? Math.min(270, 30 + 6.6 * (lab(n).length + (n.badge ? 3 : 0))) * (n.bulk ? 1.08 : 1) : 0);
+    nodes.forEach(n => n.w = isMind ? Math.min(330, 34 + 8 * (lab(n).length + (n.badge ? 3 : 0))) * (n.bulk ? 1.08 : 1) : 0);
     const hw = n => isMind ? n.w / 2 : n.r;
     let vert = !!opt.vert;
     // portrait: layers go top → bottom instead of left → right
@@ -2086,7 +2086,8 @@ const Graph = {
     edges.forEach((e, i) => { (outE.get(e.from) || outE.set(e.from, []).get(e.from)).push(i); (inE.get(e.to) || inE.set(e.to, []).get(e.to)).push(i); });
     /* colours: by type (default for other charts), by victim (each victim's whole trail one colour) or by layer */
     const PAL = ['#3b82f6', '#22c55e', '#a855f7', '#f59e0b', '#ec4899', '#06b6d4', '#ef4444', '#84cc16', '#6366f1', '#14b8a6', '#eab308', '#f97316'];
-    const LPAL = ['#f97316', '#3b82f6', '#22c55e', '#a855f7', '#06b6d4', '#ec4899', '#eab308', '#14b8a6', '#6366f1', '#84cc16', '#ef4444', '#0ea5e9'];
+    // one clearly different colour per layer: Victim orange, L1 blue, L2 green, L3 purple, L4 red, L5 yellow, L6 pink, L7 cyan, L8 brown, L9 lime …
+    const LPAL = ['#f97316', '#2563eb', '#16a34a', '#9333ea', '#dc2626', '#eab308', '#db2777', '#0891b2', '#a16207', '#65a30d', '#4f46e5', '#64748b'];
     let colorBy = opt.trailColors ? (opt.colorBy || 'layer') : 'kind';
     const vcol = new Map(), victims = [];
     if (opt.trailColors) {
@@ -2127,7 +2128,7 @@ const Graph = {
       const a = byId.get(e.from), b = byId.get(e.to);
       if (a === b) return `M${a.x},${a.y - a.r} c40,-50 60,10 ${a.r},${a.r}`;
       if (lay && vert) {
-        const bot = n => isMind ? 44 : n.r + 40, top = n => isMind ? 17 : n.r + 4;
+        const bot = n => isMind ? 52 : n.r + 40, top = n => isMind ? 20 : n.r + 4;
         if (Math.abs(b.y - a.y) <= 20) { const y1 = a.y + bot(a), cy = y1 + 70 + Math.abs(b.x - a.x) * .12; return `M${a.x},${y1} C${a.x},${cy} ${b.x},${cy} ${b.x},${b.y + bot(b)}`; }
         if (b.y > a.y + 20) { const y1 = a.y + bot(a), y2 = b.y - top(b), my = (y1 + y2) / 2; return `M${a.x},${y1} C${a.x},${my} ${b.x},${my} ${b.x},${y2}`; }
         return `M${a.x + hw(a)},${a.y} Q${Math.max(a.x, b.x) + 140},${(a.y + b.y) / 2} ${b.x + hw(b) + 4},${b.y}`;
@@ -2139,7 +2140,7 @@ const Graph = {
       if (lay) { const cx = (x1 + x2) / 2, cy = Math.min(y1, y2) - 60; return `M${x1},${y1} Q${cx},${cy} ${x2},${y2}`; }
       return `M${x1},${y1} L${x2},${y2}`;
     };
-    const mid = e => { const a = byId.get(e.from), b = byId.get(e.to); if (lay && vert) { if (a !== b && Math.abs(b.y - a.y) <= 20) return [(a.x + b.x) / 2, a.y + 95]; if (b.y > a.y + 20) { const y1 = a.y + (isMind ? 44 : a.r + 40), y2 = b.y - (isMind ? 17 : b.r + 4); return [(a.x + b.x) / 2, (y1 + y2) / 2]; } } if (lay && a !== b && Math.abs(b.x - a.x) <= 20) return [a.x + hw(a) + 80 + Math.abs(b.y - a.y) * .11, (a.y + b.y) / 2]; return [(a.x + b.x) / 2, (a.y + b.y) / 2 - 5]; };
+    const mid = e => { const a = byId.get(e.from), b = byId.get(e.to); if (lay && vert) { if (a !== b && Math.abs(b.y - a.y) <= 20) return [(a.x + b.x) / 2, a.y + 95]; if (b.y > a.y + 20) { const y1 = a.y + (isMind ? 52 : a.r + 40), y2 = b.y - (isMind ? 20 : b.r + 4); return [(a.x + b.x) / 2, (y1 + y2) / 2]; } } if (lay && a !== b && Math.abs(b.x - a.x) <= 20) return [a.x + hw(a) + 80 + Math.abs(b.y - a.y) * .11, (a.y + b.y) / 2]; return [(a.x + b.x) / 2, (a.y + b.y) / 2 - 5]; };
     const ew = e => (1 + 6 * Math.sqrt((e.amount || 0) / maxE)).toFixed(1);
     gE.innerHTML = edges.map((e, i) => `<path data-e="${i}" d="${path(e)}" fill="none" stroke="${edgeCol(i)}" stroke-opacity="${eop()}" stroke-width="${ew(e)}" marker-end="url(#arr)"><title>${esc(accLabel(e.from))} → ${esc(accLabel(e.to))}\n${fmtINR(e.amount)} in ${e.count} txn(s)${edgeDate(e) ? '\n' + edgeDate(e) : ''}</title></path>`).join('');
     const tip = e => `${accLabel(e.from)} → ${accLabel(e.to)}\n${fmtINR(e.amount)} in ${e.count} txn(s)${e.tag ? '\n' + e.tag : ''}${edgeDate(e) ? '\n' + edgeDate(e) : ''}\nClick = trace this transaction from start to end`;
@@ -2156,10 +2157,10 @@ const Graph = {
     };
     const more = n => n.more || n.collapse ? `<g data-x="1" transform="translate(${hw(n) + (isMind ? 2 : 4)},${isMind ? -15 : -n.r - 4})" style="cursor:pointer"><circle r="${n.more > 99 ? 12 : 10}" fill="${C.surface}" stroke="${HL}" stroke-width="1.6"/><text y="3.5" text-anchor="middle" font-size="${n.more > 99 ? 8.5 : 10}" font-weight="700" fill="${HL}">${n.more ? '+' + n.more : '−'}</text><title>${n.more ? `Open: show the ${n.more} account(s) this account sent money to` : 'Close: hide the accounts opened from here'}</title></g>` : '';
     gN.innerHTML = nodes.map((n, i) => isMind ? `<g data-n="${i}" transform="translate(${n.x},${n.y})" style="cursor:pointer">
-      <rect class="ring" x="${-n.w / 2 - 5}" y="-18" width="${n.w + 10}" height="36" rx="18" fill="none" stroke="${HL}" stroke-width="3" opacity="0"/>
-      <rect class="nb" x="${-n.w / 2}" y="${n.bulk ? -16 : -13}" width="${n.w}" height="${n.bulk ? 32 : 26}" rx="${n.bulk ? 16 : 13}" fill="${nodeCol(n)}" stroke="${n.bulk ? '#fbbf24' : C.surface}" stroke-width="${n.bulk ? 3 : 1.5}"/>
-      <text class="pt" y="4" text-anchor="middle" font-size="${n.bulk ? 12.5 : 11.5}" font-weight="${n.bulk ? 800 : 600}" fill="${ink(nodeCol(n))}">${n.badge ? '⚑' + esc(n.badge) + ' ' : ''}${esc(lab(n))}</text>
-      <g class="nt">${n.det ? `<text y="26" text-anchor="middle" font-size="10" font-weight="600" fill="${C.text}" paint-order="stroke" stroke="${C.surface2}" stroke-width="3">${esc(String(n.det).slice(0, 44))}</text>` : ''}${n.sub ? `<text y="${n.det ? 38 : 26}" text-anchor="middle" font-size="9.5" fill="${C.muted}" paint-order="stroke" stroke="${C.surface2}" stroke-width="3">${esc(String(n.sub).slice(0, 34))}</text>` : ''}</g>
+      <rect class="ring" x="${-n.w / 2 - 5}" y="-21" width="${n.w + 10}" height="42" rx="21" fill="none" stroke="${HL}" stroke-width="3" opacity="0"/>
+      <rect class="nb" x="${-n.w / 2}" y="${n.bulk ? -19 : -16}" width="${n.w}" height="${n.bulk ? 38 : 32}" rx="${n.bulk ? 19 : 16}" fill="${nodeCol(n)}" stroke="${n.bulk ? '#fbbf24' : C.surface}" stroke-width="${n.bulk ? 3 : 1.5}"/>
+      <text class="pt" y="5" text-anchor="middle" font-size="${n.bulk ? 14.5 : 13.5}" font-weight="${n.bulk ? 800 : 600}" fill="${ink(nodeCol(n))}">${n.badge ? '⚑' + esc(n.badge) + ' ' : ''}${esc(lab(n))}</text>
+      <g class="nt">${n.det ? `<text y="32" text-anchor="middle" font-size="12" font-weight="600" fill="${C.text}" paint-order="stroke" stroke="${C.surface2}" stroke-width="3">${esc(String(n.det).slice(0, 44))}</text>` : ''}${n.sub ? `<text y="${n.det ? 46 : 32}" text-anchor="middle" font-size="11" fill="${C.muted}" paint-order="stroke" stroke="${C.surface2}" stroke-width="3">${esc(String(n.sub).slice(0, 34))}</text>` : ''}</g>
       ${more(n)}<title>${esc(n.title || n.label)}</title></g>` : `<g data-n="${i}" transform="translate(${n.x},${n.y})" style="cursor:pointer">
       <circle class="ring" r="${n.r + 5}" fill="none" stroke="${HL}" stroke-width="3" opacity="0"/>
       ${n.bulk ? `<circle r="${n.r + 6}" fill="none" stroke="#fbbf24" stroke-width="2.5" stroke-dasharray="5 4" opacity=".9"/>` : ''}<circle class="nb" r="${n.r}" fill="${nodeCol(n)}" stroke="${n.bulk ? '#fbbf24' : C.surface}" stroke-width="${n.bulk ? 3 : 2}"/>
@@ -2170,10 +2171,11 @@ const Graph = {
       ${more(n)}<title>${esc((n.title || n.label) + (n.fan ? `\nSent money on to ${n.fan} account(s)${n.bulk ? ' – bulk split' : ''}` : ''))}</title></g>`).join('');
     const nodeEl = n => gN.children[nodes.indexOf(n)];
     // layer titles (flow chart): drag a title to move the whole layer
-    const colsOf = () => mode === 'flow' ? [...groupBy(nodes, n => n.layer || 0)].sort((a, b) => a[0] - b[0]) : [];
+    const colsOf = () => mode === 'flow' || (isMind && nodes.some(n => n.layer)) ? [...groupBy(nodes, n => n.layer || 0)].sort((a, b) => a[0] - b[0]) : [];
     const drawCols = () => {
-      gC.innerHTML = colsOf().map(([k, list]) => { const x = vert ? Math.min(...list.map(n => n.x)) - 120 : list.reduce((a, n) => a + n.x, 0) / list.length, y = vert ? list.reduce((a, n) => a + n.y, 0) / list.length : Math.min(...list.map(n => n.y)) - 48;
-        return `<g data-col="${k}" style="cursor:move"><rect x="${x - 52}" y="${y - 16}" width="104" height="24" rx="12" fill="${C.surface}" stroke="${C.border}"/><text x="${x}" y="${y + 1}" text-anchor="middle" font-size="12" font-weight="700" fill="${C.text}">${k === 0 ? 'Victim' : 'Layer ' + k} · ${list.length}</text></g>`; }).join('');
+      gC.innerHTML = colsOf().map(([k, list]) => { const left = n => n.x - (isMind ? n.w / 2 : n.r), bw = isMind ? 132 : 104, lc = isMind ? LPAL[k % LPAL.length] : C.border;
+        const x = vert ? Math.min(...list.map(left)) - bw / 2 - 24 : list.reduce((a, n) => a + n.x, 0) / list.length, y = vert ? list.reduce((a, n) => a + n.y, 0) / list.length : Math.min(...list.map(n => n.y)) - (isMind ? 56 : 48);
+        return `<g data-col="${k}" style="cursor:move"><rect x="${x - bw / 2}" y="${y - (isMind ? 19 : 16)}" width="${bw}" height="${isMind ? 30 : 24}" rx="${isMind ? 15 : 12}" fill="${C.surface}" stroke="${lc}" stroke-width="${isMind ? 2 : 1}"/><text x="${x}" y="${y + 1}" text-anchor="middle" font-size="${isMind ? 15 : 12}" font-weight="700" fill="${C.text}">${k === 0 ? 'Victim' : 'Layer ' + k} · ${list.length}</text></g>`; }).join('');
     };
     const redraw = moved => {
       moved.forEach(n => nodeEl(n).setAttribute('transform', `translate(${n.x},${n.y})`));
@@ -2339,15 +2341,26 @@ const Graph = {
     if (!nodes.length) return; const byId = new Map(nodes.map(n => [n.id, n]));
     const out = new Map(), inc = new Map();
     edges.forEach(e => { if (e.from === e.to || !byId.has(e.from) || !byId.has(e.to)) return; (out.get(e.from) || out.set(e.from, []).get(e.from)).push(e); (inc.get(e.to) || inc.set(e.to, []).get(e.to)).push(e); });
-    const roots = [], hop = new Map();
-    const bfs = start => { roots.push(start); hop.set(start, 0); const q = [start]; while (q.length) { const id = q.shift(); for (const e of out.get(id) || []) if (!hop.has(e.to)) { hop.set(e.to, hop.get(id) + 1); q.push(e.to); } } };
-    if (byId.has(rootId)) bfs(rootId);
-    nodes.forEach(n => { if (!inc.has(n.id) && !hop.has(n.id)) bfs(n.id); });
-    nodes.forEach(n => { if (!hop.has(n.id)) bfs(n.id); });
-    const kids = new Map();
-    for (const n of nodes) { if (roots.includes(n.id)) continue; let best = null; for (const e of inc.get(n.id) || []) if (hop.get(e.from) === hop.get(n.id) - 1 && (!best || e.amount > best.amount)) best = e; if (best) (kids.get(best.from) || kids.set(best.from, []).get(best.from)).push(n.id); }
+    const roots = [], hop = new Map(), kids = new Map();
+    if (nodes.some(n => n.layer)) {
+      // money trail: strict rows – Victim, then Layer 1, Layer 2 … ; each account hangs under the account of the layer above that sent it the most
+      nodes.forEach(n => hop.set(n.id, n.kind === 'victim' ? 0 : (n.layer || 0)));
+      const vic = n => n.kind === 'victim' ? 0 : 1;
+      for (const n of nodes) {
+        let best = null; const h = hop.get(n.id);
+        for (const e of inc.get(n.id) || []) { const hf = hop.get(e.from); if (hf < h && (!best || hf > hop.get(best.from) || (hf === hop.get(best.from) && e.amount > best.amount))) best = e; }
+        if (best) (kids.get(best.from) || kids.set(best.from, []).get(best.from)).push(n.id); else roots.push(n.id);
+      }
+      roots.sort((a, b) => hop.get(a) - hop.get(b) || vic(byId.get(a)) - vic(byId.get(b)) || (byId.get(b).value || 0) - (byId.get(a).value || 0));
+    } else {
+      const bfs = start => { roots.push(start); hop.set(start, 0); const q = [start]; while (q.length) { const id = q.shift(); for (const e of out.get(id) || []) if (!hop.has(e.to)) { hop.set(e.to, hop.get(id) + 1); q.push(e.to); } } };
+      if (byId.has(rootId)) bfs(rootId);
+      nodes.forEach(n => { if (!inc.has(n.id) && !hop.has(n.id)) bfs(n.id); });
+      nodes.forEach(n => { if (!hop.has(n.id)) bfs(n.id); });
+      for (const n of nodes) { if (roots.includes(n.id)) continue; let best = null; for (const e of inc.get(n.id) || []) if (hop.get(e.from) === hop.get(n.id) - 1 && (!best || e.amount > best.amount)) best = e; if (best) (kids.get(best.from) || kids.set(best.from, []).get(best.from)).push(n.id); }
+    }
     kids.forEach(l => l.sort((a, b) => (byId.get(b).value || 0) - (byId.get(a).value || 0)));
-    let row = 0; const gap = 50, dx = 300;
+    let row = 0; const gap = 62, dx = 330;
     const place = id => { const n = byId.get(id); n.x = hop.get(id) * dx; const ks = kids.get(id) || []; if (!ks.length) { n.y = row++ * gap; return; } ks.forEach(place); n.y = (byId.get(ks[0]).y + byId.get(ks[ks.length - 1]).y) / 2; };
     roots.forEach(id => { place(id); row += .6; });
     const mid = (row - 1) * gap / 2; nodes.forEach(n => n.y -= mid);
