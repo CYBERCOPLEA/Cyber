@@ -1220,3 +1220,18 @@ svg.c2.dn .dn-c2{font-size:24px}
 .sop-drop.on,.sop-drop:hover{border-color:#14b8a6;background:color-mix(in srgb,#14b8a6 8%,transparent)}
 .sop-drop b{color:#14b8a6}
 @media(max-width:700px){.sop-form{grid-template-columns:1fr}}
+/* Analysis › Tools */
+.xt-subs{border-left-color:color-mix(in srgb,#f59e0b 40%,transparent)}
+.nav-sub.xt-upl{color:#f59e0b;border-color:color-mix(in srgb,#f59e0b 55%,transparent)}
+.nav-sub.xt-upl.active{background:color-mix(in srgb,#f59e0b 20%,transparent)}
+.xt-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;border-left:4px solid var(--sc)!important}
+.xt-head h3{color:var(--sc);margin:0}
+.xt-sites{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.xt-site{display:inline-flex;align-items:center}
+.xt-site a.btn{text-decoration:none}
+.xt-site.own a.btn{border-style:dashed}
+.xt-del{background:none;border:0;color:var(--bad);cursor:pointer;font-size:13px;padding:0 4px}
+.xt-res{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:10px;margin-top:12px}
+.xt-r{background:var(--surface-2);border-radius:10px;padding:10px 12px;overflow-wrap:anywhere}
+.xt-case{margin-top:12px;padding:10px 12px;border-radius:10px;border:1px dashed var(--border);font-size:13px}
+.xt-res.xt-one{grid-template-columns:1fr}
