@@ -1258,6 +1258,13 @@ svg.c2.dn .dn-c2{font-size:24px}
 .tel-heat .hc{height:24px;border-radius:4px;display:grid;place-items:center;color:#3b2600;font-weight:600;font-size:10.5px;cursor:default}
 @media(max-width:900px){.tel-kinds{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
+/* telecom: Import Files & Folder menu */
+.tel-impw{position:relative;display:inline-block}
+.tel-menu{position:fixed;z-index:9000;background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:6px;min-width:300px;box-shadow:0 14px 34px rgba(0,0,0,.4);text-align:left}
+.tel-menu button{display:block;width:100%;text-align:left;background:none;border:0;color:var(--text-primary);padding:9px 10px;border-radius:8px;cursor:pointer;font-weight:600;font-size:14px}
+.tel-menu button:hover{background:var(--surface-2)}
+.tel-menu small{display:block;font-weight:400;color:var(--text-secondary);font-size:12px;margin-top:2px}
+
 </style>
 </head>
 <body>
@@ -1305,7 +1312,7 @@ svg.c2.dn .dn-c2{font-size:24px}
         <div class="hp-feat" style="--fc:#06b6d4"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><div><b>Analytics</b><p>The same mobile, account, IP or e-mail across complaints, banks and platforms.</p></div></div>
         <div class="hp-feat" style="--fc:#eab308"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h5"/></svg></span><div><b>Case File &amp; Notices</b><p>Case reports, notices to banks and platforms, and CSV / PDF exports.</p></div></div>
     </section>
-    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-10 00:06 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
+    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-10 00:12 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
   </div>
 
   <div class="lg-wrap" id="lgWrap" aria-hidden="true">
@@ -7375,14 +7382,12 @@ const IfscPage = {
 };
 (() => {
   Pages.ifsc = main => {
-    main.innerHTML = `<div class="page-head"><div class="ph-text"><div class="crumb">Analysis <span>›</span> IFSC Lookup</div><h2>IFSC Lookup</h2><div class="ph-desc">Bank, branch, address, district and state for any IFSC. Search IFSC codes by bank name, state, district and branch.</div></div></div><div id="tabBody"></div>`;
+    main.innerHTML = `<div class="page-head"><div class="ph-text"><div class="crumb">Analysis <span>›</span> Tools <span>›</span> IFSC Lookup</div><h2>IFSC Lookup</h2><div class="ph-desc">Bank, branch, address, district and state for any IFSC. Search IFSC codes by bank name, state, district and branch.</div></div></div><div id="tabBody"></div>`;
     IfscPage.render($('#tabBody', main));
   };
   FinTabs.ifsc = el => IfscPage.render(el);
   const Fi = PAGE_META.financial; Fi.extra = [...(Fi.extra || []), ['ifsc', 'IFSC Lookup']]; Fi.order = [...Fi.order, 'ifsc']; Fi.names.ifsc = '🏦 IFSC Lookup';
-  // menu item under Analysis
-  const nav = $('#sidebar'), after = nav && $('.nav-item[data-page="caf"]', nav);
-  if (after) { after.insertAdjacentHTML('afterend', `<div class="nav-item" data-page="ifsc" title="Bank, branch, district and state for any IFSC" style="--c:#0ea5e9"><span class="nib">🏦</span><span>IFSC Lookup</span></div>`); const it = $('.nav-item[data-page="ifsc"]', nav); it.onclick = () => go('ifsc'); }
+  // menu: IFSC Lookup sits in the Tools drop-down, after WhoIS (tools.js)
   // load the branch list in the background (website only) and fill the case
   const or = render; render = function () { if (IFSCDB.ok() && S.data) IFSCDB.enrich(); return or.apply(this, arguments); };
   setTimeout(() => IFSCDB.load(true).then(ok => { if (ok && S.data && IFSCDB.enrich() && S.page === 'dashboard') render(); }), 1500);
@@ -9506,9 +9511,10 @@ XT.addView = function (body) {
   it.insertAdjacentHTML('afterend', '<div class="nav-subs xt-subs"></div>');
   const subs = $('.xt-subs', nav), setOpen = on => { S.xtOpen = on; subs.classList.toggle('open', on); it.classList.toggle('open', on); };
   XT.side = () => {
-    subs.innerHTML = XT.all().map(c => `<div class="nav-sub" data-xt="${c[0]}" style="--pc:${c[2]}" title="Tools · ${esc(c[1])}"><i></i><span>${esc(c[1])}</span></div>`).join('') + '<div class="nav-sub sop-upl xt-upl" data-xt="addlink" title="Save a lookup website as a new button"><span>➕ Add web link</span></div>';
+    subs.innerHTML = XT.all().map(c => `<div class="nav-sub" data-xt="${c[0]}" style="--pc:${c[2]}" title="Tools · ${esc(c[1])}"><i></i><span>${esc(c[1])}</span></div>` + (c[0] === 'whois' && Pages.ifsc ? '<div class="nav-sub" data-ifsc="1" style="--pc:#0ea5e9" title="Bank, branch, district and state for any IFSC"><i></i><span>IFSC Lookup</span></div>' : '')).join('') + '<div class="nav-sub sop-upl xt-upl" data-xt="addlink" title="Save a lookup website as a new button"><span>➕ Add web link</span></div>';
     $$('.nav-sub[data-xt]', subs).forEach(n => n.onclick = () => { if (n.dataset.xt === 'addlink') S.xtCat = S.page === 'tools' && XT.cat(S.sub.tools) ? S.sub.tools : S.xtCat; go('tools', n.dataset.xt); });
     $$('.nav-sub[data-xt]', subs).forEach(n => n.classList.toggle('active', S.page === 'tools' && S.sub.tools === n.dataset.xt));
+    const fi = $('.nav-sub[data-ifsc]', subs); if (fi) { fi.onclick = () => go('ifsc'); fi.classList.toggle('active', S.page === 'ifsc'); }
   };
   XT.side(); setOpen(false);
   let loaded = false;
@@ -9519,7 +9525,9 @@ XT.addView = function (body) {
     orig();
     if (!loaded && DB.db) { loaded = true; XT.load().then(() => XT.side()); }
     $$('.nav-sub[data-xt]').forEach(n => n.classList.toggle('active', S.page === 'tools' && S.sub.tools === n.dataset.xt));
-    if (S.page === 'tools' && !S.xtOpen) setOpen(true);
+    const fi = $('.nav-sub[data-ifsc]'); if (fi) fi.classList.toggle('active', S.page === 'ifsc');
+    if (S.page === 'ifsc') it.classList.add('active');
+    if ((S.page === 'tools' || S.page === 'ifsc') && !S.xtOpen) setOpen(true);
   };
 })();
 
@@ -9637,7 +9645,9 @@ const TelRead = {
       if (Object.keys(meta).length) { S.data.telMeta = S.data.telMeta || {}; S.data.telMeta[name] = meta; }
       const preNum = this.num((pre.match(/(?:target|msisdn|mobile|subscriber|number|no\.?)\D{0,25}((?:\+?91)?[6-9]\d{9})\b/i) || [])[1] || '');
       const ipdr = 'xip' in map || 'dip' in map || ('pip' in map && !('pb' in map));
-      const kind = ipdr ? 'IPDR' : want === 'IPDR' ? 'CDR' : want;
+      const askCell = (pre.match(/CELL\s*ID\s*:?\s*-?\s*'?(\d[\dA-Fa-f-]{6,})/i) || pre.match(/Input Value[^:]*:\s*'?(\d[\dA-Fa-f-]{6,})/i) || [])[1] || '';
+      const isCell = /-/.test(askCell) || (/^40[456]/.test(askCell) && askCell.replace(/\D/g, '').length >= 12);
+      const kind = ipdr ? 'IPDR' : isCell ? 'TDR' : want === 'TDR' && preNum ? 'CDR' : want === 'IPDR' || !want ? 'CDR' : want;
       const g = (r, f) => { for (const j of map[f] || []) { const v = r[j]; if (v !== '' && v != null && String(v).trim() !== '' && !/^(-|na|null)$/i.test(String(v).trim())) return v; } return ''; };
       if (ipdr) { // the IP and time window the operator was asked about (from the lines above the table or the file name)
         const q = (pre.match(/(?:PUBIP|PRIVIP|PUBLIC\s*IP[46]?|PRIVATE\s*IP[46]?|IP\s*ADDRESS)\s*:?-?\s*([0-9a-f]{1,4}(?:[.:][0-9a-f]{0,4}){3,7})/i) || [])[1]
@@ -9651,7 +9661,7 @@ const TelRead = {
       }
       if (kind === 'TDR') { // the tower (cell) and time window the operator was asked about
         const M = { Kind: 'TDR' }, T = '(?:\\s\\d{1,2}:\\d{2}(?::\\d{2})?)?';
-        const c = (pre.match(/CELL\s*ID\s*:?\s*-?\s*'?(\d[\dA-Fa-f-]{6,})/i) || pre.match(/Input Value[^:]*:\s*'?(\d[\dA-Fa-f-]{6,})/i) || [])[1]; if (c) M.Cell = c;
+        if (askCell) M.Cell = askCell;
         const w = pre.match(new RegExp("\\bfrom\\s+'?(\\S+?" + T + ")'?\\s+to\\s+'?(\\S+?" + T + ")'?(?=\\s|$)", 'i')) || pre.match(new RegExp('Date Range\\s*:?\\s*(\\S+' + T + ')\\s+to\\s+(\\S+' + T + ')', 'i'));
         const fd = (pre.match(new RegExp('From Date\\s*:-?\\s*(\\S+' + T + ')', 'i')) || [])[1], td = (pre.match(new RegExp('(?:Till|To) Date\\s*:-?\\s*(\\S+' + T + ')', 'i')) || [])[1];
         if (fd) { M.From = this.dt(fd); M.To = this.dt(td || fd); } else if (w) { M.From = this.dt(w[1]); M.To = this.dt(w[2]); }
@@ -9813,31 +9823,52 @@ const TelUI = {
     const k = TK[S.telKind] ? S.telKind : (S.telKind = 'cdr'), [title, col, desc, ic] = TK[k], d = Tel.of(k);
     PAGE_META.tele = { group: 'Analysis', title, desc: desc + ' Files are read on this computer only.', order: this.TABS[k].map(t => t[0]) };
     const { cur, body } = tabs(main, 'tele', this.TABS[k].map(([a, b]) => [a, b + (a === 'files' ? ` (${uniq(d.map(r => r._src)).length})` : '')]), title,
-      `<button class="btn primary" id="telImp" style="background:${col}">⬆ Import ${k.toUpperCase()} file</button><input type="file" id="telPick" class="hidden" multiple accept=".xlsx,.xls,.xlsm,.ods,.csv,.txt,.zip,.rar">`);
+      `<span class="tel-impw"><button class="btn primary" id="telImp" style="background:${col}" title="CDR, IPDR, TDR and SMS files are sorted automatically">📂 Import Files &amp; Folder ▾</button></span><input type="file" id="telPick" class="hidden" multiple accept=".xlsx,.xls,.xlsm,.ods,.csv,.txt,.zip,.rar"><input type="file" id="telDir" class="hidden" webkitdirectory directory multiple>`);
     $('.tabs', main).insertAdjacentHTML('beforebegin', `<div class="tel-kinds">${Object.entries(TK).map(([id, x]) => `<button class="tel-k ${id === k ? 'on' : ''}" data-k="${id}" style="--tk:${x[1]}"><span>${x[3]}</span>${x[0].replace(' Analysis', '')}<b>${fmtNum(Tel.of(id).length)}</b></button>`).join('')}</div>`);
     $$('.tel-k', main).forEach(b => b.onclick = () => { S.telKind = b.dataset.k; render(); });
-    $('#telImp').onclick = () => this.pick(); $('#telPick').onchange = e => this.load(e.target.files);
+    $('#telImp').onclick = e => { e.stopPropagation(); this.menu(); }; $('#telPick').onchange = e => this.load(e.target.files); $('#telDir').onchange = e => this.load(e.target.files);
     if (!d.length && cur !== 'files') return this.empty(body, k);
     try { this[k + '_' + cur] ? this[k + '_' + cur](body, d) : this['x_' + cur](body, d, k); } catch (e) { console.error(e); body.innerHTML = `<div class="card err">Error: ${esc(e.message)}</div>`; }
   },
   pick() { const fp = $('#telPick'); fp.value = ''; fp.click(); },
+  pickDir() { const fp = $('#telDir'); fp.value = ''; fp.click(); },
+  menu() {
+    let m = $('#telMenu'); if (m) return m.remove();
+    document.body.insertAdjacentHTML('beforeend', `<div id="telMenu" class="tel-menu"><button data-m="f">📄 Choose files<small>Excel, CSV, TXT, ZIP or RAR – select many at once</small></button><button data-m="d">📁 Choose a folder<small>Every file inside, sub-folders too</small></button><div class="muted small" style="padding:6px 10px 2px">CDR, IPDR, TDR and SMS files are sorted automatically.</div></div>`);
+    m = $('#telMenu'); m.onclick = e => e.stopPropagation(); const R = $('#telImp').getBoundingClientRect(); m.style.top = (R.bottom + 6) + 'px'; m.style.right = Math.max(8, innerWidth - R.right) + 'px';
+    $('[data-m="f"]', m).onclick = () => { m.remove(); this.pick(); }; $('[data-m="d"]', m).onclick = () => { m.remove(); this.pickDir(); };
+    setTimeout(() => document.addEventListener('click', () => m.remove(), { once: true }));
+  },
+  /* drag & drop: a dropped folder is read with all its sub-folders */
+  dropped(dt) {
+    const E = [...(dt.items || [])].map(i => i.webkitGetAsEntry && i.webkitGetAsEntry()).filter(Boolean), F = [...dt.files];
+    if (!E.some(e => e.isDirectory)) return Promise.resolve(F);
+    const out = [], walk = async (e, path) => {
+      if (e.isFile) { const f = await new Promise((res, rej) => e.file(res, rej)); out.push(new File([f], path + f.name, { type: f.type, lastModified: f.lastModified })); }
+      else if (e.isDirectory) { const r = e.createReader(); let b; do { b = await new Promise((res, rej) => r.readEntries(res, rej)); for (const c of b) await walk(c, path + e.name + '/'); } while (b.length); }
+    };
+    return (async () => { for (const e of E) await walk(e, ''); return out; })();
+  },
   async load(files) {
     if (!files || !files.length) return; const k = S.telKind;
-    UI.toast('Reading ' + files.length + ' file(s)…');
+    const all = [...files].map(f => f.webkitRelativePath ? new File([f], f.webkitRelativePath, { type: f.type, lastModified: f.lastModified }) : f);
+    files = all.filter(f => /\.(xlsx|xls|xlsm|ods|csv|txt|zip|rar)$/i.test(f.name)); const skip = all.length - files.length;
+    if (!files.length) return UI.toast('No CDR / IPDR / TDR / SMS files found (Excel, CSV, TXT, ZIP or RAR)', 6000);
+    UI.toast('Reading ' + files.length + ' file(s)…' + (skip ? ` (${skip} other file(s) skipped)` : ''));
     const done = await Tel.importFiles(files, k.toUpperCase());
     const ok = done.filter(x => typeof x[1] === 'number'), bad = done.filter(x => typeof x[1] !== 'number');
     const agg = {}; ok.forEach(x => x[2].split(', ').forEach(t => { const [a, n] = t.split(' '); agg[a] = (agg[a] || 0) + (+n || 0); })); const empty = ok.filter(x => x[1] === 0).length;
-    UI.toast(ok.length ? `${Object.entries(agg).map(([a, n]) => a + ' ' + fmtNum(n)).join(' · ')} records read from ${ok.length - empty} file(s)` + (empty ? ` · ${empty} file(s) had no records` : '') + (bad.length ? ` · ${bad.length} file(s) not read: ${bad[0][1]}` : '') : 'Not read: ' + (bad[0] || ['', 'no file'])[1], 7000);
-    if (ok.length && !ok.some(x => x[2].startsWith(k.toUpperCase()))) { const nk = ok[0][2].split(' ')[0].toLowerCase(); if (TK[nk]) S.telKind = nk; }
+    UI.toast(ok.length ? `${Object.entries(agg).map(([a, n]) => a + ' ' + fmtNum(n)).join(' · ')} records read from ${ok.length - empty} file(s)` + (empty ? ` · ${empty} file(s) had no records` : '') + (bad.length ? ` · ${bad.length} file(s) not read: ${bad[0][1]}` : '') + (skip ? ` · ${skip} other file(s) skipped` : '') : 'Not read: ' + (bad[0] || ['', 'no file'])[1], 7000);
+    if (ok.length && !agg[k.toUpperCase()]) { const nk = (Object.entries(agg).sort((a, b) => b[1] - a[1])[0] || [''])[0].toLowerCase(); if (TK[nk]) S.telKind = nk; }
     render();
   },
   drop(el, k) {
     const [t, col, , ic] = TK[k];
-    el.innerHTML = `<div class="g-drop" id="telDrop" style="border-color:color-mix(in srgb,${col} 55%,var(--border))"><div class="g-dl" style="background:${col}">${ic}</div><b>Drop ${k.toUpperCase()} files here</b><span>or click to choose · Excel (.xlsx / .xls), CSV or TXT from Jio, Airtel, Vi, BSNL… · a .zip / .rar of them is fine</span>
+    el.innerHTML = `<div class="g-drop" id="telDrop" style="border-color:color-mix(in srgb,${col} 55%,var(--border))"><div class="g-dl" style="background:${col}">${ic}</div><b>Drop ${k.toUpperCase()} files or a whole folder here</b><span>or click to choose · Excel (.xlsx / .xls), CSV or TXT from Jio, Airtel, Vi, BSNL… · a .zip / .rar of them is fine · CDR, IPDR, TDR and SMS are sorted automatically</span>
       <div class="g-kinds">${{ cdr: ['A / B party', 'Call type', 'Date · time · duration', 'Cell ID / address', 'IMEI · IMSI'], ipdr: ['MSISDN', 'Private IP : port', 'Public IP : port', 'Destination IP : port', 'Start / end · data'], tdr: ['A / B party', 'Date · time', 'Cell ID / address', 'IMEI · IMSI', 'Roaming'], sms: ['Sender / header', 'Receiver', 'Date · time', 'Type', 'Message'] }[k].map((x, i) => `<i style="--k:${['#3b82f6', '#16a34a', '#a855f7', '#f97316', '#ef4444'][i]}">${x}</i>`).join('')}</div></div>`;
     const dz = $('#telDrop', el); dz.onclick = () => this.pick();
     dz.ondragover = e => { e.preventDefault(); dz.classList.add('over'); }; dz.ondragleave = () => dz.classList.remove('over');
-    dz.ondrop = e => { e.preventDefault(); dz.classList.remove('over'); this.load(e.dataTransfer.files); };
+    dz.ondrop = e => { e.preventDefault(); dz.classList.remove('over'); this.dropped(e.dataTransfer).then(f => this.load(f)); };
   },
   empty(el, k) {
     el.innerHTML = `<div class="card"><h3>No ${k.toUpperCase()} data in this case yet</h3><div class="sub">Import the file you got from the operator. Columns are matched by their names, so most formats work. ${k === 'sms' ? 'SMS rows inside a CDR are shown here too.' : ''}${k === 'tdr' ? ' Import one file per crime spot / tower: numbers seen at two or more spots are listed first.' : ''}</div><div id="telD"></div></div>`;

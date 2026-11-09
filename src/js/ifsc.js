@@ -143,14 +143,12 @@ const IfscPage = {
 };
 (() => {
   Pages.ifsc = main => {
-    main.innerHTML = `<div class="page-head"><div class="ph-text"><div class="crumb">Analysis <span>›</span> IFSC Lookup</div><h2>IFSC Lookup</h2><div class="ph-desc">Bank, branch, address, district and state for any IFSC. Search IFSC codes by bank name, state, district and branch.</div></div></div><div id="tabBody"></div>`;
+    main.innerHTML = `<div class="page-head"><div class="ph-text"><div class="crumb">Analysis <span>›</span> Tools <span>›</span> IFSC Lookup</div><h2>IFSC Lookup</h2><div class="ph-desc">Bank, branch, address, district and state for any IFSC. Search IFSC codes by bank name, state, district and branch.</div></div></div><div id="tabBody"></div>`;
     IfscPage.render($('#tabBody', main));
   };
   FinTabs.ifsc = el => IfscPage.render(el);
   const Fi = PAGE_META.financial; Fi.extra = [...(Fi.extra || []), ['ifsc', 'IFSC Lookup']]; Fi.order = [...Fi.order, 'ifsc']; Fi.names.ifsc = '🏦 IFSC Lookup';
-  // menu item under Analysis
-  const nav = $('#sidebar'), after = nav && $('.nav-item[data-page="caf"]', nav);
-  if (after) { after.insertAdjacentHTML('afterend', `<div class="nav-item" data-page="ifsc" title="Bank, branch, district and state for any IFSC" style="--c:#0ea5e9"><span class="nib">🏦</span><span>IFSC Lookup</span></div>`); const it = $('.nav-item[data-page="ifsc"]', nav); it.onclick = () => go('ifsc'); }
+  // menu: IFSC Lookup sits in the Tools drop-down, after WhoIS (tools.js)
   // load the branch list in the background (website only) and fill the case
   const or = render; render = function () { if (IFSCDB.ok() && S.data) IFSCDB.enrich(); return or.apply(this, arguments); };
   setTimeout(() => IFSCDB.load(true).then(ok => { if (ok && S.data && IFSCDB.enrich() && S.page === 'dashboard') render(); }), 1500);

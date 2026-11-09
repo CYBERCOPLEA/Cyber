@@ -308,9 +308,10 @@ XT.addView = function (body) {
   it.insertAdjacentHTML('afterend', '<div class="nav-subs xt-subs"></div>');
   const subs = $('.xt-subs', nav), setOpen = on => { S.xtOpen = on; subs.classList.toggle('open', on); it.classList.toggle('open', on); };
   XT.side = () => {
-    subs.innerHTML = XT.all().map(c => `<div class="nav-sub" data-xt="${c[0]}" style="--pc:${c[2]}" title="Tools · ${esc(c[1])}"><i></i><span>${esc(c[1])}</span></div>`).join('') + '<div class="nav-sub sop-upl xt-upl" data-xt="addlink" title="Save a lookup website as a new button"><span>➕ Add web link</span></div>';
+    subs.innerHTML = XT.all().map(c => `<div class="nav-sub" data-xt="${c[0]}" style="--pc:${c[2]}" title="Tools · ${esc(c[1])}"><i></i><span>${esc(c[1])}</span></div>` + (c[0] === 'whois' && Pages.ifsc ? '<div class="nav-sub" data-ifsc="1" style="--pc:#0ea5e9" title="Bank, branch, district and state for any IFSC"><i></i><span>IFSC Lookup</span></div>' : '')).join('') + '<div class="nav-sub sop-upl xt-upl" data-xt="addlink" title="Save a lookup website as a new button"><span>➕ Add web link</span></div>';
     $$('.nav-sub[data-xt]', subs).forEach(n => n.onclick = () => { if (n.dataset.xt === 'addlink') S.xtCat = S.page === 'tools' && XT.cat(S.sub.tools) ? S.sub.tools : S.xtCat; go('tools', n.dataset.xt); });
     $$('.nav-sub[data-xt]', subs).forEach(n => n.classList.toggle('active', S.page === 'tools' && S.sub.tools === n.dataset.xt));
+    const fi = $('.nav-sub[data-ifsc]', subs); if (fi) { fi.onclick = () => go('ifsc'); fi.classList.toggle('active', S.page === 'ifsc'); }
   };
   XT.side(); setOpen(false);
   let loaded = false;
@@ -321,6 +322,8 @@ XT.addView = function (body) {
     orig();
     if (!loaded && DB.db) { loaded = true; XT.load().then(() => XT.side()); }
     $$('.nav-sub[data-xt]').forEach(n => n.classList.toggle('active', S.page === 'tools' && S.sub.tools === n.dataset.xt));
-    if (S.page === 'tools' && !S.xtOpen) setOpen(true);
+    const fi = $('.nav-sub[data-ifsc]'); if (fi) fi.classList.toggle('active', S.page === 'ifsc');
+    if (S.page === 'ifsc') it.classList.add('active');
+    if ((S.page === 'tools' || S.page === 'ifsc') && !S.xtOpen) setOpen(true);
   };
 })();
