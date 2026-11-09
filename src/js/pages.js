@@ -468,7 +468,20 @@ function showComplaint(c) {
 
 /* ======================= 4. ANALYTICS ======================= */
 Pages.analytics = main => {
-  const { cur, body } = tabs(main, 'analytics', [['common', 'Common Suspect'], ['cross', 'Cross-Link (all sections)'], ['entity', 'Entity Graph'], ['time', 'Timeline'], ['geo', 'Hotspots'], ['flags', 'Bulk Split & Rapid'], ['velocity', 'Fast Movement'], ['round', 'Patterns']], '4 · Analytics');
+  const { cur, body } = tabs(main, 'analytics', [['common', 'Common Suspect'], ['cross', 'Cross-Link (all sections)'], ['entity', 'Entity Graph'], ['time', 'Timeline'], ['geo', 'Hotspots'], ['flags', 'Bulk Split & Rapid'], ['velocity', 'Fast Movement'], ['round', 'Patterns']], '4 · Analytics',
+    `<button class="btn primary" id="anImp">⬆ Import NCRP Data</button><input type="file" id="anPick" multiple accept=".xlsx,.xls,.xlsb,.ods,.csv,.txt,.html,.htm" class="hidden">`);
+  // one button, top right: pick many NCRP bank-action sheets at once
+  const pick = $('#anPick', main), btn = $('#anImp', main);
+  btn.title = 'Choose one or many NCRP bank-action files (Excel / CSV). Every sheet is read; rows already imported are skipped.';
+  btn.onclick = () => { pick.value = ''; pick.click(); };
+  pick.onchange = async () => {
+    if (!pick.files.length) return; btn.disabled = true; const old = btn.textContent;
+    const res = await CommonSus.importMany(pick.files, t => { btn.textContent = '⏳ ' + String(t).slice(0, 40); });
+    btn.disabled = false; btn.textContent = old;
+    const tot = res.reduce((a, r) => a + (r.added || 0), 0), dup = res.reduce((a, r) => a + (r.dup || 0), 0), bad = res.filter(r => r.err);
+    UI.toast(`Imported ${fmtNum(tot)} rows from ${res.length} file(s)${dup ? ` · ${fmtNum(dup)} already there, skipped` : ''}${bad.length ? ` · ${bad.length} file(s) could not be read` : ''}`, 6000);
+    render();
+  };
   AnaTabs[cur](body);
 };
 const AnaTabs = {

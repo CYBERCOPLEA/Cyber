@@ -82,12 +82,7 @@ AnaTabs.common = el => {
   const L = Object.fromEntries(CommonSus.FIELDS);
   const nAck = uniq(S.data.txns.map(t => t.ack_no).filter(Boolean)).length, nFiles = uniq(S.data.txns.map(CommonSus.file)).length;
   const keep = g => (by === 'files' ? g.files : g.complaints) >= minC;
-  el.innerHTML = `<div class="card cs-imp"><div class="row" style="align-items:center;gap:14px">
-      <button class="btn primary big" id="csImp">⬆ Import multiple NCRP bank action sheets</button>
-      <div class="grow small muted">Choose many NCRP bank-action files at once (Excel / CSV). Every sheet is read: Money Transfer, ATM withdrawal, Cheque withdrawal, Put on hold, Others. Rows already imported are skipped.</div>
-      <input type="file" id="csPick" multiple accept=".xlsx,.xls,.xlsb,.ods,.csv,.txt,.html,.htm" class="hidden"></div>
-      <div class="cs-stat"><span><b>${fmtNum(nAck)}</b> complaints</span><span><b>${fmtNum(nFiles)}</b> files</span><span><b>${fmtNum(S.data.txns.length)}</b> bank-action rows</span></div>
-      <div id="csMsg"></div></div>
+  el.innerHTML = `<div class="cs-stat" style="margin:0 0 14px"><span><b>${fmtNum(nAck)}</b> complaints</span><span><b>${fmtNum(nFiles)}</b> files</span><span><b>${fmtNum(S.data.txns.length)}</b> bank-action rows</span></div>
     <div class="card"><h3>Common Suspect</h3><div class="sub">Values found in two or more complaints point to the same suspect, mule account or cash-out point. Pick what to compare:</div>
       <div class="cs-fields">${CommonSus.FIELDS.map(([k, l]) => `<button class="btn sm ${k === f ? 'primary' : ''}" data-cf="${k}">${l} <span class="badge">${CommonSus.groups(k).filter(keep).length}</span></button>`).join('')}</div>
       <div class="row" style="margin-top:10px"><label>Common in at least</label><select id="csMin">${[1, 2, 3, 4, 5, 10].map(n => `<option ${n === minC ? 'selected' : ''}>${n}</option>`).join('')}</select>
@@ -96,17 +91,6 @@ AnaTabs.common = el => {
   $$('[data-cf]', el).forEach(b => b.onclick = () => { S.csField = b.dataset.cf; AnaTabs.common(el); });
   $('#csMin', el).onchange = e => { S.csMin = +e.target.value; AnaTabs.common(el); };
   $('#csBy', el).onchange = e => { S.csBy = e.target.value; AnaTabs.common(el); };
-  const pick = $('#csPick', el);
-  $('#csImp', el).onclick = () => { pick.value = ''; pick.click(); };
-  pick.onchange = async () => {
-    if (!pick.files.length) return;
-    const msg = $('#csMsg', el), btn = $('#csImp', el); btn.disabled = true;
-    const res = await CommonSus.importMany(pick.files, t => msg.innerHTML = `<div class="note">${esc(t)}</div>`);
-    const tot = res.reduce((a, r) => a + (r.added || 0), 0), dup = res.reduce((a, r) => a + (r.dup || 0), 0);
-    UI.toast(`Imported ${fmtNum(tot)} rows from ${res.length} files`);
-    render();
-    const m2 = $('#csMsg'); if (m2) m2.innerHTML = `<div class="note">✔ Imported <b>${fmtNum(tot)}</b> rows from <b>${res.length}</b> files${dup ? ` · ${fmtNum(dup)} rows were already there and skipped` : ''}.<br>${res.map(r => r.err ? `<span class="err">✖ ${esc(r.file)}: ${esc(r.err)}</span>` : `${esc(r.file)}: ${fmtNum(r.added)} rows, ${r.acks.size} complaints${r.sheets.length ? ' · sheets ' + esc(r.sheets.join(', ')) : ' · no bank-action sheet found'}`).join('<br>')}</div>`;
-  };
   const isAcc = f === 'acc' || f === 'cheque';
   const extra = f === 'atm' ? [] : f === 'cheque' ? [{ key: 'chq', label: 'Cheque no.' }, { key: 'places', label: 'Place' }] : [{ key: 'places', label: 'ATM / place' }];
   Table($('#csT', el), {
