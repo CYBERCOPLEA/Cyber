@@ -35,16 +35,16 @@ const WReply = {
   },
 
   /* ---------- text → list of [key, value, section] ---------- */
-  fields(text) {
-    const K = new Set(this.KEYS), long = this.KEYS.filter(k => k.includes(' ')).sort((a, b) => b.length - a.length);
+  fields(text, KEYS = this.KEYS, SECTIONS = this.SECTIONS) {
+    const K = new Set(KEYS), long = KEYS.filter(k => k.includes(' ')).sort((a, b) => b.length - a.length);
     const out = []; let cur = null, skip = false, sect = '', started = false;
     const lines = String(text).split(/\r?\n/).flatMap(l => l.split('\t')).map(l => l.replace(/[  ]/g, ' ').trim()).filter(Boolean);
     for (const line of lines) {
-      if (/^whatsapp business record( page \d+)?$/i.test(line) || /^page \d+( of \d+)?$/i.test(line)) continue;
+      if (/^(whatsapp|meta platforms) business record( page \d+)?$/i.test(line) || /^page \d+( of \d+)?$/i.test(line) || /^see (more|less)$/i.test(line)) continue;
       const k = this.key(line.replace(/:$/, ''));
       if (/ definition$/.test(k)) { skip = true; cur = null; continue; }
       let key = null, val = '';
-      if (K.has(k) && line.length < 45) key = k;
+      if (K.has(k) && line.length < 45 && !(skip && /:$/.test(line))) key = k;
       else {
         const m = line.match(/^([A-Za-z][A-Za-z ]{1,40}?)\s*:\s+(.+)$/); const mk = m && this.key(m[1]);
         if (m && K.has(mk) && !skip) { key = mk; val = m[2]; }
@@ -54,7 +54,7 @@ const WReply = {
         if (key === 'service' || key === 'target') started = true;
         if (!started) continue;
         skip = false;
-        if (this.SECTIONS[key]) sect = this.SECTIONS[key];
+        if (SECTIONS[key]) sect = SECTIONS[key];
         if (key === 'account identifier' || key === 'target') sect = '';
         cur = [key, [], sect]; out.push(cur); if (val) cur[1].push(val); continue;
       }
@@ -218,7 +218,7 @@ const WData = {
     });
   },
   elsewhere() {
-    return Analysis.cached('w:else', () => { const m = new Map(); try { Analysis.idents().filter(x => !x.wa).forEach(x => { const k = x.type + '|' + String(x.value).toLowerCase(); if (!m.has(k)) m.set(k, new Set()); m.get(k).add(x.google ? 'Google' : x.section); }); } catch (e) { } return m; });
+    return Analysis.cached('w:else', () => { const m = new Map(); try { Analysis.idents().filter(x => !x.wa).forEach(x => { const k = x.type + '|' + String(x.value).toLowerCase(); if (!m.has(k)) m.set(k, new Set()); m.get(k).add(x.label || x.section); }); } catch (e) { } return m; });
   },
   common(type) {
     return Analysis.cached('w:c:' + type, () => {
@@ -284,7 +284,7 @@ const WTabs = {
       `<div class="card"><h3>Numbers at a glance</h3><div class="sub">Click a row to see every field</div><div id="ws0"></div></div>
        <div class="grid g2"><div class="card"><h3>Last seen / activity by date (IST)</h3><div id="ws1"></div></div><div class="card"><h3>Devices (brand &amp; model)</h3><div id="ws2"></div></div>
        <div class="card"><h3>Top IP addresses</h3><div class="sub">Last IP, message and call IPs</div><div id="ws3"></div></div><div class="card"><h3>Contacts shared by 2+ numbers or found in the case</h3><div id="ws4"></div></div></div>`;
-    Table($('#ws0', el), { rows: A, exportName: 'whatsapp_numbers', columns: [{ key: 'acct', label: 'WhatsApp number', render: r => `<b class="mono">${esc(r.acct || '')}</b>` }, { key: 'country', label: 'Country', render: r => esc(WReply.country(r.acct)) }, { key: 'push_name', label: 'Push name' }, { key: 'state', label: 'State', render: r => r.state ? `<span class="badge ${/online/i.test(r.state) ? 'good' : ''}">${esc(r.state)}</span>` : '' }, { key: 'last_seen', label: 'Last seen (IST)', render: r => esc(r.last_seen ? GReply.ist(GReply.ts(r.last_seen)) : '') }, { key: 'ip', label: 'Last IP', render: r => `<span class="mono">${esc(r.ip || '')}</span>` }, { key: 'port', label: 'Port', render: r => `<span class="mono nowrap">${esc(r.port || '')}</span>` }, { key: 'dev', label: 'Device', render: r => esc([r.brand, r.model].filter(Boolean).join(' ') || r.os_build || r.device_type || '') }, { key: 'emails', label: 'E-mail' }, { key: 'contacts', label: 'Contacts', num: true }, { key: 'service_start', label: 'Service start' }],
+    Table($('#ws0', el), { rows: A, exportName: 'whatsapp_numbers', columns: [{ key: 'acct', label: 'WhatsApp number', render: r => `<b class="mono">${esc(r.acct || '')}</b>` }, { key: 'country', label: 'Country', render: r => esc(WReply.country(r.acct)) }, { key: 'push_name', label: 'Push name' }, { key: 'state', label: 'State', render: r => r.state ? `<span class="badge ${/online/i.test(r.state) ? 'good' : ''}">${esc(r.state)}</span>` : '' }, { key: 'last_seen', label: 'Last seen (IST)', render: r => esc(r.last_seen ? GReply.ist(GReply.ts(r.last_seen)) : '') }, { key: 'ip', label: 'Last IP', render: r => `<span class="mono ipv">${esc(r.ip || '')}</span>` }, { key: 'port', label: 'Port', render: r => `<span class="mono nowrap">${esc(r.port || '')}</span>` }, { key: 'dev', label: 'Device', render: r => esc([r.brand, r.model].filter(Boolean).join(' ') || r.os_build || r.device_type || '') }, { key: 'emails', label: 'E-mail' }, { key: 'contacts', label: 'Contacts', num: true }, { key: 'service_start', label: 'Service start' }],
       onRow: r => Records.show('WhatsApp ' + r.acct, [WData.view(r)]) });
     const ev = d.filter(r => r.ist), days = groupBy(ev, r => r.ist.slice(0, 10));
     Charts.line($('#ws1', el), [...days.keys()].sort().map(k => ({ label: k, value: days.get(k).length, recs: days.get(k).map(WData.view) })), { fmt: v => v + (v === 1 ? ' event' : ' events') });
@@ -316,11 +316,11 @@ const WTabs = {
       <details><summary>All ${x._f.length} fields · ${esc(x._src)}</summary><div class="g-all">${x._f.map(([k, v]) => `<span>${esc(k)}</span><b>${esc(v || '—')}</b>`).join('')}</div></details></div>`).join('')}</div>` : ''}
       ${C.length ? '<div class="card"><h3>Connection info</h3><div class="sub">One row per linked device (ID 0 = main phone). Times from WhatsApp are UTC; IST adds 5 h 30 min.</div><div id="wcC"></div></div>' : ''}
       ${I.length ? '<div class="grid g2"><div class="card"><h3>IP addresses</h3><div id="wcI1"></div></div><div class="card"><h3>IP type</h3><div id="wcI2"></div></div></div><div class="card"><h3>All IP events</h3><div class="sub">Send ISP requests with the IP, port, exact time and time zone</div><div id="wcIT"></div></div>' : ''}`;
-    if (C.length) Table($('#wcC', el), { rows: C, exportName: 'whatsapp_connection', columns: [{ key: 'acct', label: 'WhatsApp number', render: r => `<b class="mono">${esc(r.acct || '')}</b>` }, { key: 'device_id', label: 'Device ID' }, { key: 'state', label: 'State' }, { key: 'last_seen', label: 'Last seen (UTC)' }, { key: 'ist', label: 'Last seen (IST)', render: r => `<span class="mono">${esc(r.ist || '')}</span>` }, { key: 'ip', label: 'Last IP', render: r => `<b class="mono">${esc(r.ip || '')}</b>` }, { key: 'port', label: 'Port' }, { key: 'os_build', label: 'Device OS build' }, { key: 'device_type', label: 'Device type' }, { key: 'app_version', label: 'App version' }, { key: 'service_start', label: 'Service start' }, { key: 'push_name', label: 'Push name' }, { key: '_src', label: 'File' }], onRow: r => Records.show('Connection – ' + r.acct, [WData.view(r)]) });
+    if (C.length) Table($('#wcC', el), { rows: C, exportName: 'whatsapp_connection', columns: [{ key: 'acct', label: 'WhatsApp number', render: r => `<b class="mono">${esc(r.acct || '')}</b>` }, { key: 'device_id', label: 'Device ID' }, { key: 'state', label: 'State' }, { key: 'last_seen', label: 'Last seen (UTC)' }, { key: 'ist', label: 'Last seen (IST)', render: r => `<span class="mono">${esc(r.ist || '')}</span>` }, { key: 'ip', label: 'Last IP', render: r => `<b class="mono ipv">${esc(r.ip || '')}</b>` }, { key: 'port', label: 'Port' }, { key: 'os_build', label: 'Device OS build' }, { key: 'device_type', label: 'Device type' }, { key: 'app_version', label: 'App version' }, { key: 'service_start', label: 'Service start' }, { key: 'push_name', label: 'Push name' }, { key: '_src', label: 'File' }], onRow: r => Records.show('Connection – ' + r.acct, [WData.view(r)]) });
     if (I.length) {
       const g = groupBy(I, r => r.ip); Charts.hbar($('#wcI1', el), [...g].map(([k, v]) => ({ label: k, value: v.length, sub: V.ipKind(k), recs: v.map(WData.view) })).sort((a, b) => b.value - a.value), { fmt: v => v + (v === 1 ? ' time' : ' times'), max: 10 });
       const t = groupBy(I, r => V.ipKind(r.ip)); Charts.hbar($('#wcI2', el), [...t].map(([k, v]) => ({ label: k, value: v.length, recs: v.map(WData.view) })), { fmt: v => v + (v === 1 ? ' IP' : ' IPs') });
-      Table($('#wcIT', el), { rows: I, exportName: 'whatsapp_ip', sortKey: 'ts', sortDir: -1, columns: [{ key: 'ist', label: 'Time (IST)', render: r => `<span class="mono">${esc(r.ist || '')}</span>` }, { key: 'ts', label: 'Time (UTC)', render: r => `<span class="mono muted">${esc(r.ts ? r.ts.replace('T', ' ').replace('Z', '') : '')}</span>` }, { key: 'ip', label: 'IP address', render: r => `<b class="mono">${esc(r.ip)}</b>` }, { key: 'port', label: 'Port' }, { key: 'kind', label: 'From' }, { key: 'ipk', label: 'Type', render: r => esc(V.ipKind(r.ip)) }, { key: 'acct', label: 'WhatsApp number' }, { key: '_src', label: 'File' }], onRow: r => Records.show('IP – ' + r.ip, [WData.view(r)]) });
+      Table($('#wcIT', el), { rows: I, exportName: 'whatsapp_ip', sortKey: 'ts', sortDir: -1, columns: [{ key: 'ist', label: 'Time (IST)', render: r => `<span class="mono">${esc(r.ist || '')}</span>` }, { key: 'ts', label: 'Time (UTC)', render: r => `<span class="mono muted">${esc(r.ts ? r.ts.replace('T', ' ').replace('Z', '') : '')}</span>` }, { key: 'ip', label: 'IP address', render: r => `<b class="mono ipv">${esc(r.ip)}</b>` }, { key: 'port', label: 'Port' }, { key: 'kind', label: 'From' }, { key: 'ipk', label: 'Type', render: r => esc(V.ipKind(r.ip)) }, { key: 'acct', label: 'WhatsApp number' }, { key: '_src', label: 'File' }], onRow: r => Records.show('IP – ' + r.ip, [WData.view(r)]) });
     }
   },
 
@@ -347,7 +347,7 @@ const WTabs = {
       const cp = new Map(); E.forEach(r => [r.from, r.to].join(',').split(/[,;\s]+/).map(x => WReply.mob(x)).filter(x => x && x !== r.acct).forEach(n => { if (!cp.has(n)) cp.set(n, []); cp.get(n).push(r); }));
       Charts.hbar($('#wl1', el), [...cp].map(([k, v]) => ({ label: k, value: v.length, recs: v.map(WData.view) })).sort((a, b) => b.value - a.value), { fmt: v => v + (v === 1 ? ' event' : ' events'), max: 10 });
       Charts.vbar($('#wl2', el), Array.from({ length: 24 }, (_, h) => { const recs = E.filter(r => r.ist && r.ist.length > 10 && +r.ist.slice(11, 13) === h); return { label: String(h).padStart(2, '0'), value: recs.length, recs: recs.map(WData.view) }; }), { fmt: v => v + (v === 1 ? ' event' : ' events') });
-      Table($('#wlT', el), { rows: E, exportName: 'whatsapp_logs', sortKey: 'ist', sortDir: -1, columns: [{ key: 'ist', label: 'Time (IST)', render: r => `<span class="mono">${esc(r.ist || '')}</span>` }, { key: 'kind', label: 'Kind' }, { key: 'type', label: 'Type', render: r => esc([r.type, r.media, r.style].filter(Boolean).join(' · ')) }, { key: 'from', label: 'From' }, { key: 'to', label: 'To' }, { key: 'ip', label: 'IP', render: r => `<span class="mono">${esc(r.ip || '')}</span>` }, { key: 'port', label: 'Port' }, { key: 'device', label: 'Device' }, { key: 'gid', label: 'Group' }, { key: 'acct', label: 'WhatsApp number' }], onRow: r => Records.show(r.kind + ' – ' + (r.ist || ''), [WData.view(r)]) });
+      Table($('#wlT', el), { rows: E, exportName: 'whatsapp_logs', sortKey: 'ist', sortDir: -1, columns: [{ key: 'ist', label: 'Time (IST)', render: r => `<span class="mono">${esc(r.ist || '')}</span>` }, { key: 'kind', label: 'Kind' }, { key: 'type', label: 'Type', render: r => esc([r.type, r.media, r.style].filter(Boolean).join(' · ')) }, { key: 'from', label: 'From' }, { key: 'to', label: 'To' }, { key: 'ip', label: 'IP', render: r => `<span class="mono ipv">${esc(r.ip || '')}</span>` }, { key: 'port', label: 'Port' }, { key: 'device', label: 'Device' }, { key: 'gid', label: 'Group' }, { key: 'acct', label: 'WhatsApp number' }], onRow: r => Records.show(r.kind + ' – ' + (r.ist || ''), [WData.view(r)]) });
     }
     if (G.length) Table($('#wlG', el), { rows: G, exportName: 'whatsapp_groups', columns: [{ key: 'subject', label: 'Subject' }, { key: 'gid', label: 'Group ID', render: r => `<span class="mono">${esc(r.gid || '')}</span>` }, { key: 'role', label: 'Owned / participating' }, { key: 'size', label: 'Members' }, { key: 'created', label: 'Created' }, { key: 'description', label: 'Description' }, { key: 'acct', label: 'WhatsApp number' }], onRow: r => Records.show('Group ' + (r.subject || r.gid), [WData.view(r)]) });
   },
@@ -383,7 +383,7 @@ const WTabs = {
     Charts.vbar($('#wt3', el), wd.map((w, i) => { const recs = all.filter(r => new Date(r.ist.slice(0, 10)).getDay() === i); return { label: w, value: recs.length, recs: recs.map(WData.view) }; }), { fmt: v => v + (v === 1 ? ' event' : ' events') });
     const lab = r => r.kind === 'Account' ? r.activity : r.kind + (r.activity ? ' · ' + r.activity : r.type ? ' · ' + r.type : '');
     const K = groupBy(all, lab); Charts.hbar($('#wt4', el), [...K].map(([k, v]) => ({ label: k, value: v.length, recs: v.map(WData.view) })).sort((a, b) => b.value - a.value), { fmt: v => v + (v === 1 ? ' event' : ' events') });
-    Table($('#wtT', el), { rows: all, exportName: 'whatsapp_timeline', sortKey: 'ist', sortDir: -1, columns: [{ key: 'ist', label: 'Time (IST)', render: r => `<span class="mono">${esc(r.ist)}</span>` }, { key: 'what', label: 'Event', render: r => esc(lab(r)) }, { key: 'det', label: 'Details', render: r => esc([r.from && r.to ? r.from + ' → ' + r.to : '', r.subject, r.os_build].filter(Boolean).join(' · ')) }, { key: 'ip', label: 'IP', render: r => `<span class="mono">${esc((r.ip || '') + (r.port ? ':' + r.port : ''))}</span>` }, { key: 'acct', label: 'WhatsApp number' }, { key: '_src', label: 'File' }], onRow: r => Records.show(lab(r) + ' – ' + r.ist, [WData.view(r)]) });
+    Table($('#wtT', el), { rows: all, exportName: 'whatsapp_timeline', sortKey: 'ist', sortDir: -1, columns: [{ key: 'ist', label: 'Time (IST)', render: r => `<span class="mono">${esc(r.ist)}</span>` }, { key: 'what', label: 'Event', render: r => esc(lab(r)) }, { key: 'det', label: 'Details', render: r => esc([r.from && r.to ? r.from + ' → ' + r.to : '', r.subject, r.os_build].filter(Boolean).join(' · ')) }, { key: 'ip', label: 'IP', render: r => `<span class="mono ipv">${esc((r.ip || '') + (r.port ? ':' + r.port : ''))}</span>` }, { key: 'acct', label: 'WhatsApp number' }, { key: '_src', label: 'File' }], onRow: r => Records.show(lab(r) + ' – ' + r.ist, [WData.view(r)]) });
   },
 
   wcsv(el) {
@@ -413,7 +413,7 @@ const WTabs = {
   const oi = Analysis.idents;
   Analysis.idents = function () {
     const out = oi.apply(this, arguments);
-    if (!out._w && S.data.whatsapp && S.data.whatsapp.length) { out._w = 1; for (const r of S.data.whatsapp) for (const [t, v] of WReply.ids(r)) if (['mobile', 'email', 'ip', 'imei'].includes(t)) out.push({ type: t, value: v, section: 'Social', ref: 'WhatsApp · ' + (r.kind === 'Contact' ? 'address book of ' : r.kind + ' · ') + (r.acct || ''), rec: r, wa: 1 }); }
+    if (!out._w && S.data.whatsapp && S.data.whatsapp.length) { out._w = 1; for (const r of S.data.whatsapp) for (const [t, v] of WReply.ids(r)) if (['mobile', 'email', 'ip', 'imei'].includes(t)) out.push({ type: t, value: v, section: 'Social', ref: 'WhatsApp · ' + (r.kind === 'Contact' ? 'address book of ' : r.kind + ' · ') + (r.acct || ''), rec: r, wa: 1, label: 'WhatsApp' }); }
     return out;
   };
   // demo: a small fake WhatsApp reply that links to the demo Google and social records

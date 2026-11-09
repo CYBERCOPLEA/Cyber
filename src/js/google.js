@@ -221,7 +221,7 @@ const GData = {
   removeFile(name) { S.data.google = this.all().filter(r => r._src !== name); S.data.imports = S.data.imports.filter(i => !(i.type === 'google' && i.file === name)); saveCase(); },
   // where else in the case an identifier appears (bank / KYC / NCRP / other social / CAF)
   elsewhere() {
-    return Analysis.cached('g:else', () => { const m = new Map(); try { Analysis.idents().filter(x => !x.google).forEach(x => { const k = x.type + '|' + String(x.value).toLowerCase(); if (!m.has(k)) m.set(k, new Set()); m.get(k).add(x.section); }); } catch (e) { } return m; });
+    return Analysis.cached('g:else', () => { const m = new Map(); try { Analysis.idents().filter(x => !x.google).forEach(x => { const k = x.type + '|' + String(x.value).toLowerCase(); if (!m.has(k)) m.set(k, new Set()); m.get(k).add(x.label || x.section); }); } catch (e) { } return m; });
   },
   common(type) {
     return Analysis.cached('g:c:' + type, () => {
@@ -392,7 +392,7 @@ const GTabs = {
   const oi = Analysis.idents;
   Analysis.idents = function () {
     const out = oi.apply(this, arguments);
-    if (!out._g && S.data.google && S.data.google.length) { out._g = 1; for (const r of S.data.google) for (const [t, v] of GReply.ids(r)) if (['mobile', 'email', 'ip', 'imei', 'upi'].includes(t)) out.push({ type: t, value: v, section: 'Social', ref: 'Google · ' + r.kind + (r.acct ? ' · ' + r.acct : ''), rec: r, google: 1 }); }
+    if (!out._g && S.data.google && S.data.google.length) { out._g = 1; for (const r of S.data.google) for (const [t, v] of GReply.ids(r)) if (['mobile', 'email', 'ip', 'imei', 'upi'].includes(t)) out.push({ type: t, value: v, section: 'Social', ref: 'Google · ' + r.kind + (r.acct ? ' · ' + r.acct : ''), rec: r, google: 1, label: 'Google' }); }
     return out;
   };
   // demo: a small fake Google reply that links to the demo social records
