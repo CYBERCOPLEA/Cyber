@@ -1174,3 +1174,8 @@ svg.c2.dn .dn-c2{font-size:24px}
 [lang=hi],.hp-hi,.hp-nhi,.lg-hi,.br-hi,.db-hi{font-family:"Utsaah","Nirmala UI","Noto Sans Devanagari","Mangal","Kohinoor Devanagari",sans-serif!important}
 html.has-utsaah .br-hi,html.has-utsaah .hp-hi,html.has-utsaah .lg-hi,html.has-utsaah .db-hi,html.has-utsaah .hp-foot [lang=hi]{font-size:1.28em}
 html.has-utsaah .lg-hi{font-size:28px}html.has-utsaah .db-hi{font-size:33px}
+
+/* Hindi name: room above and below so matras (ि ् ु) are never cut; the gradient text only paints inside the padding box */
+.hp-nhi,.hp-hi,.lg-hi,.br-hi,.db-hi{display:inline-block;overflow:visible!important;padding-top:.28em!important;padding-bottom:.3em!important;margin-top:-.28em!important;margin-bottom:-.3em!important;padding-left:.06em;padding-right:.06em}
+.hp-nhi{line-height:1.3!important}
+.hp-name{column-gap:16px!important;padding-top:4px}

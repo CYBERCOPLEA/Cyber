@@ -22,7 +22,7 @@
       var hs = getComputedStyle(hi), body = asc(hs.fontWeight + ' 100px ' + hs.fontFamily, 'दनस');
       if (cap > 0 && body > 0) hi.style.setProperty('font-size', (parseFloat(es.fontSize) * cap / body * 1.08).toFixed(1) + 'px', 'important');
     }
-    var w = n.parentElement.clientWidth, kids = n.children, used = 12 * (kids.length - 1);
+    var w = n.parentElement.clientWidth, kids = n.children, used = (parseFloat(getComputedStyle(n).columnGap) || 12) * (kids.length - 1);
     for (var i = 0; i < kids.length; i++) used += kids[i].getBoundingClientRect().width;
     if (getComputedStyle(n).flexWrap === 'nowrap' && used > w) n.style.zoom = Math.max(0.7, (w - 4) / used).toFixed(3);
   }
