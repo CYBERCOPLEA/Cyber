@@ -913,6 +913,13 @@ svg.c2.dn .dn-c2{font-size:24px}
 .gp-k b{font-size:20px;line-height:1.1}
 .gp-k small{color:var(--text-muted);font-size:12px}
 
+/* Search + Reset buttons (every filter / table) */
+.btn.srch{background:linear-gradient(135deg,#db2777,#be185d)!important;color:#fff!important;border:1px solid rgba(244,114,182,.6)!important;font-weight:700;box-shadow:0 4px 14px rgba(219,39,119,.3)}
+.btn.srch:hover{filter:brightness(1.12)}
+.btn.rst{background:#1e3a4c!important;color:#bae6fd!important;border:1px solid #3b6e8c!important;font-weight:600}
+.btn.rst:hover{background:#25475d!important}
+[data-theme=light] .btn.rst{background:#e0f2fe!important;color:#075985!important;border-color:#7dd3fc!important}
+
 </style>
 </head>
 <body>
@@ -1708,7 +1715,8 @@ function Table(container, opt) {
     const slice = rows.slice(st.page * st.size, (st.page + 1) * st.size);
     container.innerHTML = `
       <div class="tbl-tools">
-        <input type="search" placeholder="Filter rows…" value="${esc(st.q)}" data-r="q">
+        <input type="search" placeholder="Type to find… then Search" value="${esc(st.q)}" data-r="q">
+        <button class="btn sm srch" data-r="go" title="Show only the rows that contain this text">🔍 Search</button><button class="btn sm rst" data-r="reset" title="Clear the search and sorting, show all rows">Reset</button>
         <label class="small">Sort</label>
         <select data-r="sk"><option value="">—</option>${cols.filter(c => !c.nosort).map(c => `<option value="${c.key}" ${c.key === st.sortKey ? 'selected' : ''}>${esc(c.label)}</option>`).join('')}</select>
         <span class="pill-group"><button data-r="az" class="${st.dir === 1 ? 'active' : ''}" title="Ascending">A → Z</button><button data-r="za" class="${st.dir === -1 ? 'active' : ''}" title="Descending">Z → A</button></span>
@@ -1721,7 +1729,12 @@ function Table(container, opt) {
       <tbody>${slice.map((r, i) => `<tr class="${opt.onRow ? 'clickable' : ''}" data-i="${st.page * st.size + i}">${cols.map(c => `<td class="${c.num ? 'num' : ''}">${c.render ? c.render(r) : esc(c.fmt ? c.fmt(r[c.key], r) : r[c.key])}</td>`).join('')}</tr>`).join('') || `<tr><td colspan="${cols.length}" class="muted" style="text-align:center;padding:20px">No rows</td></tr>`}</tbody></table></div>
       ${pages > 1 ? `<div class="pager"><button class="btn sm" data-r="prev" ${st.page === 0 ? 'disabled' : ''}>‹ Prev</button> Page ${st.page + 1} of ${pages} <button class="btn sm" data-r="next" ${st.page >= pages - 1 ? 'disabled' : ''}>Next ›</button></div>` : ''}`;
     const qi = $('[data-r=q]', container);
-    qi.oninput = () => { st.q = qi.value; st.page = 0; const pos = qi.selectionStart; render(); const n = $('[data-r=q]', container); n.focus(); n.setSelectionRange(pos, pos); };
+    // small tables filter while you type; big ones on Search / Enter so typing stays fast
+    const apply = keep => { st.q = qi.value.trim(); st.page = 0; const pos = qi.selectionStart; render(); const n = $('[data-r=q]', container); if (keep) { n.focus(); n.setSelectionRange(pos, pos); } };
+    qi.oninput = () => { if (opt.rows.length <= 3000) apply(true); };
+    qi.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); apply(true); } };
+    $('[data-r=go]', container).onclick = () => apply(false);
+    $('[data-r=reset]', container).onclick = () => { st.q = ''; st.sortKey = opt.sortKey || null; st.dir = opt.sortDir || 1; st.page = 0; render(); };
     $('[data-r=sk]', container).onchange = e => { st.sortKey = e.target.value || null; render(); };
     $('[data-r=az]', container).onclick = () => { st.dir = 1; if (!st.sortKey) st.sortKey = cols[0].key; render(); };
     $('[data-r=za]', container).onclick = () => { st.dir = -1; if (!st.sortKey) st.sortKey = cols[0].key; render(); };
@@ -2866,11 +2879,13 @@ const FinTabs = {
       <select id="gDir"><option value="down" ${o.dir === 'down' ? 'selected' : ''}>Money going out ↓</option><option value="up" ${o.dir === 'up' ? 'selected' : ''}>Money coming in ↑</option><option value="both" ${o.dir === 'both' ? 'selected' : ''}>Both</option></select>
       <label>Depth</label><input id="gDepth" type="number" min="1" max="20" value="${o.depth}" style="width:64px">
       <label>Min ₹</label><input id="gMin" type="number" min="0" value="${o.min}" style="width:100px">
-      <button class="btn primary sm" id="gGo">Draw</button><span class="spacer"></span>
+      <button class="btn sm srch" id="gGo" title="Draw the chart with these choices">🔍 Search</button><button class="btn sm rst" id="gReset" title="Back to all complaints, all accounts">Reset</button><span class="spacer"></span>
       <button class="btn sm" id="gSvg">⬇ SVG</button><button class="btn sm" id="gPng">⬇ PNG</button></div></div>
       <div class="graph-box" id="gBox"></div><p class="small muted" id="gInfo"></p>`;
     $$('[data-m]', el).forEach(b => b.onclick = () => { o.mode = b.dataset.m; FinTabs.graph(el); });
     $('#gGo', el).onclick = () => { o.ack = $('#gAck', el).value; o.root = N.acc($('#gRoot', el).value); o.dir = $('#gDir', el).value; o.depth = +$('#gDepth', el).value || 6; o.min = +$('#gMin', el).value || 0; FinTabs.graph(el); };
+    $('#gReset', el).onclick = () => { Object.assign(o, { ack: '', root: '', dir: 'down', depth: 6, min: 0 }); FinTabs.graph(el); };
+    ['#gRoot', '#gDepth', '#gMin'].forEach(id => $(id, el).onkeydown = e => { if (e.key === 'Enter') $('#gGo', el).click(); });
     const { nodes, edges, note } = finGraphData(o);
     if (!nodes.length) { $('#gBox', el).innerHTML = '<div class="muted" style="padding:40px;text-align:center">No transactions to draw. Import a money trail or statement first.</div>'; return; }
     const g = Graph.mount($('#gBox', el), nodes, edges, { trailColors: true, colorBy: S.settings.graphColor, onColor: v => { S.settings.graphColor = v; DB.set('settings', S.settings); }, vert: !!o.vert, onOrient: v => { o.vert = v; }, live: edges.length <= 1000, labels: edges.length > 160 ? true : 'full', mode: o.mode, root: o.root || (nodes.find(n => n.kind === 'victim') || nodes[0]).id, onTrail: (hops, api, info) => trailDrawer(hops, api, info), onClear: UI.closeDrawer });
@@ -3432,7 +3447,7 @@ const Trail = {
       <button class="btn" id="trImp">⬆ Import trail</button><button class="btn" id="trPrint">🖨 Print / PDF</button><button class="btn" id="trCsv">⬇ CSV</button></div>
       <div class="trail-layout">
         <aside class="card trail-list"><div class="row" style="margin-bottom:8px"><h3 class="grow" style="margin:0">Complaints <span class="badge">${list.length}</span></h3></div>
-          <input id="trQ" type="search" placeholder="Search Ack No / victim…" style="width:100%;margin-bottom:8px">
+          <input id="trQ" type="search" placeholder="Search Ack No / victim…" style="width:100%;margin-bottom:6px"><div class="row" style="gap:6px;margin-bottom:8px"><button class="btn sm srch grow" id="trGo">🔍 Search</button><button class="btn sm rst" id="trRs">Reset</button></div>
           <div class="cmp ${sel === '*' ? 'active' : ''}" data-ack="*"><b>All complaints together</b><div class="small muted">${fmtNum(S.data.txns.length)} transactions</div></div>
           <div id="trItems">${list.sort((a, b) => String(b.date).localeCompare(String(a.date))).map(c => `<div class="cmp ${c.ack === sel ? 'active' : ''}" data-ack="${esc(c.ack)}">
             <div class="row"><b class="mono">${esc(c.ack)}</b><span class="spacer"></span>${c.txns ? `<span class="badge info">${c.layers || '?'} layers</span>` : '<span class="badge warn">no trail</span>'}</div>
@@ -3444,7 +3459,8 @@ const Trail = {
     $('#trImp').onclick = () => openImport(['txn', 'ncrp', 'stmt', 'kyc'], render);
     $('#trPrint').onclick = () => { document.body.classList.add('print-trail'); window.print(); setTimeout(() => document.body.classList.remove('print-trail'), 500); };
     $$('.cmp', main).forEach(c => c.onclick = () => { S.trailAck = c.dataset.ack; render(); });
-    $('#trQ').oninput = e => { const q = e.target.value.toLowerCase(); $$('#trItems .cmp', main).forEach(c => c.style.display = c.innerText.toLowerCase().includes(q) ? '' : 'none'); };
+    const trF = () => { const q = $('#trQ').value.trim().toLowerCase(); $$('#trItems .cmp', main).forEach(c => c.style.display = c.innerText.toLowerCase().includes(q) ? '' : 'none'); };
+    $('#trQ').oninput = trF; $('#trGo').onclick = trF; $('#trRs').onclick = () => { $('#trQ').value = ''; trF(); };
     Trail.draw(sel === '*' ? '' : sel);
   },
 
@@ -4123,7 +4139,7 @@ const Flags = {
         <div class="f"><label>Sent to at least (accounts)</label><input data-f="minRecv" type="number" min="0" value="${esc(F.minRecv)}" placeholder="e.g. 10"></div>
         <div class="f"><label>Forwarded within (min)</label><input data-f="maxGap" type="number" min="0" value="${esc(F.maxGap)}" placeholder="e.g. 30"></div>
         <div class="f grow"><label>Account / name / IFSC</label><input data-f="q" type="search" value="${esc(F.q)}" placeholder="type and press Search"></div>
-        <div class="f"><label>&nbsp;</label><div class="row" style="gap:6px"><button class="btn primary" data-a="go">🔍 Search</button><button class="btn" data-a="reset">Reset</button></div></div>
+        <div class="f"><label>&nbsp;</label><div class="row" style="gap:6px"><button class="btn srch" data-a="go">🔍 Search</button><button class="btn rst" data-a="reset">Reset</button></div></div>
       </div>
       <div class="selbar"><span data-a="cnt"></span><span data-a="found" class="muted small"></span><span class="spacer"></span>
         <button class="btn sm" data-a="all">☑ Select all found</button><button class="btn sm" data-a="none">Clear selection</button>
@@ -6433,6 +6449,7 @@ const GamePlayer = {
         <div class="sub">Accounts that got <b>small amounts</b> (up to ${fmtINR(R.max)}) from the <b>bulk-split</b> accounts – the accounts that receive money and pass it on to many others. These are often online-game players or people who took a short loan, paid by the gang.</div></div></div>
       <div class="gp-rule"><label>Small amount = up to ₹</label><input type="number" id="gpMax" min="1" value="${R.max}" style="width:110px">
         <label>Paid by</label><select id="gpSrc"><option value="bulk" ${R.src === 'bulk' ? 'selected' : ''}>bulk-split accounts</option><option value="any" ${R.src === 'any' ? 'selected' : ''}>bulk-split or rapid pass-through accounts</option></select>
+        <button class="btn sm srch" id="gpGo">🔍 Search</button><button class="btn sm rst" id="gpReset">Reset</button>
         <span class="small muted">Bulk split = sent to ${Flags.rule().fan}+ accounts (change it in the box below)</span></div>
       <div class="gp-kpis">${[['🎮', fmtNum(D.recv.length), 'receiver accounts', '#a855f7'], ['🔁', fmtNum(D.tx.length), 'small transactions', '#3b82f6'], ['₹', fmtINR(sum(D.tx, t => t._amt)), 'total paid to them', '#10b981'], ['⇉', fmtNum(usedSnd), 'bulk accounts paying', '#f97316'], ['⚑', fmtNum(multi), 'paid by 2+ bulk accounts', '#ef4444']].map(([i, v, l, c]) => `<div class="gp-k" style="--gc:${c}"><span>${i}</span><b>${v}</b><small>${l}</small></div>`).join('')}</div>
       <div class="row" style="margin:12px 0 8px;flex-wrap:wrap"><span class="pill-group">${[['table', '📋 Transactions'], ['recv', '👤 Receivers'], ['net', '🕸 Network'], ['flow', '➜ Flow chart'], ['chart', '📊 Charts']].map(([k, l]) => `<button data-gv="${k}" class="${k === view ? 'active' : ''}">${l}</button>`).join('')}</span></div>
@@ -6440,6 +6457,9 @@ const GamePlayer = {
     const redo = () => this.mount(host);
     $('#gpMax', host).onchange = e => { const v = Math.max(1, +e.target.value || 10000); R.max = v; DB.set('settings', S.settings); redo(); };
     $('#gpSrc', host).onchange = e => { R.src = e.target.value; DB.set('settings', S.settings); redo(); };
+    $('#gpGo', host).onclick = () => { R.max = Math.max(1, +$('#gpMax', host).value || 10000); R.src = $('#gpSrc', host).value; DB.set('settings', S.settings); redo(); };
+    $('#gpReset', host).onclick = () => { R.max = 10000; R.src = 'bulk'; DB.set('settings', S.settings); redo(); };
+    $('#gpMax', host).onkeydown = e => { if (e.key === 'Enter') $('#gpGo', host).click(); };
     $$('[data-gv]', host).forEach(b => b.onclick = () => { S.gpView = b.dataset.gv; redo(); });
     const body = $('#gpBody', host);
     if (!D.tx.length) { body.innerHTML = `<div class="muted" style="padding:24px;text-align:center">No small payments from bulk-split accounts found. Raise the small-amount limit above, or import more bank-action sheets.</div>`; return; }

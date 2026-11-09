@@ -69,7 +69,7 @@ const Trail = {
       <button class="btn" id="trImp">⬆ Import trail</button><button class="btn" id="trPrint">🖨 Print / PDF</button><button class="btn" id="trCsv">⬇ CSV</button></div>
       <div class="trail-layout">
         <aside class="card trail-list"><div class="row" style="margin-bottom:8px"><h3 class="grow" style="margin:0">Complaints <span class="badge">${list.length}</span></h3></div>
-          <input id="trQ" type="search" placeholder="Search Ack No / victim…" style="width:100%;margin-bottom:8px">
+          <input id="trQ" type="search" placeholder="Search Ack No / victim…" style="width:100%;margin-bottom:6px"><div class="row" style="gap:6px;margin-bottom:8px"><button class="btn sm srch grow" id="trGo">🔍 Search</button><button class="btn sm rst" id="trRs">Reset</button></div>
           <div class="cmp ${sel === '*' ? 'active' : ''}" data-ack="*"><b>All complaints together</b><div class="small muted">${fmtNum(S.data.txns.length)} transactions</div></div>
           <div id="trItems">${list.sort((a, b) => String(b.date).localeCompare(String(a.date))).map(c => `<div class="cmp ${c.ack === sel ? 'active' : ''}" data-ack="${esc(c.ack)}">
             <div class="row"><b class="mono">${esc(c.ack)}</b><span class="spacer"></span>${c.txns ? `<span class="badge info">${c.layers || '?'} layers</span>` : '<span class="badge warn">no trail</span>'}</div>
@@ -81,7 +81,8 @@ const Trail = {
     $('#trImp').onclick = () => openImport(['txn', 'ncrp', 'stmt', 'kyc'], render);
     $('#trPrint').onclick = () => { document.body.classList.add('print-trail'); window.print(); setTimeout(() => document.body.classList.remove('print-trail'), 500); };
     $$('.cmp', main).forEach(c => c.onclick = () => { S.trailAck = c.dataset.ack; render(); });
-    $('#trQ').oninput = e => { const q = e.target.value.toLowerCase(); $$('#trItems .cmp', main).forEach(c => c.style.display = c.innerText.toLowerCase().includes(q) ? '' : 'none'); };
+    const trF = () => { const q = $('#trQ').value.trim().toLowerCase(); $$('#trItems .cmp', main).forEach(c => c.style.display = c.innerText.toLowerCase().includes(q) ? '' : 'none'); };
+    $('#trQ').oninput = trF; $('#trGo').onclick = trF; $('#trRs').onclick = () => { $('#trQ').value = ''; trF(); };
     Trail.draw(sel === '*' ? '' : sel);
   },
 

@@ -200,11 +200,13 @@ const FinTabs = {
       <select id="gDir"><option value="down" ${o.dir === 'down' ? 'selected' : ''}>Money going out ↓</option><option value="up" ${o.dir === 'up' ? 'selected' : ''}>Money coming in ↑</option><option value="both" ${o.dir === 'both' ? 'selected' : ''}>Both</option></select>
       <label>Depth</label><input id="gDepth" type="number" min="1" max="20" value="${o.depth}" style="width:64px">
       <label>Min ₹</label><input id="gMin" type="number" min="0" value="${o.min}" style="width:100px">
-      <button class="btn primary sm" id="gGo">Draw</button><span class="spacer"></span>
+      <button class="btn sm srch" id="gGo" title="Draw the chart with these choices">🔍 Search</button><button class="btn sm rst" id="gReset" title="Back to all complaints, all accounts">Reset</button><span class="spacer"></span>
       <button class="btn sm" id="gSvg">⬇ SVG</button><button class="btn sm" id="gPng">⬇ PNG</button></div></div>
       <div class="graph-box" id="gBox"></div><p class="small muted" id="gInfo"></p>`;
     $$('[data-m]', el).forEach(b => b.onclick = () => { o.mode = b.dataset.m; FinTabs.graph(el); });
     $('#gGo', el).onclick = () => { o.ack = $('#gAck', el).value; o.root = N.acc($('#gRoot', el).value); o.dir = $('#gDir', el).value; o.depth = +$('#gDepth', el).value || 6; o.min = +$('#gMin', el).value || 0; FinTabs.graph(el); };
+    $('#gReset', el).onclick = () => { Object.assign(o, { ack: '', root: '', dir: 'down', depth: 6, min: 0 }); FinTabs.graph(el); };
+    ['#gRoot', '#gDepth', '#gMin'].forEach(id => $(id, el).onkeydown = e => { if (e.key === 'Enter') $('#gGo', el).click(); });
     const { nodes, edges, note } = finGraphData(o);
     if (!nodes.length) { $('#gBox', el).innerHTML = '<div class="muted" style="padding:40px;text-align:center">No transactions to draw. Import a money trail or statement first.</div>'; return; }
     const g = Graph.mount($('#gBox', el), nodes, edges, { trailColors: true, colorBy: S.settings.graphColor, onColor: v => { S.settings.graphColor = v; DB.set('settings', S.settings); }, vert: !!o.vert, onOrient: v => { o.vert = v; }, live: edges.length <= 1000, labels: edges.length > 160 ? true : 'full', mode: o.mode, root: o.root || (nodes.find(n => n.kind === 'victim') || nodes[0]).id, onTrail: (hops, api, info) => trailDrawer(hops, api, info), onClear: UI.closeDrawer });

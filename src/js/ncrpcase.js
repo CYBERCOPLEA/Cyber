@@ -110,7 +110,7 @@ const Flags = {
         <div class="f"><label>Sent to at least (accounts)</label><input data-f="minRecv" type="number" min="0" value="${esc(F.minRecv)}" placeholder="e.g. 10"></div>
         <div class="f"><label>Forwarded within (min)</label><input data-f="maxGap" type="number" min="0" value="${esc(F.maxGap)}" placeholder="e.g. 30"></div>
         <div class="f grow"><label>Account / name / IFSC</label><input data-f="q" type="search" value="${esc(F.q)}" placeholder="type and press Search"></div>
-        <div class="f"><label>&nbsp;</label><div class="row" style="gap:6px"><button class="btn primary" data-a="go">🔍 Search</button><button class="btn" data-a="reset">Reset</button></div></div>
+        <div class="f"><label>&nbsp;</label><div class="row" style="gap:6px"><button class="btn srch" data-a="go">🔍 Search</button><button class="btn rst" data-a="reset">Reset</button></div></div>
       </div>
       <div class="selbar"><span data-a="cnt"></span><span data-a="found" class="muted small"></span><span class="spacer"></span>
         <button class="btn sm" data-a="all">☑ Select all found</button><button class="btn sm" data-a="none">Clear selection</button>

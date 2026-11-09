@@ -32,6 +32,7 @@ const GamePlayer = {
         <div class="sub">Accounts that got <b>small amounts</b> (up to ${fmtINR(R.max)}) from the <b>bulk-split</b> accounts – the accounts that receive money and pass it on to many others. These are often online-game players or people who took a short loan, paid by the gang.</div></div></div>
       <div class="gp-rule"><label>Small amount = up to ₹</label><input type="number" id="gpMax" min="1" value="${R.max}" style="width:110px">
         <label>Paid by</label><select id="gpSrc"><option value="bulk" ${R.src === 'bulk' ? 'selected' : ''}>bulk-split accounts</option><option value="any" ${R.src === 'any' ? 'selected' : ''}>bulk-split or rapid pass-through accounts</option></select>
+        <button class="btn sm srch" id="gpGo">🔍 Search</button><button class="btn sm rst" id="gpReset">Reset</button>
         <span class="small muted">Bulk split = sent to ${Flags.rule().fan}+ accounts (change it in the box below)</span></div>
       <div class="gp-kpis">${[['🎮', fmtNum(D.recv.length), 'receiver accounts', '#a855f7'], ['🔁', fmtNum(D.tx.length), 'small transactions', '#3b82f6'], ['₹', fmtINR(sum(D.tx, t => t._amt)), 'total paid to them', '#10b981'], ['⇉', fmtNum(usedSnd), 'bulk accounts paying', '#f97316'], ['⚑', fmtNum(multi), 'paid by 2+ bulk accounts', '#ef4444']].map(([i, v, l, c]) => `<div class="gp-k" style="--gc:${c}"><span>${i}</span><b>${v}</b><small>${l}</small></div>`).join('')}</div>
       <div class="row" style="margin:12px 0 8px;flex-wrap:wrap"><span class="pill-group">${[['table', '📋 Transactions'], ['recv', '👤 Receivers'], ['net', '🕸 Network'], ['flow', '➜ Flow chart'], ['chart', '📊 Charts']].map(([k, l]) => `<button data-gv="${k}" class="${k === view ? 'active' : ''}">${l}</button>`).join('')}</span></div>
@@ -39,6 +40,9 @@ const GamePlayer = {
     const redo = () => this.mount(host);
     $('#gpMax', host).onchange = e => { const v = Math.max(1, +e.target.value || 10000); R.max = v; DB.set('settings', S.settings); redo(); };
     $('#gpSrc', host).onchange = e => { R.src = e.target.value; DB.set('settings', S.settings); redo(); };
+    $('#gpGo', host).onclick = () => { R.max = Math.max(1, +$('#gpMax', host).value || 10000); R.src = $('#gpSrc', host).value; DB.set('settings', S.settings); redo(); };
+    $('#gpReset', host).onclick = () => { R.max = 10000; R.src = 'bulk'; DB.set('settings', S.settings); redo(); };
+    $('#gpMax', host).onkeydown = e => { if (e.key === 'Enter') $('#gpGo', host).click(); };
     $$('[data-gv]', host).forEach(b => b.onclick = () => { S.gpView = b.dataset.gv; redo(); });
     const body = $('#gpBody', host);
     if (!D.tx.length) { body.innerHTML = `<div class="muted" style="padding:24px;text-align:center">No small payments from bulk-split accounts found. Raise the small-amount limit above, or import more bank-action sheets.</div>`; return; }

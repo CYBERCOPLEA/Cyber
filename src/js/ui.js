@@ -51,7 +51,8 @@ function Table(container, opt) {
     const slice = rows.slice(st.page * st.size, (st.page + 1) * st.size);
     container.innerHTML = `
       <div class="tbl-tools">
-        <input type="search" placeholder="Filter rows…" value="${esc(st.q)}" data-r="q">
+        <input type="search" placeholder="Type to find… then Search" value="${esc(st.q)}" data-r="q">
+        <button class="btn sm srch" data-r="go" title="Show only the rows that contain this text">🔍 Search</button><button class="btn sm rst" data-r="reset" title="Clear the search and sorting, show all rows">Reset</button>
         <label class="small">Sort</label>
         <select data-r="sk"><option value="">—</option>${cols.filter(c => !c.nosort).map(c => `<option value="${c.key}" ${c.key === st.sortKey ? 'selected' : ''}>${esc(c.label)}</option>`).join('')}</select>
         <span class="pill-group"><button data-r="az" class="${st.dir === 1 ? 'active' : ''}" title="Ascending">A → Z</button><button data-r="za" class="${st.dir === -1 ? 'active' : ''}" title="Descending">Z → A</button></span>
@@ -64,7 +65,12 @@ function Table(container, opt) {
       <tbody>${slice.map((r, i) => `<tr class="${opt.onRow ? 'clickable' : ''}" data-i="${st.page * st.size + i}">${cols.map(c => `<td class="${c.num ? 'num' : ''}">${c.render ? c.render(r) : esc(c.fmt ? c.fmt(r[c.key], r) : r[c.key])}</td>`).join('')}</tr>`).join('') || `<tr><td colspan="${cols.length}" class="muted" style="text-align:center;padding:20px">No rows</td></tr>`}</tbody></table></div>
       ${pages > 1 ? `<div class="pager"><button class="btn sm" data-r="prev" ${st.page === 0 ? 'disabled' : ''}>‹ Prev</button> Page ${st.page + 1} of ${pages} <button class="btn sm" data-r="next" ${st.page >= pages - 1 ? 'disabled' : ''}>Next ›</button></div>` : ''}`;
     const qi = $('[data-r=q]', container);
-    qi.oninput = () => { st.q = qi.value; st.page = 0; const pos = qi.selectionStart; render(); const n = $('[data-r=q]', container); n.focus(); n.setSelectionRange(pos, pos); };
+    // small tables filter while you type; big ones on Search / Enter so typing stays fast
+    const apply = keep => { st.q = qi.value.trim(); st.page = 0; const pos = qi.selectionStart; render(); const n = $('[data-r=q]', container); if (keep) { n.focus(); n.setSelectionRange(pos, pos); } };
+    qi.oninput = () => { if (opt.rows.length <= 3000) apply(true); };
+    qi.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); apply(true); } };
+    $('[data-r=go]', container).onclick = () => apply(false);
+    $('[data-r=reset]', container).onclick = () => { st.q = ''; st.sortKey = opt.sortKey || null; st.dir = opt.sortDir || 1; st.page = 0; render(); };
     $('[data-r=sk]', container).onchange = e => { st.sortKey = e.target.value || null; render(); };
     $('[data-r=az]', container).onclick = () => { st.dir = 1; if (!st.sortKey) st.sortKey = cols[0].key; render(); };
     $('[data-r=za]', container).onclick = () => { st.dir = -1; if (!st.sortKey) st.sortKey = cols[0].key; render(); };
