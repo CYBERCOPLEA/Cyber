@@ -1153,6 +1153,17 @@ svg.c2.dn .dn-c2{font-size:24px}
 .chakra-big{filter:none!important}
 .hp-brand .hp-logo,.ck-wrap .emblem-sm{filter:none!important}
 
+/* no glow behind the big or small logo */
+.hp-ring{display:none!important}
+.emblem-big,.chakra-big,.hp-brand .hp-logo,.ck,.ck-wrap .emblem-sm,.db-mark .emblem-sm,.emblem{filter:none!important;box-shadow:none!important}
+/* hero name: Hindi and English balanced */
+.hp-name{align-items:center;gap:6px 18px}
+.hp-nen{font-size:clamp(28px,3vw,44px);letter-spacing:2.5px;line-height:1.1;font-weight:800;padding-left:18px;border-left:4px solid #f59e0b;color:#f1f5f9}
+@media (max-height:760px){.hp-nen{font-size:clamp(24px,2.6vw,38px)}}
+.hp-name{flex-wrap:nowrap}.hp-nhi{font-size:clamp(36px,3.6vw,60px);filter:none}.hp-nen{font-size:clamp(21px,2.25vw,38px);letter-spacing:1.6px;white-space:nowrap}
+@media (max-height:760px){.hp-nen{font-size:clamp(20px,2.15vw,34px)}.hp-nhi{font-size:clamp(34px,3.4vw,52px)}}
+@media (max-width:1000px){.hp-name{flex-wrap:wrap;justify-content:center}}
+
 </style>
 </head>
 <body>
