@@ -15,6 +15,10 @@ const TK = {
 const TelRead = {
   /* header → field; first match wins, so the order matters */
   RULES: [
+    ['tdate', h => /transaction/.test(h) && /date/.test(h)], ['ttime', h => /transaction/.test(h) && /time/.test(h)],
+    ['enddate', h => /allocation/.test(h) && /end/.test(h) && /date/.test(h)], ['end', h => /allocation/.test(h) && /end/.test(h) && /time/.test(h)],
+    ['date', h => /allocation/.test(h) && /date/.test(h)], ['time', h => /allocation/.test(h) && /time/.test(h)],
+    ['mac', /^mac|macid|macaddr/], ['lat', /latitude|^lat$/], ['lon', /longitude|^(lon|lng)$/],
     ['dport', /(dest|destination|dst|server|remote)\w*port/], ['dip', /(dest|destination|dst|server|remote)\w*ip/],
     ['xport', /(public|translated|nat|allocated|global|natted)\w*port/], ['pport', /(private|source|src|internal|local)\w*port/], ['dport', /(dest|destination|dst|server|remote)\w*port/],
     ['xip', /(public|translated|nat|allocated|global|natted)\w*ip/], ['pip', /(private|source|src|internal|local)\w*ip|^ipaddress$|^ipv[46]$/], ['dip', /(dest|destination|dst|server|remote)\w*ip/],
@@ -28,7 +32,7 @@ const TelRead = {
     ['lat', /^lat/], ['lon', /^(lon|lng)/], ['roam', /roam|circle|^vlr/],
     ['dir', /calltype|callingtype|typeofcall|eventtype|recordtype|usagetype|direction|^type$|messagetype|smstype|calltyp|^inout$|^status$/],
     ['svc', /servicetype|^service$|bearer/], ['msg', /message$|messagetext|smstext|content|^text$|^body$/],
-    ['target', /target|msisdn|mobileno|mobilenumber|subscriber(no|num)|servicenum|usernum|^mobile$/],
+    ['target', /target|msisdn|mobileno|mobilenumber|subscriber(no|num)|servicenum|usernum|userid|^mobile$/],
     ['pb', /^b$|bparty|bnum|called|partyb|otherparty|othernum|receiver|recipient|dial|^to(no|number)?$|destination(no|num)?$/],
     ['pa', /^a$|aparty|anum|calling|partya|sender|header|originat|^from(no|number)?$/],
     ['dt', h => /date/.test(h) && /time/.test(h)], ['date', /date|^day$/], ['time', /time/]
@@ -71,7 +75,7 @@ const TelRead = {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(d)) return '';
     return d + ' ' + (tOf(tv) || '00:00:00');
   },
-  addr(v) { let a = N.text(v); if (!a || /^[-–]$/.test(a)) return ''; const t = a.split(' '); if (t.length > 8 && t.filter(x => x.length === 1).length > t.length * .6) a = N.text(String(v).split(/\s{2,}/).map(w => w.replace(/ /g, '')).join(' ')); return a; },
+  addr(v) { let a = N.text(v); if (!a || /^[-–]$/.test(a) || /^[0-9a-f.:]+$/i.test(a) && /[.:]/.test(a) && a.length < 40) return ''; const t = a.split(' '); if (t.length > 8 && t.filter(x => x.length === 1).length > t.length * .6) a = N.text(String(v).split(/\s{2,}/).map(w => w.replace(/ /g, '')).join(' ')); return a; },
   secs(v) {
     if (v === '' || v == null) return 0; if (typeof v === 'number') return v < 1 && v > 0 ? Math.round(v * 86400) : Math.round(v);
     const s = String(v).trim(), m = s.match(/^(\d+):(\d{2}):(\d{2})$/) || s.match(/^()(\d+):(\d{2})$/); if (m) return (+m[1] || 0) * 3600 + +m[2] * 60 + +m[3];
@@ -96,7 +100,7 @@ const TelRead = {
       if (!rows || rows.length < 2) continue;
       let best = -1, bs = 0, map = null;
       for (let i = 0; i < Math.min(rows.length, 60); i++) {
-        const m = {}; rows[i].forEach((c, j) => { const f = this.field(c); if (f && !(f in m)) m[f] = j; });
+        const m = {}; rows[i].forEach((c, j) => { const f = this.field(c); if (f) (m[f] = m[f] || []).push(j); });
         const k = Object.keys(m), ok = k.some(f => ['pa', 'pb', 'target', 'xip', 'pip', 'dip'].includes(f)) && k.some(f => ['date', 'dt', 'time'].includes(f));
         if (ok && k.length > bs) { bs = k.length; best = i; map = m; }
       }
@@ -107,7 +111,17 @@ const TelRead = {
       const preNum = this.num((pre.match(/(?:target|msisdn|mobile|subscriber|number|no\.?)\D{0,25}((?:\+?91)?[6-9]\d{9})\b/i) || [])[1] || '');
       const ipdr = 'xip' in map || 'dip' in map || ('pip' in map && !('pb' in map));
       const kind = ipdr ? 'IPDR' : want === 'IPDR' ? 'CDR' : want;
-      const g = (r, f) => f in map ? r[map[f]] : '';
+      const g = (r, f) => { for (const j of map[f] || []) { const v = r[j]; if (v !== '' && v != null && String(v).trim() !== '' && !/^(-|na|null)$/i.test(String(v).trim())) return v; } return ''; };
+      if (ipdr) { // the IP and time window the operator was asked about (from the lines above the table or the file name)
+        const q = (pre.match(/(?:PUBIP|PRIVIP|PUBLIC\s*IP[46]?|PRIVATE\s*IP[46]?|IP\s*ADDRESS)\s*:?-?\s*([0-9a-f]{1,4}(?:[.:][0-9a-f]{0,4}){3,7})/i) || [])[1]
+          || ((name.match(/IPV4\w*?_(\d{1,3}_\d{1,3}_\d{1,3}_\d{1,3})_/i) || [])[1] || '').replace(/_/g, '.') || ((name.match(/IPV6\w*?_([0-9a-f]{1,4}(?:-[0-9a-f]{0,4}){2,7})_/i) || [])[1] || '').replace(/-/g, ':').replace(/:+$/, '::')
+          || ((name.match(/ip[46]_([0-9a-f]{1,4}(?:\.[0-9a-f]{1,4}){3,7})_/i) || [])[1] || '').replace(/\./g, name.match(/ip6_/i) ? ':' : '.');
+        const w = pre.match(/from\s+(\S+(?:\s\d{1,2}:\d{2}(?::\d{2})?)?)\s+to\s+(\S+(?:\s\d{1,2}:\d{2}(?::\d{2})?)?)/i) || name.match(/_(\d{14})_(\d{14})/);
+        const fd = (pre.match(/From Date\s*:-?\s*(\S+)/i) || [])[1], ft = (pre.match(/From Time\s*:-?\s*(\S+)/i) || [])[1], td = (pre.match(/Till Date\s*:-?\s*(\S+)/i) || [])[1], tt = (pre.match(/Till Time\s*:-?\s*(\S+)/i) || [])[1];
+        const M = {}; if (q) M['Requested IP'] = Tel.ip6(q.trim());
+        if (fd) { M.From = this.dt(fd, ft); M.To = this.dt(td || fd, tt); } else if (w) { M.From = this.dt(w[1]); M.To = this.dt(w[2]); }
+        if (Object.keys(M).length) { S.data.telMeta = S.data.telMeta || {}; S.data.telMeta[name] = Object.assign(S.data.telMeta[name] || {}, M); }
+      }
       const raw = rows.slice(best + 1).filter(r => r.some(c => String(c).trim()));
       // who is the target: a "Target" column, else the number in nearly every row, else the number above the table
       let fixedT = '';
@@ -134,10 +148,14 @@ const TelRead = {
         if ('bop' in map) rec.bop = N.text(g(r, 'bop'));
         if ('msg' in map) rec.msg = N.text(g(r, 'msg')).slice(0, 300);
         if (kind === 'IPDR') {
-          Object.assign(rec, { pip: N.ip(g(r, 'pip')), pport: String(g(r, 'pport')).trim(), xip: N.ip(g(r, 'xip')), xport: String(g(r, 'xport')).trim(), dip: N.ip(g(r, 'dip')), dport: String(g(r, 'dport')).replace(/\.0+$/, '').trim(), up: this.bytes(g(r, 'up')), down: this.bytes(g(r, 'down')), apn: N.text(g(r, 'apn')) });
-          const e = 'end' in map ? (this.dt(g(r, 'end')) || (ts.slice(0, 11) + (this.dt('2000-01-01', g(r, 'end')) || '').slice(11))) : '';
+          const ip = v => Tel.ip6(N.ip(String(v).replace(/^"|"$/g, '')));
+          Object.assign(rec, { pip: ip(g(r, 'pip')), pport: String(g(r, 'pport')).trim(), xip: ip(g(r, 'xip')), xport: String(g(r, 'xport')).trim(), dip: ip(g(r, 'dip')), dport: String(g(r, 'dport')).replace(/\.0+$/, '').trim(), up: this.bytes(g(r, 'up')), down: this.bytes(g(r, 'down')), apn: N.text(g(r, 'apn')) });
+          if (!rec.xip && rec.pip && /public/.test(V.ipKind(rec.pip))) { rec.xip = rec.pip; rec.xport = rec.xport || rec.pport; } // IPv6: the phone's own address is public
+          const mac = String(g(r, 'mac')).trim(); if (/^\d{14,16}$/.test(mac) && !rec.imei) rec.imei = mac.slice(0, 15); else if (mac) rec.mac = mac.replace(/^pppoe\s*/i, '');
+          if (g(r, 'ttime') !== '') { const t2 = this.dt(g(r, 'tdate') || g(r, 'date'), g(r, 'ttime')); if (t2) { rec.alloc = ts; rec.ts = t2; } }
+          const e = 'enddate' in map ? this.dt(g(r, 'enddate'), g(r, 'end')) : 'end' in map ? (this.dt(g(r, 'end')) || (ts.slice(0, 11) + (this.dt('2000-01-01', g(r, 'end')) || '').slice(11))) : '';
           if (e && e.length > 12) rec.end = e;
-          rec.dur = this.secs(g(r, 'dur')) || (rec.end ? Math.max(0, (Date.parse(rec.end.replace(' ', 'T')) - Date.parse(ts.replace(' ', 'T'))) / 1000) : 0);
+          rec.dur = this.secs(g(r, 'dur')) || (rec.end ? Math.max(0, (Date.parse(rec.end.replace(' ', 'T')) - Date.parse((rec.alloc || ts).replace(' ', 'T'))) / 1000) : 0);
         } else rec.dur = this.secs(g(r, 'dur'));
         out.push(rec);
       }
@@ -171,20 +189,31 @@ const Tel = {
   removeFile(name) { S.data.tel = this.all().filter(r => r._src !== name); S.data.imports = S.data.imports.filter(i => !(i.type === 'telecom' && i.file === name)); Analysis.invalidate(); saveCase(); },
   /* identifiers found in the rest of the case (bank, KYC, NCRP, social, Google…) */
   elsewhere() {
-    return Analysis.cached('tel:else', () => { const m = new Map(); try { Analysis.idents().filter(x => !x.tel).forEach(x => { const v = x.type === 'mobile' ? TelRead.num(x.value) : String(x.value).toLowerCase(); const k = x.type + '|' + v; if (!m.has(k)) m.set(k, new Set()); m.get(k).add(x.label || x.section); }); } catch (e) { } return m; });
+    return Analysis.cached('tel:else', () => { const m = new Map(); try { Analysis.idents().filter(x => !x.tel).forEach(x => { const v = x.type === 'mobile' ? TelRead.num(x.value) : x.type === 'ip' ? Tel.ip6(x.value) : String(x.value).toLowerCase(); const k = x.type + '|' + v; if (!m.has(k)) m.set(k, new Set()); m.get(k).add(x.label || x.section); }); } catch (e) { } return m; });
   },
-  also(type, v) { const s = v && this.elsewhere().get(type + '|' + (type === 'mobile' ? v : String(v).toLowerCase())); return s ? [...s].join(', ') : ''; },
+  also(type, v) { const s = v && this.elsewhere().get(type + '|' + (type === 'mobile' ? v : type === 'ip' ? this.ip6(v) : String(v).toLowerCase())); return s ? [...s].join(', ') : ''; },
   alsoB(type, v) { const a = this.also(type, v); return a ? `<span class="badge warn" title="Also found in ${esc(a)}">⚑ ${esc(a)}</span>` : ''; },
   isMob: n => /^[6-9]\d{9}$/.test(n),
+  ip6(ip) {
+    ip = String(ip || '').trim().toLowerCase(); if (!ip.includes(':') || /[^0-9a-f:]/.test(ip)) return ip;
+    let p = ip.split('::'); if (p.length > 2) return ip;
+    const a = p[0] ? p[0].split(':') : [], b = p.length > 1 && p[1] ? p[1].split(':') : [], fill = p.length > 1 ? Array(Math.max(0, 8 - a.length - b.length)).fill('0') : [];
+    const g = [...a, ...fill, ...b].map(x => (x.replace(/^0+/, '') || '0')); if (g.length !== 8) return ip;
+    let bs = -1, bl = 0; for (let i = 0; i < 8;) { if (g[i] === '0') { let j = i; while (j < 8 && g[j] === '0') j++; if (j - i > bl && j - i > 1) { bs = i; bl = j - i; } i = j; } else i++; }
+    return bs < 0 ? g.join(':') : (g.slice(0, bs).join(':') + '::' + g.slice(bs + bl).join(':'));
+  },
+  p64(ip) { ip = this.ip6(ip); if (!ip.includes(':')) return ''; const [a, b = ''] = ip.split('::'), x = a ? a.split(':') : [], y = b ? b.split(':') : [], f = ip.includes('::') ? [...x, ...Array(8 - x.length - y.length).fill('0'), ...y] : ip.split(':'); return f.slice(0, 4).join(':'); },
   hour: r => +r.ts.slice(11, 13), day: r => r.ts.slice(0, 10),
   night: r => { const h = +r.ts.slice(11, 13); return h >= 23 || h < 5; },
   hms(s) { s = Math.round(s || 0); const h = Math.floor(s / 3600), m = Math.floor(s / 60) % 60, x = s % 60; return h ? `${h}h ${String(m).padStart(2, '0')}m` : m ? `${m}m ${String(x).padStart(2, '0')}s` : `${x}s`; },
-  bytes(b) { b = +b || 0; return b >= 1073741824 ? (b / 1073741824).toFixed(2) + ' GB' : b >= 1048576 ? (b / 1048576).toFixed(1) + ' MB' : b >= 1024 ? Math.round(b / 1024) + ' KB' : b + ' B'; },
+  bytes(b) { b = +b || 0; return b >= 1099511627776 ? (b / 1099511627776).toFixed(2) + ' TB' : b >= 1073741824 ? (b / 1073741824).toFixed(2) + ' GB' : b >= 1048576 ? (b / 1048576).toFixed(1) + ' MB' : b >= 1024 ? Math.round(b / 1024) + ' KB' : b + ' B'; },
   dd(s) { return s ? s.slice(8, 10) + '-' + s.slice(5, 7) + '-' + s.slice(0, 4) + (s.length > 10 ? ' ' + s.slice(11, 19) : '') : ''; },
   tower: r => r.cell || r.addr || '',
-  PORTS: { 443: 'HTTPS – most apps', 80: 'HTTP – web', 53: 'DNS', 853: 'DNS over TLS', 5222: 'WhatsApp / XMPP chat', 5223: 'WhatsApp / Apple push', 5228: 'Google push (FCM)', 4244: 'WhatsApp', 3478: 'Voice / video call (STUN) – WhatsApp, Telegram, Meet', 3479: 'Voice / video call (STUN)', 3480: 'Voice / video call (STUN)', 19302: 'Google Meet / Duo call', 5242: 'Viber', 8801: 'Zoom', 1194: 'VPN (OpenVPN)', 51820: 'VPN (WireGuard)', 500: 'VPN (IPsec)', 4500: 'VPN (IPsec)', 1701: 'VPN (L2TP)', 1723: 'VPN (PPTP)', 9001: 'Tor', 9030: 'Tor', 7070: 'AnyDesk remote access', 6568: 'AnyDesk remote access', 5938: 'TeamViewer remote access', 3389: 'Remote desktop (RDP)', 5900: 'VNC remote access', 22: 'SSH', 993: 'E-mail (IMAP)', 995: 'E-mail (POP3)', 587: 'E-mail (SMTP)', 465: 'E-mail (SMTP)', 25: 'E-mail (SMTP)', 8443: 'HTTPS (alt)', 8080: 'HTTP proxy', 1080: 'SOCKS proxy', 3128: 'HTTP proxy' },
+  PORTS: { 443: 'HTTPS – most apps', 80: 'HTTP – web', 53: 'DNS', 853: 'DNS over TLS', 5222: 'WhatsApp / XMPP chat', 5223: 'WhatsApp / Apple push', 5228: 'Google push (FCM)', 4244: 'WhatsApp', 3478: 'Voice / video call (STUN) – WhatsApp, Telegram, Meet', 3479: 'Voice / video call (STUN)', 3480: 'Voice / video call (STUN)', 19302: 'Google Meet / Duo call', 5242: 'Viber', 8801: 'Zoom', 1194: 'VPN (OpenVPN)', 51820: 'VPN (WireGuard)', 500: 'IPsec – Wi-Fi calling or VPN', 4500: 'IPsec – Wi-Fi calling or VPN', 1701: 'VPN (L2TP)', 1723: 'VPN (PPTP)', 9001: 'Tor', 9030: 'Tor', 7070: 'AnyDesk remote access', 6568: 'AnyDesk remote access', 5938: 'TeamViewer remote access', 3389: 'Remote desktop (RDP)', 5900: 'VNC remote access', 22: 'SSH', 993: 'E-mail (IMAP)', 995: 'E-mail (POP3)', 587: 'E-mail (SMTP)', 465: 'E-mail (SMTP)', 25: 'E-mail (SMTP)', 8443: 'HTTPS (alt)', 8080: 'HTTP (alt port)', 1080: 'SOCKS proxy', 3128: 'HTTP proxy' },
   portHint(p) { return this.PORTS[+p] || ''; },
-  risky(p) { return /VPN|Tor|remote|proxy|RDP|SSH/.test(this.PORTS[+p] || ''); },
+  risky(p) { return /^VPN|Tor|remote|SOCKS|RDP/.test(this.PORTS[+p] || ''); },
+  /* data used: operators repeat the session's volume on every row, so count each session once */
+  vol(d) { const seen = new Set(); let t = 0; for (const r of d) { const k = r.target + '|' + r.up + '|' + r.down + '|' + (r.end || r.ts); if (seen.has(k)) continue; seen.add(k); t += (r.up || 0) + (r.down || 0); } return t; },
   /* SMS sender header → organisation and type */
   HDR: [
     ['Bank', /HDFC|SBI|ICICI|AXIS|KOTAK|PNB|BOB|BARODA|CANBNK|CANARA|UNION|UBI|IDFC|INDUS|YESB|AUBANK|AUSFB|FEDBNK|FEDERAL|IOB|BOI|CBOI|CENTRAL|IDBI|RBL|BANDHN|EQUITAS|UJJIVN|PAYTMB|AIRBNK|FINO|IPPB|KVB|CUB|SIB|TMB|DBS|HSBC|CITI|SCB|DCB|JKB|PSB|UCO|MAHB|BOM|INDBNK|IBKL/],
@@ -276,7 +305,7 @@ const TelUI = {
   recTable(el, d, k) {
     const ip = k === 'ipdr', sms = k === 'sms';
     const cols = [{ key: 'ts', label: 'Date & time', render: r => esc(Tel.dd(r.ts)), sortVal: r => r.ts }, { key: 'target', label: ip ? 'MSISDN' : sms ? 'Number' : 'A party', render: r => `<span class="mono">${esc(r.target)}</span>` },
-      ...(ip ? [{ key: 'pip', label: 'Private IP:port', render: r => `<span class="mono ipv">${esc(r.pip)}${r.pport ? ':' + esc(r.pport) : ''}</span>`, csv: r => r.pip + (r.pport ? ':' + r.pport : '') }, { key: 'xip', label: 'Public IP:port', render: r => `<span class="mono ipv">${esc(r.xip)}${r.xport ? ':' + esc(r.xport) : ''}</span> ${Tel.alsoB('ip', r.xip)}`, csv: r => r.xip + (r.xport ? ':' + r.xport : '') }, { key: 'dip', label: 'Destination', render: r => `<span class="mono ipv">${esc(r.dip)}${r.dport ? ':' + esc(r.dport) : ''}</span>${r.dport && Tel.portHint(r.dport) ? `<div class="muted small">${esc(Tel.portHint(r.dport))}</div>` : ''}`, csv: r => r.dip + (r.dport ? ':' + r.dport : '') }, { key: 'dur', label: 'Duration', num: true, render: r => Tel.hms(r.dur) }, { key: 'vol', label: 'Data', num: true, sortVal: r => r.up + r.down, render: r => Tel.bytes(r.up + r.down), csv: r => r.up + r.down }]
+      ...(ip ? [{ key: 'pip', label: 'Private IP:port', render: r => `<span class="mono ipv">${esc(r.pip)}${r.pport ? (r.pip ? ':' : 'port ') + esc(r.pport) : ''}</span>`, csv: r => r.pip + (r.pport ? ':' + r.pport : '') }, { key: 'xip', label: 'Public IP:port', render: r => `<span class="mono ipv">${esc(r.xip)}${r.xport ? ':' + esc(r.xport) : ''}</span> ${Tel.alsoB('ip', r.xip)}`, csv: r => r.xip + (r.xport ? ':' + r.xport : '') }, { key: 'dip', label: 'Destination', render: r => `<span class="mono ipv">${esc(r.dip)}${r.dport ? ':' + esc(r.dport) : ''}</span>${r.dport && Tel.portHint(r.dport) ? `<div class="muted small">${esc(Tel.portHint(r.dport))}</div>` : ''}`, csv: r => r.dip + (r.dport ? ':' + r.dport : '') }, { key: 'dur', label: 'Duration', num: true, render: r => Tel.hms(r.dur) }, { key: 'vol', label: 'Data', num: true, sortVal: r => r.up + r.down, render: r => Tel.bytes(r.up + r.down), csv: r => r.up + r.down }]
         : [{ key: 'dir', label: 'Type' }, { key: 'other', label: sms ? 'Other / header' : 'B party', render: r => `<span class="mono">${esc(r.other)}</span> ${Tel.isMob(r.other) ? Tel.alsoB('mobile', r.other) : ''}` }, ...(sms ? [{ key: 'msg', label: 'Message' }] : [{ key: 'dur', label: 'Duration', num: true, render: r => Tel.hms(r.dur) }])]),
       { key: 'imei', label: 'IMEI', render: r => `<span class="mono">${esc(r.imei)}</span>` }, { key: 'cell', label: 'Cell ID', render: r => `<span class="mono ipv">${esc(r.cell)}</span>` }, { key: 'addr', label: 'Tower address', render: r => `<span class="small">${esc(r.addr)}</span>` }, { key: 'roam', label: 'Roaming' }, { key: '_src', label: 'File', render: r => `<span class="muted small">${esc(r._src)}</span>` }];
     el.innerHTML = `<div class="card"><div id="telR"></div></div>`;
@@ -379,7 +408,7 @@ const TelUI = {
 
   /* ======== IPDR ======== */
   ipdr_sum(el, d) {
-    const X = uniq(d.map(r => r.xip)), vol = sum(d, r => r.up + r.down), first = d.reduce((a, r) => !a || r.ts < a ? r.ts : a, ''), last = d.reduce((a, r) => r.ts > a ? r.ts : a, '');
+    const X = uniq(d.map(r => r.xip)), vol = Tel.vol(d), first = d.reduce((a, r) => !a || r.ts < a ? r.ts : a, ''), last = d.reduce((a, r) => r.ts > a ? r.ts : a, '');
     const linked = X.filter(ip => Tel.also('ip', ip)), risky = d.filter(r => Tel.risky(r.dport));
     const f = [];
     if (linked.length) f.push(`<b>${linked.length} public IP(s)</b> match IPs in this case (platform logins, bank, KYC…): ${linked.slice(0, 5).map(ip => `<b>${esc(ip)}</b> (${esc(Tel.also('ip', ip))})`).join(', ')}. See <b>Find IP at a time</b> to match the exact time and port.`);
@@ -387,13 +416,20 @@ const TelUI = {
     const im = uniq(d.map(r => r.imei)); if (im.length > uniq(d.map(r => r.target)).length) f.push(`${im.length} handsets (IMEI) for ${uniq(d.map(r => r.target)).length} number(s) – handset changed.`);
     const calls = d.filter(r => [3478, 3479, 3480, 19302].includes(+r.dport)); if (calls.length) f.push(`${calls.length} internet voice / video call sessions (WhatsApp / Telegram / Meet type).`);
     el.innerHTML = UI.kpis([['Sessions', fmtNum(d.length), uniq(d.map(r => r._src)).length + ' file(s)', 'c2'], ['Numbers (MSISDN)', fmtNum(uniq(d.map(r => r.target)).length), '', 'c5'], ['Public IPs', fmtNum(X.length), fmtNum(linked.length) + ' also in case data', 'c1'], ['Destinations', fmtNum(uniq(d.map(r => r.dip)).length), '', 'c3'], ['Handsets', fmtNum(im.length), '', 'c4'], ['Data used', Tel.bytes(vol), '', 'c6'], ['Period', Tel.dd(first).slice(0, 10), 'to ' + Tel.dd(last).slice(0, 10), 'c8']])
-      + this.insights(f)
+      + this.insights(f) + this.answers(d)
       + `<div class="grid g2"><div class="card"><h3>Public IPs</h3><div class="sub">Sessions per public (NAT) IP. Click for sessions.</div><div id="is1"></div></div><div class="card"><h3>What the phone connected to (port)</h3><div id="is2"></div></div>
       <div class="card"><h3>Hour of day</h3><div id="is3"></div></div><div class="card"><h3>Data used per day</h3><div id="is4"></div></div></div>`;
     Charts.hbar($('#is1', el), [...groupBy(d.filter(r => r.xip), r => r.xip)].map(([k, v]) => ({ label: k, value: v.length, sub: (Tel.also('ip', k) ? '⚑ ' + Tel.also('ip', k) + ' · ' : '') + V.ipKind(k), recs: v })).sort((a, b) => b.value - a.value), { onClick: x => this.recDrawer(x.label, x.recs) });
     Charts.hbar($('#is2', el), [...groupBy(d.filter(r => r.dport), r => r.dport)].map(([k, v]) => ({ label: k + (Tel.portHint(k) ? ' · ' + Tel.portHint(k).split(' – ')[0] : ''), value: v.length, sub: Tel.portHint(k), recs: v })).sort((a, b) => b.value - a.value), { onClick: x => this.recDrawer('Port ' + x.label, x.recs) });
     Charts.vbar($('#is3', el), Array.from({ length: 24 }, (_, h) => ({ label: h + ':00', value: d.filter(r => Tel.hour(r) === h).length })));
-    Charts.vbar($('#is4', el), [...groupBy(d, Tel.day)].sort((a, b) => a[0].localeCompare(b[0])).map(([k, v]) => ({ label: k.slice(5), value: sum(v, r => r.up + r.down), sub: v.length + ' sessions' })), { fmt: v => Tel.bytes(v) });
+    Charts.vbar($('#is4', el), [...groupBy(d, Tel.day)].sort((a, b) => a[0].localeCompare(b[0])).map(([k, v]) => ({ label: k.slice(5), value: Tel.vol(v), sub: v.length + ' sessions' })), { fmt: v => Tel.bytes(v) });
+  },
+  answers(d) {
+    const M = S.data.telMeta || {}, F = [...groupBy(d, r => r._src)];
+    if (!F.length) return '';
+    const rows = F.map(([f, v]) => { const m = M[f] || {}, q = m['Requested IP'] || ''; const hit = q ? v.filter(r => r.xip === q || r.pip === q || (Tel.p64(q) && (Tel.p64(r.xip) === Tel.p64(q) || Tel.p64(r.pip) === Tel.p64(q)))) : v;
+      const T = [...groupBy(hit, r => r.target)].sort((a, b) => b[1].length - a[1].length); return `<tr><td class="small">${esc(f)}</td><td class="mono ipv">${esc(q || '—')} ${q ? Tel.alsoB('ip', q) : ''}</td><td class="small">${esc(Tel.dd(m.From || ''))}${m.To ? ' → ' + esc(Tel.dd(m.To)) : ''}</td><td>${T.length > 1 ? `<span class="badge warn">${T.length} users share this IP</span> <span class="muted small">– give the source port + exact time in “Find IP at a time”</span><br>` : ''}${T.length ? T.slice(0, T.length > 1 ? 5 : 1).map(([n, v]) => `<b class="mono">${esc(n)}</b>${T.length > 1 ? ` <span class="muted small">${v.length}</span>` : ''} ${Tel.isMob(n) ? Tel.alsoB('mobile', n) : ''}`).join('<br>') + (T.length > 5 ? '<br><span class="muted small">…</span>' : '') : '<span class="badge bad">no user found</span>'}</td><td class="small mono">${uniq(hit.map(r => r.imei)).slice(0, 3).map(esc).join('<br>')}${uniq(hit.map(r => r.mac).filter(Boolean)).slice(0, 2).map(x => '<br>MAC ' + esc(x)).join('')}</td><td class="num">${fmtNum(hit.length)}</td></tr>`; }).join('');
+    return `<div class="card"><h3>Who used the IP? (answer per file)</h3><div class="sub">The IP and time you asked the operator about, and the number(s) / handset that used it. IPv6 also matches the same /64 block (one phone).</div><div class="tbl-wrap"><table class="tbl"><thead><tr><th>File</th><th>Requested IP</th><th>Time asked</th><th>User (MSISDN / ID)</th><th>Handset</th><th class="num">Sessions</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
   },
   ipdr_ses(el, d) { this.recTable(el, d, 'ipdr'); },
   ipdr_find(el, d) {
@@ -405,8 +441,8 @@ const TelUI = {
     const go = () => {
       st.ip = $('#tfIp', el).value.trim(); st.port = $('#tfPort', el).value.trim(); st.at = $('#tfAt', el).value; st.win = +$('#tfWin', el).value || 0;
       if (!st.ip) { $('#tfOut', el).innerHTML = ''; return; }
-      const ipl = st.ip.toLowerCase(), t = st.at ? Date.parse(st.at) : null, w = st.win * 60e3;
-      const R = d.filter(r => [r.xip, r.pip, r.dip].some(x => x && x.toLowerCase() === ipl) && (!st.port || [r.xport, r.pport, r.dport].includes(st.port)) && (t == null || (() => { const s = Date.parse(r.ts.replace(' ', 'T')), e = r.end ? Date.parse(r.end.replace(' ', 'T')) : s + (r.dur || 0) * 1000; return s - w <= t && t <= e + w; })()));
+      const ipl = Tel.ip6(st.ip), p64 = Tel.p64(st.ip), t = st.at ? Date.parse(st.at) : null, w = st.win * 60e3;
+      const R = d.filter(r => [r.xip, r.pip].some(x => x && (x === ipl || (p64 && Tel.p64(x) === p64))) && (!st.port || [r.xport, r.pport, r.dport].includes(st.port)) && (t == null || (() => { const s = Date.parse(r.ts.replace(' ', 'T')), e = r.end ? Date.parse(r.end.replace(' ', 'T')) : s + (r.dur || 0) * 1000; return s - w <= t && t <= e + w; })()));
       const out = $('#tfOut', el);
       out.innerHTML = `<div class="${R.length ? 'note' : 'muted'}">${R.length ? `<b>${R.length} session(s) found</b> – number(s): ${uniq(R.map(r => r.target)).map(n => `<b class="mono">${esc(n)}</b>`).join(', ')}${uniq(R.map(r => r.imei)).length ? ' · IMEI ' + uniq(R.map(r => r.imei)).map(esc).join(', ') : ''}` : 'No session matches. Widen ± minutes, remove the port, or check the time zone (IPDR is usually IST; platforms often give UTC = IST − 5:30).'}</div><div id="tfT"></div>`;
       if (R.length) this.recTable($('#tfT', out), R, 'ipdr');
@@ -415,7 +451,7 @@ const TelUI = {
     if (st.ip) go();
   },
   ipdr_dst(el, d) {
-    const D = [...groupBy(d.filter(r => r.dip), r => r.dip)].map(([ip, v]) => ({ ip, n: v.length, ports: uniq(v.map(r => r.dport)), vol: sum(v, r => r.up + r.down), first: v.reduce((a, r) => !a || r.ts < a ? r.ts : a, ''), last: v.reduce((a, r) => r.ts > a ? r.ts : a, ''), recs: v }));
+    const D = [...groupBy(d.filter(r => r.dip), r => r.dip)].map(([ip, v]) => ({ ip, n: v.length, ports: uniq(v.map(r => r.dport)), vol: Tel.vol(v), first: v.reduce((a, r) => !a || r.ts < a ? r.ts : a, ''), last: v.reduce((a, r) => r.ts > a ? r.ts : a, ''), recs: v }));
     el.innerHTML = `<div class="card"><h3>Destination servers</h3><div class="sub">The app is guessed from the port. Use Tools › IP Lookup → online fetch to see who owns a server IP.</div><div id="id1"></div></div>`;
     Table($('#id1', el), { rows: D, sortKey: 'n', sortDir: -1, exportName: 'ipdr_destinations', onRow: x => this.recDrawer(x.ip, x.recs), columns: [{ key: 'ip', label: 'Destination IP', render: x => `<span class="mono ipv">${esc(x.ip)}</span>` }, { key: 'ports', label: 'Ports / app', csv: x => x.ports.join(' '), render: x => x.ports.slice(0, 6).map(p => `<span class="${Tel.risky(p) ? 'badge bad' : 'badge'}" title="${esc(Tel.portHint(p))}">${esc(p)}${Tel.portHint(p) ? ' · ' + esc(Tel.portHint(p).split(' – ')[0]) : ''}</span>`).join(' ') }, { key: 'n', label: 'Sessions', num: true }, { key: 'vol', label: 'Data', num: true, render: x => Tel.bytes(x.vol) }, { key: 'first', label: 'First', render: x => esc(Tel.dd(x.first)) }, { key: 'last', label: 'Last', render: x => esc(Tel.dd(x.last)) }] });
   },
