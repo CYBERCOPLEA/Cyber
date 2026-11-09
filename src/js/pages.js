@@ -248,9 +248,14 @@ function finGraphData(o) {
       det: [[...(n.ifscs || [])][0], n.layer ? 'L' + n.layer : '', n.inAmt ? fmtINR(n.inAmt) : n.outAmt ? 'sent ' + fmtINR(n.outAmt) : ''].filter(Boolean).join(' · '), kind, value: Math.max(n.inAmt, n.outAmt || 0), layer: n.layer, title: `${accLabel(id)}\n${[...n.names].join(' / ')}\n${[...n.banks].join(' / ')}\nLayer ${n.layer} · in ${fmtINR(n.inAmt)} · out ${fmtINR(n.outAmt)}${n.score ? '\nRisk ' + n.score : ''}` };
   });
   if (nodes.length > 450) {
-    const top = new Set(nodes.sort((a, b) => b.value - a.value).slice(0, 450).map(n => n.id));
-    nodes = nodes.filter(n => top.has(n.id)); edges = edges.filter(e => top.has(e.from) && top.has(e.to));
-    note = 'Large trail: showing the 450 biggest accounts. Pick a complaint, a start account or a minimum amount to see everything.';
+    // keep the 450 biggest accounts AND the chain that paid each of them, back to the victim, so no account is left floating
+    const top = new Set(nodes.sort((a, b) => b.value - a.value).slice(0, 450).map(n => n.id)), lay = new Map(nodes.map(n => [n.id, n.layer || 0]));
+    const best = new Map(); edges.forEach(e => { if (e.from === e.to) return; const b = best.get(e.to), lf = lay.get(e.from) ?? 0, lt = lay.get(e.to) ?? 0; if (lf > lt && lt) return; if (!b || e.amount > b.amount) best.set(e.to, e); });
+    [...top].forEach(id => { let p = best.get(id), guard = 0; while (p && !top.has(p.from) && guard++ < 50) { top.add(p.from); p = best.get(p.from); } });
+    edges = edges.filter(e => top.has(e.from) && top.has(e.to));
+    const linked = new Set(edges.flatMap(e => [e.from, e.to]));
+    nodes = nodes.filter(n => top.has(n.id) && linked.has(n.id));
+    note = `Large trail: showing ${nodes.length} accounts – the 450 biggest and every account in the chain that paid them, so each one stays linked. Pick a complaint, a start account or a minimum amount to see everything.`;
   }
   const lay = new Map(nodes.map(n => [n.id, n.layer || 0]));
   edges = edges.map(e => ({ ...e, tag: [lay.get(e.from) || 0, lay.get(e.to) || 0].map(l => l ? 'L' + l : 'Victim').join('→') }));

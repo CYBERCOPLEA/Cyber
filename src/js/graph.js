@@ -329,7 +329,7 @@ const Graph = {
   },
 
   layoutForce(nodes, edges, rootId) {
-    if (nodes.length > 500) return this.layoutMind(nodes, edges, rootId); // too many for the spring layout: use the tree
+    if (nodes.length > 500) return this.layoutRadial(nodes, edges, rootId); // too many for the spring layout: rings by step from the victim
     const byId = new Map(nodes.map(n => [n.id, n])); const n = nodes.length;
     nodes.forEach((d, i) => { const a = i * 2.399963, r = 18 * Math.sqrt(i + 1); d.x = Math.cos(a) * r * 3; d.y = Math.sin(a) * r * 3; d.vx = 0; d.vy = 0; });
     const iters = n > 400 ? 160 : 320, kRep = 9000, L = 150;
