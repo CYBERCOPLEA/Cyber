@@ -901,6 +901,17 @@ svg.c2.dn .dn-c2{font-size:24px}
 .trail-main{position:relative}
 .trail-main > .ex-wrap{position:relative;bottom:auto;right:auto;display:flex;justify-content:flex-end;margin:0 0 8px}
 .trail-main > .ex-wrap .ex-menu{top:calc(100% + 6px);bottom:auto}
+/* Game Player / Short-Loan Receivers box */
+.gp-card{border-top:3px solid #a855f7;background:linear-gradient(135deg,rgba(168,85,247,.10),rgba(59,130,246,.06) 45%,var(--surface-1) 75%)}
+.gp-head{display:flex;gap:14px;align-items:flex-start}
+.gp-head h3{margin:0 0 4px;font-size:19px}
+.gp-ic{flex:none;width:46px;height:46px;border-radius:14px;display:grid;place-items:center;font-size:24px;background:linear-gradient(135deg,#7c3aed,#ec4899);box-shadow:0 6px 18px rgba(168,85,247,.4)}
+.gp-rule{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:12px 0 4px;font-size:14px}
+.gp-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-top:10px}
+.gp-k{display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;column-gap:10px;align-items:center;padding:10px 14px;border-radius:12px;background:var(--surface-2);border:1px solid var(--border);border-left:4px solid var(--gc)}
+.gp-k span{grid-row:1/3;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-weight:800;color:#fff;background:var(--gc)}
+.gp-k b{font-size:20px;line-height:1.1}
+.gp-k small{color:var(--text-muted);font-size:12px}
 
 </style>
 </head>
@@ -2073,7 +2084,8 @@ const Graph = {
     nodes.forEach(n => n.fan = (fanOut.get(n.id) || new Set()).size);
     const maxF = Math.max(1, ...nodes.map(n => n.fan)), BULK = Math.max(4, Math.ceil(maxF * .35));
     nodes.forEach(n => { n.bulk = money && n.fan >= BULK && n.fan >= 4; n.r = money ? 12 + 22 * Math.sqrt(n.fan / maxF) + 6 * Math.sqrt((n.value || 0) / maxV) : 7 + 15 * Math.sqrt((n.value || 0) / maxV); });
-    const lab = n => (money && n.layer ? 'L' + n.layer + ' · ' : '') + String(n.label).slice(0, 24) + (n.bulk ? ' ⇉' + n.fan : '');
+    const tag = n => opt.tag ? opt.tag(n) : n.layer ? 'L' + n.layer : 'V', ringName = k => opt.ringName ? opt.ringName(k) : k === 0 ? 'Victim' : 'Layer ' + k;
+    const lab = n => (money && n.layer ? tag(n) + ' · ' : '') + String(n.label).slice(0, 24) + (n.bulk ? ' ⇉' + n.fan : '');
     const mode = opt.mode || 'flow', isMind = mode === 'mind', lay = mode === 'flow' || isMind;
     nodes.forEach(n => n.w = isMind ? Math.min(330, 34 + 8 * (lab(n).length + (n.badge ? 3 : 0))) * (n.bulk ? 1.08 : 1) : 0);
     const hw = n => isMind ? n.w / 2 : n.r;
@@ -2166,7 +2178,7 @@ const Graph = {
       ${more(n)}<title>${esc(n.title || n.label)}</title></g>` : `<g data-n="${i}" transform="translate(${n.x},${n.y})" style="cursor:pointer">
       <circle class="ring" r="${n.r + 5}" fill="none" stroke="${HL}" stroke-width="3" opacity="0"/>
       ${n.bulk ? `<circle r="${n.r + 6}" fill="none" stroke="#fbbf24" stroke-width="2.5" stroke-dasharray="5 4" opacity=".9"/>` : ''}<circle class="nb" r="${n.r}" fill="${nodeCol(n)}" stroke="${n.bulk ? '#fbbf24' : C.surface}" stroke-width="${n.bulk ? 3 : 2}"/>
-      ${money && (n.layer || n.kind === 'victim') ? `<text y="${Math.round(n.r * .3)}" text-anchor="middle" font-size="${Math.max(10, Math.min(20, n.r * .8))}" font-weight="800" fill="${ink(nodeCol(n))}" style="pointer-events:none">${n.layer ? 'L' + n.layer : 'V'}</text>` : n.badge ? `<text y="4" text-anchor="middle" font-size="10" font-weight="700" fill="#fff">${esc(n.badge)}</text>` : ''}
+      ${money && (n.layer || n.kind === 'victim') ? `<text y="${Math.round(n.r * .3)}" text-anchor="middle" font-size="${Math.max(10, Math.min(20, n.r * .8))}" font-weight="800" fill="${ink(nodeCol(n))}" style="pointer-events:none">${tag(n)}</text>` : n.badge ? `<text y="4" text-anchor="middle" font-size="10" font-weight="700" fill="#fff">${esc(n.badge)}</text>` : ''}
       <g class="nt"><text y="${n.r + 13}" text-anchor="middle" font-size="11" font-weight="600" fill="${C.text}" paint-order="stroke" stroke="${C.surface2}" stroke-width="3">${esc(String(n.label).slice(0, 24))}</text>
       ${n.det ? `<text y="${n.r + 25}" text-anchor="middle" font-size="10" fill="${HL}" paint-order="stroke" stroke="${C.surface2}" stroke-width="3">${esc(String(n.det).slice(0, 44))}</text>` : ''}
       ${n.sub ? `<text y="${n.r + (n.det ? 37 : 25)}" text-anchor="middle" font-size="9.5" fill="${C.muted}" paint-order="stroke" stroke="${C.surface2}" stroke-width="3">${esc(String(n.sub).slice(0, 30))}</text>` : ''}</g>
@@ -2176,8 +2188,9 @@ const Graph = {
     const colsOf = () => mode === 'flow' || (isMind && nodes.some(n => n.layer)) ? [...groupBy(nodes, n => n.layer || 0)].sort((a, b) => a[0] - b[0]) : [];
     const drawCols = () => {
       if (ringMode) {
+        const lw = (k, cnt) => Math.max(156, 34 + 9.5 * (ringName(k) + ' · ' + cnt).length);
         gC.innerHTML = rings.map(([k, R, cnt]) => { const c = LPAL[k % LPAL.length], ly = R ? -R : -70;
-          return `${R ? `<circle r="${R}" fill="none" stroke="${c}" stroke-opacity=".38" stroke-width="2.5" stroke-dasharray="10 8"/>` : ''}<g><rect x="-78" y="${ly - 17}" width="156" height="32" rx="16" fill="${C.surface}" stroke="${c}" stroke-width="2.5"/><text x="0" y="${ly + 5}" text-anchor="middle" font-size="16" font-weight="800" fill="${C.text}">${k === 0 ? 'Victim' : 'Layer ' + k} · ${cnt}</text></g>`; }).join('');
+          return `${R ? `<circle r="${R}" fill="none" stroke="${c}" stroke-opacity=".38" stroke-width="2.5" stroke-dasharray="10 8"/>` : ''}<g><rect x="${-(lw(k, cnt)) / 2}" y="${ly - 17}" width="${lw(k, cnt)}" height="32" rx="16" fill="${C.surface}" stroke="${c}" stroke-width="2.5"/><text x="0" y="${ly + 5}" text-anchor="middle" font-size="16" font-weight="800" fill="${C.text}">${esc(ringName(k))} · ${cnt}</text></g>`; }).join('');
         return;
       }
       gC.innerHTML = colsOf().map(([k, list]) => { const left = n => n.x - (isMind ? n.w / 2 : n.r), bw = isMind ? 132 : 104, lc = isMind ? LPAL[k % LPAL.length] : C.border;
@@ -6382,6 +6395,104 @@ body{margin:0;background:${this.bg()};font-family:Segoe UI,Arial,sans-serif;colo
   let t = 0; const later = () => { clearTimeout(t); t = setTimeout(() => { try { Exporter.scan(); } catch (e) { } }, 150); };
   new MutationObserver(later).observe($('#main'), { childList: true, subtree: true });
   document.addEventListener('click', () => $$('.ex-menu').forEach(m => m.classList.add('hidden')));
+})();
+
+</script>
+<script>
+/* gameplayer.js – "Game Player / Short-Loan Receivers": accounts that got SMALL amounts from the
+   bulk-split (one in → many out) mule accounts. Shown on Analytics → Bulk Split & Rapid. */
+'use strict';
+const GamePlayer = {
+  rule() { if (!S.settings.gpRule) S.settings.gpRule = { max: 10000, src: 'bulk' }; return S.settings.gpRule; },
+  data() {
+    const R = this.rule();
+    return Analysis.cached('gp:' + JSON.stringify(R) + ':' + JSON.stringify(Flags.rule()), () => {
+      const F = Flags.compute(S.data.txns), snd = new Map(F.filter(r => R.src === 'any' ? (r.bulk || r.rapid) : r.bulk).map(r => [r.acc, r]));
+      const tx = [];
+      for (const t of S.data.txns) {
+        if (t.holdOnly || !t.to_acc || isSynthetic(t.to_acc) || !snd.has(t.from_acc)) continue;
+        const amt = Math.abs(t.amount || 0); if (!amt || amt > R.max) continue;
+        const s = snd.get(t.from_acc);
+        tx.push({ ...t, _amt: amt, s_acc: t.from_acc, s_name: t.from_name || s.name, s_ifsc: t.from_ifsc || s.ifsc, s_bank: t.from_bank || s.bank, s_fan: s.receivers,
+          r_acc: t.to_acc, r_name: t.to_name || '', r_ifsc: t.to_ifsc || '', r_bank: t.to_bank || '' });
+      }
+      const G = new Map();
+      for (const t of tx) {
+        let g = G.get(t.r_acc); if (!g) G.set(t.r_acc, g = { acc: t.r_acc, names: new Set(), ifscs: new Set(), banks: new Set(), senders: new Set(), acks: new Set(), n: 0, amount: 0, dates: [], layer: 0 });
+        if (t.r_name) g.names.add(t.r_name); if (t.r_ifsc) g.ifscs.add(t.r_ifsc); if (t.r_bank) g.banks.add(t.r_bank); if (t.ack_no) g.acks.add(t.ack_no);
+        g.senders.add(t.s_acc); g.n++; g.amount += t._amt; if (t.date) g.dates.push(t.date); if (t.layer) g.layer = g.layer ? Math.min(g.layer, t.layer) : t.layer;
+      }
+      const recv = [...G.values()].map(g => { const d = g.dates.sort(); return { acc: g.acc, name: [...g.names].join(' / '), ifsc: [...g.ifscs].join(' / '), bank: [...g.banks].join(' / '), senders: g.senders.size, senderList: [...g.senders].join(', '), n: g.n, amount: g.amount, avg: Math.round(g.amount / g.n), first: d[0] || '', last: d[d.length - 1] || '', complaints: g.acks.size, layer: g.layer }; });
+      return { tx, recv, snd };
+    });
+  },
+  mount(host) {
+    const R = this.rule(), D = this.data(), view = S.gpView || 'table';
+    const multi = D.recv.filter(r => r.senders >= 2).length, usedSnd = new Set(D.tx.map(t => t.s_acc)).size;
+    host.innerHTML = `<div class="gp-head"><span class="gp-ic">🎮</span><div class="grow"><h3>Game Player / Short-Loan Receivers</h3>
+        <div class="sub">Accounts that got <b>small amounts</b> (up to ${fmtINR(R.max)}) from the <b>bulk-split</b> accounts – the accounts that receive money and pass it on to many others. These are often online-game players or people who took a short loan, paid by the gang.</div></div></div>
+      <div class="gp-rule"><label>Small amount = up to ₹</label><input type="number" id="gpMax" min="1" value="${R.max}" style="width:110px">
+        <label>Paid by</label><select id="gpSrc"><option value="bulk" ${R.src === 'bulk' ? 'selected' : ''}>bulk-split accounts</option><option value="any" ${R.src === 'any' ? 'selected' : ''}>bulk-split or rapid pass-through accounts</option></select>
+        <span class="small muted">Bulk split = sent to ${Flags.rule().fan}+ accounts (change it in the box below)</span></div>
+      <div class="gp-kpis">${[['🎮', fmtNum(D.recv.length), 'receiver accounts', '#a855f7'], ['🔁', fmtNum(D.tx.length), 'small transactions', '#3b82f6'], ['₹', fmtINR(sum(D.tx, t => t._amt)), 'total paid to them', '#10b981'], ['⇉', fmtNum(usedSnd), 'bulk accounts paying', '#f97316'], ['⚑', fmtNum(multi), 'paid by 2+ bulk accounts', '#ef4444']].map(([i, v, l, c]) => `<div class="gp-k" style="--gc:${c}"><span>${i}</span><b>${v}</b><small>${l}</small></div>`).join('')}</div>
+      <div class="row" style="margin:12px 0 8px;flex-wrap:wrap"><span class="pill-group">${[['table', '📋 Transactions'], ['recv', '👤 Receivers'], ['net', '🕸 Network'], ['flow', '➜ Flow chart'], ['chart', '📊 Charts']].map(([k, l]) => `<button data-gv="${k}" class="${k === view ? 'active' : ''}">${l}</button>`).join('')}</span></div>
+      <div id="gpBody"></div>`;
+    const redo = () => this.mount(host);
+    $('#gpMax', host).onchange = e => { const v = Math.max(1, +e.target.value || 10000); R.max = v; DB.set('settings', S.settings); redo(); };
+    $('#gpSrc', host).onchange = e => { R.src = e.target.value; DB.set('settings', S.settings); redo(); };
+    $$('[data-gv]', host).forEach(b => b.onclick = () => { S.gpView = b.dataset.gv; redo(); });
+    const body = $('#gpBody', host);
+    if (!D.tx.length) { body.innerHTML = `<div class="muted" style="padding:24px;text-align:center">No small payments from bulk-split accounts found. Raise the small-amount limit above, or import more bank-action sheets.</div>`; return; }
+    if (view === 'table') return Table(body, {
+      rows: D.tx, exportName: 'game_player_short_loan_transactions', sortKey: 'date', sortDir: -1, pageSize: 50,
+      columns: [
+        { key: 's_acc', label: 'Sender account (bulk)', render: r => accLink(r.s_acc) + ` <span class="badge bad" title="Sent to ${r.s_fan} accounts">⇉${r.s_fan}</span>` },
+        { key: 's_name', label: 'Sender name' }, { key: 's_ifsc', label: 'Sender IFSC', render: r => `<span class="mono">${esc(r.s_ifsc)}</span>` }, { key: 's_bank', label: 'Sender bank' },
+        { key: 'date', label: 'Txn date' }, { key: '_amt', label: 'Txn amount', num: true, render: r => fmtINR(r._amt) }, { key: 'txn_id', label: 'Txn ID / UTR', render: r => `<span class="mono">${esc(r.txn_id || '')}</span>` },
+        { key: 'r_acc', label: 'Game player / short-loan account', render: r => `<b>${accLink(r.r_acc)}</b>` }, { key: 'r_name', label: 'Receiver name' }, { key: 'r_ifsc', label: 'Receiver IFSC', render: r => `<span class="mono">${esc(r.r_ifsc)}</span>` }, { key: 'r_bank', label: 'Receiver bank' },
+        { key: 'layer', label: 'Layer', num: true }, { key: 'ack_no', label: 'Complaint (Ack No)', render: r => `<span class="mono small">${esc(r.ack_no || '')}</span>` }, { key: 'mode', label: 'Mode' }
+      ], after: bindAccLinks, onRow: r => showAccount(r.r_acc) });
+    if (view === 'recv') return Table(body, {
+      rows: D.recv, exportName: 'game_player_short_loan_receivers', sortKey: 'senders', sortDir: -1, pageSize: 50,
+      columns: [
+        { key: 'acc', label: 'Game player / short-loan account', render: r => `<b>${accLink(r.acc)}</b>` }, { key: 'name', label: 'Name' }, { key: 'ifsc', label: 'IFSC', render: r => `<span class="mono">${esc(r.ifsc)}</span>` }, { key: 'bank', label: 'Bank' },
+        { key: 'senders', label: 'Bulk accounts paying', num: true, render: r => r.senders >= 2 ? `<span class="badge bad">⚑ ${r.senders}</span>` : r.senders }, { key: 'n', label: 'Txns', num: true },
+        { key: 'amount', label: 'Total received', num: true, render: r => fmtINR(r.amount) }, { key: 'avg', label: 'Average', num: true, render: r => fmtINR(r.avg) },
+        { key: 'first', label: 'First' }, { key: 'last', label: 'Last' }, { key: 'complaints', label: 'Complaints', num: true },
+        { key: 'senderList', label: 'Paid by (bulk accounts)', render: r => `<span class="small mono">${esc(r.senderList.slice(0, 120))}${r.senderList.length > 120 ? '…' : ''}</span>` }
+      ], after: bindAccLinks, onRow: r => showAccount(r.acc) });
+    if (view === 'chart') {
+      body.innerHTML = `<div class="grid g2"><div><h3 style="font-size:15px">Top receivers by amount</h3><div id="gpC1"></div></div><div><h3 style="font-size:15px">Size of the small payments</h3><div id="gpC2"></div></div>
+        <div><h3 style="font-size:15px">Bulk accounts paying the most receivers</h3><div id="gpC3"></div></div><div><h3 style="font-size:15px">Receivers paid by many bulk accounts</h3><div id="gpC4"></div></div></div>`;
+      Charts.hbar($('#gpC1', body), D.recv.slice().sort((a, b) => b.amount - a.amount).slice(0, 15).map(r => ({ label: accLabel(r.acc), value: r.amount, sub: r.n + ' txns · ' + r.senders + ' bulk acc.' })), { fmt: fmtINR, onClick: d => showAccount(D.recv.find(r => accLabel(r.acc) === d.label).acc) });
+      const B = [[1000, 'Up to ₹1,000'], [2000, '₹1,001 – 2,000'], [5000, '₹2,001 – 5,000'], [10000, '₹5,001 – 10,000'], [Infinity, 'Above ₹10,000']];
+      Charts.hbar($('#gpC2', body), B.map(([m, l], i) => ({ label: l, value: D.tx.filter(t => t._amt <= m && t._amt > (i ? B[i - 1][0] : 0)).length })).filter(x => x.value), { fmt: v => fmtNum(v) + ' txns' });
+      const P = groupBy(D.tx, t => t.s_acc);
+      Charts.hbar($('#gpC3', body), [...P].map(([k, v]) => ({ label: accLabel(k), value: new Set(v.map(t => t.r_acc)).size, sub: fmtINR(sum(v, t => t._amt)) })).sort((a, b) => b.value - a.value).slice(0, 15), { fmt: v => fmtNum(v) + ' receivers' });
+      Charts.hbar($('#gpC4', body), D.recv.filter(r => r.senders >= 2).sort((a, b) => b.senders - a.senders).slice(0, 15).map(r => ({ label: accLabel(r.acc), value: r.senders, sub: fmtINR(r.amount) })), { fmt: v => v + ' bulk accounts' });
+      return;
+    }
+    // network / flow chart: bulk accounts → receivers (biggest 250 receivers)
+    const top = D.recv.slice().sort((a, b) => b.senders - a.senders || b.amount - a.amount).slice(0, 250), keep = new Set(top.map(r => r.acc));
+    const E = new Map(); D.tx.forEach(t => { if (!keep.has(t.r_acc)) return; const k = t.s_acc + '>' + t.r_acc; let e = E.get(k); if (!e) E.set(k, e = { from: t.s_acc, to: t.r_acc, amount: 0, count: 0, txns: [] }); e.amount += t._amt; e.count++; e.txns.push(t); });
+    const edges = [...E.values()], sIds = new Set(edges.map(e => e.from));
+    const nodes = [...[...sIds].map(id => { const s = D.snd.get(id); return { id, label: accLabel(id), sub: [s.name, s.bank].filter(Boolean).join(' · '), det: 'Bulk split ⇉' + s.receivers, kind: 'risk', value: s.outAmt, layer: 1, badge: 'B', title: `${accLabel(id)} – bulk-split account\nSent to ${s.receivers} accounts\n${s.name || ''} ${s.bank || ''}` }; }),
+      ...top.map(r => ({ id: r.acc, label: accLabel(r.acc), sub: [r.name, r.bank].filter(Boolean).join(' · '), det: fmtINR(r.amount) + ' · ' + r.n + ' txns', kind: r.senders >= 2 ? 'hold' : 'account', value: r.amount, layer: 2, title: `${accLabel(r.acc)} – game player / short-loan receiver\nGot ${fmtINR(r.amount)} in ${r.n} txns from ${r.senders} bulk account(s)` }))];
+    body.innerHTML = `<div class="small muted" style="margin-bottom:6px">${D.recv.length > top.length ? `Showing the ${top.length} receivers paid by the most bulk accounts (of ${fmtNum(D.recv.length)}). ` : ''}<b>B</b> = bulk-split account (centre / left), <b>G</b> = game player / short-loan receiver. Green = receiver paid by 2+ bulk accounts. Click an account for its details.</div><div class="graph-box" id="gpG" style="height:620px"></div>`;
+    const net = view === 'net';
+    Graph.mount($('#gpG', body), nodes, edges, { mode: net ? 'net' : 'flow', tag: n => n.layer === 1 ? 'B' : 'G', ringName: k => k === 1 ? 'Bulk-split accounts' : 'Game player / loan',  live: edges.length <= 600, labels: edges.length > 160 ? true : 'full',
+      onTrail: (hops, api, info) => { const id = info && info.node && info.node.id; if (id) showAccount(id); } });
+  }
+};
+// show the box on Analytics → Bulk Split & Rapid, right after "At a glance"
+(() => {
+  const og = AnaTabs.flags;
+  AnaTabs.flags = el => {
+    og(el);
+    const box = document.createElement('div'); box.className = 'card gp-card'; box.id = 'gpBox';
+    const fl = [...el.children].find(c => c.classList.contains('card') && !c.classList.contains('glance')); el.insertBefore(box, fl || null);
+    try { GamePlayer.mount(box); } catch (e) { box.innerHTML = '<div class="err">Could not build this box: ' + esc(e.message) + '</div>'; }
+  };
 })();
 
 </script>

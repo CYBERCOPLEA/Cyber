@@ -17,7 +17,8 @@ const Graph = {
     nodes.forEach(n => n.fan = (fanOut.get(n.id) || new Set()).size);
     const maxF = Math.max(1, ...nodes.map(n => n.fan)), BULK = Math.max(4, Math.ceil(maxF * .35));
     nodes.forEach(n => { n.bulk = money && n.fan >= BULK && n.fan >= 4; n.r = money ? 12 + 22 * Math.sqrt(n.fan / maxF) + 6 * Math.sqrt((n.value || 0) / maxV) : 7 + 15 * Math.sqrt((n.value || 0) / maxV); });
-    const lab = n => (money && n.layer ? 'L' + n.layer + ' · ' : '') + String(n.label).slice(0, 24) + (n.bulk ? ' ⇉' + n.fan : '');
+    const tag = n => opt.tag ? opt.tag(n) : n.layer ? 'L' + n.layer : 'V', ringName = k => opt.ringName ? opt.ringName(k) : k === 0 ? 'Victim' : 'Layer ' + k;
+    const lab = n => (money && n.layer ? tag(n) + ' · ' : '') + String(n.label).slice(0, 24) + (n.bulk ? ' ⇉' + n.fan : '');
     const mode = opt.mode || 'flow', isMind = mode === 'mind', lay = mode === 'flow' || isMind;
     nodes.forEach(n => n.w = isMind ? Math.min(330, 34 + 8 * (lab(n).length + (n.badge ? 3 : 0))) * (n.bulk ? 1.08 : 1) : 0);
     const hw = n => isMind ? n.w / 2 : n.r;
@@ -110,7 +111,7 @@ const Graph = {
       ${more(n)}<title>${esc(n.title || n.label)}</title></g>` : `<g data-n="${i}" transform="translate(${n.x},${n.y})" style="cursor:pointer">
       <circle class="ring" r="${n.r + 5}" fill="none" stroke="${HL}" stroke-width="3" opacity="0"/>
       ${n.bulk ? `<circle r="${n.r + 6}" fill="none" stroke="#fbbf24" stroke-width="2.5" stroke-dasharray="5 4" opacity=".9"/>` : ''}<circle class="nb" r="${n.r}" fill="${nodeCol(n)}" stroke="${n.bulk ? '#fbbf24' : C.surface}" stroke-width="${n.bulk ? 3 : 2}"/>
-      ${money && (n.layer || n.kind === 'victim') ? `<text y="${Math.round(n.r * .3)}" text-anchor="middle" font-size="${Math.max(10, Math.min(20, n.r * .8))}" font-weight="800" fill="${ink(nodeCol(n))}" style="pointer-events:none">${n.layer ? 'L' + n.layer : 'V'}</text>` : n.badge ? `<text y="4" text-anchor="middle" font-size="10" font-weight="700" fill="#fff">${esc(n.badge)}</text>` : ''}
+      ${money && (n.layer || n.kind === 'victim') ? `<text y="${Math.round(n.r * .3)}" text-anchor="middle" font-size="${Math.max(10, Math.min(20, n.r * .8))}" font-weight="800" fill="${ink(nodeCol(n))}" style="pointer-events:none">${tag(n)}</text>` : n.badge ? `<text y="4" text-anchor="middle" font-size="10" font-weight="700" fill="#fff">${esc(n.badge)}</text>` : ''}
       <g class="nt"><text y="${n.r + 13}" text-anchor="middle" font-size="11" font-weight="600" fill="${C.text}" paint-order="stroke" stroke="${C.surface2}" stroke-width="3">${esc(String(n.label).slice(0, 24))}</text>
       ${n.det ? `<text y="${n.r + 25}" text-anchor="middle" font-size="10" fill="${HL}" paint-order="stroke" stroke="${C.surface2}" stroke-width="3">${esc(String(n.det).slice(0, 44))}</text>` : ''}
       ${n.sub ? `<text y="${n.r + (n.det ? 37 : 25)}" text-anchor="middle" font-size="9.5" fill="${C.muted}" paint-order="stroke" stroke="${C.surface2}" stroke-width="3">${esc(String(n.sub).slice(0, 30))}</text>` : ''}</g>
@@ -120,8 +121,9 @@ const Graph = {
     const colsOf = () => mode === 'flow' || (isMind && nodes.some(n => n.layer)) ? [...groupBy(nodes, n => n.layer || 0)].sort((a, b) => a[0] - b[0]) : [];
     const drawCols = () => {
       if (ringMode) {
+        const lw = (k, cnt) => Math.max(156, 34 + 9.5 * (ringName(k) + ' · ' + cnt).length);
         gC.innerHTML = rings.map(([k, R, cnt]) => { const c = LPAL[k % LPAL.length], ly = R ? -R : -70;
-          return `${R ? `<circle r="${R}" fill="none" stroke="${c}" stroke-opacity=".38" stroke-width="2.5" stroke-dasharray="10 8"/>` : ''}<g><rect x="-78" y="${ly - 17}" width="156" height="32" rx="16" fill="${C.surface}" stroke="${c}" stroke-width="2.5"/><text x="0" y="${ly + 5}" text-anchor="middle" font-size="16" font-weight="800" fill="${C.text}">${k === 0 ? 'Victim' : 'Layer ' + k} · ${cnt}</text></g>`; }).join('');
+          return `${R ? `<circle r="${R}" fill="none" stroke="${c}" stroke-opacity=".38" stroke-width="2.5" stroke-dasharray="10 8"/>` : ''}<g><rect x="${-(lw(k, cnt)) / 2}" y="${ly - 17}" width="${lw(k, cnt)}" height="32" rx="16" fill="${C.surface}" stroke="${c}" stroke-width="2.5"/><text x="0" y="${ly + 5}" text-anchor="middle" font-size="16" font-weight="800" fill="${C.text}">${esc(ringName(k))} · ${cnt}</text></g>`; }).join('');
         return;
       }
       gC.innerHTML = colsOf().map(([k, list]) => { const left = n => n.x - (isMind ? n.w / 2 : n.r), bw = isMind ? 132 : 104, lc = isMind ? LPAL[k % LPAL.length] : C.border;
