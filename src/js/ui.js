@@ -36,13 +36,13 @@ function Table(container, opt) {
     if (st.q) { const q = st.q.toLowerCase(); rows = rows.filter(r => cols.some(c => String(c.csv ? c.csv(r) : r[c.key] ?? '').toLowerCase().includes(q))); }
     if (st.sortKey) {
       const c = cols.find(x => x.key === st.sortKey);
-      rows = rows.slice().sort((a, b) => {
-        let x = val(a, c), y = val(b, c);
+      const coll = Table.coll || (Table.coll = new Intl.Collator('en', { numeric: true, sensitivity: 'base' }));
+      rows = rows.map(r => [val(r, c), r]).sort(([x], [y]) => {
         const ex = x == null || x === '', ey = y == null || y === '';
         if (ex && ey) return 0; if (ex) return 1; if (ey) return -1;
         if (typeof x === 'number' && typeof y === 'number') return (x - y) * st.dir;
-        return String(x).localeCompare(String(y), 'en', { numeric: true, sensitivity: 'base' }) * st.dir;
-      });
+        return coll.compare(String(x), String(y)) * st.dir;
+      }).map(e => e[1]);
     }
     return rows;
   }

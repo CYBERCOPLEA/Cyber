@@ -87,7 +87,7 @@ const TelRead = {
     if (!t.trim()) return '';
     const inn = /incom|termin|receiv| in |sms in| mt|mtc|smt|deliver/.test(t), out = /out|origin| mo|moc|smo|dial|sent|submit/.test(t);
     if (/ sms|smt|smo|p2p|a2p|p2a|message/.test(t) || kind === 'SMS') return inn && !out ? 'SMS-IN' : out ? 'SMS-OUT' : 'SMS';
-    if (/fow|forward|divert| cf /.test(t)) return 'FWD';
+    if (/fow|frw|forward|divert| cf /.test(t)) return 'FWD';
     if (/data|gprs|internet|lte|volte data|packet/.test(t)) return 'DATA';
     if (/forward|divert|cf /.test(t)) return 'FWD';
     if (inn && !out) return 'IN'; if (out) return 'OUT';
@@ -122,6 +122,17 @@ const TelRead = {
         if (fd) { M.From = this.dt(fd, ft); M.To = this.dt(td || fd, tt); } else if (w) { M.From = this.dt(w[1]); M.To = this.dt(w[2]); }
         if (Object.keys(M).length) { S.data.telMeta = S.data.telMeta || {}; S.data.telMeta[name] = Object.assign(S.data.telMeta[name] || {}, M); }
       }
+      if (kind === 'TDR') { // the tower (cell) and time window the operator was asked about
+        const M = { Kind: 'TDR' }, T = '(?:\\s\\d{1,2}:\\d{2}(?::\\d{2})?)?';
+        const c = (pre.match(/CELL\s*ID\s*:?\s*-?\s*'?(\d[\dA-Fa-f-]{6,})/i) || pre.match(/Input Value[^:]*:\s*'?(\d[\dA-Fa-f-]{6,})/i) || [])[1]; if (c) M.Cell = c;
+        const w = pre.match(new RegExp("\\bfrom\\s+'?(\\S+?" + T + ")'?\\s+to\\s+'?(\\S+?" + T + ")'?(?=\\s|$)", 'i')) || pre.match(new RegExp('Date Range\\s*:?\\s*(\\S+' + T + ')\\s+to\\s+(\\S+' + T + ')', 'i'));
+        const fd = (pre.match(new RegExp('From Date\\s*:-?\\s*(\\S+' + T + ')', 'i')) || [])[1], td = (pre.match(new RegExp('(?:Till|To) Date\\s*:-?\\s*(\\S+' + T + ')', 'i')) || [])[1];
+        if (fd) { M.From = this.dt(fd); M.To = this.dt(td || fd); } else if (w) { M.From = this.dt(w[1]); M.To = this.dt(w[2]); }
+        const all = pre + ' ' + name;
+        M.Operator = /airtel|bharti/i.test(all) ? 'Airtel' : /vodafone|idea|\bvi\b/i.test(all) ? 'Vi' : /jio|reliance|Ticket Number\s*:?\s*LEA|(^|\/)LEA\d/i.test(all) ? 'Jio' : /bsnl/i.test(all) ? 'BSNL' : '';
+        const ci = pre.match(/LIMITED\s+([A-Z][A-Za-z &-]{1,30}?)\s+Call Details/i); if (ci) M.Circle = ci[1].trim();
+        S.data.telMeta = S.data.telMeta || {}; S.data.telMeta[name] = Object.assign(S.data.telMeta[name] || {}, M);
+      }
       const raw = rows.slice(best + 1).filter(r => r.some(c => String(c).trim()));
       // who is the target: a "Target" column, else the number in nearly every row, else the number above the table
       let fixedT = '';
@@ -138,6 +149,7 @@ const TelRead = {
         if (kind === 'IPDR') { target = target || pa || preNum; }
         else if (target) other = pb && pb !== target ? pb : pa && pa !== target ? pa : pb;
         else if (fixedT) { target = fixedT; other = pa === fixedT ? pb : pa || pb; if (!dir) dir = pa === fixedT ? 'OUT' : 'IN'; }
+        else if (kind === 'TDR' && /IN$/.test(dir) && pb) { target = pb; other = pa; }
         else { target = pa; other = pb; }
         if (kind === 'SMS' && !dir) dir = 'SMS';
         const sv = String(g(r, 'svc')).toLowerCase(); if (/sms/.test(sv) && !/^SMS/.test(dir)) dir = dir === 'IN' ? 'SMS-IN' : dir === 'OUT' ? 'SMS-OUT' : 'SMS'; else if (/data|gprs|packet/.test(sv)) dir = 'DATA';
@@ -176,7 +188,7 @@ const Tel = {
     for (const f of files) {
       try {
         const recs = TelRead.parse(await TelRead.rows(f), f.name, want);
-        if (!recs.length) throw new Error('no table with number + date columns found');
+        if (!recs.length) { const m = (S.data.telMeta || {})[f.name]; if (m && m.Kind === 'TDR') { done.push([f.name, 0, 'TDR 0']); S.data.imports.push({ id: uid(), when: new Date().toISOString(), file: f.name, type: 'telecom', count: 0 }); continue; } throw new Error('no table with number + date columns found'); }
         recs.forEach(r => r.id = uid());
         const all = this.all(); for (const r of recs) all.push(r);
         const kinds = [...groupBy(recs, r => r.kind)].map(([k, v]) => k + ' ' + v.length).join(', ');
@@ -186,13 +198,41 @@ const Tel = {
     }
     Analysis.invalidate(); saveCase(); return done;
   },
-  removeFile(name) { S.data.tel = this.all().filter(r => r._src !== name); S.data.imports = S.data.imports.filter(i => !(i.type === 'telecom' && i.file === name)); Analysis.invalidate(); saveCase(); },
+  removeFile(name) { S.data.tel = this.all().filter(r => r._src !== name); if (S.data.telMeta) delete S.data.telMeta[name]; S.data.imports = S.data.imports.filter(i => !(i.type === 'telecom' && i.file === name)); Analysis.invalidate(); saveCase(); },
   /* identifiers found in the rest of the case (bank, KYC, NCRP, social, Google…) */
   elsewhere() {
     return Analysis.cached('tel:else', () => { const m = new Map(); try { Analysis.idents().filter(x => !x.tel).forEach(x => { const v = x.type === 'mobile' ? TelRead.num(x.value) : x.type === 'ip' ? Tel.ip6(x.value) : String(x.value).toLowerCase(); const k = x.type + '|' + v; if (!m.has(k)) m.set(k, new Set()); m.get(k).add(x.label || x.section); }); } catch (e) { } return m; });
   },
   also(type, v) { const s = v && this.elsewhere().get(type + '|' + (type === 'mobile' ? v : type === 'ip' ? this.ip6(v) : String(v).toLowerCase())); return s ? [...s].join(', ') : ''; },
   alsoB(type, v) { const a = this.also(type, v); return a ? `<span class="badge warn" title="Also found in ${esc(a)}">⚑ ${esc(a)}</span>` : ''; },
+  /* tower dumps → crime spots: files with the same start date and towers within 15 km */
+  tdrSpots() {
+    return Analysis.cached('tel:spots', () => {
+      const M = S.data.telMeta || {}, by = groupBy(this.of('tdr'), r => r._src);
+      const names = uniq([...by.keys(), ...Object.keys(M).filter(f => M[f].Kind === 'TDR')]);
+      const med = a => { a = a.slice().sort((x, y) => x - y); return a[a.length >> 1]; };
+      const files = names.map(f => {
+        const v = by.get(f) || [], m = M[f] || {}; let g = v.filter(r => r.lat && m.Cell && r.cell === m.Cell); if (!g.length) g = v.filter(r => r.lat);
+        let from = m.From || '', to = m.To || ''; if (!from && v.length) { from = v.reduce((a, r) => !a || r.ts < a ? r.ts : a, ''); to = v.reduce((a, r) => r.ts > a ? r.ts : a, ''); }
+        return { f, n: v.length, cell: m.Cell || '', op: m.Operator || '', circle: m.Circle || '', from, to, lat: g.length ? med(g.map(r => r.lat)) : 0, lon: g.length ? med(g.map(r => r.lon)) : 0, place: ((m.Cell && v.find(r => r.addr && r.cell === m.Cell)) || v.find(r => r.addr) || {}).addr || '' };
+      });
+      const km = (a, b) => { const R = Math.PI / 180, x = (b.lon - a.lon) * R * Math.cos((a.lat + b.lat) / 2 * R), y = (b.lat - a.lat) * R; return Math.sqrt(x * x + y * y) * 6371; };
+      const list = [];
+      for (const x of files.filter(x => x.lat).sort((a, b) => b.n - a.n)) { const day = x.from.slice(0, 10); let s = list.find(s => s.day === day && s.lat && km(s, x) <= 15); if (!s) list.push(s = { day, lat: x.lat, lon: x.lon, files: [] }); s.files.push(x); }
+      for (const x of files.filter(x => !x.lat)) { const day = x.from.slice(0, 10); let s = list.filter(s => s.day === day).sort((a, b) => b.files.length - a.files.length)[0]; if (!s) list.push(s = { day, lat: 0, lon: 0, files: [] }); s.files.push(x); }
+      list.sort((a, b) => a.day.localeCompare(b.day) || b.files.length - a.files.length);
+      const of = new Map();
+      list.forEach((s, i) => {
+        s.key = s.day + '|' + (s.lat ? s.lat.toFixed(2) + ',' + s.lon.toFixed(2) : '');
+        s.from = s.files.reduce((a, x) => x.from && (!a || x.from < a) ? x.from : a, ''); s.to = s.files.reduce((a, x) => x.to > a ? x.to : a, '');
+        s.ops = uniq(s.files.map(x => x.op).filter(Boolean)); s.place = (s.files.find(x => x.place) || {}).place || '';
+        const area = uniq(s.files.map(x => x.circle).filter(Boolean)).join(', ') || s.ops.join(' + ');
+        s.label = 'Spot ' + String.fromCharCode(65 + i % 26) + (i >= 26 ? Math.floor(i / 26) : '') + (s.day ? ' · ' + s.day.split('-').reverse().join('-') : '') + (area ? ' · ' + area : '');
+        s.files.forEach(x => of.set(x.f, s));
+      });
+      return { list, of, files };
+    });
+  },
   isMob: n => /^[6-9]\d{9}$/.test(n),
   ip6(ip) {
     ip = String(ip || '').trim().toLowerCase(); if (!ip.includes(':') || /[^0-9a-f:]/.test(ip)) return ip;
@@ -239,7 +279,7 @@ const TelUI = {
   TABS: {
     cdr: [['sum', '📊 Overview'], ['con', '👥 Contacts'], ['dev', '📱 IMEI & IMSI'], ['loc', '📍 Towers & Movement'], ['time', '🕐 Date & Time'], ['com', '⚑ Common & Linked'], ['rec', '📋 All records'], ['files', '📁 Files']],
     ipdr: [['sum', '📊 Overview'], ['ses', '🔗 Sessions'], ['find', '🔎 Find IP at a time'], ['dst', '🎯 Destinations & Apps'], ['dev', '📱 IMEI & Towers'], ['time', '🕐 Date & Time'], ['files', '📁 Files']],
-    tdr: [['sum', '📊 Overview'], ['com', '⚑ Common across spots'], ['num', '🔢 Frequent numbers'], ['dev', '📱 IMEI with many SIMs'], ['roam', '🌍 Roaming / foreign'], ['rec', '📋 All records'], ['files', '📁 Files']],
+    tdr: [['sum', '📊 Overview'], ['spot', '📍 Crime spots & time'], ['com', '⚑ Common across spots'], ['meet', '🤝 Met on spot'], ['num', '🔢 Frequent numbers'], ['dev', '📱 IMEI with many SIMs'], ['roam', '🌍 Foreign SIM'], ['rec', '📋 All records'], ['files', '📁 Files']],
     sms: [['sum', '📊 Overview'], ['snd', '🏷 Sender headers'], ['con', '👥 Person to person'], ['time', '🕐 Date & Time'], ['rec', '📋 All records'], ['files', '📁 Files']]
   },
   page(main) {
@@ -259,7 +299,8 @@ const TelUI = {
     UI.toast('Reading ' + files.length + ' file(s)…');
     const done = await Tel.importFiles(files, k.toUpperCase());
     const ok = done.filter(x => typeof x[1] === 'number'), bad = done.filter(x => typeof x[1] !== 'number');
-    UI.toast(ok.length ? `${ok.map(x => x[2]).join(' · ')} records read` + (bad.length ? ` · ${bad.length} file(s) not read: ${bad[0][1]}` : '') : 'Not read: ' + (bad[0] || ['', 'no file'])[1], 6000);
+    const agg = {}; ok.forEach(x => x[2].split(', ').forEach(t => { const [a, n] = t.split(' '); agg[a] = (agg[a] || 0) + (+n || 0); })); const empty = ok.filter(x => x[1] === 0).length;
+    UI.toast(ok.length ? `${Object.entries(agg).map(([a, n]) => a + ' ' + fmtNum(n)).join(' · ')} records read from ${ok.length - empty} file(s)` + (empty ? ` · ${empty} file(s) had no records` : '') + (bad.length ? ` · ${bad.length} file(s) not read: ${bad[0][1]}` : '') : 'Not read: ' + (bad[0] || ['', 'no file'])[1], 7000);
     if (ok.length && !ok.some(x => x[2].startsWith(k.toUpperCase()))) { const nk = ok[0][2].split(' ')[0].toLowerCase(); if (TK[nk]) S.telKind = nk; }
     render();
   },
@@ -458,36 +499,100 @@ const TelUI = {
   ipdr_dev(el, d) { this.devTables(el, d, ''); el.insertAdjacentHTML('beforeend', '<div class="card"><h3>Towers</h3><div id="it1"></div></div>'); Charts.hbar($('#it1', el), [...groupBy(d.filter(Tel.tower), Tel.tower)].map(([k, v]) => ({ label: k, value: v.length, sub: v.find(r => r.addr)?.addr || '', recs: v })).sort((a, b) => b.value - a.value), { onClick: x => this.recDrawer(x.label, x.recs) }); },
 
   /* ======== TDR ======== */
-  tdrStats(d) {
+  tdrD(d) {
+    const W = S.data.tdrWin || {}; if (!Object.keys(W).length) return d;
+    return Analysis.cached('tel:tdrD', () => { const sp = Tel.tdrSpots(); return d.filter(r => { const s = sp.of.get(r._src), x = s && W[s.key]; return !x || (r.ts >= x[0] && r.ts <= x[1]); }); });
+  },
+  tdrStats(d0) {
     return Analysis.cached('tel:tdr', () => {
-      const multi = uniq(d.map(r => r._src)).length > 1, site = r => multi ? r._src : (r.addr || r.cell || r._src);
-      const nums = new Map();
-      for (const r of d) for (const n of [r.target, r.other]) { if (!n || !/\d{5,}/.test(n)) continue; let x = nums.get(n); if (!x) nums.set(n, x = { n, sites: new Set(), recs: [], imeis: new Set(), roam: new Set() }); x.sites.add(site(r)); x.recs.push(r); if (n === r.target) { if (r.imei) x.imeis.add(r.imei); if (r.roam) x.roam.add(r.roam); } }
-      const L = [...nums.values()].map(x => ({ n: x.n, sites: [...x.sites], sN: x.sites.size, cnt: x.recs.length, imeis: [...x.imeis], roam: [...x.roam].join(', '), first: x.recs.reduce((a, r) => !a || r.ts < a ? r.ts : a, ''), last: x.recs.reduce((a, r) => r.ts > a ? r.ts : a, ''), recs: x.recs }));
-      return { L, site, multi, sites: uniq(d.map(site)) };
+      const d = this.tdrD(d0), sp = Tel.tdrSpots(), multi = sp.list.length > 1;
+      const site = r => multi ? (sp.of.get(r._src) || {}).label || r._src : (r.cell || r.addr || r._src);
+      const nums = new Map(), imeis = new Map(), mm = (R, lo) => R.reduce((a, r) => !a || (lo ? r.ts < a : r.ts > a) ? r.ts : a, '');
+      for (const r of d) { // only the A party is physically at the tower
+        const n = r.target; if (!/^\d{10,13}$/.test(n)) continue; const st = site(r);
+        let x = nums.get(n); if (!x) nums.set(n, x = { n, sites: new Set(), recs: [], imeis: new Set(), cells: new Set(), imsi: new Set() });
+        x.sites.add(st); x.recs.push(r); if (r.imei) x.imeis.add(r.imei); if (r.cell) x.cells.add(r.cell); if (r.imsi) x.imsi.add(r.imsi);
+        if (r.imei) { let y = imeis.get(r.imei); if (!y) imeis.set(r.imei, y = { imei: r.imei, sites: new Set(), sims: new Set(), recs: [] }); y.sites.add(st); y.sims.add(n); y.recs.push(r); }
+      }
+      const L = [...nums.values()].map(x => { const fs = [...x.imsi].filter(i => i.length >= 5 && !/^40[456]/.test(i)); return { n: x.n, sites: [...x.sites], sN: x.sites.size, cnt: x.recs.length, imeis: [...x.imeis], cells: x.cells.size, foreign: fs.length > 0, roam: fs.map(i => 'IMSI ' + i.slice(0, 3) + '…').join(', '), first: mm(x.recs, 1), last: mm(x.recs), recs: x.recs }; });
+      const I = [...imeis.values()].map(y => ({ imei: y.imei, sites: [...y.sites], sN: y.sites.size, sims: [...y.sims], cnt: y.recs.length, first: mm(y.recs, 1), last: mm(y.recs), recs: y.recs }));
+      return { d, L, I, site, multi, sp, sites: uniq(d.map(site)) };
     });
   },
-  tdr_sum(el, d) {
-    const { L, sites, multi, site } = this.tdrStats(d), C = L.filter(x => x.sN >= 2), linked = L.filter(x => Tel.isMob(x.n) && Tel.also('mobile', x.n));
-    const mi = [...groupBy(d.filter(r => r.imei), r => r.imei)].filter(([, v]) => uniq(v.map(r => r.target)).length > 1);
+  /* people present at the same spot who called each other, and outside numbers called by many of them */
+  tdrMeet(d0) {
+    return Analysis.cached('tel:meet', () => {
+      const { d, site } = this.tdrStats(d0), pres = new Map(), mm = (R, lo) => R.reduce((a, r) => !a || (lo ? r.ts < a : r.ts > a) ? r.ts : a, '');
+      d.forEach(r => { const s = site(r); if (!pres.has(s)) pres.set(s, new Set()); pres.get(s).add(r.target); });
+      const P = new Map(), H = new Map();
+      for (const r of d) {
+        const o = r.other; if (!/^\d{10,13}$/.test(o) || o === r.target || /^1[89]00/.test(o)) continue; const s = site(r);
+        if (pres.get(s).has(o)) { const ab = [r.target, o].sort(), k = ab.join('|') + '|' + s; let x = P.get(k); if (!x) P.set(k, x = { a: ab[0], b: ab[1], site: s, recs: [] }); x.recs.push(r); }
+        else { let h = H.get(o); if (!h) H.set(o, h = { n: o, by: new Set(), sites: new Set(), recs: [] }); h.by.add(r.target); h.sites.add(s); h.recs.push(r); }
+      }
+      return {
+        P: [...P.values()].map(x => ({ ...x, cnt: uniq(x.recs.map(r => r.ts.slice(0, 16) + r.dir.slice(0, 3))).length, first: mm(x.recs, 1), last: mm(x.recs) })),
+        H: [...H.values()].filter(h => h.by.size >= 3).map(h => ({ n: h.n, by: h.by.size, sites: [...h.sites], sN: h.sites.size, cnt: h.recs.length, recs: h.recs }))
+      };
+    });
+  },
+  tdr_sum(el, d0) {
+    const { d, L, I, multi, sp, site } = this.tdrStats(d0), C = L.filter(x => x.sN >= 2), CI = I.filter(x => x.sN >= 2), linked = L.filter(x => Tel.isMob(x.n) && Tel.also('mobile', x.n));
+    const mi = I.filter(x => x.sims.length > 1), fr = L.filter(x => x.foreign), meet = this.tdrMeet(d0), nw = Object.keys(S.data.tdrWin || {}).length, empty = sp.files.filter(x => !x.n).length;
     const f = [];
-    if (C.length) f.push(`<b>${C.length} number(s)</b> seen at ${multi ? 'two or more crime spots (files)' : 'two or more towers'}: ${C.sort((a, b) => b.sN - a.sN).slice(0, 6).map(x => `<b>${esc(x.n)}</b> (${x.sN})`).join(', ')}.`);
+    if (nw) f.push(`Crime-time filter is on for ${nw} spot(s): only records inside those times are counted. <a href="#" data-tgo="spot">Change</a>`);
+    if (multi) f.push(C.length ? `<b>${fmtNum(C.length)} number(s)</b> present at two or more crime spots: ${C.slice().sort((a, b) => b.sN - a.sN || a.cnt - b.cnt).slice(0, 6).map(x => `<b>${esc(x.n)}</b> (${x.sN} spots)`).join(', ')}. <a href="#" data-tgo="com">See all</a>` : 'No number was present at more than one crime spot' + (nw ? ' in the crime times you set.' : '.'));
+    else f.push('Only one crime spot so far. Import the tower dump of another crime spot to find numbers present at both.');
+    if (CI.length) f.push(`<b>${fmtNum(CI.length)} handset(s)</b> (IMEI) present at two or more spots${CI.some(x => x.sims.length > 1) ? ', some with a different SIM at each spot' : ''}.`);
+    if (meet.P.length) f.push(`<b>${fmtNum(meet.P.length)} pair(s)</b> of people present on the same spot called or messaged each other. <a href="#" data-tgo="meet">See</a>`);
+    if (meet.H.length) f.push(`<b>${fmtNum(meet.H.length)} outside number(s)</b> were called by 3 or more people present on a spot (possible handler).`);
     if (linked.length) f.push(`<b>${linked.length} number(s)</b> also in this case's other data: ${linked.slice(0, 5).map(x => esc(x.n) + ' (' + esc(Tel.also('mobile', x.n)) + ')').join(', ')}.`);
-    if (mi.length) f.push(`<b>${mi.length} handset(s)</b> with more than one SIM in the dump.`);
-    const fr = L.filter(x => x.n.length > 10 || /^\+/.test(x.n)); if (fr.length) f.push(`${fr.length} foreign / unusual numbers.`);
-    el.innerHTML = UI.kpis([['Records', fmtNum(d.length), uniq(d.map(r => r._src)).length + ' file(s)', 'c2'], ['Unique numbers', fmtNum(L.length), '', 'c5'], [multi ? 'Crime spots (files)' : 'Towers', fmtNum(sites.length), '', 'c3'], ['Common to 2+', fmtNum(C.length), '', 'c1'], ['Also in case', fmtNum(linked.length), '', 'c4'], ['Handsets', fmtNum(uniq(d.map(r => r.imei)).length), '', 'c6']])
-      + this.insights(f) + `<div class="grid g2"><div class="card"><h3>Records per ${multi ? 'spot (file)' : 'tower'}</h3><div id="ts1"></div></div><div class="card"><h3>Hour of day</h3><div id="ts2"></div></div></div>`;
-    Charts.hbar($('#ts1', el), [...groupBy(d, site)].map(([k, v]) => ({ label: k, value: v.length, sub: uniq(v.map(r => r.target)).length + ' numbers' })).sort((a, b) => b.value - a.value));
+    if (mi.length) f.push(`<b>${fmtNum(mi.length)} handset(s)</b> used more than one SIM in the dump.`);
+    if (fr.length) f.push(`<b>${fmtNum(fr.length)} number(s)</b> on a foreign SIM (IMSI not Indian).`);
+    if (empty) f.push(`${empty} file(s) had no records (the operator found no data for that cell).`);
+    el.innerHTML = UI.kpis([['Records', fmtNum(d.length), (sp.files.length - empty) + ' file(s) with data', 'c2'], ['Numbers present', fmtNum(L.length), 'A party on the towers', 'c5'], ['Crime spots', fmtNum(sp.list.length), fmtNum(uniq(sp.files.map(x => x.cell).filter(Boolean)).length) + ' cells', 'c3'], ['At 2+ spots', fmtNum(C.length), 'numbers', 'c1'], ['Handsets at 2+ spots', fmtNum(CI.length), '', 'c6'], ['Also in case', fmtNum(linked.length), '', 'c4']])
+      + this.insights(f) + `<div class="grid g2"><div class="card"><h3>Records per ${multi ? 'crime spot' : 'cell'}</h3><div id="ts1"></div></div><div class="card"><h3>Hour of day</h3><div id="ts2"></div></div></div>`;
+    Charts.hbar($('#ts1', el), [...groupBy(d, site)].map(([k, v]) => ({ label: k, value: v.length, sub: fmtNum(uniq(v.map(r => r.target)).length) + ' numbers' })).sort((a, b) => b.value - a.value).slice(0, 30));
     Charts.vbar($('#ts2', el), Array.from({ length: 24 }, (_, h) => ({ label: h + ':00', value: d.filter(r => Tel.hour(r) === h).length })));
+    this.tgo(el);
   },
-  tdrTable(el, rows, title, sub) {
-    el.innerHTML = `<div class="card"><h3>${title}</h3><div class="sub">${sub}</div><div id="tt"></div></div>`;
-    Table($('#tt', el), { rows, sortKey: 'sN', sortDir: -1, exportName: 'tdr', onRow: x => this.recDrawer(x.n, x.recs), columns: [{ key: 'n', label: 'Number', render: x => `<b class="mono">${esc(x.n)}</b> ${Tel.isMob(x.n) ? Tel.alsoB('mobile', x.n) : ''}` }, { key: 'sN', label: 'Spots', num: true, render: x => x.sN > 1 ? `<span class="badge warn">${x.sN}</span>` : '1' }, { key: 'sites', label: 'Where', csv: x => x.sites.join(' | '), render: x => `<span class="small">${x.sites.slice(0, 4).map(esc).join('<br>')}</span>` }, { key: 'cnt', label: 'Records', num: true }, { key: 'imeis', label: 'IMEI', csv: x => x.imeis.join(' '), render: x => `<span class="mono small">${x.imeis.slice(0, 3).map(esc).join('<br>')}</span>` }, { key: 'roam', label: 'Roaming' }, { key: 'first', label: 'First', render: x => esc(Tel.dd(x.first)) }, { key: 'last', label: 'Last', render: x => esc(Tel.dd(x.last)) }] });
+  tgo(el) { $$('[data-tgo]', el).forEach(a => a.onclick = e => { e.preventDefault(); S.sub.tele = a.dataset.tgo; render(); }); },
+  tdr_spot(el) {
+    const sp = Tel.tdrSpots(), W = S.data.tdrWin || {}, bySp = groupBy(Tel.of('tdr'), r => (sp.of.get(r._src) || {}).key);
+    const iso = v => v ? v.replace(' ', 'T').slice(0, 16) : '';
+    el.innerHTML = `<div class="card"><h3>Crime spots</h3><div class="sub">Files with the same date and towers within 15 km are put together as one crime spot. Set the crime time at each spot to count only the numbers present around then. Every TDR tab then uses these times.</div>
+      <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Spot</th><th>Operator · files</th><th class="num">Cells</th><th>Location</th><th class="num">Records</th><th class="num">Numbers</th><th>Crime time from</th><th>to</th></tr></thead><tbody>${sp.list.map((s, i) => {
+        const v = bySp.get(s.key) || [], w = W[s.key] || [], ops = [...groupBy(s.files, x => x.op || 'Other')].map(([o, F]) => `${esc(o)} ${F.length}${F.some(x => !x.n) ? ` <span class="muted">(${F.filter(x => !x.n).length} empty)</span>` : ''}`).join('<br>');
+        return `<tr><td style="min-width:200px"><b>${esc(s.label)}</b><div class="muted small">${esc(Tel.dd(s.from))} → ${esc(Tel.dd(s.to))}</div></td><td class="small" style="white-space:nowrap">${ops}</td><td class="num">${uniq(s.files.map(x => x.cell).filter(Boolean)).length}</td><td class="small"><span class="mono">${s.lat ? s.lat.toFixed(4) + ', ' + s.lon.toFixed(4) : ''}</span>${s.place ? `<div class="muted">${esc(s.place.slice(0, 70))}</div>` : ''}</td><td class="num">${fmtNum(v.length)}</td><td class="num">${fmtNum(uniq(v.map(r => r.target)).length)}</td><td><input type="datetime-local" style="width:168px;font-size:12px" data-wf="${i}" value="${iso(w[0])}"></td><td><input type="datetime-local" style="width:168px;font-size:12px" data-wt="${i}" value="${iso(w[1])}"></td></tr>`;
+      }).join('')}</tbody></table></div><div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap"><button class="btn primary" id="twApply">Apply crime times</button><button class="btn" id="twClear">Clear (use the whole dump)</button><span class="muted small" style="align-self:center">Tip: give 30–60 minutes around the crime time.</span></div></div>
+      <div class="card"><h3>Files per spot</h3><div id="twF"></div></div>`;
+    $('#twApply', el).onclick = () => { const W2 = {}; sp.list.forEach((s, i) => { const a = $(`[data-wf="${i}"]`, el).value, b = $(`[data-wt="${i}"]`, el).value; if (a || b) W2[s.key] = [a ? a.replace('T', ' ') + ':00' : '0000', b ? b.replace('T', ' ') + ':59' : '9999']; }); S.data.tdrWin = W2; Analysis.invalidate(); saveCase(); UI.toast(Object.keys(W2).length ? 'Crime times set for ' + Object.keys(W2).length + ' spot(s)' : 'No times set'); render(); };
+    $('#twClear', el).onclick = () => { S.data.tdrWin = {}; Analysis.invalidate(); saveCase(); render(); };
+    Table($('#twF', el), { rows: sp.files.map(x => ({ ...x, spot: (sp.of.get(x.f) || {}).label || '' })), sortKey: 'spot', exportName: 'tdr_files', columns: [{ key: 'spot', label: 'Spot' }, { key: 'op', label: 'Operator' }, { key: 'cell', label: 'Cell asked', render: x => `<span class="mono ipv">${esc(x.cell)}</span>` }, { key: 'from', label: 'From', render: x => esc(Tel.dd(x.from)) }, { key: 'to', label: 'To', render: x => esc(Tel.dd(x.to)) }, { key: 'n', label: 'Records', num: true, render: x => x.n ? fmtNum(x.n) : '<span class="badge">no data</span>' }, { key: 'f', label: 'File', render: x => `<span class="muted small">${esc(x.f)}</span>` }] });
   },
-  tdr_com(el, d) { const { L, multi } = this.tdrStats(d); this.tdrTable(el, L.filter(x => x.sN >= 2), 'Numbers common across ' + (multi ? 'crime spots' : 'towers'), 'Import one tower dump per crime spot. A number present at several spots around the crime times is a strong lead.'); },
-  tdr_num(el, d) { const { L } = this.tdrStats(d); this.tdrTable(el, L.slice().sort((a, b) => b.cnt - a.cnt), 'All numbers', 'Sorted by spots, then use the Sort box for records. ⚑ = also in case data.'); },
-  tdr_dev(el, d) { const multi = new Set([...groupBy(d.filter(r => r.imei), r => r.imei)].filter(([, v]) => uniq(v.map(r => r.target)).length > 1).map(([i]) => i)); this.devTables(el, d.filter(r => multi.has(r.imei)), 'Only handsets seen with 2 or more SIMs in the dump = SIMs being swapped.'); },
-  tdr_roam(el, d) { const { L } = this.tdrStats(d); this.tdrTable(el, L.filter(x => x.roam || x.n.length > 10 || (x.n.length === 10 && !Tel.isMob(x.n))), 'Roaming / foreign / unusual numbers', 'Numbers roaming from another circle, foreign numbers and non-mobile numbers.'); },
+  tdrTable(el, rows, title, sub, id = 'tt') {
+    el.insertAdjacentHTML('beforeend', `<div class="card"><h3>${title}</h3><div class="sub">${sub}</div><div id="${id}"></div></div>`);
+    Table($('#' + id, el), { rows, sortKey: 'sN', sortDir: -1, exportName: 'tdr_numbers', onRow: x => this.recDrawer(x.n, x.recs), columns: [{ key: 'n', label: 'Number', render: x => `<b class="mono">${esc(x.n)}</b> ${Tel.isMob(x.n) ? Tel.alsoB('mobile', x.n) : ''}` }, { key: 'sN', label: 'Spots', num: true, render: x => x.sN > 1 ? `<span class="badge warn">${x.sN}</span>` : '1' }, { key: 'sites', label: 'Where', csv: x => x.sites.join(' | '), render: x => `<span class="small">${x.sites.slice(0, 4).map(esc).join('<br>')}</span>` }, { key: 'cnt', label: 'Records', num: true }, { key: 'cells', label: 'Cells', num: true }, { key: 'imeis', label: 'IMEI', csv: x => x.imeis.join(' '), render: x => `<span class="mono small">${x.imeis.slice(0, 3).map(esc).join('<br>')}</span>` }, { key: 'roam', label: 'Foreign SIM' }, { key: 'first', label: 'First', render: x => esc(Tel.dd(x.first)) }, { key: 'last', label: 'Last', render: x => esc(Tel.dd(x.last)) }] });
+  },
+  tdr_com(el, d) {
+    const { L, I, multi } = this.tdrStats(d); el.innerHTML = '';
+    if (!multi) el.innerHTML = `<div class="card"><h3>Only one crime spot</h3><div class="sub">Import the tower dump of another crime spot (another date or place). Numbers present at both are listed here. Below: numbers seen on 2 or more cells of this spot.</div></div>`;
+    this.tdrTable(el, L.filter(x => x.sN >= 2), multi ? 'Numbers present at 2 or more crime spots' : 'Numbers on 2 or more cells', 'A number present at several crime spots around the crime times is a strong lead. Click a row for its records.');
+    if (!multi) return;
+    el.insertAdjacentHTML('beforeend', `<div class="card"><h3>Handsets (IMEI) present at 2 or more crime spots</h3><div class="sub">Catches a criminal who changed the SIM between crimes but kept the phone.</div><div id="tt2"></div></div>`);
+    Table($('#tt2', el), { rows: I.filter(x => x.sN >= 2), sortKey: 'sN', sortDir: -1, exportName: 'tdr_imei', onRow: x => this.recDrawer('IMEI ' + x.imei, x.recs), columns: [{ key: 'imei', label: 'IMEI', render: x => `<b class="mono">${esc(x.imei)}</b>` }, { key: 'sN', label: 'Spots', num: true, render: x => `<span class="badge warn">${x.sN}</span>` }, { key: 'sites', label: 'Where', csv: x => x.sites.join(' | '), render: x => `<span class="small">${x.sites.map(esc).join('<br>')}</span>` }, { key: 'sims', label: 'SIM(s)', csv: x => x.sims.join(' '), render: x => `<span class="mono small">${x.sims.slice(0, 4).map(esc).join('<br>')}</span>${x.sims.length > 1 ? ' <span class="badge bad">SIM changed</span>' : ''}` }, { key: 'cnt', label: 'Records', num: true }, { key: 'first', label: 'First', render: x => esc(Tel.dd(x.first)) }, { key: 'last', label: 'Last', render: x => esc(Tel.dd(x.last)) }] });
+  },
+  tdr_meet(el, d) {
+    const { P, H } = this.tdrMeet(d);
+    el.innerHTML = `<div class="card"><h3>People on the same spot who called or messaged each other</h3><div class="sub">Both numbers were on the towers of the same spot. Gang members often call each other at the scene.</div><div id="tm1"></div></div>
+      <div class="card"><h3>Outside numbers called by 3 or more people on a spot</h3><div class="sub">Not present themselves, but in touch with several people who were there: a possible handler or common contact. Busy numbers like shops also show up, so check them.</div><div id="tm2"></div></div>`;
+    Table($('#tm1', el), { rows: P, sortKey: 'cnt', sortDir: -1, exportName: 'tdr_pairs', onRow: x => this.recDrawer(x.a + ' ↔ ' + x.b, x.recs), columns: [{ key: 'a', label: 'Number 1', render: x => `<b class="mono">${esc(x.a)}</b> ${Tel.alsoB('mobile', x.a)}` }, { key: 'b', label: 'Number 2', render: x => `<b class="mono">${esc(x.b)}</b> ${Tel.alsoB('mobile', x.b)}` }, { key: 'site', label: 'Spot' }, { key: 'cnt', label: 'Calls / SMS', num: true }, { key: 'first', label: 'First', render: x => esc(Tel.dd(x.first)) }, { key: 'last', label: 'Last', render: x => esc(Tel.dd(x.last)) }] });
+    Table($('#tm2', el), { rows: H, sortKey: 'by', sortDir: -1, exportName: 'tdr_contacts', onRow: x => this.recDrawer(x.n, x.recs), columns: [{ key: 'n', label: 'Number', render: x => `<b class="mono">${esc(x.n)}</b> ${Tel.isMob(x.n) ? Tel.alsoB('mobile', x.n) : ''}` }, { key: 'by', label: 'People on spot', num: true }, { key: 'sN', label: 'Spots', num: true, render: x => x.sN > 1 ? `<span class="badge warn">${x.sN}</span>` : '1' }, { key: 'sites', label: 'Where', csv: x => x.sites.join(' | '), render: x => `<span class="small">${x.sites.slice(0, 3).map(esc).join('<br>')}</span>` }, { key: 'cnt', label: 'Records', num: true }] });
+  },
+  tdr_num(el, d) { const { L } = this.tdrStats(d); el.innerHTML = ''; this.tdrTable(el, L.slice().sort((a, b) => b.cnt - a.cnt), 'All numbers present', 'Every A-party number on the towers. Sort by Records to see the most active. ⚑ = also in case data.'); },
+  tdr_dev(el, d) { const { I } = this.tdrStats(d), multi = new Set(I.filter(x => x.sims.length > 1).map(x => x.imei)); this.devTables(el, this.tdrD(d).filter(r => multi.has(r.imei)), 'Only handsets seen with 2 or more SIMs in the dump = SIMs being swapped.'); },
+  tdr_roam(el, d) { const { L } = this.tdrStats(d); el.innerHTML = ''; this.tdrTable(el, L.filter(x => x.foreign || !Tel.isMob(x.n)), 'Foreign SIM / unusual numbers', 'Numbers whose SIM (IMSI) is not Indian, and numbers that are not Indian mobiles.'); },
+  tdr_rec(el, d) { this.recTable(el, this.tdrD(d), 'tdr'); },
 
   /* ======== SMS ======== */
   smsStats(d) {
