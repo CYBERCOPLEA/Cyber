@@ -1235,3 +1235,17 @@ svg.c2.dn .dn-c2{font-size:24px}
 .xt-r{background:var(--surface-2);border-radius:10px;padding:10px 12px;overflow-wrap:anywhere}
 .xt-case{margin-top:12px;padding:10px 12px;border-radius:10px;border:1px dashed var(--border);font-size:13px}
 .xt-res.xt-one{grid-template-columns:1fr}
+
+/* Analytics › CDR / IPDR / TDR / SMS */
+.tel-subs{border-left-color:color-mix(in srgb,#06b6d4 40%,transparent)}
+.tel-kinds{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:4px 0 12px}
+.tel-k{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:12px;border:1px solid color-mix(in srgb,var(--tk) 40%,var(--border));background:color-mix(in srgb,var(--tk) 10%,var(--surface));color:var(--text-primary);font-weight:600;font-size:14px;cursor:pointer;transition:transform .15s;text-align:left}
+.tel-k:hover{transform:translateY(-2px)}
+.tel-k span{width:32px;height:32px;border-radius:9px;display:grid;place-items:center;background:var(--tk);color:#fff;font-size:16px;flex:none}
+.tel-k b{margin-left:auto;font-size:13px;color:var(--tk)}
+.tel-k.on{background:color-mix(in srgb,var(--tk) 24%,var(--surface));border-color:var(--tk);box-shadow:0 0 0 2px color-mix(in srgb,var(--tk) 35%,transparent)}
+.tel-ins ul{margin:6px 0 0;padding-left:20px;display:flex;flex-direction:column;gap:6px;font-size:13.5px;line-height:1.45}
+.tel-heat{display:grid;grid-template-columns:42px repeat(24,minmax(0,1fr));gap:2px;font-size:10.5px}
+.tel-heat .hh{text-align:center;color:var(--text-muted)}.tel-heat .hd{color:var(--text-secondary);font-weight:600;display:flex;align-items:center}
+.tel-heat .hc{height:24px;border-radius:4px;display:grid;place-items:center;color:#3b2600;font-weight:600;font-size:10.5px;cursor:default}
+@media(max-width:900px){.tel-kinds{grid-template-columns:repeat(2,minmax(0,1fr))}}
