@@ -146,7 +146,7 @@ const MData = {
     return Analysis.cached('m:c:' + type, () => {
       const G = new Map();
       for (const r of this.all()) for (const [t, v] of MReply.ids(r)) { if (t !== type) continue; const k = v.toLowerCase(); let g = G.get(k); if (!g) G.set(k, g = { value: v, n: 0, accts: new Set(), plats: new Set(), kinds: new Set(), times: [], recs: [] }); g.n++; g.accts.add(r.acct + ' · ' + MReply.PL[r.platform][0]); g.plats.add(MReply.PL[r.platform][0]); g.kinds.add(r.kind === 'Event' ? r.activity : r.kind); if (r.ist) g.times.push(r.ist); g.recs.push(r); }
-      const EL = this.elsewhere(), map = { mobile: 'mobile', email: 'email', ip: 'ip', regip: 'ip' };
+      const EL = this.elsewhere(), map = { mobile: 'mobile', email: 'email', ip: 'ip', regip: 'ip', username: 'username' };
       return [...G.values()].map(g => { g.times.sort(); const el = map[type] ? EL.get(map[type] + '|' + g.value.toLowerCase()) : null; return { value: g.value, n: g.n, accts: g.accts.size, acctList: [...g.accts].join(', '), plats: [...g.plats].join(' + '), kinds: [...g.kinds].join(', '), first: g.times[0] || '', last: g.times[g.times.length - 1] || '', also: el ? [...el].join(', ') : '', recs: g.recs }; });
     });
   },
@@ -307,7 +307,7 @@ const MTabs = {
   const oi = Analysis.idents;
   Analysis.idents = function () {
     const out = oi.apply(this, arguments);
-    if (!out._m && S.data.meta && S.data.meta.length) { out._m = 1; for (const r of S.data.meta) for (const [t, v] of MReply.ids(r)) if (['mobile', 'email', 'ip'].includes(t)) out.push({ type: t, value: v, section: 'Social', ref: MReply.PL[r.platform][0] + ' · ' + (r.kind === 'Account' ? r.label : r.kind + ' · ' + r.acct), rec: r, meta: 1, label: MReply.PL[r.platform][0] }); }
+    if (!out._m && S.data.meta && S.data.meta.length) { out._m = 1; for (const r of S.data.meta) for (const [t, v] of MReply.ids(r)) if (['mobile', 'email', 'ip', 'username'].includes(t)) out.push({ type: t, value: v, section: 'Social', ref: MReply.PL[r.platform][0] + ' · ' + (r.kind === 'Account' ? r.label : r.kind + ' · ' + r.acct), rec: r, meta: 1, label: MReply.PL[r.platform][0] }); }
     return out;
   };
   if (typeof Demo !== 'undefined') { const od = Demo.load; Demo.load = function () { const before = S.data.txns.length; const r = od.apply(this, arguments); if (S.data.txns.length > before && !MData.all().length) { for (const [name, text] of Object.entries(MDEMO)) { const recs = MReply.parse(text, name); recs.forEach(x => x.id = uid()); MData.all().push(...recs); } saveCase(); } return r; }; }

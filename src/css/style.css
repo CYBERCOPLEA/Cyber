@@ -1197,3 +1197,4 @@ svg.c2.dn .dn-c2{font-size:24px}
 .w-dl{background:#25D366!important;color:#fff}
 .nowrap{white-space:nowrap}
 .tbl td .ipv{overflow-wrap:anywhere;white-space:normal!important}
+.tbl td .badge.warn{white-space:normal;max-width:260px}
