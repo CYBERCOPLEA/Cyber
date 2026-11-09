@@ -980,6 +980,20 @@ svg.c2.dn .dn-c2{font-size:24px}
 .ck-bar{display:inline-block;width:70px;height:8px;border-radius:4px;background:var(--surface-3);vertical-align:middle;overflow:hidden}.ck-bar i{display:block;height:100%}
 #main .tabs{gap:7px}#main .tabs .tab{padding:7px 14px;font-size:13px}
 
+/* Dashboard case boxes */
+.cs-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr)) minmax(220px,1.1fr);gap:12px;margin:0 0 16px}
+.cs-box{--c:#3b82f6;display:flex;align-items:center;gap:12px;text-align:left;padding:14px 16px 22px;border-radius:14px;cursor:pointer;font:inherit;color:var(--text-primary);position:relative;overflow:hidden;
+  border:1.5px solid color-mix(in srgb,var(--c) 55%,transparent);background:linear-gradient(135deg,color-mix(in srgb,var(--c) 30%,var(--surface-1)),color-mix(in srgb,var(--c) 8%,var(--surface-1)));transition:transform .15s,box-shadow .15s}
+.cs-box:hover{transform:translateY(-2px);box-shadow:0 12px 26px -12px var(--c)}
+.cs-all{--c:#3b82f6}.cs-done{--c:#10b981}.cs-pend{--c:#f97316}
+.cs-ic{width:46px;height:46px;flex:0 0 46px;border-radius:12px;display:grid;place-items:center;font-size:22px;background:var(--c);box-shadow:0 6px 16px -6px var(--c)}
+.cs-t{display:flex;flex-direction:column;line-height:1.25}.cs-t b{font-size:28px;color:color-mix(in srgb,var(--c) 30%,var(--text-primary))}.cs-t span{font-weight:700;font-size:14px}.cs-t small{color:var(--text-muted);font-size:11.5px}
+.cs-go{position:absolute;right:12px;bottom:7px;font-size:11.5px;font-weight:700;color:var(--c)}
+.cs-now{display:flex;flex-direction:column;gap:5px;align-items:flex-start;padding:12px 14px;border-radius:14px;border:1px solid var(--border);background:var(--surface-1)}
+.cs-st{display:inline-block;padding:2px 10px;border-radius:999px;font-size:12px;font-weight:700}.cs-st.d{background:color-mix(in srgb,#10b981 22%,transparent);color:#10b981}.cs-st.p{background:color-mix(in srgb,#f97316 22%,transparent);color:#f97316}
+[data-theme=light] .cs-t b{color:color-mix(in srgb,var(--c) 75%,#0f172a)}
+@media (max-width:1100px){.cs-row{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
 </style>
 </head>
 <body>
@@ -6772,6 +6786,47 @@ CafTabs.check = (el, L) => {
 };
 (() => {
   PAGE_META.caf.order = ['data', 'check', 'common', 'photo']; PAGE_META.caf.names = Object.assign(PAGE_META.caf.names || {}, { check: '✅ Data Check (found / missing)' }); PAGE_META.caf.extra = [['check', 'Data Check']];
+})();
+
+</script>
+<script>
+/* casestat.js – Dashboard: Total / Completed / Pending case boxes, each opens the list of those cases */
+'use strict';
+const CaseStat = {
+  done: c => /complet|closed|charge\s*-?sheet|final report|disposed|solved|\bdone\b/i.test((c && c.status) || ''),
+  list(kind) {
+    const L = S.cases.filter(c => kind === 'all' || (kind === 'done') === this.done(c));
+    const T = { all: '📁 All cases', done: '✅ Completed cases', pend: '⏳ Pending cases' }[kind];
+    const body = UI.modal(`${T} (${L.length})`, L.length ? `<div class="tbl-wrap"><table class="tbl cs-tbl"><thead><tr><th>Case</th><th>FIR</th><th>PS</th><th>IO</th><th>Status</th><th>Created</th><th></th></tr></thead><tbody>${L.map(c => `<tr>
+        <td><b>${esc(c.name)}</b>${c.id === S.caseId ? ' <span class="badge info">open</span>' : ''}</td><td>${esc(c.fir || '')}</td><td>${esc(c.ps || '')}</td><td>${esc(c.io || '')}</td>
+        <td><span class="cs-st ${this.done(c) ? 'd' : 'p'}">${esc(c.status || 'Pending')}</span></td><td class="small">${esc(String(c.created || '').slice(0, 10))}</td>
+        <td style="white-space:nowrap"><button class="btn sm srch" data-open="${c.id}">Open</button> <button class="btn sm rst" data-flip="${c.id}">${this.done(c) ? 'Mark pending' : 'Mark completed'}</button></td></tr>`).join('')}</tbody></table></div>`
+      : '<p class="muted">No cases here yet.</p>', [{ label: 'Close', onClick: () => UI.closeModal() }]);
+    $$('[data-open]', body).forEach(b => b.onclick = async () => { UI.closeModal(); await switchCase(S.cases.find(c => String(c.id) === b.dataset.open).id); go('dashboard'); });
+    $$('[data-flip]', body).forEach(b => b.onclick = async () => { await this.flip(b.dataset.flip); this.list(kind); });
+  },
+  async flip(id) {
+    const c = S.cases.find(x => String(x.id) === String(id)); if (!c) return;
+    c.status = this.done(c) ? 'Under investigation' : 'Completed'; await saveMeta(); fillCaseSel(); render();
+    UI.toast(`"${c.name}" marked ${this.done(c) ? 'completed' : 'pending'}`);
+  },
+  html() {
+    const all = S.cases.length, done = S.cases.filter(c => this.done(c)).length, pend = all - done, cur = activeCase() || {}, pct = all ? Math.round(done / all * 100) : 0;
+    const box = (k, ic, n, l, sub) => `<button class="cs-box cs-${k}" data-cs="${k}"><span class="cs-ic">${ic}</span><span class="cs-t"><b>${fmtNum(n)}</b><span>${l}</span><small>${sub}</small></span><span class="cs-go">View list ›</span></button>`;
+    return `<div class="cs-row">${box('all', '📁', all, 'Total cases', 'all cases on this computer')}${box('done', '✅', done, 'Completed', pct + '% of all cases')}${box('pend', '⏳', pend, 'Pending', 'still under investigation')}
+      <div class="cs-now"><div class="small muted">This case</div><b>${esc(cur.name || '')}</b><span class="cs-st ${this.done(cur) ? 'd' : 'p'}">${esc(cur.status || 'Pending')}</span><button class="btn sm ${this.done(cur) ? 'rst' : 'srch'}" id="csFlip">${this.done(cur) ? '↺ Mark pending' : '✔ Mark completed'}</button></div></div>`;
+  }
+};
+(() => {
+  const og = Pages.dashboard;
+  Pages.dashboard = function (main) {
+    const r = og.apply(this, arguments);
+    const h = main.querySelector('.hero-card'); if (!h) return r;
+    h.insertAdjacentHTML('afterend', CaseStat.html());
+    $$('[data-cs]', main).forEach(b => b.onclick = () => CaseStat.list(b.dataset.cs));
+    $('#csFlip', main).onclick = () => CaseStat.flip(S.caseId);
+    return r;
+  };
 })();
 
 </script>
