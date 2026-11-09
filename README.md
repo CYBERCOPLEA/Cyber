@@ -21,3 +21,6 @@ bank statements and KYC, social media replies, mule-account flags, notices and r
 | `tools/bundle.py` | Rebuilds the single file: `python3 tools/bundle.py src Sudarshanastra.html` |
 
 **Never commit real case files, exports or backups to this repository.**
+
+## IFSC data
+`data/ifsc-data.gz` is the public RBI bank branch list as published by github.com/razorpay/ifsc (MIT). The app loads it once and keeps it in the browser. With the offline HTML file, load it from IFSC Lookup → "Load IFSC database file".

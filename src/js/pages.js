@@ -51,7 +51,7 @@ Pages.dashboard = main => {
       <div class="card"><h3>Money by layer</h3><div class="sub">Total amount received by accounts at each layer</div><div id="chLayer"></div></div>
       <div class="card"><h3>Top receiving banks</h3><div class="sub">Where the money went (send notices to these nodal officers first). Click a bar to filter accounts.</div><div id="chBank"></div></div>
       <div class="card"><h3>Daily transaction amount</h3><div class="sub">From money trail and statements</div><div id="chDay"></div></div>
-      <div class="card"><div class="row" style="flex-wrap:wrap;gap:8px"><h3 class="grow" style="margin:0">Beneficiary States / Districts</h3><span class="pill-tabs" id="stSw"><button data-sd="state" class="${(S.dashSD || 'state') === 'state' ? 'on' : ''}" style="--tc:#3b82f6">🗺 States</button><button data-sd="district" class="${S.dashSD === 'district' ? 'on' : ''}" style="--tc:#10b981">📍 Districts</button></span></div><div class="sub">From KYC, trail and NCRP records</div><div id="chState"></div></div>
+      <div class="card"><div class="row" style="flex-wrap:wrap;gap:8px"><h3 class="grow" style="margin:0">Beneficiary States / Districts</h3><span class="pill-tabs" id="stSw"><button data-sd="state" class="${(S.dashSD || 'state') === 'state' ? 'on' : ''}" style="--tc:#3b82f6">🗺 States</button><button data-sd="district" class="${S.dashSD === 'district' ? 'on' : ''}" style="--tc:#10b981">📍 Districts</button></span></div><div class="sub">From KYC, trail and NCRP records, and the bank branch of each IFSC</div><div id="chState"></div></div>
     </div>
     <div class="card"><h3>Top suspect accounts</h3><div class="sub">Ranked by risk score. Click a row for full details.</div><div id="dTop"></div></div>`;
   $('#dImport').onclick = () => openImport(['txn', 'stmt', 'kyc', 'ncrp', 'social'], render);
@@ -67,7 +67,7 @@ Pages.dashboard = main => {
   const days = groupBy(d.txns.filter(t => t.date), t => t.date.slice(0, 10));
   Charts.line($('#chDay'), [...days.keys()].sort().map(k => ({ label: k, value: sum(days.get(k), t => t.amount) })), { fmt: fmtINR });
   const drawSD = () => {
-    const f = S.dashSD || 'state', st = groupBy([...d.kyc.map(k => k[f]), ...d.txns.map(t => t[f]), ...d.ncrp.map(n => n[f])].filter(Boolean).map(x => String(x).trim().toUpperCase()), x => x);
+    const f = S.dashSD || 'state', st = groupBy([...d.kyc.map(k => k[f]), ...d.txns.map(t => t[f] || t['to_ifsc_' + f]), ...d.ncrp.map(n => n[f])].filter(Boolean).map(x => String(x).trim().toUpperCase()), x => x);
     $$('#stSw button').forEach(b => b.classList.toggle('on', b.dataset.sd === f));
     Charts.hbar($('#chState'), [...st].map(([k, v]) => ({ label: k, value: v.length })).sort((a, b) => b.value - a.value), { fmt: v => v + (v === 1 ? ' record' : ' records') });
   };

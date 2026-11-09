@@ -1021,3 +1021,14 @@ svg.c2.dn .dn-c2{font-size:24px}
 #main .kpi.kc2::after{width:58px;height:58px;right:-14px;bottom:-18px;border-width:9px;border-color:color-mix(in srgb,var(--kc) 16%,transparent)}
 #main .kpi.kc2>*{position:relative;z-index:1}
 #main .kpi.kc2 .label{border-radius:8px}
+
+/* IFSC lookup */
+.ifsc-hero{display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:linear-gradient(135deg,color-mix(in srgb,#0ea5e9 22%,var(--surface-1)),var(--surface-1) 70%)!important}
+.ifsc-ic{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;font-size:26px;background:linear-gradient(135deg,#0ea5e9,#6366f1);box-shadow:0 8px 20px -8px #0ea5e9}
+.ifsc-hero h3{margin:0 0 4px}
+.ifsc-f{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.ifsc-f label{display:flex;flex-direction:column;gap:4px;font-size:12.5px;font-weight:600;color:var(--text-secondary)}
+.ifsc-card{margin-top:12px;padding:14px 16px;border-radius:14px;border:1.5px solid color-mix(in srgb,#0ea5e9 50%,var(--border));background:linear-gradient(135deg,color-mix(in srgb,#0ea5e9 14%,var(--surface-2)),var(--surface-2))}
+.ifsc-bank{font-size:18px;font-weight:800;margin-bottom:8px;color:color-mix(in srgb,#0ea5e9 40%,var(--text-primary))}
+.ifsc-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px 14px}.ifsc-grid .wide{grid-column:1/-1}
+.ifsc-grid span{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted)}.ifsc-grid b{font-size:14px}
+.badge.good{background:color-mix(in srgb,#10b981 22%,transparent);color:#10b981}
