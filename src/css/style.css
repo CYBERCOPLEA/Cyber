@@ -994,3 +994,30 @@ svg.c2.dn .dn-c2{font-size:24px}
 .pill-tabs button.on{color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.4);background:linear-gradient(180deg,color-mix(in srgb,var(--tc) 82%,#fff),var(--tc));box-shadow:0 0 0 3px color-mix(in srgb,var(--tc) 28%,transparent)}
 [data-theme=light] .pill-tabs button{background:linear-gradient(180deg,color-mix(in srgb,var(--tc) 18%,#fff),color-mix(in srgb,var(--tc) 6%,#fff));color:color-mix(in srgb,var(--tc) 55%,#0f172a)}
 [data-theme=light] .pill-tabs button.on{color:#fff;background:linear-gradient(180deg,color-mix(in srgb,var(--tc) 85%,#fff),var(--tc))}
+
+/* glance charts: click a bar / slice → records drawer */
+.rec-click .it,.rec-click .lg-it{cursor:pointer}
+#drawer.dr-wide{width:min(980px,72vw)}
+.rec-kpi{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.rec-kpi>div{flex:1;min-width:120px;padding:10px 12px;border-radius:12px;background:linear-gradient(135deg,color-mix(in srgb,#8b5cf6 26%,var(--surface-2)),var(--surface-2));border:1px solid color-mix(in srgb,#8b5cf6 45%,var(--border))}
+.rec-kpi>div:nth-child(2){background:linear-gradient(135deg,color-mix(in srgb,#10b981 26%,var(--surface-2)),var(--surface-2));border-color:color-mix(in srgb,#10b981 45%,var(--border))}
+.rec-kpi>div:nth-child(3){background:linear-gradient(135deg,color-mix(in srgb,#f97316 26%,var(--surface-2)),var(--surface-2));border-color:color-mix(in srgb,#f97316 45%,var(--border))}
+.rec-kpi b{display:block;font-size:22px}.rec-kpi span{font-size:12px;color:var(--text-muted)}
+
+/* ===== New design for the count boxes (every page) ===== */
+#main .kpis{gap:14px}
+#main .kpi.kc2{border-radius:16px;padding:14px 16px 14px 18px;border:1.5px solid color-mix(in srgb,var(--kc) 60%,transparent);
+  background:radial-gradient(120% 140% at 100% 0%,color-mix(in srgb,var(--kc) 42%,transparent) 0%,transparent 55%),linear-gradient(150deg,color-mix(in srgb,var(--kc) 30%,var(--surface-1)),color-mix(in srgb,var(--kc) 6%,var(--surface-1)) 75%);
+  box-shadow:0 10px 26px -16px var(--kc),inset 0 1px 0 rgba(255,255,255,.07)}
+#main .kpi.kc2::before{width:5px;border-radius:0 4px 4px 0;top:12px;bottom:12px;background:linear-gradient(180deg,var(--kc),color-mix(in srgb,var(--kc) 40%,transparent))}
+#main .kpi.kc2::after{content:"";position:absolute;right:-18px;bottom:-26px;width:86px;height:86px;border-radius:50%;border:12px solid color-mix(in srgb,var(--kc) 22%,transparent);pointer-events:none}
+#main .kpi.kc2 .label{display:inline-block;padding:2px 9px;border-radius:999px;background:color-mix(in srgb,var(--kc) 24%,transparent);color:color-mix(in srgb,var(--kc) 40%,#fff);font-weight:800;letter-spacing:.5px}
+#main .kpi.kc2 .value{color:#fff;text-shadow:0 2px 12px color-mix(in srgb,var(--kc) 55%,transparent)}
+#main .kpi.kc2 .hint{color:color-mix(in srgb,var(--kc) 30%,var(--text-secondary))}
+#main .kpi.kc2:hover{transform:translateY(-3px);box-shadow:0 16px 30px -14px var(--kc)}
+[data-theme=light] #main .kpi.kc2{background:radial-gradient(120% 140% at 100% 0%,color-mix(in srgb,var(--kc) 22%,transparent) 0%,transparent 55%),linear-gradient(150deg,color-mix(in srgb,var(--kc) 14%,#fff),#fff 80%)}
+[data-theme=light] #main .kpi.kc2 .label{color:color-mix(in srgb,var(--kc) 75%,#0f172a)}
+[data-theme=light] #main .kpi.kc2 .value{color:color-mix(in srgb,var(--kc) 72%,#0f172a);text-shadow:none}
+#main .kpi.kc2::after{width:58px;height:58px;right:-14px;bottom:-18px;border-width:9px;border-color:color-mix(in srgb,var(--kc) 16%,transparent)}
+#main .kpi.kc2>*{position:relative;z-index:1}
+#main .kpi.kc2 .label{border-radius:8px}

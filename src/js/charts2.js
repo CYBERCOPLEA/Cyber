@@ -96,7 +96,7 @@
     return `<svg class="chart c2 vb" viewBox="0 0 ${W} ${H}"><defs>${data.map((d, i) => `<linearGradient id="vg${g}_${i}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${col(i)}"/><stop offset="1" stop-color="${col(i)}" stop-opacity=".55"/></linearGradient>`).join('')}</defs>
       ${ticks.map(t => { const y = H - pb - (H - pb - pt) * t / mx; return `<line class="gridline" x1="${pl}" x2="${W}" y1="${y}" y2="${y}"/><text x="${pl - 6}" y="${y + 4}" text-anchor="end">${esc(Charts.short(t))}</text>`; }).join('')}
       ${data.map((d, i) => { const h = Math.max(2, (H - pb - pt) * d.value / mx), w = Math.max(3, Math.min(bw * .72 - 2, 58)), x = pl + i * bw + (bw - w) / 2, r = Math.min(6, w / 2);
-        return `<g class="it" data-tip="${esc(tipHtml(d, col(i), fmt, tot))}" style="--c:${col(i)}"><rect x="${pl + i * bw}" y="${pt}" width="${bw}" height="${H - pb - pt}" fill="transparent"/>
+        return `<g class="it" data-i="${i}" data-tip="${esc(tipHtml(d, col(i), fmt, tot))}" style="--c:${col(i)}"><rect x="${pl + i * bw}" y="${pt}" width="${bw}" height="${H - pb - pt}" fill="transparent"/>
         <path class="bar" d="M${x},${H - pb} v${-(h - r)} q0,${-r} ${r},${-r} h${w - 2 * r} q${r},0 ${r},${r} v${h - r} z" fill="url(#vg${g}_${i})"/>
         ${data.length <= 14 && h > 0 ? `<text class="vt" x="${x + w / 2}" y="${H - pb - h - 5}" text-anchor="middle">${esc(Charts.short(d.value))}</text>` : ''}
         ${data.length <= 16 || i % Math.ceil(data.length / 12) === 0 ? `<text x="${x + w / 2}" y="${H - pb + 15}" text-anchor="middle">${esc(String(d.label).slice(0, 10))}</text>` : ''}</g>`; }).join('')}

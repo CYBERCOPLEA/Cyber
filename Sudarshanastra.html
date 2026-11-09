@@ -1003,6 +1003,33 @@ svg.c2.dn .dn-c2{font-size:24px}
 [data-theme=light] .pill-tabs button{background:linear-gradient(180deg,color-mix(in srgb,var(--tc) 18%,#fff),color-mix(in srgb,var(--tc) 6%,#fff));color:color-mix(in srgb,var(--tc) 55%,#0f172a)}
 [data-theme=light] .pill-tabs button.on{color:#fff;background:linear-gradient(180deg,color-mix(in srgb,var(--tc) 85%,#fff),var(--tc))}
 
+/* glance charts: click a bar / slice → records drawer */
+.rec-click .it,.rec-click .lg-it{cursor:pointer}
+#drawer.dr-wide{width:min(980px,72vw)}
+.rec-kpi{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.rec-kpi>div{flex:1;min-width:120px;padding:10px 12px;border-radius:12px;background:linear-gradient(135deg,color-mix(in srgb,#8b5cf6 26%,var(--surface-2)),var(--surface-2));border:1px solid color-mix(in srgb,#8b5cf6 45%,var(--border))}
+.rec-kpi>div:nth-child(2){background:linear-gradient(135deg,color-mix(in srgb,#10b981 26%,var(--surface-2)),var(--surface-2));border-color:color-mix(in srgb,#10b981 45%,var(--border))}
+.rec-kpi>div:nth-child(3){background:linear-gradient(135deg,color-mix(in srgb,#f97316 26%,var(--surface-2)),var(--surface-2));border-color:color-mix(in srgb,#f97316 45%,var(--border))}
+.rec-kpi b{display:block;font-size:22px}.rec-kpi span{font-size:12px;color:var(--text-muted)}
+
+/* ===== New design for the count boxes (every page) ===== */
+#main .kpis{gap:14px}
+#main .kpi.kc2{border-radius:16px;padding:14px 16px 14px 18px;border:1.5px solid color-mix(in srgb,var(--kc) 60%,transparent);
+  background:radial-gradient(120% 140% at 100% 0%,color-mix(in srgb,var(--kc) 42%,transparent) 0%,transparent 55%),linear-gradient(150deg,color-mix(in srgb,var(--kc) 30%,var(--surface-1)),color-mix(in srgb,var(--kc) 6%,var(--surface-1)) 75%);
+  box-shadow:0 10px 26px -16px var(--kc),inset 0 1px 0 rgba(255,255,255,.07)}
+#main .kpi.kc2::before{width:5px;border-radius:0 4px 4px 0;top:12px;bottom:12px;background:linear-gradient(180deg,var(--kc),color-mix(in srgb,var(--kc) 40%,transparent))}
+#main .kpi.kc2::after{content:"";position:absolute;right:-18px;bottom:-26px;width:86px;height:86px;border-radius:50%;border:12px solid color-mix(in srgb,var(--kc) 22%,transparent);pointer-events:none}
+#main .kpi.kc2 .label{display:inline-block;padding:2px 9px;border-radius:999px;background:color-mix(in srgb,var(--kc) 24%,transparent);color:color-mix(in srgb,var(--kc) 40%,#fff);font-weight:800;letter-spacing:.5px}
+#main .kpi.kc2 .value{color:#fff;text-shadow:0 2px 12px color-mix(in srgb,var(--kc) 55%,transparent)}
+#main .kpi.kc2 .hint{color:color-mix(in srgb,var(--kc) 30%,var(--text-secondary))}
+#main .kpi.kc2:hover{transform:translateY(-3px);box-shadow:0 16px 30px -14px var(--kc)}
+[data-theme=light] #main .kpi.kc2{background:radial-gradient(120% 140% at 100% 0%,color-mix(in srgb,var(--kc) 22%,transparent) 0%,transparent 55%),linear-gradient(150deg,color-mix(in srgb,var(--kc) 14%,#fff),#fff 80%)}
+[data-theme=light] #main .kpi.kc2 .label{color:color-mix(in srgb,var(--kc) 75%,#0f172a)}
+[data-theme=light] #main .kpi.kc2 .value{color:color-mix(in srgb,var(--kc) 72%,#0f172a);text-shadow:none}
+#main .kpi.kc2::after{width:58px;height:58px;right:-14px;bottom:-18px;border-width:9px;border-color:color-mix(in srgb,var(--kc) 16%,transparent)}
+#main .kpi.kc2>*{position:relative;z-index:1}
+#main .kpi.kc2 .label{border-radius:8px}
+
 </style>
 </head>
 <body>
@@ -2126,7 +2153,7 @@ function openImport(allowed, onDone, presetFiles) {
     return `<svg class="chart c2 vb" viewBox="0 0 ${W} ${H}"><defs>${data.map((d, i) => `<linearGradient id="vg${g}_${i}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${col(i)}"/><stop offset="1" stop-color="${col(i)}" stop-opacity=".55"/></linearGradient>`).join('')}</defs>
       ${ticks.map(t => { const y = H - pb - (H - pb - pt) * t / mx; return `<line class="gridline" x1="${pl}" x2="${W}" y1="${y}" y2="${y}"/><text x="${pl - 6}" y="${y + 4}" text-anchor="end">${esc(Charts.short(t))}</text>`; }).join('')}
       ${data.map((d, i) => { const h = Math.max(2, (H - pb - pt) * d.value / mx), w = Math.max(3, Math.min(bw * .72 - 2, 58)), x = pl + i * bw + (bw - w) / 2, r = Math.min(6, w / 2);
-        return `<g class="it" data-tip="${esc(tipHtml(d, col(i), fmt, tot))}" style="--c:${col(i)}"><rect x="${pl + i * bw}" y="${pt}" width="${bw}" height="${H - pb - pt}" fill="transparent"/>
+        return `<g class="it" data-i="${i}" data-tip="${esc(tipHtml(d, col(i), fmt, tot))}" style="--c:${col(i)}"><rect x="${pl + i * bw}" y="${pt}" width="${bw}" height="${H - pb - pt}" fill="transparent"/>
         <path class="bar" d="M${x},${H - pb} v${-(h - r)} q0,${-r} ${r},${-r} h${w - 2 * r} q${r},0 ${r},${r} v${h - r} z" fill="url(#vg${g}_${i})"/>
         ${data.length <= 14 && h > 0 ? `<text class="vt" x="${x + w / 2}" y="${H - pb - h - 5}" text-anchor="middle">${esc(Charts.short(d.value))}</text>` : ''}
         ${data.length <= 16 || i % Math.ceil(data.length / 12) === 0 ? `<text x="${x + w / 2}" y="${H - pb + 15}" text-anchor="middle">${esc(String(d.label).slice(0, 10))}</text>` : ''}</g>`; }).join('')}
@@ -6174,18 +6201,19 @@ let LayoutSoc = null;
    Each entry returns a list of charts: [title, data [{label, value, sub}], fmt]. */
 'use strict';
 (() => {
-  const cnt = (arr, key) => { const M = new Map(); arr.forEach(x => { const k = typeof key === 'function' ? key(x) : x[key]; if (k == null || k === '') return; M.set(k, (M.get(k) || 0) + 1); }); return [...M].map(([label, value]) => ({ label: String(label), value })).sort((a, b) => b.value - a.value); };
-  const add = (arr, key, val) => { const M = new Map(); arr.forEach(x => { const k = typeof key === 'function' ? key(x) : x[key]; if (k == null || k === '') return; M.set(k, (M.get(k) || 0) + (+val(x) || 0)); }); return [...M].map(([label, value]) => ({ label: String(label), value })).filter(d => d.value > 0).sort((a, b) => b.value - a.value); };
+  // each bar keeps the records behind it (recs), so a click can list them
+  const cnt = (arr, key) => { const M = new Map(); arr.forEach(x => { const k = typeof key === 'function' ? key(x) : x[key]; if (k == null || k === '') return; (M.get(k) || M.set(k, []).get(k)).push(x); }); return [...M].map(([label, recs]) => ({ label: String(label), value: recs.length, recs })).sort((a, b) => b.value - a.value); };
+  const add = (arr, key, val) => { const M = new Map(); arr.forEach(x => { const k = typeof key === 'function' ? key(x) : x[key]; if (k == null || k === '') return; const g = M.get(k) || M.set(k, { v: 0, recs: [] }).get(k); g.v += +val(x) || 0; g.recs.push(x); }); return [...M].map(([label, g]) => ({ label: String(label), value: g.v, recs: g.recs })).filter(d => d.value > 0).sort((a, b) => b.value - a.value); };
   const recs = n => v => fmtNum(v) + ' ' + (v === 1 ? ({ IPs: 'IP', CAFs: 'CAF', SIMs: 'SIM' }[n] || n.replace(/ies$/, 'y').replace(/s$/, '')) : n);
   const bank1 = a => (a.bank || '').split(' / ')[0] || 'Unknown';
   const accs = () => Analysis.accountRows().filter(a => !isSynthetic(a.acc));
   const risk = a => a.score >= 60 ? 'High risk (60+)' : a.score >= 30 ? 'Medium risk (30–59)' : 'Low risk (< 30)';
-  const commonCounts = (fields, fn, lab) => fields.map(f => { let g = []; try { g = fn(f); } catch (e) { } return { label: lab(f), value: g.length }; }).filter(d => d.value > 0).sort((a, b) => b.value - a.value);
+  const commonCounts = (fields, fn, lab) => fields.map(f => { let g = []; try { g = fn(f); } catch (e) { } return { label: lab(f), value: g.length, recs: g.map(({ recs, ...x }) => x) }; }).filter(d => d.value > 0).sort((a, b) => b.value - a.value);
   const months = (arr, key) => cnt(arr.filter(x => x[key]), x => String(x[key]).slice(0, 7)).sort((a, b) => a.label.localeCompare(b.label));
   const G = {
     'financial/data': () => [['Amount by payment mode', add(S.data.txns, t => t.mode || 'Unknown', t => Math.abs(t.amount)), fmtINR], ['Transactions by layer', cnt(S.data.txns.filter(t => t.layer), t => 'Layer ' + t.layer).sort((a, b) => a.label.localeCompare(b.label, 'en', { numeric: true })), recs('txns'), 'v']],
     'financial/trail': () => [['Money received by layer', add(accs().filter(a => a.layer > 0), a => 'Layer ' + a.layer, a => a.inAmt).sort((a, b) => a.label.localeCompare(b.label, 'en', { numeric: true })), fmtINR, 'v'], ['Accounts by bank', cnt(accs().filter(a => a.layer > 0), bank1), recs('accounts')]],
-    'financial/suspects': () => [['Accounts by risk level', cnt(accs(), risk), recs('accounts')], ['Top suspect accounts by money received', accs().sort((a, b) => b.inAmt - a.inAmt).slice(0, 10).map(a => ({ label: a.acc, value: a.inAmt, sub: [a.name, bank1(a), 'risk ' + a.score].filter(Boolean).join(' · ') })), fmtINR]],
+    'financial/suspects': () => [['Accounts by risk level', cnt(accs(), risk), recs('accounts')], ['Top suspect accounts by money received', accs().sort((a, b) => b.inAmt - a.inAmt).slice(0, 10).map(a => ({ label: a.acc, value: a.inAmt, sub: [a.name, bank1(a), 'risk ' + a.score].filter(Boolean).join(' · '), recs: [a] })), fmtINR]],
     'financial/common': () => [['Shared values by type', commonCounts(['account', 'beneficiary', 'mobile', 'email', 'pan', 'aadhaar', 'ifsc', 'name'], f => Analysis.finCommon(f).filter(g => g.n >= 2), f => Analysis.FIN_COMMON[f].label), recs('shared values')]],
     'financial/kyc': () => [['KYC records by bank', cnt(S.data.kyc, k => k.bank || 'Unknown'), recs('records')], ['KYC records by state', cnt(S.data.kyc, 'state'), recs('records')]],
     'financial/banks': () => [['Money received by bank', add(accs().filter(a => a.layer > 0), bank1, a => a.inAmt), fmtINR], ['Amount on hold by bank', add(accs(), bank1, a => a.hold), fmtINR]],
@@ -6194,7 +6222,7 @@ let LayoutSoc = null;
     'ncrp/link': () => [['Complaints by status', cnt(S.data.ncrp, n => n.status || 'Not given'), recs('complaints')], ['Loss vs on hold', [{ label: 'Still lost', value: Math.max(0, S.data.ncrp.reduce((a, n) => a + (+n.amount || 0), 0) - S.data.ncrp.reduce((a, n) => a + (+n.hold_amount || 0), 0)) }, { label: 'On hold', value: S.data.ncrp.reduce((a, n) => a + (+n.hold_amount || 0), 0) }], fmtINR]],
     'ncrp/common': () => [['Complaints by district', cnt(S.data.ncrp, 'district'), recs('complaints')], ['Complaints by month', months(S.data.ncrp, 'date'), recs('complaints'), 'v']],
     'analytics/common': () => [['Shared values by type', commonCounts(['account', 'mobile', 'email', 'pan', 'aadhaar', 'ifsc'], f => Analysis.finCommon(f).filter(g => g.n >= 2), f => Analysis.FIN_COMMON[f].label), recs('shared values')]],
-    'analytics/flags': () => { const F = new Map(); accs().forEach(a => (a.flags || []).forEach(f => { const k = /complaints/i.test(f) ? 'In 2 or more complaints' : /senders/i.test(f) ? 'Paid by many senders' : /^Pass-through/.test(f) ? 'Pass-through (out ≥ 80% of in)' : /^Shares KYC/.test(f) ? 'Shares KYC details with others' : /sent to \d+/i.test(f) ? 'Bulk split (sent to many)' : f.slice(0, 40); F.set(k, (F.get(k) || 0) + 1); })); return [['Mule flags found', [...F].map(([label, value]) => ({ label, value })).sort((a, b) => b.value - a.value), recs('accounts')], ['Accounts by risk level', cnt(accs(), risk), recs('accounts')]]; },
+    'analytics/flags': () => { const F = new Map(); accs().forEach(a => (a.flags || []).forEach(f => { const k = /complaints/i.test(f) ? 'In 2 or more complaints' : /senders/i.test(f) ? 'Paid by many senders' : /^Pass-through/.test(f) ? 'Pass-through (out ≥ 80% of in)' : /^Shares KYC/.test(f) ? 'Shares KYC details with others' : /sent to \d+/i.test(f) ? 'Bulk split (sent to many)' : f.slice(0, 40); (F.get(k) || F.set(k, []).get(k)).push(a); })); return [['Mule flags found', [...F].map(([label, recs]) => ({ label, value: recs.length, recs })).sort((a, b) => b.value - a.value), recs('accounts')], ['Accounts by risk level', cnt(accs(), risk), recs('accounts')]]; },
     'analytics/velocity': () => [['Money received by layer', add(accs().filter(a => a.layer > 0), a => 'Layer ' + a.layer, a => a.inAmt).sort((a, b) => a.label.localeCompare(b.label, 'en', { numeric: true })), fmtINR, 'v'], ['Cash / ATM withdrawn by bank', add(accs(), bank1, a => a.cashOut), fmtINR]],
     'analytics/cross': () => { let X = []; try { X = Analysis.crossLinks().filter(x => x.refs >= 2); } catch (e) { } return [['Cross-linked identifiers by type', cnt(X, 'type'), recs('identifiers')], ['Seen in how many sources', cnt(X, x => x.sections + ' sources'), recs('identifiers')]]; },
     'analytics/round': () => [['Accounts by risk level', cnt(accs(), risk), recs('accounts')]],
@@ -6214,10 +6242,10 @@ let LayoutSoc = null;
     const host = $('#tabBody') || $('#main'); if (!host || host.querySelector('.glance')) return;
     const id = 'gl' + (++n);
     const box = document.createElement('div'); box.className = 'card glance';
-    box.innerHTML = `<h3>📊 At a glance</h3><div class="sub">Hover a bar or slice to see its figures. Switch between Bar, Round and Both.</div><div class="glance-g g${Math.min(list.length, 3)}">${list.map((c, i) => `<div class="glance-c"><h4>${esc(c[0])}</h4><div id="${id}_${i}"></div></div>`).join('')}</div>`;
+    box.innerHTML = `<h3>📊 At a glance</h3><div class="sub">Hover a bar or slice to see its figures. <b>Click it to see all its records on the right.</b> Switch between Bar, Round and Both.</div><div class="glance-g g${Math.min(list.length, 3)}">${list.map((c, i) => `<div class="glance-c"><h4>${esc(c[0])}</h4><div id="${id}_${i}"></div></div>`).join('')}</div>`;
     const k = host.querySelector(':scope > .kpis') || host.querySelector(':scope > .note') || host.querySelector(':scope > .caf-drop') || (host.id === 'main' && host.querySelector(':scope > .page-title'));
     k ? k.after(box) : host.prepend(box);
-    list.forEach((c, i) => { const el = $('#' + id + '_' + i); el.id = 'glc_' + key.replace(/\W/g, '_') + '_' + i; (c[3] === 'v' ? Charts.vbar : Charts.hbar)(el, c[1], { fmt: c[2] || fmtNum, max: 10 }); });
+    list.forEach((c, i) => { const el = $('#' + id + '_' + i); el.id = 'glc_' + key.replace(/\W/g, '_') + '_' + i; (c[3] === 'v' ? Charts.vbar : Charts.hbar)(el, c[1], { fmt: c[2] || fmtNum, max: 10 }); if (typeof Records !== 'undefined') Records.bind(el, c[0], c[1], c[3] === 'v' ? 1e9 : 10); });
   };
   Object.keys(Pages).forEach(p => { const orig = Pages[p]; Pages[p] = function (main) { const r = orig.apply(this, arguments); try { inject(p); } catch (e) { console.warn(e); } return r; }; });
   // tab clicks inside a page re-render only the tab body: watch for that too
@@ -6842,6 +6870,44 @@ const CaseStat = {
     return r;
   };
 })();
+
+</script>
+<script>
+/* glancerecs.js – click a bar or slice in any "At a glance" chart: the records behind it open on the right */
+'use strict';
+const Records = {
+  PRI: ['ack_no', 'acc', 'value', 'label', 'from_acc', 'from_name', 'to_acc', 'to_name', 'name', 'victim', 'layer', 'amount', 'inAmt', 'outAmt', 'hold', 'date', 'txn_id', 'mode', 'action', 'bank', 'to_bank', 'ifsc', 'to_ifsc',
+    'mobile', 'email', 'pan', 'aadhaar', 'state', 'district', 'category', 'sub_category', 'status', 'platform', 'profile', 'ip', 'operator', 'pos_name', 'pos_code', 'pos_agent', 'act_date', 'alt', 'score', 'flags', 'n', 'accs', 'acks', 'title', 'text', 'tag', 'file', '_src'],
+  NAMES: { ack_no: 'Ack No', acc: 'Account', from_acc: 'From account', from_name: 'From name', to_acc: 'To account', to_name: 'Beneficiary', inAmt: 'Received', outAmt: 'Sent', txn_id: 'Txn ID / UTR', to_bank: 'Bank', to_ifsc: 'IFSC', ifsc: 'IFSC', pan: 'PAN', ip: 'IP', act_date: 'Activation date', pos_name: 'POS', pos_code: 'POS code', pos_agent: 'POS agent', alt: 'Alternate no.', sub_category: 'Sub-category', n: 'Times', accs: 'Accounts', acks: 'Complaints', _src: 'File', value: 'Value' },
+  ACC: new Set(['acc', 'from_acc', 'to_acc']), MONEY: new Set(['amount', 'inAmt', 'outAmt', 'hold', 'disputed', 'hold_amount', 'cashOut']),
+  label(k) { return this.NAMES[k] || (k.charAt(0).toUpperCase() + k.slice(1)).replace(/_/g, ' '); },
+  show(title, recs) {
+    if (!recs || !recs.length) return;
+    const seen = new Set(); recs.slice(0, 300).forEach(r => Object.keys(r).forEach(k => { const v = r[k]; if (v == null || v === '' || typeof v === 'function') return; if ((k.startsWith('_') && k !== '_src') || k === 'id' || k === 'fx' || k === 'readable' || (k === 'text' && String(v).length > 200) || k === 'photos' || k === 'pairs' || k === 'recs' || k === 'pages') return; if (typeof v === 'object' && !(Array.isArray(v) && v.every(x => typeof x !== 'object'))) return; seen.add(k); }));
+    const keys = [...this.PRI.filter(k => seen.has(k)), ...[...seen].filter(k => !this.PRI.includes(k))].slice(0, 18);
+    const amt = recs.some(r => r.amount != null) ? sum(recs, r => Math.abs(+r.amount || 0)) : null;
+    const body = UI.drawer(title, `<div class="rec-kpi"><div><b>${fmtNum(recs.length)}</b><span>record${recs.length === 1 ? '' : 's'}</span></div>${amt != null ? `<div><b>${fmtINR(amt)}</b><span>total amount</span></div>` : ''}${recs.some(r => r.acc || r.to_acc) ? `<div><b>${fmtNum(uniq(recs.map(r => r.acc || r.to_acc).filter(Boolean)).length)}</b><span>accounts</span></div>` : ''}</div><div id="recT"></div>`);
+    $('#drawer').classList.add('dr-wide');
+    Table($('#recT', body), { rows: recs, exportName: 'records_' + title.replace(/\W+/g, '_').slice(0, 40), pageSize: 50,
+      columns: keys.map(k => ({ key: k, label: this.label(k), num: this.MONEY.has(k) || k === 'layer' || k === 'score',
+        render: r => { const v = r[k]; if (v == null) return ''; if (this.ACC.has(k)) return accLink(String(v)); if (this.MONEY.has(k)) return fmtINR(v); if (Array.isArray(v)) return esc(v.join('; ')); const s = String(v); return s.length > 90 ? `<span title="${esc(s)}">${esc(s.slice(0, 90))}…</span>` : esc(s); },
+        csv: r => Array.isArray(r[k]) ? r[k].join('; ') : r[k] })),
+      after: bindAccLinks, onRow: r => { if (r.pairs && typeof CAF !== 'undefined') CAF.show(r); else if (r.acc && !isSynthetic(r.acc)) showAccount(r.acc); else if (r.to_acc) showAccount(r.to_acc); } });
+  },
+  // hook a glance chart: el = chart host, data = its [{label, value, recs}], max = bars shown before "Others"
+  bind(el, title, data, max) {
+    if (!data.some(d => d.recs && d.recs.length)) return;
+    el.classList.add('rec-click');
+    el.addEventListener('click', e => {
+      if (e.target.closest('.ch-sw')) return;
+      const it = e.target.closest('[data-i],[data-li]'); if (!it || !el.contains(it)) return;
+      const i = +(it.dataset.i ?? it.dataset.li); let d = data[i], recs, lab;
+      if (i >= max || !d) { recs = data.slice(max).flatMap(x => x.recs || []); lab = 'Others'; } else { recs = d.recs || []; lab = d.label; }
+      Charts.tip(e, null); Records.show(`${title} – ${lab}`, recs);
+    });
+  }
+};
+(() => { const od = UI.drawer; UI.drawer = function () { $('#drawer').classList.remove('dr-wide'); return od.apply(this, arguments); }; })();
 
 </script>
 </body>
