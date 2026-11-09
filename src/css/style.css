@@ -916,3 +916,28 @@ svg.c2.dn .dn-c2{font-size:24px}
 .gp-common-kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
 .gp-common-kpi>div{display:flex;flex-direction:column;gap:2px;padding:10px 12px;border-radius:12px;border:1px solid rgba(239,68,68,.45);background:linear-gradient(135deg,rgba(239,68,68,.14),rgba(22,163,74,.10))}
 .gp-common-kpi span{font-size:18px}.gp-common-kpi b{font-size:20px}.gp-common-kpi small{opacity:.8}
+
+/* --- review fixes --- */
+/* bar charts drawn as HTML rows */
+.c2.hbh{display:flex;flex-direction:column;gap:3px;padding:4px 2px;width:100%}
+.c2.hbh .it{display:grid;grid-template-columns:minmax(70px,38%) minmax(40px,1fr) auto;align-items:center;gap:8px;padding:3px 4px;border-radius:8px;transition:opacity .15s,background .15s}
+.c2.hbh .lb{font-size:12.5px;color:var(--text-primary);text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.c2.hbh .trk{height:16px;border-radius:6px;background:color-mix(in srgb,var(--surface-3) 55%,transparent);overflow:hidden}
+.c2.hbh .bar{display:block;height:100%;border-radius:6px;transition:filter .15s}
+.c2.hbh .vl{font-size:12px;font-weight:700;color:var(--text-primary);white-space:nowrap;min-width:60px}
+.c2.hbh.hov .it:not(.pop){opacity:.4}
+.c2.hbh .it.pop{background:color-mix(in srgb,var(--c) 14%,transparent)}
+.c2.hbh .it.pop .bar{filter:drop-shadow(0 0 6px var(--c)) brightness(1.15)}
+.c2.hbh .it.pop .lb,.c2.hbh .it.pop .vl{color:var(--c);font-weight:800}
+.ch-bw .c2.hbh .it{grid-template-columns:minmax(60px,40%) minmax(30px,1fr) auto}
+/* small KPI boxes: keep the whole amount visible */
+#main .kpi{container-type:inline-size}
+#main .kpi .value{font-size:min(26px,13.5cqi);white-space:nowrap}
+#main .kpis-c .kpi .value{font-size:min(20px,13.5cqi)}
+/* tabs: fit on one line more often */
+.tab{padding:9px 11px}
+#main .kpi .value.long{font-size:min(20px,10cqi)}
+[data-theme=light] .kpi.kc2 .value{color:color-mix(in srgb,var(--kc) 72%,#0f172a)}
+[data-theme=light] .kpi.kc2 .label{color:color-mix(in srgb,var(--kc) 75%,#0f172a)}
+#main .kpis-c{grid-template-columns:repeat(auto-fit,minmax(135px,1fr))}
+#main .kpis-c .kpi .value{font-size:min(22px,15.5cqi)}

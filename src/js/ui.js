@@ -57,7 +57,7 @@ function Table(container, opt) {
         <select data-r="sk"><option value="">—</option>${cols.filter(c => !c.nosort).map(c => `<option value="${c.key}" ${c.key === st.sortKey ? 'selected' : ''}>${esc(c.label)}</option>`).join('')}</select>
         <span class="pill-group"><button data-r="az" class="${st.dir === 1 ? 'active' : ''}" title="Ascending">A → Z</button><button data-r="za" class="${st.dir === -1 ? 'active' : ''}" title="Descending">Z → A</button></span>
         <span class="spacer"></span>
-        <span class="muted small">${fmtNum(rows.length)} rows</span>
+        <span class="muted small">${fmtNum(rows.length)} ${rows.length === 1 ? 'row' : 'rows'}</span>
         <button class="btn sm" data-r="csv">⬇ CSV</button>
         ${opt.tools || ''}
       </div>

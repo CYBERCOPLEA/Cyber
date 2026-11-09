@@ -93,7 +93,7 @@ const Trail = {
     const total = sum(links.filter(l => (L.get(l.from) || 0) === 0), l => l.amount);
     const allAcc = [...cols.values()].flat().filter(n => !isSynthetic(n.id) && !n.id.startsWith('VICTIM:'));
     $('#trHead').innerHTML = `<div class="kpis kpis-sm">
-      <div class="kpi"><div class="label">Complaint</div><div class="value mono" style="font-size:17px">${esc(ack || 'All')}</div><div class="hint">${esc(c ? [c.victim, c.category].filter(Boolean).join(' · ') : '')}</div></div>
+      <div class="kpi"><div class="label">Complaint</div><div class="value mono" style="font-size:min(17px,10.5cqi)">${esc(ack || 'All')}</div><div class="hint">${esc(c ? [c.victim, c.category].filter(Boolean).join(' · ') : '')}</div></div>
       <div class="kpi"><div class="label">Defrauded (victim → layer 1)</div><div class="value">${fmtINR(total || (c && c.amount))}</div></div>
       <div class="kpi"><div class="label">Layers</div><div class="value">${Math.max(0, ...keys)}</div><div class="hint">${allAcc.length} accounts</div></div>
       <div class="kpi"><div class="label">On hold</div><div class="value" style="color:var(--good)">${fmtINR(sum(allAcc, n => n.hold))}</div></div>

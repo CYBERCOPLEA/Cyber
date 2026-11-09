@@ -127,6 +127,7 @@ let LayoutSoc = null;
     busy = false;
     $$('#main .card').forEach((c, i) => { if (!c.classList.contains('cc')) c.classList.add('cc'); c.style.setProperty('--cc', CC[i % CC.length]); });
     $$('#main .kpis').forEach(k => [...k.children].forEach((x, i) => { if (!x.classList.contains('kc2')) x.classList.add('kc2'); x.style.setProperty('--kc', KC[i % KC.length]); }));
+    $$('#main .kpi .value').forEach(v => { const L = v.textContent.trim().length > 11; if (v.classList.contains('long') !== L) v.classList.toggle('long', L); });
     $$('#main .steps .step').forEach((x, i) => { if (!x.classList.contains('kc2')) x.classList.add('kc2'); x.style.setProperty('--kc', KC[(i + 2) % KC.length]); });
     let bi = 0; $$('#main .btn').forEach(b => { if (b.classList.contains('danger') || b.closest('.ch-sw')) return; if (!b.classList.contains('bc')) b.classList.add('bc'); const c = BC[bi++ % BC.length]; if (b.style.getPropertyValue('--bc') !== c) b.style.setProperty('--bc', c); });
     const t = $$('#main .tabs .tab'); t.forEach((x, i) => { const c = BC[i % BC.length]; if (x.style.getPropertyValue('--tc') !== c) x.style.setProperty('--tc', c); });

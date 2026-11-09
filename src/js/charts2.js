@@ -19,8 +19,8 @@
   Charts.bindTips = function (el) {
     $$('[data-tip]', el).forEach(n => {
       n.onmousemove = e => Charts.tip(e, n.dataset.tip);
-      n.onmouseenter = () => { const s = n.closest('svg'); if (s) s.classList.add('hov'); n.classList.add('pop'); if (n._enter) n._enter(); };
-      n.onmouseleave = e => { const s = n.closest('svg'); if (s) s.classList.remove('hov'); n.classList.remove('pop'); Charts.tip(e, null); if (n._leave) n._leave(); };
+      n.onmouseenter = () => { const s = n.closest('svg, .c2'); if (s) s.classList.add('hov'); n.classList.add('pop'); if (n._enter) n._enter(); };
+      n.onmouseleave = e => { const s = n.closest('svg, .c2'); if (s) s.classList.remove('hov'); n.classList.remove('pop'); Charts.tip(e, null); if (n._leave) n._leave(); };
     });
   };
 
@@ -36,7 +36,12 @@
     return { body: $('.ch-body', el), v };
   };
 
-  const hbarSvg = (data, fmt, tot, onClick, wide) => {
+  const hbarSvg = (data, fmt, tot, onClick) => {
+    const mx = Math.max(...data.map(d => d.value)) || 1;
+    return `<div class="chart c2 hb hbh">${data.map((d, i) => `<div class="it" data-tip="${esc(tipHtml(d, col(i), fmt, tot))}" data-i="${i}" style="cursor:${onClick ? 'pointer' : 'default'};--c:${col(i)}">
+        <span class="lb" title="${esc(d.label)}">${esc(String(d.label))}</span><span class="trk"><i class="bar" style="width:${Math.max(1.5, d.value / mx * 100).toFixed(1)}%;background:linear-gradient(90deg,${col(i)},${col(i)}a0)"></i></span><span class="vl">${esc(fmt(d.value))}</span></div>`).join('')}</div>`;
+  };
+  const hbarSvgOld = (data, fmt, tot, onClick, wide) => {
     const W = wide ? 600 : 470, rowH = 32, lw = wide ? 200 : 165, H = data.length * rowH + 8, mx = Math.max(...data.map(d => d.value)) || 1, g = ++gid;
     return `<svg class="chart c2 hb" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMinYMin meet"><defs>${data.map((d, i) => grad(`hg${g}_${i}`, col(i))).join('')}</defs>${data.map((d, i) => {
       const w = Math.max(3, (W - lw - 92) * d.value / mx), y = i * rowH + 4, v = esc(fmt(d.value));
@@ -81,13 +86,13 @@
     else if (v === 'donut') body.innerHTML = `<div class="ch-dwrap">${donutSvg(dd, fmt, tot, o.title)}${legend(dd, fmt, tot)}</div>`;
     else body.innerHTML = `<div class="ch-both"><div class="ch-dwrap sm">${donutSvg(dd, fmt, tot, o.title)}</div><div class="ch-bw">${hbarSvg(data, fmt, tot, onClick, false)}</div></div>`;
     Charts.bindTips(body); linkDonut(body, dd, fmt, tot, o.title);
-    if (onClick) $$('.hb g[data-i]', body).forEach(g => g.onclick = () => onClick(data[+g.dataset.i]));
+    if (onClick) $$('.hb [data-i]', body).forEach(g => g.onclick = () => onClick(data[+g.dataset.i]));
   };
   Charts.hbar = function (el, data, o = {}) { el._ch = el._ch && el._ch.kind === 'hbar' ? el._ch : null; Charts._hbar(el, data, o); };
 
   const vbarSvg = (data, fmt, tot, W = 560) => {
     const H = W < 560 ? 250 : 236, pl = 56, pb = 34, pt = 16, mx = Math.max(...data.map(d => d.value)) || 1, bw = (W - pl - 10) / data.length, g = ++gid;
-    const ticks = [0, .25, .5, .75, 1].map(t => mx * t);
+    const ticks = [...new Map([0, .25, .5, .75, 1].map(t => mx * t).filter(t => mx >= 8 || Number.isInteger(t) || t === mx).map(t => [Charts.short(t), t])).values()];
     return `<svg class="chart c2 vb" viewBox="0 0 ${W} ${H}"><defs>${data.map((d, i) => `<linearGradient id="vg${g}_${i}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${col(i)}"/><stop offset="1" stop-color="${col(i)}" stop-opacity=".55"/></linearGradient>`).join('')}</defs>
       ${ticks.map(t => { const y = H - pb - (H - pb - pt) * t / mx; return `<line class="gridline" x1="${pl}" x2="${W}" y1="${y}" y2="${y}"/><text x="${pl - 6}" y="${y + 4}" text-anchor="end">${esc(Charts.short(t))}</text>`; }).join('')}
       ${data.map((d, i) => { const h = Math.max(2, (H - pb - pt) * d.value / mx), w = Math.max(3, Math.min(bw * .72 - 2, 58)), x = pl + i * bw + (bw - w) / 2, r = Math.min(6, w / 2);
@@ -118,7 +123,7 @@
     const x = i => pl + (W - pl - 12) * i / (data.length - 1), y = v => H - pb - (H - pb - pt) * v / mx;
     const path = data.map((d, i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)},${y(d.value).toFixed(1)}`).join(' '), step = Math.ceil(data.length / 8);
     el.innerHTML = `<svg class="chart c2 ln" viewBox="0 0 ${W} ${H}"><defs><linearGradient id="lg${g}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${c}" stop-opacity=".45"/><stop offset="1" stop-color="${c}" stop-opacity="0"/></linearGradient></defs>
-      ${[0, .5, 1].map(t => `<line class="gridline" x1="${pl}" x2="${W}" y1="${y(mx * t)}" y2="${y(mx * t)}"/><text x="${pl - 6}" y="${y(mx * t) + 4}" text-anchor="end">${esc(Charts.short(mx * t))}</text>`).join('')}
+      ${[...new Map([0, .5, 1].map(t => [Charts.short(mx * t), t])).values()].map(t => `<line class="gridline" x1="${pl}" x2="${W}" y1="${y(mx * t)}" y2="${y(mx * t)}"/><text x="${pl - 6}" y="${y(mx * t) + 4}" text-anchor="end">${esc(Charts.short(mx * t))}</text>`).join('')}
       <path d="${path} L${x(data.length - 1)},${H - pb} L${pl},${H - pb} Z" fill="url(#lg${g})"/>
       <path d="${path}" fill="none" stroke="${c}" stroke-width="2.2" stroke-linejoin="round"/>
       ${data.map((d, i) => { const cc = d.value >= mx * .5 ? '#ef4444' : d.value >= mx * .2 ? '#f97316' : c; return `<g class="it pt" data-tip="${esc(tipHtml(d, cc, fmt, tot))}" style="--c:${cc}"><rect x="${x(i) - (W / data.length) / 2}" y="${pt}" width="${W / data.length}" height="${H - pb - pt}" fill="transparent"/><line class="guide" x1="${x(i)}" x2="${x(i)}" y1="${pt}" y2="${H - pb}"/><circle class="dot ${data.length < 60 || d.value >= mx * .5 ? '' : 'hid'}" cx="${x(i)}" cy="${y(d.value)}" r="${d.value >= mx * .5 ? 4.5 : 3.5}" fill="${cc}" stroke="var(--surface-1)" stroke-width="2"/>${i % step === 0 ? `<text x="${x(i)}" y="${H - pb + 15}" text-anchor="middle">${esc(String(d.label).slice(5, 10) || d.label)}</text>` : ''}</g>`; }).join('')}
