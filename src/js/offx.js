@@ -113,38 +113,104 @@ const Off = {
     NoticeKit.tools($('.nt-btns', b), ta, {}); $('#otP', b).onclick = () => NoticeKit.print(ta.value); $('#otW', b).onclick = () => NoticeKit.docx(file + '.docx', ta.value); $('#otC', b).onclick = () => { navigator.clipboard && navigator.clipboard.writeText(ta.value); UI.toast('Copied'); };
   },
 
+  /* ================= Office header (shared by Press Note and other office papers) ================= */
+  HDEF: { sub: '', addr: '', officeHi: '', subHi: '', addrHi: '', logo2: '', logoSz: 80, logoPos: 'left', h1: 22, hc: '#0b2a6f', rule: true },
+  hcfg(cf) { Object.keys(this.HDEF).forEach(k => { if (cf[k] === undefined) cf[k] = this.HDEF[k]; }); return cf; },
+  // header lines for a language (Hindi falls back to English when blank)
+  hLines(cf, hi) { const g = k => (hi && cf[k + 'Hi']) || cf[k] || ''; return [hi && cf.officeHi ? cf.officeHi : cf.office, g('sub'), g('addr')]; },
+  headHtml(cf, hi) { this.hcfg(cf); const [a, b, c] = this.hLines(cf, hi), sz = +cf.logoSz || 80, pos = cf.logoPos, L = cf.logo, R = cf.logo2 || cf.logo;
+    const im = s => s ? `<img src="${s}" style="height:${sz}px;max-width:${sz * 2}px;object-fit:contain">` : '';
+    const txt = `<div style="flex:1;text-align:center;line-height:1.25">${a ? `<div style="font-size:${+cf.h1 || 22}px;font-weight:800;color:${esc(cf.hc || '#000')}">${esc(a)}</div>` : ''}${b ? `<div style="font-size:${Math.round((+cf.h1 || 22) * .68)}px;font-weight:700">${esc(b)}</div>` : ''}${c ? `<div style="font-size:12px">${esc(c)}</div>` : ''}</div>`;
+    const body = pos === 'top' ? `<div style="display:flex;flex-direction:column;align-items:center;gap:6px">${im(L)}${txt}</div>`
+      : `<div style="display:flex;align-items:center;gap:14px">${pos === 'left' || pos === 'both' ? im(L) || '' : ''}${txt}${pos === 'right' ? im(L) : pos === 'both' ? im(R) : (pos === 'left' && L ? `<span style="width:${sz}px"></span>` : '')}</div>`;
+    return `<div class="ofh" style="padding-bottom:8px;margin-bottom:12px;${cf.rule ? 'border-bottom:2.5px double #000' : ''}">${body}</div>`; },
+  // header as Word xml (borderless table) + images
+  async headDocx(cf, hi) { this.hcfg(cf); const [a, b, c] = this.hLines(cf, hi), sz = +cf.logoSz || 80, pos = cf.logoPos, images = [];
+    const pic = async (src, n) => { if (!src) return ''; try { const p = await toPng(src, 500, null), rid = 'rIdLogo' + n; images.push({ rid, bytes: p.bytes }); return Docx.img(rid, Math.round(p.w * sz / p.h), sz); } catch (e) { return ''; } };
+    const txt = (a ? Docx.p(Docx.r(a, { b: true, sz: Math.round((+cf.h1 || 22) * .75), color: String(cf.hc || '#000000').replace('#', '') }), { align: 'center', after: 0 }) : '') + (b ? Docx.p(Docx.r(b, { b: true, sz: Math.round((+cf.h1 || 22) * .75 * .68) }), { align: 'center', after: 0 }) : '') + (c ? Docx.p(Docx.r(c, { sz: 9 }), { align: 'center', after: 0 }) : '');
+    let x;
+    if (pos === 'top') x = (cf.logo ? Docx.p(await pic(cf.logo, 1), { align: 'center', after: 40 }) : '') + txt;
+    else { const l = pos === 'left' || pos === 'both' ? await pic(cf.logo, 1) : '', r = pos === 'right' ? await pic(cf.logo, 1) : pos === 'both' ? await pic(cf.logo2 || cf.logo, 2) : '', side = Math.round(Math.min(2600, sz * 2 * 15 + 200)), mid = 10200 - 2 * side;
+      const tc = (w, inner, al) => `<w:tc><w:tcPr><w:tcW w:w="${w}" w:type="dxa"/><w:vAlign w:val="center"/></w:tcPr>${inner || Docx.p('', { after: 0 })}</w:tc>`;
+      x = `<w:tbl><w:tblPr><w:tblW w:w="10200" w:type="dxa"/><w:tblBorders>${['top', 'left', 'bottom', 'right', 'insideH', 'insideV'].map(k => `<w:${k} w:val="nil"/>`).join('')}</w:tblBorders><w:tblLayout w:type="fixed"/></w:tblPr><w:tblGrid><w:gridCol w:w="${side}"/><w:gridCol w:w="${mid}"/><w:gridCol w:w="${side}"/></w:tblGrid><w:tr>${tc(side, l ? Docx.p(l, { align: 'left', after: 0 }) : '')}${tc(mid, txt)}${tc(side, r ? Docx.p(r, { align: 'right', after: 0 }) : '')}</w:tr></w:tbl>`; }
+    return { xml: x + (cf.rule ? Docx.p('', { border: '000000', after: 160 }) : Docx.p('', { after: 120 })), images }; },
+  // header editor card – changes are saved for every office paper
+  headEditor(box, cf, onChange) { this.hcfg(cf);
+    const lg = (k, t) => `<div class="ofh-lg"><div class="dc-logo" style="width:56px;height:56px">${cf[k] ? `<img src="${cf[k]}" alt="logo">` : '<span class="muted small">None</span>'}</div><div><div class="small"><b>${t}</b></div><button class="btn sm" data-lu="${k}">🖼 ${cf[k] ? 'Change' : 'Upload'}</button>${cf[k] ? ` <button class="btn sm danger" data-lx="${k}">✖ Remove</button>` : ''}</div></div>`;
+    const i = (k, l, ph = '') => `<label>${l}<input data-h="${k}" value="${esc(cf[k] || '')}" placeholder="${esc(ph)}"></label>`;
+    box.innerHTML = `<details class="ofh-ed" ${this._hOpen ? 'open' : ''}><summary><b>🏢 Office header & logo</b> <span class="small muted">– edit once, used on every press note</span></summary>
+      <div class="ofh-row">${lg('logo', 'Logo')}${lg('logo2', 'Second logo (right side)')}</div>
+      <div class="map-grid ofh-g"><label>Logo position<select data-h="logoPos"><option value="left">Left</option><option value="right">Right</option><option value="both">Both sides</option><option value="top">Top centre</option></select></label>
+        <label>Logo size <span class="small muted" id="ofhSzV">${cf.logoSz}px</span><input type="range" min="40" max="160" step="4" data-h="logoSz" value="${cf.logoSz}"></label>
+        <label>Office name size <span class="small muted" id="ofhH1V">${cf.h1}px</span><input type="range" min="14" max="34" data-h="h1" value="${cf.h1}"></label>
+        <label>Name colour<input type="color" data-h="hc" value="${esc(cf.hc)}"></label>
+        <label class="row" style="gap:6px;align-items:center;grid-column:1/-1"><input type="checkbox" data-h="rule" ${cf.rule ? 'checked' : ''} style="width:auto"> Double line under the header</label></div>
+      <div class="ofh-cols"><div><div class="small muted"><b>English</b></div>${i('office', 'Office name (line 1)', 'Cyber Crime Police Station')}${i('sub', 'Line 2', 'Commissionerate Ghaziabad')}${i('addr', 'Line 3 – address / phone / e-mail', '')}</div>
+        <div><div class="small muted"><b>हिंदी</b> (blank = English is used)</div>${i('officeHi', 'कार्यालय का नाम (पंक्ति 1)', 'साइबर क्राइम पुलिस स्टेशन')}${i('subHi', 'पंक्ति 2', 'कमिश्नरेट गाजियाबाद')}${i('addrHi', 'पंक्ति 3 – पता / फोन / ई-मेल', '')}</div></div></details>`;
+    const d = $('details', box); d.ontoggle = () => { this._hOpen = d.open; };
+    $('[data-h="logoPos"]', box).value = cf.logoPos;
+    let t; const save = () => { clearTimeout(t); t = setTimeout(() => this.put('cfg'), 300); onChange(); };
+    $$('[data-h]', box).forEach(n => n.oninput = n.onchange = () => { const k = n.dataset.h; cf[k] = n.type === 'checkbox' ? n.checked : n.type === 'range' ? +n.value : n.value; if (k === 'office' && !cf.office.trim()) cf.office = this.OFFICE; $('#ofhSzV', box).textContent = cf.logoSz + 'px'; $('#ofhH1V', box).textContent = cf.h1 + 'px'; save(); });
+    $$('[data-lu]', box).forEach(b => b.onclick = () => { const k = b.dataset.lu, f = document.createElement('input'); f.type = 'file'; f.accept = 'image/*'; f.onchange = () => { if (!f.files[0]) return; const r = new FileReader(); r.onload = async () => { cf[k] = r.result; if (k === 'logo2' && cf.logoPos !== 'both') cf.logoPos = 'both'; await this.put('cfg'); this.headEditor(box, cf, onChange); onChange(); UI.toast('Logo saved'); }; r.readAsDataURL(f.files[0]); }; f.click(); });
+    $$('[data-lx]', box).forEach(b => b.onclick = async () => { cf[b.dataset.lx] = ''; await this.put('cfg'); this.headEditor(box, cf, onChange); onChange(); UI.toast('Logo removed'); });
+  },
+
   /* ================= Press Note ================= */
+  PN_APPEAL: { en: 'Citizens are requested not to share OTP, PIN or bank details with anyone, not to click unknown links or install unknown apps (APK), and not to invest on the advice of strangers on WhatsApp / Telegram. In case of any cyber fraud, immediately call the National Cyber Crime Helpline 1930 or report at www.cybercrime.gov.in.',
+    hi: 'आमजन से अपील है कि किसी भी व्यक्ति के साथ अपना OTP, PIN या बैंक विवरण साझा न करें, किसी अनजान लिंक पर क्लिक न करें, अनजान ऐप (APK) इंस्टॉल न करें तथा WhatsApp / Telegram पर अनजान व्यक्तियों की सलाह पर निवेश न करें। किसी भी साइबर धोखाधड़ी की स्थिति में तुरन्त राष्ट्रीय साइबर क्राइम हेल्पलाइन 1930 पर कॉल करें अथवा www.cybercrime.gov.in पर शिकायत दर्ज करें।' },
   async press(el) {
-    const L = await this.get('press', []), cf = await this.cfg(), good = await this.get('good', []), U = this._pn || (this._pn = { id: null });
+    const L = await this.get('press', []), cf = this.hcfg(await this.cfg()), good = await this.get('good', []), U = this._pn || (this._pn = { id: null, v: 'pv' });
     const cur = L.find(x => x.id === U.id);
-    const f = (k, l, v = '', w = '') => `<label ${w}>${l}<input data-p="${k}" value="${esc(v)}"></label>`, ta = (k, l, v = '') => `<label style="grid-column:1/-1">${l}<textarea data-p="${k}" style="min-height:70px">${esc(v)}</textarea></label>`;
-    const P = (cur && cur.f) || { from: cf.office, date: this.today(), appeal: 'Citizens are requested not to share OTP, PIN or bank details with anyone, not to click unknown links or install unknown apps (APK), and not to invest on the advice of strangers on WhatsApp / Telegram. In case of any cyber fraud, immediately call the National Cyber Crime Helpline 1930 or report at www.cybercrime.gov.in.' };
-    el.innerHTML = `<div class="pn-grid"><div class="card pn-form"><div class="row" style="gap:6px;flex-wrap:wrap"><h3 class="grow" style="margin:0">📰 Press Note</h3><button class="btn sm" id="pnNew">➕ New</button><button class="btn sm" id="pnCase">⤵ From open case</button><select id="pnGood" class="sm"><option value="">⤵ From good work…</option>${good.slice().reverse().map(g => `<option value="${g.id}">${esc(this.dmy(g.date) + ' – ' + (g.title || ''))}</option>`).join('')}</select></div>
-        <div class="map-grid" style="margin-top:8px">${f('from', 'From', P.from, 'style="grid-column:1/-1"')}${f('date', 'Date', P.date)}${f('fir', 'FIR / Case No', P.fir)}${f('head', 'Headline', P.head, 'style="grid-column:1/-1"')}${f('sections', 'Sections', P.sections)}${f('amount', 'Amount involved (₹)', P.amount)}
-          ${ta('facts', 'Brief facts / modus operandi', P.facts)}${ta('accused', 'Accused arrested (one per line: name, father, address)', P.accused)}${ta('recovery', 'Recovery (mobiles, SIMs, cards, cash…)', P.recovery)}${f('team', 'Team (officers)', P.team, 'style="grid-column:1/-1"')}${ta('appeal', 'Appeal to public', P.appeal)}</div>
-        <div class="row" style="margin-top:8px;gap:6px"><button class="btn primary" id="pnMake">✨ Make press note</button></div>
-        <h3 style="margin-top:14px">Saved press notes <span class="badge">${L.length}</span></h3><div class="pn-list">${L.slice().reverse().map(x => `<div class="nt-item ${x.id === U.id ? 'on' : ''}" data-pn="${x.id}"><div class="grow"><b>${esc(x.title || 'Press note')}</b><div class="small muted">${this.dmy(x.date)}</div></div><button class="btn sm danger" data-pd="${x.id}">🗑</button></div>`).join('') || '<div class="small muted">None yet.</div>'}</div></div>
-      <div class="card pn-ed"><h3>Draft</h3><textarea id="pnOut" style="min-height:560px">${esc(cur ? cur.text : '')}</textarea>
+    const f = (k, l, v = '', w = '') => `<label ${w}>${l}<input data-p="${k}" value="${esc(v)}"></label>`, ta = (k, l, v = '', h = 70) => `<label style="grid-column:1/-1">${l}<textarea data-p="${k}" style="min-height:${h}px">${esc(v)}</textarea></label>`;
+    const P = Object.assign({ lang: 'en', ps: '', date: this.today(), appeal: this.PN_APPEAL.en }, (cur && cur.f) || {});
+    el.innerHTML = `<div class="pn-grid"><div class="card pn-form"><div class="row" style="gap:6px;flex-wrap:wrap;align-items:center"><h3 class="grow" style="margin:0">📰 Press Note</h3><button class="btn sm" id="pnNew">➕ New</button><button class="btn sm" id="pnCase">⤵ From open case</button><select id="pnGood" class="sm"><option value="">⤵ From good work…</option>${good.slice().reverse().map(g => `<option value="${g.id}">${esc(this.dmy(g.date) + ' – ' + (g.title || ''))}</option>`).join('')}</select></div>
+        <div class="pn-lang"><span class="small muted">Language / भाषा</span><button class="btn sm ${P.lang !== 'hi' ? 'act' : ''}" data-lg="en">English</button><button class="btn sm ${P.lang === 'hi' ? 'act' : ''}" data-lg="hi">हिंदी</button><input type="hidden" data-p="lang" value="${P.lang === 'hi' ? 'hi' : 'en'}"></div>
+        <div class="map-grid" style="margin-top:8px">${f('date', 'Date', P.date)}${f('ps', 'Police Station (where FIR is)', P.ps || '')}${f('fir', 'FIR / Case No', P.fir)}${f('sections', 'Sections', P.sections)}${f('head', 'Headline / शीर्षक', P.head, 'style="grid-column:1/-1"')}${f('amount', 'Amount involved (₹)', P.amount)}${f('team', 'Team (officers)', P.team)}
+          ${ta('facts', 'Brief facts / modus operandi – type in the language of the note', P.facts, 90)}${ta('accused', 'Accused arrested (one per line: name, father, address)', P.accused)}${ta('recovery', 'Recovery (mobiles, SIMs, cards, cash…)', P.recovery, 50)}${ta('appeal', 'Appeal to public', P.appeal, 60)}</div>
+        <div class="row" style="margin-top:8px;gap:6px;flex-wrap:wrap"><button class="btn primary" id="pnMake">✨ Make / regenerate press note</button><span class="small muted" style="align-self:center">Your edits in the draft are replaced.</span></div>
+        <h3 style="margin-top:14px">Saved press notes <span class="badge">${L.length}</span></h3><div class="pn-list">${L.slice().reverse().map(x => `<div class="nt-item ${x.id === U.id ? 'on' : ''}" data-pn="${x.id}"><div class="grow"><b>${esc(x.title || 'Press note')}</b><div class="small muted">${this.dmy(x.date)} · ${x.f && x.f.lang === 'hi' ? 'हिंदी' : 'English'}</div></div><button class="btn sm danger" data-pd="${x.id}">🗑</button></div>`).join('') || '<div class="small muted">None yet.</div>'}</div></div>
+      <div class="card pn-ed"><div id="pnHead"></div>
+        <div class="row" style="gap:6px;margin:10px 0 8px;align-items:center;flex-wrap:wrap"><h3 class="grow" style="margin:0">Press note</h3><div class="pn-tg"><button class="btn sm" data-v="pv">👁 Page view</button><button class="btn sm" data-v="ed">✏ Edit text</button></div></div>
+        <div class="pn-sheet" id="pnSheet" title="Click the text to edit it"></div><textarea id="pnOut" style="min-height:560px;display:none">${esc(cur ? cur.text : '')}</textarea>
         <div class="row nt-btns" id="pnBtns" style="margin-top:8px;gap:6px;flex-wrap:wrap"><button class="btn primary" id="pnSave">💾 Save</button><button class="btn" id="pnPr">🖨 Print / PDF</button><button class="btn" id="pnWd">⬇ Word (.docx)</button><button class="btn" id="pnCp">Copy</button></div></div></div><div id="pnFiles"></div>`;
     const val = () => { const o = {}; $$('[data-p]', el).forEach(i => o[i.dataset.p] = i.value.trim()); return o; };
     const set = o => $$('[data-p]', el).forEach(i => { if (o[i.dataset.p] !== undefined) i.value = o[i.dataset.p]; });
-    const out = $('#pnOut', el);
-    const make = () => { const o = val(), acc = o.accused.split('\n').map(s => s.trim()).filter(Boolean);
-      out.value = `PRESS NOTE\n${o.from.toUpperCase()}\nDate: ${this.dmy(o.date)}\n\n${(o.head || 'Headline').toUpperCase()}\n\n` +
-        `${o.facts || '____________'}${o.fir ? `\n\nIn this matter, ${o.fir}${o.sections ? ' under ' + o.sections : ''} was registered at ${o.from}.` : ''}${o.amount ? ` The amount involved is ${this.inr(o.amount)}.` : ''}` +
-        (acc.length ? `\n\nDuring investigation, the following accused ${acc.length > 1 ? 'have' : 'has'} been arrested:\n${acc.map((a, i) => `${i + 1}. ${a}`).join('\n')}` : '') +
-        (o.recovery ? `\n\nRecovered from the accused: ${o.recovery}` : '') + (o.team ? `\n\nTeam: ${o.team}` : '') + (o.appeal ? `\n\nAPPEAL TO THE PUBLIC\n${o.appeal}` : '') + `\n\n\nMedia Cell\n${o.from}`; out.dispatchEvent(new Event('input')); };
+    const out = $('#pnOut', el), sheet = $('#pnSheet', el), hi = () => val().lang === 'hi';
+    const draw = () => { sheet.innerHTML = this.headHtml(cf, hi()) + `<div class="pn-body">${NoticeKit.html(out.value) || '<div class="muted">Fill the form and press ✨ Make press note.</div>'}</div>`; };
+    const view = v => { U.v = v; out.style.display = v === 'ed' ? '' : 'none'; sheet.style.display = v === 'ed' ? 'none' : ''; $$('[data-v]', el).forEach(b => b.classList.toggle('primary', b.dataset.v === v)); if (v === 'ed') out.focus(); else draw(); };
+    $$('[data-v]', el).forEach(b => b.onclick = () => view(b.dataset.v)); sheet.onclick = e => { if (!e.target.closest('.ofh')) view('ed'); };
+    out.oninput = () => { if (U.v !== 'ed') draw(); };
+    this.headEditor($('#pnHead', el), cf, draw);
+    const make = () => { const o = val(), H = o.lang === 'hi', acc = o.accused.split('\n').map(s => s.trim()).filter(Boolean), off = this.hLines(cf, H)[0], ps = o.ps || off;
+      out.value = H
+        ? `**प्रेस विज्ञप्ति**\n\nदिनांक: ${this.dmy(o.date)}\n\n**${o.head || 'शीर्षक'}**\n\n${o.facts || '____________'}` +
+          (o.fir ? `\n\nइस सम्बन्ध में ${ps} पर ${o.fir}${o.sections ? ' अन्तर्गत धारा ' + o.sections : ''} पंजीकृत किया गया।` : '') + (o.amount ? ` प्रकरण में कुल धनराशि ${this.inr(o.amount)} सम्मिलित है।` : '') +
+          (acc.length ? `\n\nविवेचना के दौरान निम्नलिखित ${acc.length > 1 ? 'अभियुक्तगण को' : 'अभियुक्त को'} गिरफ्तार किया गया है:\n${acc.map((a, i) => `${i + 1}. ${a}`).join('\n')}` : '') +
+          (o.recovery ? `\n\nबरामदगी: ${o.recovery}` : '') + (o.team ? `\n\nगिरफ्तार करने वाली टीम: ${o.team}` : '') + (o.appeal ? `\n\n**जनसामान्य से अपील**\n${o.appeal}` : '') + `\n\n\nमीडिया सेल\n${off}`
+        : `PRESS NOTE\n\nDate: ${this.dmy(o.date)}\n\n${(o.head || 'Headline').toUpperCase()}\n\n${o.facts || '____________'}` +
+          (o.fir ? `\n\nIn this matter, ${o.fir}${o.sections ? ' under ' + o.sections : ''} was registered at ${ps}.` : '') + (o.amount ? ` The amount involved is ${this.inr(o.amount)}.` : '') +
+          (acc.length ? `\n\nDuring investigation, the following accused ${acc.length > 1 ? 'have' : 'has'} been arrested:\n${acc.map((a, i) => `${i + 1}. ${a}`).join('\n')}` : '') +
+          (o.recovery ? `\n\nRecovered from the accused: ${o.recovery}` : '') + (o.team ? `\n\nTeam: ${o.team}` : '') + (o.appeal ? `\n\nAPPEAL TO THE PUBLIC\n${o.appeal}` : '') + `\n\n\nMedia Cell\n${off}`;
+      out.dispatchEvent(new Event('input')); view('pv'); };
+    $$('[data-lg]', el).forEach(b => b.onclick = () => { const to = b.dataset.lg, from = to === 'hi' ? 'en' : 'hi', ap = $('[data-p="appeal"]', el);
+      $('[data-p="lang"]', el).value = to; $$('[data-lg]', el).forEach(x => x.classList.toggle('act', x === b)); const fr = $('[data-p="fir"]', el); fr.value = to === 'hi' ? fr.value.replace(/^\s*FIR\s*No\.?\s*/i, 'मु0अ0सं0 ') : fr.value.replace(/^\s*मु0\s*अ0\s*सं0\s*/, 'FIR No. '); if (!ap.value.trim() || ap.value.trim() === this.PN_APPEAL[from]) ap.value = this.PN_APPEAL[to]; make(); UI.toast(to === 'hi' ? 'हिंदी में प्रेस विज्ञप्ति बनाई गई – तथ्य (facts) हिंदी में लिखें' : 'Press note made in English'); });
     $('#pnMake', el).onclick = make;
     $('#pnNew', el).onclick = () => { U.id = null; this.press(el); };
     $('#pnCase', el).onclick = () => { const c = activeCase(), d = S.data; let acc = []; try { acc = CCTNS.accused().map(a => [a.name, a.addr].filter(Boolean).join(', ')); } catch (e) { }
-      set({ fir: c.fir ? 'FIR No. ' + c.fir : '', sections: c.section || '', amount: sum(d.ncrp || [], n => +n.amount || 0) || '', accused: acc.join('\n'), team: [c.io_rank, c.io].filter(Boolean).join(' '), head: c.name || '' }); make(); };
-    $('#pnGood', el).onchange = e => { const g = good.find(x => x.id === e.target.value); if (!g) return; set({ head: g.title, date: g.date, fir: g.fir ? 'FIR No. ' + g.fir : '', sections: g.sections || '', accused: (g.accused || '').split(/,\s*/).join('\n'), recovery: g.recovery || '', team: g.team || '', facts: g.desc || '', amount: g.refunded || g.frozen || '' }); make(); e.target.value = ''; };
+      set({ fir: c.fir ? (hi() ? 'मु0अ0सं0 ' : 'FIR No. ') + c.fir : '', ps: c.ps || '', sections: c.section || '', amount: sum(d.ncrp || [], n => +n.amount || 0) || '', accused: acc.join('\n'), team: [c.io_rank, c.io].filter(Boolean).join(' '), head: c.name || '' }); make(); };
+    $('#pnGood', el).onchange = e => { const g = good.find(x => x.id === e.target.value); if (!g) return; set({ head: g.title, date: g.date, fir: g.fir ? (hi() ? 'मु0अ0सं0 ' : 'FIR No. ') + g.fir : '', sections: g.sections || '', accused: (g.accused || '').split(/,\s*/).join('\n'), recovery: g.recovery || '', team: g.team || '', facts: g.desc || '', amount: g.refunded || g.frozen || '' }); make(); e.target.value = ''; };
     $('#pnSave', el).onclick = async () => { if (!out.value.trim()) return UI.toast('Make the press note first'); const o = val(); let x = L.find(y => y.id === U.id); if (!x) { x = { id: uid() + '' }; L.push(x); U.id = x.id; } Object.assign(x, { title: o.head || 'Press note', date: o.date, f: o, text: out.value }); await this.put('press'); UI.toast('Press note saved'); this.press(el); };
     $$('[data-pn]', el).forEach(n => n.onclick = e => { if (e.target.closest('button')) return; U.id = n.dataset.pn; this.press(el); });
     $$('[data-pd]', el).forEach(b => b.onclick = async () => { if (!UI.confirm('Delete this press note?')) return; L.splice(L.findIndex(x => x.id === b.dataset.pd), 1); if (U.id === b.dataset.pd) U.id = null; await this.put('press'); this.press(el); });
-    $('#pnPr', el).onclick = () => NoticeKit.print(out.value); $('#pnWd', el).onclick = () => NoticeKit.docx('press_note_' + (val().date || '') + '.docx', out.value); $('#pnCp', el).onclick = () => { navigator.clipboard && navigator.clipboard.writeText(out.value); UI.toast('Copied'); };
+    const plain = () => out.value.replace(/^\s*\*\*(.+)\*\*\s*$/gm, '$1'), font = () => hi() ? "'Nirmala UI', Mangal, 'Noto Sans Devanagari', Arial, sans-serif" : "'Times New Roman', serif";
+    const page = () => `<html><head><meta charset="utf-8"><title>Press note</title><style>@page{size:A4;margin:1.6cm}body{font-family:${font()};font-size:12pt;line-height:1.45;color:#000}</style></head><body>${this.headHtml(cf, hi())}${NoticeKit.html(out.value)}</body></html>`;
+    $('#pnPr', el).onclick = () => { const w = window.open('', '_blank'); if (!w) return UI.toast('Pop-up blocked. Allow pop-ups for this page.'); w.document.write(page().replace('<body>', '<body><div class="np" style="font:13px Arial;margin-bottom:12px"><button onclick="print()">🖨 Print / Save as PDF</button></div><style>@media print{.np{display:none}}</style>')); w.document.close(); };
+    $('#pnWd', el).onclick = async () => { const H = hi(), h = await this.headDocx(cf, H), fn = H ? 'Nirmala UI' : 'Times New Roman';
+      const body = NoticeKit.lines(out.value).map(x => Docx.p(Docx.r(x.t, { b: x.b }), { after: 0, align: x.c ? 'center' : undefined })).join('');
+      Docx.save('press_note_' + (val().date || '') + (H ? '_hindi' : '') + '.docx', Docx.build(h.xml + body, { images: h.images, font: fn, size: 12, title: 'Press note' })); };
+    $('#pnCp', el).onclick = () => { navigator.clipboard && navigator.clipboard.writeText(plain()); UI.toast('Copied'); };
     NoticeKit.tools($('#pnBtns', el), out, {});
-    if (!cur && !out.value) make();
+    if (!cur && !out.value) make(); else view(U.v || 'pv');
     this.filesHint($('#pnFiles', el), 'Press Note');
   },
 
