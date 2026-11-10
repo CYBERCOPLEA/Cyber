@@ -660,18 +660,20 @@ Pages.tele = main => TelUI.page(main);
 /* ---------- menu: Analytics opens a drop-down with CDR / IPDR / TDR / SMS ---------- */
 (() => {
   const nav = $('#sidebar'), it = $('.nav-item[data-page="analytics"]', nav); if (!it) return;
-  it.insertAdjacentHTML('beforeend', '<span class="nav-chev" title="Show / hide CDR, IPDR, TDR, SMS">▾</span>');
-  it.insertAdjacentHTML('afterend', `<div class="nav-subs tel-subs">${Object.entries(TK).map(([k, x], i) => `<div class="nav-sub" data-tel="${k}" style="--pc:${x[1]}" title="${esc(x[2])}"><i></i><span>${i + 1}. ${esc(x[0])}</span></div>`).join('')}</div>`);
+  it.insertAdjacentHTML('beforeend', '<span class="nav-chev" title="Show / hide CDR, IPDR, TDR, CAF, SMS">▾</span>');
+  // CAF Analysis sits in this list after TDR (it keeps its own page)
+  const ITEMS = []; for (const [k, x] of Object.entries(TK)) { ITEMS.push([k, x]); if (k === 'tdr') ITEMS.push(['caf', ['CAF Analysis', '#84cc16', 'SIM application forms (CAF): table, common POS, agent, date, number, photo']]); }
+  it.insertAdjacentHTML('afterend', `<div class="nav-subs tel-subs">${ITEMS.map(([k, x], i) => `<div class="nav-sub" data-tel="${k}" style="--pc:${x[1]}" title="${esc(x[2])}"><i></i><span>${i + 1}. ${esc(x[0])}</span></div>`).join('')}</div>`);
   const subs = $('.tel-subs', nav), setOpen = on => { S.telOpen = on; subs.classList.toggle('open', on); it.classList.toggle('open', on); };
   setOpen(false);
   $('.nav-chev', it).addEventListener('click', e => { e.stopPropagation(); setOpen(!S.telOpen); });
   it.addEventListener('click', e => { if (e.target.closest('.nav-chev')) return; setOpen(S.page === 'analytics' ? !S.telOpen : true); }, true);
-  $$('.nav-sub[data-tel]', nav).forEach(n => n.onclick = () => { S.telKind = n.dataset.tel; go('tele'); });
+  $$('.nav-sub[data-tel]', nav).forEach(n => n.onclick = () => { if (n.dataset.tel === 'caf') return go('caf'); S.telKind = n.dataset.tel; go('tele'); });
   const orig = render;
   render = function () {
     orig();
-    $$('.nav-sub[data-tel]').forEach(n => n.classList.toggle('active', S.page === 'tele' && S.telKind === n.dataset.tel));
-    if (S.page === 'tele') { it.classList.add('active'); if (!S.telOpen) setOpen(true); }
+    $$('.nav-sub[data-tel]').forEach(n => n.classList.toggle('active', n.dataset.tel === 'caf' ? S.page === 'caf' : S.page === 'tele' && S.telKind === n.dataset.tel));
+    if (S.page === 'tele' || S.page === 'caf') { it.classList.add('active'); if (!S.telOpen) setOpen(true); }
   };
   // CDR / IPDR numbers, handsets and public IPs join the case-wide index
   const oi = Analysis.idents;

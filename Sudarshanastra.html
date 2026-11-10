@@ -1359,7 +1359,7 @@ svg.c2.dn .dn-c2{font-size:24px}
         <div class="hp-feat" style="--fc:#06b6d4"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><div><b>Analytics</b><p>The same mobile, account, IP or e-mail across complaints, banks and platforms.</p></div></div>
         <div class="hp-feat" style="--fc:#eab308"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h5"/></svg></span><div><b>Case File &amp; Notices</b><p>Case reports, notices to banks and platforms, and CSV / PDF exports.</p></div></div>
     </section>
-    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-10 09:35 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
+    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-10 09:44 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
   </div>
 
   <div class="lg-wrap" id="lgWrap" aria-hidden="true">
@@ -6367,7 +6367,7 @@ const MENU = [
   ['Investigation', [
     ['financial', 'bank', 'Financial Trail', 'Complaints (NCRP), Money Trail, Bank & Financial'],
     ['social', 'social', 'Social Media', 'Platform replies, IP logs, links']]],
-  ['Analysis', [['analytics', 'analytics', 'Analytics', 'Mule flags, cross-links, timeline, hotspots'], ['osint', 'osint', 'OSINT', 'Open OSINT Framework (osintframework.com) in a new tab'], ['caf', 'caf', 'CAF Analysis', 'SIM application forms: table, common POS, agent, date, number, photo'], ['tools', 'tools', 'Tools', 'IP Lookup, MNP, IMEI, MAC, Email Header, WhoIS and your own lookup links']]],
+  ['Analysis', [['analytics', 'analytics', 'Analytics', 'Mule flags, cross-links, timeline, hotspots'], ['osint', 'osint', 'OSINT', 'Open OSINT Framework (osintframework.com) in a new tab'], ['tools', 'tools', 'Tools', 'IP Lookup, MNP, IMEI, MAC, Email Header, WhoIS and your own lookup links']]],
   ['Action', [['others', 'file', 'Case File & Notices', 'Notes, notices, reports, tools']]],
   ['Office', [['lsearch', 'lsearch', 'Search in Local Drive', 'Search inside files and folders on this computer'], ['office', 'office', 'SOP', 'SOPs and guidelines: TRAI & DoT, RBI, MHA-I4C, UP-DGP & S4C, Comm. GZB']]]
 ];
@@ -10209,18 +10209,20 @@ Pages.tele = main => TelUI.page(main);
 /* ---------- menu: Analytics opens a drop-down with CDR / IPDR / TDR / SMS ---------- */
 (() => {
   const nav = $('#sidebar'), it = $('.nav-item[data-page="analytics"]', nav); if (!it) return;
-  it.insertAdjacentHTML('beforeend', '<span class="nav-chev" title="Show / hide CDR, IPDR, TDR, SMS">▾</span>');
-  it.insertAdjacentHTML('afterend', `<div class="nav-subs tel-subs">${Object.entries(TK).map(([k, x], i) => `<div class="nav-sub" data-tel="${k}" style="--pc:${x[1]}" title="${esc(x[2])}"><i></i><span>${i + 1}. ${esc(x[0])}</span></div>`).join('')}</div>`);
+  it.insertAdjacentHTML('beforeend', '<span class="nav-chev" title="Show / hide CDR, IPDR, TDR, CAF, SMS">▾</span>');
+  // CAF Analysis sits in this list after TDR (it keeps its own page)
+  const ITEMS = []; for (const [k, x] of Object.entries(TK)) { ITEMS.push([k, x]); if (k === 'tdr') ITEMS.push(['caf', ['CAF Analysis', '#84cc16', 'SIM application forms (CAF): table, common POS, agent, date, number, photo']]); }
+  it.insertAdjacentHTML('afterend', `<div class="nav-subs tel-subs">${ITEMS.map(([k, x], i) => `<div class="nav-sub" data-tel="${k}" style="--pc:${x[1]}" title="${esc(x[2])}"><i></i><span>${i + 1}. ${esc(x[0])}</span></div>`).join('')}</div>`);
   const subs = $('.tel-subs', nav), setOpen = on => { S.telOpen = on; subs.classList.toggle('open', on); it.classList.toggle('open', on); };
   setOpen(false);
   $('.nav-chev', it).addEventListener('click', e => { e.stopPropagation(); setOpen(!S.telOpen); });
   it.addEventListener('click', e => { if (e.target.closest('.nav-chev')) return; setOpen(S.page === 'analytics' ? !S.telOpen : true); }, true);
-  $$('.nav-sub[data-tel]', nav).forEach(n => n.onclick = () => { S.telKind = n.dataset.tel; go('tele'); });
+  $$('.nav-sub[data-tel]', nav).forEach(n => n.onclick = () => { if (n.dataset.tel === 'caf') return go('caf'); S.telKind = n.dataset.tel; go('tele'); });
   const orig = render;
   render = function () {
     orig();
-    $$('.nav-sub[data-tel]').forEach(n => n.classList.toggle('active', S.page === 'tele' && S.telKind === n.dataset.tel));
-    if (S.page === 'tele') { it.classList.add('active'); if (!S.telOpen) setOpen(true); }
+    $$('.nav-sub[data-tel]').forEach(n => n.classList.toggle('active', n.dataset.tel === 'caf' ? S.page === 'caf' : S.page === 'tele' && S.telKind === n.dataset.tel));
+    if (S.page === 'tele' || S.page === 'caf') { it.classList.add('active'); if (!S.telOpen) setOpen(true); }
   };
   // CDR / IPDR numbers, handsets and public IPs join the case-wide index
   const oi = Analysis.idents;

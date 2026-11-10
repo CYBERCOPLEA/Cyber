@@ -31,7 +31,7 @@ const MENU = [
   ['Investigation', [
     ['financial', 'bank', 'Financial Trail', 'Complaints (NCRP), Money Trail, Bank & Financial'],
     ['social', 'social', 'Social Media', 'Platform replies, IP logs, links']]],
-  ['Analysis', [['analytics', 'analytics', 'Analytics', 'Mule flags, cross-links, timeline, hotspots'], ['osint', 'osint', 'OSINT', 'Open OSINT Framework (osintframework.com) in a new tab'], ['caf', 'caf', 'CAF Analysis', 'SIM application forms: table, common POS, agent, date, number, photo'], ['tools', 'tools', 'Tools', 'IP Lookup, MNP, IMEI, MAC, Email Header, WhoIS and your own lookup links']]],
+  ['Analysis', [['analytics', 'analytics', 'Analytics', 'Mule flags, cross-links, timeline, hotspots'], ['osint', 'osint', 'OSINT', 'Open OSINT Framework (osintframework.com) in a new tab'], ['tools', 'tools', 'Tools', 'IP Lookup, MNP, IMEI, MAC, Email Header, WhoIS and your own lookup links']]],
   ['Action', [['others', 'file', 'Case File & Notices', 'Notes, notices, reports, tools']]],
   ['Office', [['lsearch', 'lsearch', 'Search in Local Drive', 'Search inside files and folders on this computer'], ['office', 'office', 'SOP', 'SOPs and guidelines: TRAI & DoT, RBI, MHA-I4C, UP-DGP & S4C, Comm. GZB']]]
 ];
