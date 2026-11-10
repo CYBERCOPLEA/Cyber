@@ -1549,3 +1549,7 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
 .cs-row.cs-row6{grid-template-columns:repeat(5,minmax(0,1fr)) minmax(250px,1.2fr)}
 @media (max-width:1500px){.cs-row.cs-row6{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media (min-width:1300px){#ccK.kpis-sm{grid-template-columns:repeat(8,minmax(0,1fr))}}
+/* Case Type + old live script warning */
+.cd-ct{display:inline-block;padding:1px 8px;border-radius:10px;background:#ede9fe;color:#5b21b6;font-size:12px;font-weight:600;white-space:nowrap}
+.lv-old{background:#fff7ed;color:#7c2d12;border:1px solid #f97316;border-radius:8px;padding:10px 12px;margin:8px 0;font-size:13px}.lv-old ol{margin:6px 0 8px 18px;padding:0}
+.lv-old *{color:#7c2d12}.lv-old b{color:#9a3412}.lv-old .btn.primary{color:#fff}
