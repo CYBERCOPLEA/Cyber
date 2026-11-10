@@ -8,7 +8,12 @@ const Mail = {
   API: 'https://api.emailjs.com/api/v1.0/email/send',
   DEFAULT_EMAIL: '',
   cfg() { return S.settings.mail || {}; },
-  ready() { const c = this.cfg(); return !!(c.on && c.email && c.service && c.template && c.key); },
+  ready() { const c = this.cfg(); return !!(c.on && c.email && c.service && c.template && c.key) || !!this._g; },
+  ejs() { const c = this.cfg(); return !!(c.on && c.email && c.service && c.template && c.key); },
+  /* Google route: the officer's own Live Data Form script e-mails the code to the Google account that owns it (no EmailJS needed) */
+  _g: null,
+  async gLoad() { try { if (typeof Off === 'undefined' || !Off.live) return null; const L = await Off.live(); this._g = L.url && L.key && (L.ver || 0) >= 11 && L.mailOff !== 1 ? { mail: L.mail || 'the Google account of your Live Data Form' } : null; } catch (e) { this._g = null; } return this._g; },
+  async gSend(passcode, purpose) { if (!navigator.onLine) throw new Error('This computer is offline. Connect to the internet and try again, or use your recovery key.'); let j; try { j = await Off.liveApi({ api: 'otp', code: passcode, purpose }); } catch (e) { throw new Error('Google: ' + e.message); } return j.to; },
   mask(e) { const [u, d] = String(e).split('@'); if (!d) return e; return u.slice(0, 2) + '*'.repeat(Math.max(3, u.length - 3)) + u.slice(-1) + '@' + d; },
   code() { const r = new Uint32Array(1); crypto.getRandomValues(r); return String(r[0] % 1000000).padStart(6, '0'); },
 
@@ -31,7 +36,7 @@ const Mail = {
   forgot() {
     const c = this.cfg(), st = S.settings;
     const body = UI.modal('Reset password by e-mail code', `
-      <p class="small muted">A 6-digit code will be sent to <b>${esc(this.mask(c.email))}</b>. Internet is needed for this step only.</p>
+      <p class="small muted">A 6-digit code will be sent to <b>${esc(this._g ? this._g.mail : this.mask(c.email))}</b>${this._g ? ' through your own Google script (Live Data Form)' : ''}. Internet is needed for this step only.</p>
       <div class="row"><button class="btn primary" id="otSend">Send code</button><span class="small muted" id="otInfo"></span></div>
       <div id="otStep2" class="${st.otpHash && Date.now() < st.otpExp ? '' : 'hidden'}" style="margin-top:14px">
         <div class="map-grid" style="grid-template-columns:1fr 1fr">
@@ -48,11 +53,12 @@ const Mail = {
       if (st.otpSends.length >= 5) { err.textContent = 'Too many codes asked in the last hour. Try later or use your recovery key.'; return; }
       btn.disabled = true; info.textContent = 'Sending…';
       const pc = this.code();
-      try { await this.send(c, pc, 'Password reset'); }
-      catch (e) { err.textContent = e.message; info.textContent = ''; btn.disabled = false; return; }
+      let sentTo = '';
+      try { if (this._g) { try { sentTo = await this.gSend(pc, 'Password reset'); } catch (ge) { if (!this.ejs()) throw ge; await this.send(c, pc, 'Password reset'); } } else await this.send(c, pc, 'Password reset'); }
+      catch (e) { err.textContent = e.message + (S.settings.recHash ? ' – You can also use your recovery key (Cancel ▸ Forgot password ▸ Use my recovery key).' : ''); info.textContent = ''; btn.disabled = false; return; }
       st.otpSalt = uid(); st.otpHash = hashPass(pc, st.otpSalt); st.otpExp = now + 10 * 60000; st.otpTries = 0; st.otpSends.push(now);
       await DB.set('settings', st);
-      info.textContent = 'Code sent. Check your inbox (and Spam). Valid for 10 minutes.'; btn.textContent = 'Send again'; btn.disabled = false;
+      info.textContent = 'Code sent' + (sentTo ? ' to ' + sentTo : '') + '. Check your inbox (and Spam). Valid for 10 minutes.'; btn.textContent = 'Send again'; btn.disabled = false;
       $('#otStep2').classList.remove('hidden'); $('#otCode').focus();
     };
   },
@@ -81,7 +87,8 @@ const Mail = {
 (() => {
   const byKey = Recovery.forgot.bind(Recovery);
   Recovery.forgotKey = byKey;
-  Recovery.forgot = () => {
+  Recovery.forgot = async () => {
+    await Mail.gLoad();
     if (!Mail.ready()) return byKey();
     const btns = [{ label: 'Cancel', onClick: UI.closeModal }];
     if (S.settings.recHash) btns.push({ label: 'Use my recovery key', onClick: byKey });
@@ -89,7 +96,7 @@ const Mail = {
     UI.modal('Forgot password', `<p>How do you want to reset your password?</p>
       <ul class="small" style="color:var(--text-secondary)">
       ${S.settings.recHash ? '<li><b>Recovery key</b> – works without internet.</li>' : ''}
-      <li><b>E-mail code</b> – a 6-digit code is sent to ${esc(Mail.mask(Mail.cfg().email))}. Needs internet.</li></ul>`, btns);
+      <li><b>E-mail code</b> – a 6-digit code is sent to ${esc(Mail._g ? Mail._g.mail : Mail.mask(Mail.cfg().email))}${Mail._g ? ' by your own Google script' : ''}. Needs internet.</li></ul>`, btns);
   };
 })();
 
@@ -100,7 +107,8 @@ const Mail = {
     orig(main);
     const c = Mail.cfg(), card = document.createElement('div'); card.className = 'card';
     card.innerHTML = `<h3>Forgot-password by e-mail code <span class="badge ${Mail.ready() ? 'good' : 'bad'}" style="margin-left:8px">${Mail.ready() ? 'On' : 'Off'}</span></h3>
-      <div class="sub">Optional. Sends a 6-digit code to your registered e-mail through your own free <b>EmailJS</b> account (emailjs.com). Only the e-mail address and the code are sent – no case data. Internet is needed only when a code is sent. Setup steps are in README.txt.</div>
+      <div class="lv-gm" id="mlG"></div>
+      <div class="sub">Optional second way. Sends a 6-digit code to your registered e-mail through your own free <b>EmailJS</b> account (emailjs.com). Only the e-mail address and the code are sent – no case data. Internet is needed only when a code is sent. Setup steps are in README.txt.</div>
       <div class="map-grid">
         <div class="f"><label>Registered e-mail</label><input id="mlEmail" type="email" value="${esc(c.email || Mail.DEFAULT_EMAIL)}"></div>
         <div class="f"><label>EmailJS Service ID</label><input id="mlSvc" class="mono" placeholder="service_xxxxxxx" value="${esc(c.service || '')}"></div>
@@ -111,6 +119,10 @@ const Mail = {
       <div class="row" style="margin-top:10px"><button class="btn primary" id="mlSave">Save</button><button class="btn" id="mlTest">Send test e-mail</button><span class="err" id="mlErr"></span></div>`;
     const anchor = [...main.querySelectorAll('.card')].find(x => /Forgot-password recovery/.test(x.querySelector('h3')?.textContent || '')) || main.querySelector('.grid');
     anchor.parentNode.insertBefore(card, anchor.nextSibling);
+    Mail.gLoad().then(async g => { const box = $('#mlG', card); if (!box) return; const L = typeof Off !== 'undefined' ? await Off.live() : {};
+      box.innerHTML = g ? `<div class="lv-st" style="margin-bottom:8px">✔ <b>E-mail code through your Google script is ON</b> – the code goes to <b>${esc(g.mail)}</b> (the Google account that owns your Live Data Form sheet). No EmailJS needed. <button class="btn sm" id="mlGt">Send test code</button></div>`
+        : `<div class="lv-old" style="margin-bottom:8px"><b>Easiest way (recommended):</b> use your Live Data Form Google script to e-mail the code – no EmailJS account needed. ${L.url ? `Your script is older than needed: paste the new script (Crime Data ▸ 🔴 Live Data Form ▸ 📋 Copy new script), then in Apps Script choose <b>setupEmail</b> ▸ ▶ Run ▸ Allow, and Deploy ▸ Manage deployments ▸ ✏ Edit ▸ New version ▸ Deploy.` : 'Connect the Live Data Form first (Office Work ▸ Crime Data ▸ 🔴 Live Data Form by Police), then in Apps Script choose <b>setupEmail</b> ▸ ▶ Run ▸ Allow.'}</div>`;
+      const t = $('#mlGt', card); if (t) t.onclick = async () => { t.disabled = true; try { const to = await Mail.gSend('123456', 'Test e-mail – this is not a real code'); UI.toast('Test code sent to ' + to + '. Check inbox / Spam.', 7000); } catch (e) { UI.toast(e.message + ' – In Apps Script choose setupEmail ▸ Run ▸ Allow once, then Deploy ▸ Manage deployments ▸ Edit ▸ New version.', 10000); } t.disabled = false; }; });
     const read = () => ({ email: $('#mlEmail').value.trim(), service: $('#mlSvc').value.trim(), template: $('#mlTpl').value.trim(), key: $('#mlKey').value.trim(), on: $('#mlOn').checked });
     $('#mlSave', card).onclick = async () => {
       const e = $('#mlErr'), v = read(); e.textContent = '';
