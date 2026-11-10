@@ -1554,7 +1554,7 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
         <div class="hp-feat" style="--fc:#06b6d4"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><div><b>Analytics</b><p>The same mobile, account, IP or e-mail across complaints, banks and platforms.</p></div></div>
         <div class="hp-feat" style="--fc:#eab308"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h5"/></svg></span><div><b>Case File &amp; Notices</b><p>Case reports, notices to banks and platforms, and CSV / PDF exports.</p></div></div>
     </section>
-    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-10 12:56 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
+    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-10 13:13 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
   </div>
 
   <div class="lg-wrap" id="lgWrap" aria-hidden="true">
@@ -11890,6 +11890,7 @@ const Off = {
   async cfg() { return this.get('cfg', { office: this.OFFICE, logo: '' }); },
 
   /* ================= Upload + (files by section) ================= */
+  DUTYX: /\.(pdf|xlsx?|ods|csv|txt|docx?|odt|rtf)$/i,
   SEC: ['Good Work', 'Press Note', 'Duty Chart', 'Crime Data', 'Others'],
   async files() { return this.get('files', []); },
   async filesBox(el, section, redraw) {
@@ -11900,14 +11901,16 @@ const Off = {
       ${section ? '' : '<div class="row" style="gap:6px;margin:8px 0"><input class="of-q" placeholder="Find file…" style="flex:1"><select class="of-f"><option value="">All sections</option></select></div>'}<div class="of-list"></div></div>`;
     const sel = $('.of-sec', el); EditList.attach(sel, 'off-sec', this.SEC, 'Office sections'); if (section) { if (![...sel.options].some(o => o.value === section)) sel.insertAdjacentHTML('afterbegin', `<option>${esc(section)}</option>`); sel.value = section; }
     if (!section) { const f = $('.of-f', el); f.innerHTML += uniq(list.map(x => x.sec)).map(s => `<option>${esc(s)}</option>`).join(''); }
-    const add = async fs => { for (const f of fs) { const id = 'o' + uid(); await DB.set('offf:' + id, f); list.push({ id, name: f.name, size: f.size, sec: sel.value, added: new Date().toISOString() }); } await this.put('files'); UI.toast(fs.length + ' file(s) kept in ' + sel.value); (redraw || (() => this.filesBox(el, section)))(); };
+    const add = async fs => { for (const f of fs) { const id = 'o' + uid(); await DB.set('offf:' + id, f); list.push({ id, name: f.name, size: f.size, sec: sel.value, added: new Date().toISOString() }); } await this.put('files'); UI.toast(fs.length + ' file(s) kept in ' + sel.value);
+      if (sel.value === 'Duty Chart') { let n = 0; for (const f of fs) if (this.DUTYX.test(f.name)) { const k = await this.dutyFromFile(f); if (k) { n += k; const x = list.find(y => y.name === f.name && y.sec === 'Duty Chart'); if (x) x.done = new Date().toISOString(); } } if (n) { await this.put('files'); if (S.page === 'offx' && S.sub.offx === 'duty') return render(); } } (redraw || (() => this.filesBox(el, section)))(); };
     $('.of-up', el).onclick = () => { const i = document.createElement('input'); i.type = 'file'; i.multiple = true; i.onchange = () => add([...i.files]); i.click(); };
     const dz = $('.of-drop', el); dz.ondragover = e => { e.preventDefault(); dz.classList.add('over'); }; dz.ondragleave = () => dz.classList.remove('over'); dz.ondrop = e => { e.preventDefault(); dz.classList.remove('over'); add([...e.dataTransfer.files]); };
     const draw = () => { const q = section ? '' : $('.of-q', el).value.toLowerCase(), fs = section || $('.of-f', el).value;
       const L = list.filter(x => (!fs || x.sec === fs) && (!q || (x.name + ' ' + (x.note || '')).toLowerCase().includes(q))).slice().reverse();
-      $('.of-list', el).innerHTML = L.length ? `<table class="tbl fu-t"><thead><tr><th>File</th>${section ? '' : '<th>Section</th>'}<th>Size</th><th>Added</th><th></th></tr></thead><tbody>${L.map(x => `<tr><td><b>${esc(x.name)}</b>${x.note ? `<div class="small muted">${esc(x.note)}</div>` : ''}</td>${section ? '' : `<td><span class="fm-tag">${esc(x.sec)}</span></td>`}<td class="small">${SOP.size(x.size)}</td><td class="small">${this.dmy(x.added)}</td><td class="fu-acts"><button class="btn sm" data-o="${x.id}">Open</button><button class="btn sm" data-r="${x.id}">✏ Rename / move</button><button class="btn sm danger" data-d="${x.id}">🗑</button></td></tr>`).join('')}</tbody></table>` : '<div class="muted small" style="margin-top:6px">No files yet.</div>';
+      $('.of-list', el).innerHTML = L.length ? `<table class="tbl fu-t"><thead><tr><th>File</th>${section ? '' : '<th>Section</th>'}<th>Size</th><th>Added</th><th></th></tr></thead><tbody>${L.map(x => `<tr><td><b>${esc(x.name)}</b>${x.done ? ' <span class="fm-tag my">✔ processed</span>' : ''}${x.note ? `<div class="small muted">${esc(x.note)}</div>` : ''}</td>${section ? '' : `<td><span class="fm-tag">${esc(x.sec)}</span></td>`}<td class="small">${SOP.size(x.size)}</td><td class="small">${this.dmy(x.added)}</td><td class="fu-acts"><button class="btn sm" data-o="${x.id}">Open</button>${x.sec === 'Duty Chart' && this.DUTYX.test(x.name) ? `<button class="btn sm primary" data-pr="${x.id}" title="Read this file into a duty chart and the staff list">⚙ Process</button>` : ''}<button class="btn sm" data-r="${x.id}">✏ Rename / move</button><button class="btn sm danger" data-d="${x.id}">🗑</button></td></tr>`).join('')}</tbody></table>` : '<div class="muted small" style="margin-top:6px">No files yet.</div>';
       const get = id => list.find(x => x.id === id);
       $$('[data-o]', el).forEach(b => b.onclick = async () => { const x = get(b.dataset.o), f = await DB.get('offf:' + x.id); if (!f) return UI.toast('File not found'); const u = URL.createObjectURL(f); if (/\.(pdf|png|jpe?g|gif|webp|txt|html?)$/i.test(x.name)) window.open(u, '_blank'); else { const a = document.createElement('a'); a.href = u; a.download = x.name; a.click(); } setTimeout(() => URL.revokeObjectURL(u), 60000); });
+      $$('[data-pr]', el).forEach(b => b.onclick = async () => { const x = get(b.dataset.pr), f = await DB.get('offf:' + x.id); if (!f) return UI.toast('File not found'); b.disabled = true; b.textContent = '⏳ Reading…'; const n = await this.dutyFromFile(f, x.name); if (n) { x.done = new Date().toISOString(); await this.put('files'); go('offx', 'duty'); render(); } else { b.disabled = false; b.textContent = '⚙ Process'; } });
       $$('[data-r]', el).forEach(b => b.onclick = () => { const x = get(b.dataset.r), m = UI.modal('✏ File', `<div class="map-grid"><label>Name<input id="ofN" value="${esc(x.name)}"></label><label>Section<select id="ofS"></select></label><label style="grid-column:1/-1">Note<input id="ofT" value="${esc(x.note || '')}"></label></div>`, [{ label: 'Cancel', onClick: UI.closeModal }, { label: 'Save', cls: 'primary', onClick: async () => { x.name = $('#ofN', m).value.trim() || x.name; x.sec = $('#ofS', m).value; x.note = $('#ofT', m).value.trim(); await this.put('files'); UI.closeModal(); draw(); } }]);
         EditList.attach($('#ofS', m), 'off-sec', this.SEC, 'Office sections'); if (![...$('#ofS', m).options].some(o => o.value === x.sec)) $('#ofS', m).insertAdjacentHTML('afterbegin', `<option>${esc(x.sec)}</option>`); $('#ofS', m).value = x.sec; });
       $$('[data-d]', el).forEach(b => b.onclick = async () => { const x = get(b.dataset.d); if (!UI.confirm(`Delete "${x.name}"?`)) return; list.splice(list.indexOf(x), 1); await DB.del('offf:' + x.id); await this.put('files'); draw(); }); };
@@ -12023,8 +12026,8 @@ const Off = {
     const G = [...groupBy(R, r => r.type + '|' + r.value)].map(([k, l]) => { const [type, value] = k.split('|'); return { type, value, cases: uniq(l.map(x => x.caseId || x.case)), names: uniq(l.map(x => x.name).filter(Boolean)), sources: uniq(l.map(x => x.source)), recs: l }; });
     const common = G.filter(g => g.cases.length >= 2).sort((a, b) => b.cases.length - a.cases.length);
     const cnt = t => uniq(R.filter(r => r.type === t).map(r => r.value)).length;
-    el.innerHTML = `<div class="card cd-top"><div class="row" style="gap:8px;flex-wrap:wrap"><h3 class="grow" style="margin:0">🗃 Crime Data – master sheet <span class="badge">${fmtNum(uniq(R.map(r => r.type + r.value)).length)} unique</span></h3>
-        <button class="btn primary" id="cdScan" title="Read every case again: FIR, CCTNS case diary, money trail, KYC, NCRP, social media replies, extracted identifiers">🔄 Import from all cases</button><button class="btn" id="cdFile">📥 Import file (Excel / CSV / PDF / Word)</button><button class="btn" id="cdAdd">➕ Add entry</button><button class="btn" id="cdCols">⇆ Columns</button></div>
+    el.innerHTML = `<div class="card cd-top"><div class="row" style="gap:8px;flex-wrap:wrap"><h3 class="grow" style="margin:0;flex-basis:100%">🗃 Crime Data – master sheet <span class="badge">${fmtNum(uniq(R.map(r => r.type + r.value)).length)} unique</span></h3>
+        <button class="btn primary" id="cdScan" title="Read every case again: FIR, CCTNS case diary, money trail, KYC, NCRP, social media replies, extracted identifiers">🔄 Import from all cases</button><button class="btn" id="cdFile">📥 Import file (Excel / CSV / PDF / Word)</button><button class="btn" id="cdAdd">➕ Add entry</button><button class="btn" id="cdForm" title="Make an offline form for a subordinate. They can only add entries and send you a sealed file.">📝 Subordinate form</button><button class="btn" id="cdFImp" title="Import a sealed .sudcd file sent by a subordinate">📥 Import form file</button><button class="btn" id="cdCols">⇆ Columns</button></div>
       <div class="cd-types">${this.CT.map(([k, l, i]) => `<button class="cd-ty ${st.t === k ? 'on' : ''}" data-t="${k}"><span>${i}</span><b>${fmtNum(cnt(k))}</b><small>${l}</small></button>`).join('')}</div>
       <div class="row" style="gap:6px;flex-wrap:wrap"><div class="seg"><button class="btn sm ${st.v === 'all' ? 'primary' : ''}" data-v="all">All entries</button><button class="btn sm ${st.v === 'common' ? 'primary' : ''}" data-v="common">🔗 Common in 2+ cases <b>${common.length}</b></button><button class="btn sm ${st.v === 'case' ? 'primary' : ''}" data-v="case">📁 Case-wise</button></div>
         <select id="cdC"><option value="">All cases</option>${S.cases.map(c => `<option value="${c.id}" ${c.id === st.c ? 'selected' : ''}>${esc(c.name)}${c.fir ? ' · ' + esc(c.fir) : ''}</option>`).join('')}</select><input id="cdQ" placeholder="Search value, name, source…" value="${esc(st.q)}" style="flex:1;min-width:200px">${st.t ? `<button class="btn sm" id="cdT0">✕ ${esc(this.ct(st.t)[1])}</button>` : ''}</div></div>
@@ -12035,6 +12038,8 @@ const Off = {
     $('#cdC', el).onchange = e => { st.c = e.target.value; re(); }; $('#cdQ', el).onchange = e => { st.q = e.target.value; re(); }; if ($('#cdT0', el)) $('#cdT0', el).onclick = () => { st.t = ''; re(); };
     $('#cdScan', el).onclick = async () => { const b = $('#cdScan', el); b.disabled = true; b.textContent = '⏳ Reading all cases…'; await this.rescan(); re(); };
     $('#cdAdd', el).onclick = () => this.cdEdit(null, re);
+    $('#cdForm', el).onclick = () => this.formMake();
+    $('#cdFImp', el).onclick = () => this.formImport(re);
     $('#cdFile', el).onclick = () => this.cdImport(re);
     const COLS = [['type', 'Type'], ['value', 'Value'], ['name', 'Name / holder'], ['case', 'Case'], ['fir', 'FIR'], ['source', 'Found in'], ['note', 'Note'], ['added', 'Added'], ['seen', 'Cases']];
     const order = EditList.items('cd-cols', COLS.map(c => c[1]));
@@ -12120,6 +12125,105 @@ const Off = {
     $('#dcPrint', el).onclick = () => { const w = window.open('', '_blank'); if (!w) return UI.toast('Pop-up blocked'); w.document.write(html().replace('<body>', '<body><button onclick="print()" class="np" style="margin-bottom:10px">🖨 Print / Save as PDF</button><style>@media print{.np{display:none}}</style>')); w.document.close(); };
     $('#dcWord', el).onclick = () => UI.download('duty_chart_' + C.date + '.doc', html(), 'application/msword');
     this.filesBox($('#dcFiles', el), 'Duty Chart');
+  },
+  /* ---------- read a duty chart file (PDF / Excel / Word / CSV, Hindi or English) into a chart + staff ---------- */
+  RK: [['Sub-Inspector', /उप\s*निरीक्षक|उ\s*0\s*नि\s*0?|उ\s*\.\s*नि\s*\.?|उ\s*नि\b|sub[\s\-]*inspector|\bS\.?\s?I\b(?!\w)|\bSI\b/i], ['Inspector', /प्रभारी\s*निरीक्षक|निरीक्षक|इंस्पेक्टर|इन्सपेक्टर|\binsp(?:ector)?\b\.?|प्र\s*0\s*नि\s*0?|\bSHO\b/i],
+    ['Head Constable', /मुख्य\s*आरक्षी|हे\s*0\s*का\s*0?|हे\.\s*का\.?|हेड\s*का[ंन]स्टेबल|head\s*constable|\bH\.?\s?C\b(?!\w)|मु\s*0\s*आ\s*0?/i], ['Computer Operator', /क[म्ं]्?प्यूटर|कम्प्यूटर|ऑपरेटर|आपरेटर|computer|operator|\bC\.?O\b(?!\w)|प्रोग्रामर|programmer/i],
+    ['Constable', /महिला\s*आरक्षी|आरक्षी|का\s*0|का[ंन]स्टेबल|constable|\bct\b\.?|\bL\/?Ct\b|म\s*0\s*आ\s*0?|\bW\/?Ct\b/i]],
+  rankOf(t) { for (const [r, rx] of this.RK) if (rx.test(t)) return r; return ''; },
+  dutyParse(text, rows) {
+    const MOB = /(?<!\d)(?:\+?91[\s\-]?)?([6-9]\d{4}\s?\d{5})(?!\d)/, TIME = /\d{1,2}[:.]\d{2}|\d{1,2}\s*(?:am|pm|बजे)|प्रातः|सायं|रात्रि|दिवस|शिफ्ट|shift|morning|evening|night|day/i;
+    const H = { name: /^(?:name|नाम)|नाम\b|अधि.*नाम|officer/i, rank: /^(?:rank|पद|designation)|पदनाम/i, mobile: /mobile|मोबाइल|मो\s*0|मो\.|फोन|phone|contact|सम्पर्क|संपर्क/i, duty: /duty|ड्यूटी|ड्युटी|कार्य|assignment|work/i, shift: /time|समय|shift|शिफ्ट|पाली/i, place: /place|स्थान|location|area|क्षेत्र|point/i, remarks: /remark|टिप्पणी|विवरण|अभ्युक्ति/i };
+    const out = []; let hi = -1, map = null;
+    for (let i = 0; i < Math.min(rows.length, 60); i++) { const r = (rows[i] || []).map(c => String(c ?? '')); const m = r.map(c => Object.keys(H).find(k => H[k].test(c.trim()) && c.length < 40) || ''); if (m.includes('name') && m.filter(Boolean).length >= 2) { hi = i; map = m; break; } }
+    if (map) { for (const r0 of rows.slice(hi + 1)) { const r = (r0 || []).map(c => String(c ?? '').trim()); const o = {}; map.forEach((k, i) => { if (k && r[i]) o[k] = (o[k] ? o[k] + ' ' : '') + r[i]; });
+        if (!o.name || /^\d+$/.test(o.name)) continue; const mm = (o.mobile || '').match(MOB); o.mobile = mm ? mm[1].replace(/\s/g, '') : (o.mobile || '');
+        const rk = this.rankOf((o.rank || '') + ' ' + o.name); if (!o.rank) o.rank = rk; else o.rank = rk || o.rank; o.name = o.name.replace(this.RK.find(x => x[0] === rk)?.[1] || /$^/, '').replace(/^[\s.,\-–:/]+|[\s.,\-–:/]+$/g, '') || o.name; out.push(o); } }
+    if (!out.length) for (const r0 of rows) { const cells = (r0 || []).map(c => String(c ?? '').trim()).filter(Boolean); if (!cells.length) continue; const line = cells.join('  ');
+      const mm = line.match(MOB), rk = this.rankOf(line); if (!mm && !rk) continue; if (!mm && cells.length < 2) continue;
+      const mob = mm ? mm[1].replace(/\s/g, '') : ''; let mi = cells.findIndex(c => MOB.test(c)); if (mi < 0) mi = cells.length;
+      const before = cells.slice(0, mi).map(c => c.replace(MOB, '').trim()).filter(c => c && !/^\d{1,3}[.)]?$/.test(c)), after = cells.slice(mi).map(c => c.replace(MOB, '').trim()).filter(Boolean);
+      const rx = (this.RK.find(x => x[0] === rk) || [])[1]; let name = before.map(c => rx ? c.replace(rx, '') : c).map(c => c.replace(/^\d{1,3}[.)]\s*|\b\d{6,9}\b/g, '').replace(/^[\s.,\-–:/]+|[\s.,\-–:/]+$/g, '')).filter(c => c.length > 1).sort((a, b) => b.length - a.length)[0] || '';
+      if (!name || name.length < 2 || /^(s\.?\s?no|क्र)/i.test(name)) continue;
+      const shift = after.find(c => TIME.test(c)) || '', rest = after.filter(c => c !== shift);
+      out.push({ rank: rk, name, mobile: mob, duty: rest[0] || '', shift, place: rest[1] || '', remarks: rest.slice(2).join(' ') }); }
+    const seen = new Set(); return out.filter(o => { const k = (o.mobile || '') + '|' + o.name; if (seen.has(k)) return false; seen.add(k); return true; });
+  },
+  async dutyFromFile(f, fname, quiet) {
+    const name = fname || f.name, ext = name.split('.').pop().toLowerCase(); let text = '', rows = [];
+    try { if (['docx', 'doc', 'odt', 'rtf'].includes(ext)) { text = await NoticeKit.readAny(f); rows = Parsers.textToRows(text); }
+      else if (['csv', 'txt'].includes(ext)) { const g = await GReply.read(f instanceof File ? f : new File([f], name)); text = g.text || ''; rows = g.rows || []; }
+      else if (['pdf', 'xlsx', 'xls', 'ods'].includes(ext)) { const p = await Parsers.readFile(f instanceof File ? f : new File([f], name), m => window.prompt(m)); text = p.text || ''; rows = (p.sheets || []).flatMap(s => s.rows); }
+      else { if (!quiet) UI.toast('This file type cannot be read as a duty chart. Use PDF, Excel, Word or CSV.', 6000); return 0; } }
+    catch (e) { UI.modal('Duty chart not read', `<p><b>${esc(name)}</b> could not be read.</p><p class="small">${esc(e.message || '')}</p><p>If it is a <b>scanned</b> paper (photo inside a PDF) there is no text in it to read. Please upload the Word / Excel copy of the duty chart, or type it once with ⤵ Fill all staff.</p>`, [{ label: 'OK', cls: 'primary', onClick: UI.closeModal }]); return 0; }
+    const R = this.dutyParse(text, rows);
+    if (!R.length) { const dev = /[ऀ-ॿ]/.test(text), junk = !dev && /[~|¡¢£¤¥¦§¨©ª«¬®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏ]{3}|[a-z][A-Z~;:]{2,}[a-z]/.test(text);
+      UI.modal('No staff rows found', `<p>I read <b>${esc(name)}</b> but could not find staff rows (rank, name, mobile) in it.</p>${!text.trim() ? '<p>The file has <b>no text</b> – it is most likely a <b>scanned</b> image. Please upload the Word / Excel copy.</p>' : junk ? '<p>The Hindi text looks like an <b>old Hindi font (Kruti Dev / Chanakya)</b>, which comes out as English letters when read. Please save the chart in <b>Unicode (Mangal)</b> or upload the Excel / Word copy.</p>' : '<p>Please check that each row has the rank, name and mobile number, or upload the Excel / Word copy.</p>'}<details><summary class="small">Text that was read</summary><pre class="small" style="white-space:pre-wrap;max-height:240px;overflow:auto">${esc(text.slice(0, 3000))}</pre></details>`, [{ label: 'OK', cls: 'primary', onClick: UI.closeModal }]); return 0; }
+    const dm = (name.match(/(\d{1,2})[.\-_\/](\d{1,2})[.\-_\/](20\d{2})/) || text.match(/(\d{1,2})[.\-\/](\d{1,2})[.\-\/](20\d{2})/));
+    const date = dm ? `${dm[3]}-${dm[2].padStart(2, '0')}-${dm[1].padStart(2, '0')}` : this.today();
+    const charts = await this.get('duty', []), staff = await this.get('staff', []);
+    const C = { id: uid() + '', date, title: 'DUTY CHART', order: '', from: name, rows: R.map(r => ({ rank: r.rank || '', name: r.name, mobile: r.mobile || '', duty: r.duty || '', shift: r.shift || '', place: r.place || '', remarks: r.remarks || '' })) };
+    charts.push(C); let ns = 0;
+    for (const r of C.rows) { const ex = staff.find(s => (r.mobile && s.mobile === r.mobile) || s.name.toLowerCase() === r.name.toLowerCase()); if (ex) { if (!ex.mobile && r.mobile) ex.mobile = r.mobile; if (!ex.rank && r.rank) ex.rank = r.rank; } else { staff.push({ id: uid() + '', rank: r.rank || '', name: r.name, mobile: r.mobile || '', pno: '', duty: r.duty || '' }); ns++; } }
+    await this.put('duty'); await this.put('staff'); (this._dc || (this._dc = {})).id = C.id; this._dc.draft = null;
+    UI.toast(`Duty chart of ${this.dmy(date)} read: ${C.rows.length} rows${ns ? ', ' + ns + ' new staff added' : ''}. Check and correct, then Save.`, 7000);
+    return C.rows.length;
+  },
+  /* ---------- offline form for subordinates: they add entries, submit once, send the sealed file; only you import / edit ---------- */
+  async hmac(keyHex, msg) { const k = await crypto.subtle.importKey('raw', new Uint8Array(keyHex.match(/../g).map(h => parseInt(h, 16))), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']); const s = await crypto.subtle.sign('HMAC', k, new TextEncoder().encode(msg)); return [...new Uint8Array(s)].map(b => b.toString(16).padStart(2, '0')).join(''); },
+  async formMake() {
+    const forms = await this.get('forms', []), cf = await this.cfg();
+    const m = UI.modal('📝 Crime Data form for subordinates', `<p class="small">Make a form file for a subordinate / police station. They open it on their own computer (no internet needed), add entries, press <b>Submit</b> and send you the sealed file through the official channel. After Submit their form is locked. When you import the file, the tool checks the seal: if anything was changed after submit, it is refused. Only you can edit or delete the data here.</p>
+      <div class="map-grid"><label>Form for (name / PS / unit)<input id="fmTo" placeholder="e.g. SI Ram Kumar, PS Kavi Nagar"></label><label>Note shown on the form<input id="fmNote" placeholder="e.g. Send by 15-11-2026"></label></div>
+      ${forms.length ? `<h4 style="margin-top:12px">Forms issued <span class="badge">${forms.length}</span></h4><div class="small">${forms.slice().reverse().map(f => `<div class="row" style="gap:6px;margin:3px 0"><span class="grow">${esc(f.to || 'Form')} · ${this.dmy(f.made)} · <span class="muted">${f.subs || 0} submission(s)</span></span><button class="btn sm" data-fr="${f.id}">⬇ Download again</button><button class="btn sm danger" data-fx="${f.id}" title="Stop accepting files from this form">Revoke</button></div>`).join('')}</div>` : ''}`,
+      [{ label: 'Close', onClick: UI.closeModal }, { label: '⬇ Make form file', cls: 'primary', onClick: async () => { const f = { id: 'F' + uid(), key: [...crypto.getRandomValues(new Uint8Array(32))].map(b => b.toString(16).padStart(2, '0')).join(''), to: $('#fmTo', m).value.trim(), note: $('#fmNote', m).value.trim(), made: new Date().toISOString(), subs: 0 }; forms.push(f); await this.put('forms'); this.formFile(f, cf); UI.closeModal(); UI.toast('Form file made – send it to ' + (f.to || 'the subordinate')); } }]);
+    $$('[data-fr]', m).forEach(b => b.onclick = () => this.formFile(forms.find(f => f.id === b.dataset.fr), cf));
+    $$('[data-fx]', m).forEach(b => b.onclick = async () => { const f = forms.find(x => x.id === b.dataset.fx); if (!UI.confirm(`Revoke the form for "${f.to}"? Files from it will no longer be accepted.`)) return; f.revoked = 1; await this.put('forms'); UI.closeModal(); this.formMake(); });
+  },
+  formFile(f, cf) {
+    const T = JSON.stringify(this.CT.filter(x => x[0] !== 'other').map(x => [x[0], x[1]]).concat([['other', 'Other']]));
+    const html = `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Crime Data form – ${esc(cf.office)}</title><meta name="viewport" content="width=device-width,initial-scale=1"><style>
+body{font:14px/1.4 Arial,sans-serif;margin:0;background:#f1f5f9;color:#0f172a}header{background:#7f1d1d;color:#fff;padding:14px 20px}header b{font-size:18px}main{max-width:1100px;margin:16px auto;padding:0 12px}
+.card{background:#fff;border-radius:10px;padding:14px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,.08)}label{display:block;font-size:12px;color:#475569}input,select,textarea{font:inherit;padding:7px;border:1px solid #cbd5e1;border-radius:6px;width:100%;box-sizing:border-box}
+.g{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #e2e8f0;padding:4px;text-align:left;vertical-align:top}th{background:#f8fafc;font-size:12px}
+button{font:inherit;padding:8px 14px;border-radius:6px;border:1px solid #94a3b8;background:#fff;cursor:pointer}button.p{background:#b91c1c;color:#fff;border-color:#b91c1c;font-weight:bold}.bad{border-color:#ef4444;background:#fef2f2}.lock{background:#fef9c3;border:1px solid #eab308;padding:10px;border-radius:8px}.m{color:#64748b;font-size:12px}
+</style></head><body><header><b>${esc(cf.office)}</b><br>Crime Data form${f.to ? ' – ' + esc(f.to) : ''}${f.note ? ' · ' + esc(f.note) : ''}</header><main>
+<div class="card m">Works offline – nothing is sent on the internet. Add entries and press <b>Submit</b>. A sealed file is saved; send that file to the officer through the official channel. After Submit the entries cannot be edited. You can start a new batch for more entries.</div>
+<div id="lk"></div><div class="card"><div class="g"><div><label>Your name</label><input id="sn"></div><div><label>Rank</label><input id="sr"></div><div><label>Police station / unit</label><input id="sp"></div><div><label>Mobile</label><input id="sm"></div></div></div>
+<div class="card"><table><thead><tr><th style="width:150px">Type</th><th>Value</th><th>Name / holder</th><th>FIR / case</th><th>Found in / source</th><th>Note</th><th></th></tr></thead><tbody id="tb"></tbody></table><div style="margin-top:8px"><button id="ad">➕ Add row</button> <span class="m" id="ct"></span></div></div>
+<div class="card"><button class="p" id="sb">✔ Submit &amp; save sealed file</button> <button id="nb" style="display:none">➕ Start a new batch</button></div></main>
+<script>const F=${JSON.stringify({ id: f.id, key: f.key, to: f.to })},T=${T},K='sudcd-'+F.id;
+const V={mobile:/^[6-9]\\d{9}$/,whatsapp:/^[6-9]\\d{9}$/,ifsc:/^[A-Z]{4}0[A-Z0-9]{6}$/,pan:/^[A-Z]{5}\\d{4}[A-Z]$/,aadhaar:/^\\d{12}$/,email:/^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$/,account:/^\\d{6,20}$/,imei:/^\\d{15}$/};
+const $=s=>document.querySelector(s),st=JSON.parse(localStorage.getItem(K)||'{"rows":[],"done":0}');['sn','sr','sp','sm'].forEach(i=>{$('#'+i).value=st[i]||'';$('#'+i).oninput=()=>{st[i]=$('#'+i).value;sv()}});
+function sv(){localStorage.setItem(K,JSON.stringify(st))}function nm(t,v){v=String(v||'').trim();if(t==='mobile'||t==='whatsapp'){v=v.replace(/\\D/g,'').replace(/^(91|0)(?=[6-9]\\d{9}$)/,'')}if(['ifsc','pan'].includes(t))v=v.toUpperCase().replace(/\\s/g,'');if(t==='aadhaar')v=v.replace(/\\s/g,'');return v}
+function draw(){const L=st.done;$('#tb').innerHTML=st.rows.map((r,i)=>'<tr><td><select data-i="'+i+'" data-k="type" '+(L?'disabled':'')+'>'+T.map(t=>'<option value="'+t[0]+'"'+(t[0]===r.type?' selected':'')+'>'+t[1]+'</option>').join('')+'</select></td>'+['value','name','fir','source','note'].map(k=>'<td><input data-i="'+i+'" data-k="'+k+'" value="'+String(r[k]||'').replace(/"/g,'&quot;')+'" '+(L?'disabled':'')+'></td>').join('')+'<td>'+(L?'':'<button data-x="'+i+'">✕</button>')+'</td></tr>').join('');
+document.querySelectorAll('[data-k]').forEach(e=>{e.oninput=e.onchange=()=>{st.rows[+e.dataset.i][e.dataset.k]=e.value;chk();sv()}});document.querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{st.rows.splice(+b.dataset.x,1);sv();draw()});
+$('#ad').style.display=$('#sb').style.display=L?'none':'';$('#nb').style.display=L?'':'none';['sn','sr','sp','sm'].forEach(i=>$('#'+i).disabled=!!L);$('#lk').innerHTML=L?'<div class="lock card">🔒 Submitted on '+new Date(st.at).toLocaleString('en-IN')+' – '+st.rows.length+' entries. This batch is locked. The sealed file was saved; send it to the officer. Press <b>Start a new batch</b> to add more.</div>':'';chk()}
+function chk(){let bad=0;document.querySelectorAll('tbody tr').forEach((tr,i)=>{const r=st.rows[i],v=nm(r.type,r.value),inp=tr.querySelector('[data-k=value]'),ok=!v||!V[r.type]||V[r.type].test(v);inp.classList.toggle('bad',!ok);if(!ok)bad++});$('#ct').textContent=st.rows.length+' entries'+(bad?' · '+bad+' look wrong (red)':'')}
+$('#ad').onclick=()=>{st.rows.push({type:'mobile'});sv();draw();const l=document.querySelectorAll('[data-k=value]');l[l.length-1].focus()};
+async function mac(m){const k=await crypto.subtle.importKey('raw',new Uint8Array(F.key.match(/../g).map(h=>parseInt(h,16))),{name:'HMAC',hash:'SHA-256'},false,['sign']);const s=await crypto.subtle.sign('HMAC',k,new TextEncoder().encode(m));return [...new Uint8Array(s)].map(b=>b.toString(16).padStart(2,'0')).join('')}
+$('#sb').onclick=async()=>{const rows=st.rows.map(r=>({...r,value:nm(r.type,r.value)})).filter(r=>r.value);if(!rows.length)return alert('Add at least one entry');if(!st.sn)return alert('Write your name');if(!confirm('Submit '+rows.length+' entries? After submit they cannot be edited.'))return;
+st.at=new Date().toISOString();st.sid=F.id+'-'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);const payload=JSON.stringify({form:F.id,sid:st.sid,at:st.at,sub:{name:st.sn,rank:st.sr,ps:st.sp,mobile:st.sm},entries:rows});const seal=await mac(payload);
+const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify({sudcd:1,payload,seal})],{type:'application/json'}));a.download='CrimeData_'+(st.sn||'form').replace(/[^\\w]+/g,'_')+'_'+st.at.slice(0,10)+'.sudcd';document.body.appendChild(a);a.click();st.rows=rows;st.done=1;sv();draw()};
+$('#nb').onclick=()=>{if(!confirm('Start a new empty batch? The submitted batch stays in the file you already sent.'))return;st.rows=[{type:'mobile'}];st.done=0;delete st.at;sv();draw()};if(!st.rows.length)st.rows.push({type:'mobile'});draw();<\/script></body></html>`;
+    UI.download('CrimeData_Form_' + (f.to || 'subordinate').replace(/[^\w]+/g, '_') + '.html', html, 'text/html');
+  },
+  formImport(done) {
+    const inp = document.createElement('input'); inp.type = 'file'; inp.multiple = true; inp.accept = '.sudcd,.json';
+    inp.onchange = async () => { const forms = await this.get('forms', []), R = await this.get('crime', []), got = await this.get('subs', []); const res = [];
+      for (const file of inp.files) { let j; try { j = JSON.parse(await file.text()); } catch (e) { res.push([file.name, '❌ not a form file']); continue; }
+        if (!j || !j.sudcd || !j.payload) { res.push([file.name, '❌ not a form file']); continue; }
+        let P; try { P = JSON.parse(j.payload); } catch (e) { res.push([file.name, '❌ damaged']); continue; }
+        const f = forms.find(x => x.id === P.form); if (!f) { res.push([file.name, '❌ form not issued from this computer']); continue; } if (f.revoked) { res.push([file.name, '❌ form was revoked']); continue; }
+        if ((await this.hmac(f.key, j.payload)) !== j.seal) { res.push([file.name, '❌ seal broken – the file was changed after submit']); continue; }
+        if (got.includes(P.sid)) { res.push([file.name, '⚠ already imported']); continue; }
+        const by = [P.sub.rank, P.sub.name].filter(Boolean).join(' ') + (P.sub.ps ? ', ' + P.sub.ps : '');
+        for (const e of P.entries) { const t = this.CT.some(x => x[0] === e.type) ? e.type : 'other', v = this.norm(t, e.value); if (!v) continue; const c = S.cases.find(x => e.fir && (x.fir === e.fir || x.name === e.fir)) || {};
+          R.push({ id: 's' + uid(), type: t, value: v, name: e.name || '', caseId: c.id || '', case: c.name || e.fir || '', fir: c.fir || e.fir || '', source: (e.source ? e.source + ' · ' : '') + 'Form', note: e.note || '', by, sid: P.sid, added: P.at }); }
+        got.push(P.sid); f.subs = (f.subs || 0) + 1; res.push([file.name, `✔ ${P.entries.length} entries from ${by}`]); }
+      await this.put('crime'); await this.put('subs'); await this.put('forms');
+      UI.modal('Form files imported', `<table class="tbl"><tbody>${res.map(r => `<tr><td>${esc(r[0])}</td><td>${esc(r[1])}</td></tr>`).join('')}</tbody></table>`, [{ label: 'OK', cls: 'primary', onClick: () => { UI.closeModal(); done(); } }]); };
+    inp.click();
   },
   staffEdit(s, done) {
     const L = this.D.staff, x = s ? { ...s } : { rank: 'Constable' };
