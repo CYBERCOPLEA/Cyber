@@ -1297,3 +1297,9 @@ svg.c2.dn .dn-c2{font-size:24px}
 .lea-mv .lea-del{font-size:13px;padding:2px 6px}.lea-mv .lea-del:hover{background:#dc2626;color:#fff;border-color:#dc2626}
 .lea-row input,.lea-add input{padding:6px 8px;border-radius:7px;border:1px solid var(--border);background:var(--bg);color:var(--text-primary)}
 .lea-add{display:grid;grid-template-columns:300px 1fr auto;gap:8px;margin-top:10px}
+
+.nav-subs .nc-hid{display:none!important}
+.nav-subs.open{max-height:72vh;overflow-y:auto}
+.nav-sub.nc-x{display:flex;align-items:center;gap:6px}.nav-sub.nc-x .lea-ext{margin-left:auto;opacity:.55;font-size:11px}
+.nc-edit{opacity:.75}.nc-edit:hover{opacity:1}
+.nc-row{grid-template-columns:22px 300px 1fr auto}
