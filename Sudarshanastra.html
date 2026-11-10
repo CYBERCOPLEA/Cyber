@@ -1296,13 +1296,15 @@ svg.c2.dn .dn-c2{font-size:24px}
 .lea-sub .lea-ext{margin-left:auto;opacity:.55;font-size:11px}
 .lea-sub:hover .lea-ext{opacity:1}
 .lea-ed{max-height:52vh;overflow-y:auto;display:grid;gap:6px;padding-right:4px}
-.lea-row{display:grid;grid-template-columns:22px 250px 1fr auto;gap:8px;align-items:center;font-size:13px;border-radius:8px;padding:1px 2px}
+.lea-row{display:grid;grid-template-columns:22px 270px 1fr auto;gap:8px;align-items:center;font-size:13px;border-radius:8px;padding:1px 2px}
 .lea-drag{cursor:grab;opacity:.6;font-size:16px;text-align:center;user-select:none}.lea-drag:hover{opacity:1}
 .lea-mv{display:flex;gap:3px}.lea-mv .btn{padding:3px 7px;font-size:10px;line-height:1}
 .lea-dragging{opacity:.45;outline:2px dashed var(--border)}
 @keyframes leaMv{from{background:color-mix(in srgb,#0ea5e9 35%,transparent)}to{background:transparent}}.lea-moved{animation:leaMv .8s ease}
+.lea-nm{display:flex;align-items:center;gap:6px}.lea-nm .lea-ic{width:20px;text-align:center;flex:none}.lea-nm input{flex:1;min-width:0}
+.lea-mv .lea-del{font-size:13px;padding:2px 6px}.lea-mv .lea-del:hover{background:#dc2626;color:#fff;border-color:#dc2626}
 .lea-row input,.lea-add input{padding:6px 8px;border-radius:7px;border:1px solid var(--border);background:var(--bg);color:var(--text-primary)}
-.lea-add{display:grid;grid-template-columns:280px 1fr auto;gap:8px;margin-top:10px}
+.lea-add{display:grid;grid-template-columns:300px 1fr auto;gap:8px;margin-top:10px}
 
 </style>
 </head>
@@ -1351,7 +1353,7 @@ svg.c2.dn .dn-c2{font-size:24px}
         <div class="hp-feat" style="--fc:#06b6d4"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><div><b>Analytics</b><p>The same mobile, account, IP or e-mail across complaints, banks and platforms.</p></div></div>
         <div class="hp-feat" style="--fc:#eab308"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h5"/></svg></span><div><b>Case File &amp; Notices</b><p>Case reports, notices to banks and platforms, and CSV / PDF exports.</p></div></div>
     </section>
-    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-10 08:34 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
+    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-10 09:23 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
   </div>
 
   <div class="lg-wrap" id="lgWrap" aria-hidden="true">
@@ -10400,8 +10402,8 @@ const LEA = {
   KEY: 'sud-lea-links',
   saved() { try { return JSON.parse(localStorage.getItem(this.KEY) || '{}'); } catch (e) { return {}; } },
   all() {
-    const s = this.saved(), ov = s.urls || {}, ord = s.order || [], pos = id => { const i = ord.indexOf(id); return i < 0 ? 1e6 : i; };
-    return [...this.LIST.filter(x => !(s.hidden || []).includes(x[0])).map(([id, ic, name, url]) => [id, ic, name, ov[id] != null ? ov[id] : url]), ...(s.extra || []).map(x => [x.id, x.ic || '🔗', x.name, x.url])].map((x, i) => [x, i]).sort((a, b) => pos(a[0][0]) - pos(b[0][0]) || a[1] - b[1]).map(x => x[0]);
+    const s = this.saved(), ov = s.urls || {}, nm = s.names || {}, ord = s.order || [], pos = id => { const i = ord.indexOf(id); return i < 0 ? 1e6 : i; };
+    return [...this.LIST.filter(x => !(s.hidden || []).includes(x[0])).map(([id, ic, name, url]) => [id, ic, nm[id] || name, ov[id] != null ? ov[id] : url]), ...(s.extra || []).map(x => [x.id, x.ic || '🔗', x.name, x.url])].map((x, i) => [x, i]).sort((a, b) => pos(a[0][0]) - pos(b[0][0]) || a[1] - b[1]).map(x => x[0]);
   },
   store(s) { localStorage.setItem(this.KEY, JSON.stringify(s)); },
   open(id) {
@@ -10410,18 +10412,26 @@ const LEA = {
     window.open(p[3], '_blank', 'noopener');
   },
   edit(focus) {
-    const s = this.saved(); s.urls = s.urls || {}; s.extra = s.extra || [];
-    const rows = this.all(), take = () => $$('[data-lid]', body).forEach(i => { const id = i.dataset.lid, v = i.value.trim(), ex = s.extra.find(x => x.id === id), def = this.LIST.find(x => x[0] === id);
-      if (ex) ex.url = v; else if (def && v !== def[3]) s.urls[id] = v; else delete s.urls[id]; s.order = $$('[data-lid]', body).map(x => x.dataset.lid); });
-    const body = UI.modal('All LEA Portal – links', `<div class="sub" style="margin-bottom:8px">Change any link or add a new portal. To change the order, drag <b>⠿</b> or use <b>▲ ▼</b>. Saved in this browser only.</div>
-      <div class="lea-ed">${rows.map(([id, ic, name, url]) => `<div class="lea-row" data-row><span class="lea-drag" title="Drag to move">⠿</span><span>${ic} ${esc(name)}</span><input data-lid="${esc(id)}" value="${esc(url)}" placeholder="https://…"><span class="lea-mv"><button class="btn sm" data-up title="Move up">▲</button><button class="btn sm" data-dn title="Move down">▼</button></span></div>`).join('')}</div>
+    const s = this.saved(); s.urls = s.urls || {}; s.extra = s.extra || []; s.names = s.names || {}; s.hidden = s.hidden || []; const gone = new Set();
+    const rows = this.all(), take = () => {
+      $$('[data-row]', body).forEach(r => { const id = r.dataset.row, n = $('[data-lname]', r).value.trim(), v = $('[data-lid]', r).value.trim(), ex = s.extra.find(x => x.id === id), def = this.LIST.find(x => x[0] === id);
+        if (ex) { ex.url = v; if (n) ex.name = n; return; } if (!def) return;
+        if (v !== def[3]) s.urls[id] = v; else delete s.urls[id];
+        if (n && n !== def[2]) s.names[id] = n; else delete s.names[id]; });
+      for (const id of gone) { s.extra = s.extra.filter(x => x.id !== id); if (this.LIST.some(x => x[0] === id) && !s.hidden.includes(id)) s.hidden.push(id); delete s.urls[id]; delete s.names[id]; }
+      gone.clear(); s.order = $$('[data-row]', body).map(r => r.dataset.row);
+    };
+    const body = UI.modal('All LEA Portal – links', `<div class="sub" style="margin-bottom:8px">Change any name or link, delete with <b>🗑</b>, or add a new portal below. To change the order, drag <b>⠿</b> or use <b>▲ ▼</b>. Press <b>Save</b> to keep changes (this browser only).</div>
+      <div class="lea-ed">${rows.map(([id, ic, name, url]) => `<div class="lea-row" data-row="${esc(id)}"><span class="lea-drag" title="Drag to move">⠿</span><span class="lea-nm"><span class="lea-ic">${ic}</span><input data-lname value="${esc(name)}" placeholder="Portal name"></span><input data-lid="${esc(id)}" value="${esc(url)}" placeholder="https://…"><span class="lea-mv"><button class="btn sm" data-up title="Move up">▲</button><button class="btn sm" data-dn title="Move down">▼</button><button class="btn sm lea-del" data-del title="Delete this portal">🗑</button></span></div>`).join('')}</div>
       <div class="lea-add"><input id="leaN" placeholder="New portal name"><input id="leaU" placeholder="https://…"><button class="btn sm" id="leaA">➕ Add</button></div>`,
       [{ label: 'Reset to default', onClick: () => { if (UI.confirm('Reset all LEA portal links to the default list?')) { localStorage.removeItem(this.KEY); UI.closeModal(); this.side(); } } },
        { label: 'Save', cls: 'primary', onClick: () => {
           take(); this.store(s); UI.closeModal(); this.side(); UI.toast('LEA portal links saved'); } }]);
     const ed = $('.lea-ed', body); let drag = null;
     const flash = r => { r.classList.remove('lea-moved'); void r.offsetWidth; r.classList.add('lea-moved'); };
-    ed.addEventListener('click', e => { const b = e.target.closest('[data-up],[data-dn]'); if (!b) return; e.preventDefault(); const r = b.closest('[data-row]');
+    ed.addEventListener('click', e => { const d = e.target.closest('[data-del]'); if (d) { e.preventDefault(); const r = d.closest('[data-row]'), nm = $('[data-lname]', r).value.trim() || 'this portal';
+        if (UI.confirm(`Delete "${nm}" from the LEA portal list?\n(It is removed when you press Save. "Reset to default" brings the original list back.)`)) { gone.add(r.dataset.row); r.remove(); } return; }
+      const b = e.target.closest('[data-up],[data-dn]'); if (!b) return; e.preventDefault(); const r = b.closest('[data-row]');
       if (b.hasAttribute('data-up') && r.previousElementSibling) ed.insertBefore(r, r.previousElementSibling);
       else if (b.hasAttribute('data-dn') && r.nextElementSibling) ed.insertBefore(r.nextElementSibling, r);
       flash(r); r.scrollIntoView({ block: 'nearest' }); });
