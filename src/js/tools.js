@@ -148,7 +148,7 @@ XT.toolView = function (body, cur) {
   body.innerHTML = `<div class="card xt-head" style="--sc:${C[2]}"><div><h3>${esc(C[1])}</h3><div class="sub">${esc(C[3])}</div></div><button class="btn" id="xtAddHere">➕ Add web link to ${esc(C[1])}</button></div>
     ${own ? '' : `<div class="card"><h3>${isHdr ? 'Paste the full e-mail header' : 'Check'}</h3><div class="sub">${isHdr ? 'Gmail: ⋮ → Show original. Outlook: File → Properties → Internet headers. Paste everything here.' : 'Type or paste one or more values (one per line, or separated by commas). Check runs on this computer only; 🌐 Fetch online brings details from free online databases and your lookup websites below.'}</div>
       <textarea id="xtIn" rows="${isHdr ? 9 : 3}" style="width:100%" placeholder="${esc({ ip: '49.36.12.10\n2401:4900:1c2a::1', mnp: '98xxxxxxxx  or  +1 415 xxx xxxx', imei: '35xxxxxxxxxxxxx', mac: 'A4:5E:60:xx:xx:xx', email: 'Received: from …\nFrom: …\nAuthentication-Results: …', whois: 'example.xyz  or  https://sbi-kyc-update.example/login' }[cur] || '')}">${esc(val)}</textarea>
-      <div class="row" style="margin-top:8px"><button class="btn primary" id="xtGo">Check</button><button class="btn xt-fetch" id="xtFetch" title="${esc({ ip: 'Location, ISP and ASN from ipwho.is / ipinfo.io / ipapi.co / db-ip, then your lookup websites', mac: 'Maker from maclookup.app (only the first 6 digits are sent), then your lookup websites', email: 'Location and ISP of the sender IPs, registrar and age of the sender domains, then your lookup websites', whois: 'Registrar, creation date and age (RDAP), DNS and hosting IP with its ISP, then your lookup websites' }[cur] || 'Tries each lookup website below with the value and shows what it gives back')}">🌐 Fetch online</button><button class="btn" id="xtClr">Clear</button></div><div id="xtOut"></div><div id="xtNetOut"></div><div id="xtDomOut"></div><div id="xtWebOut"></div></div>`}
+      <div class="row" style="margin-top:8px"><button class="btn primary" id="xtGo">Check</button><button class="btn xt-fetch" id="xtFetch" title="${esc({ ip: 'Location, ISP and ASN from ipwho.is / ipinfo.io / ipapi.co / db-ip, then your lookup websites', mac: 'Maker from maclookup.app (only the first 6 digits are sent), then your lookup websites', email: 'Location and ISP of the sender IPs, registrar and age of the sender domains, then your lookup websites', whois: 'Registrar, creation date and age (RDAP), DNS and hosting IP with its ISP, then your lookup websites' }[cur] || 'Tries each lookup website below with the value and shows what it gives back')}">🌐 Fetch online</button><button class="btn" id="xtClr">Clear</button></div><div id="xtOut"></div><div id="xtNetOut"></div><div id="xtDomOut"></div><div id="xtApiOut"></div><div id="xtWebOut"></div></div>`}
     <div class="card"><h3>Lookup websites</h3><div class="sub">${own ? 'Your saved buttons for this section.' : 'Opens in a new tab with the first value from the box. Sites that cannot take the value in the link (bulk lookups) get it copied, so just paste it there. Buttons with ✕ are the ones you added.'}</div><div class="xt-sites" id="xtSites"></div></div>`;
   const first = () => { if (isHdr) { const h = XT.header(st[cur] || ''); return h.origin || ''; } const v = XT.vals(st[cur], cur)[0] || ''; return cur === 'whois' ? (XT.whois(v)._q || v) : cur === 'mac' ? v.replace(/[^0-9a-f]/gi, '').replace(/(..)(?=.)/g, '$1:') : cur === 'mnp' ? v.replace(/\D/g, '').slice(-10) : v; };
   const sites = () => { $('#xtSites', body).innerHTML = XT.siteBtns(cur, first()) || '<div class="muted">No buttons yet. Use ➕ Add web link.</div>';
@@ -176,6 +176,7 @@ XT.toolView = function (body, cur) {
   const fb = $('#xtFetch', body); fb.onclick = () => { st[cur] = ta.value; if (ta.value.trim()) run(); XT.fetchOnline(cur, st[cur], first(), body, fb); };
   if (cur === 'whois' || cur === 'email') XT.domShow($('#xtDomOut', body));
   if (XT.siteNet && XT.siteNet.cat === cur) XT.siteShow($('#xtWebOut', body));
+  if (XT.apiNet && XT.apiNet.cat === cur) XT.apiShow($('#xtApiOut', body));
   if ((cur === 'ip' || cur === 'email' || cur === 'whois') && XT.net) XT.netShow($('#xtNetOut', body));
   if (cur === 'mac' && XT.macNet) XT.macShow($('#xtNetOut', body));
 };
@@ -447,6 +448,9 @@ XT.fetchOnline = async function (cur, text, q, body, btn) {
     else if (cur === 'email') { const ips = uniq([h.origin, ...h.hops.map(x => x.ip)].filter(x => x && /public/.test(V.ipKind(x)))); if (ips.length) await XT.fetchIPs(ips, out, btn);
       const ds = uniq([h.from, h.returnPath, h.replyTo].map(h.dom).filter(Boolean)); await XT.fetchDom(ds, dom, btn); }
     else if (cur === 'whois') { const ds = vals.map(v => XT.whois(v)._q || v); const ips = await XT.fetchDom(ds, dom, btn); if (ips.length) await XT.fetchIPs(ips.filter(x => XT.isIP(x)), out, btn); }
+    const api = $('#xtApiOut', body);
+    if (cur === 'mnp' || cur === 'imei') { XT.apiNet = null; api.innerHTML = `<div class="xt-case" style="margin-top:12px"><b>${cur === 'mnp' ? 'MNP (current operator)' : 'IMEI owner / handset'}:</b> there is no free open database that other apps may read. ${cur === 'mnp' ? 'Get the current operator from the MNP service provider (MNPSP North / South) or Sanchar Saathi via the nodal officer.' : 'Get the subscriber from CEIR / the operator via the nodal officer.'} The websites below are tried anyway.</div>`; }
+    else await XT.fetchApi(cur, cur === 'ip' ? vals.filter(v => XT.isIP(v) && /public/.test(V.ipKind(v))) : cur === 'whois' ? uniq(vals.map(v => XT.whois(v)._q || v)) : cur === 'email' ? [] : vals, api, btn);
     await XT.fetchSites(cur, q, web, btn);
   } finally { btn.disabled = false; btn.textContent = btn._lbl; }
   UI.toast('Fetch online finished');
@@ -455,8 +459,82 @@ XT.fetchOnline = async function (cur, text, q, body, btn) {
 XT.ownFetch = function (body, cur) {
   const c = $('#xtSites', body).closest('.card'); if (!c || $('#xtOwnIn', body)) return;
   c.insertAdjacentHTML('beforebegin', `<div class="card"><h3>Fetch online</h3><div class="sub">Type the name / number / ID. 🌐 Fetch online tries each website below that has <b>{q}</b> in its link and shows what it gives back here.</div>
-    <div class="row" style="margin-top:8px"><input id="xtOwnIn" style="flex:1;min-width:220px" placeholder="e.g. company name, CIN, DIN, UPI ID…" value="${esc((S.xtIn || {})[cur] || '')}"><button class="btn primary" id="xtFetch">🌐 Fetch online</button></div><div id="xtWebOut"></div></div>`);
+    <div class="row" style="margin-top:8px"><input id="xtOwnIn" style="flex:1;min-width:220px" placeholder="Company name, CIN, GSTIN, PAN, DIN, UPI ID, IFSC, PIN code…" value="${esc((S.xtIn || {})[cur] || '')}"><button class="btn primary" id="xtFetch">🌐 Fetch online</button></div><div class="small muted" style="margin-top:6px">CIN, GSTIN, PAN, UPI ID and IFSC are also read on this computer (state, year, company kind, bank / app). IFSC and PIN code are fetched from open databases.</div><div id="xtApiOut"></div><div id="xtWebOut"></div></div>`);
   const i = $('#xtOwnIn', body); i.oninput = () => { (S.xtIn = S.xtIn || {})[cur] = i.value; };
-  $('#xtFetch', body).onclick = () => { const q = i.value.trim(); if (!q) return UI.toast('Type a value first'); if (navigator.clipboard) navigator.clipboard.writeText(q).catch(() => { }); if (!XT.okSend('the value you typed')) return; const b = $('#xtFetch', body); b._lbl = b.textContent; b.disabled = true; XT.fetchSites(cur, q, $('#xtWebOut', body), b).finally(() => { b.disabled = false; b.textContent = b._lbl; }); };
+  $('#xtFetch', body).onclick = () => { const q = i.value.trim(); if (!q) return UI.toast('Type a value first'); if (navigator.clipboard) navigator.clipboard.writeText(q).catch(() => { }); if (!XT.okSend('the value you typed')) return; const b = $('#xtFetch', body); b._lbl = b.textContent; b.disabled = true; XT.fetchApi(cur, [q], $('#xtApiOut', body), b).then(() => XT.fetchSites(cur, q, $('#xtWebOut', body), b)).finally(() => { b.disabled = false; b.textContent = b._lbl; }); };
   if (XT.siteNet && XT.siteNet.cat === cur) XT.siteShow($('#xtWebOut', body));
+  if (XT.apiNet && XT.apiNet.cat === cur) XT.apiShow($('#xtApiOut', body));
+};
+
+/* Open databases that allow a browser page to read them (free, no key). Each gives back fields shown inside the tool. */
+XT.API = {
+  ip: [
+    ['ipapi.is – VPN / proxy / hosting check', q => 'https://api.ipapi.is/?q=' + encodeURIComponent(q), j => j.error ? null : { 'Company': (j.company || {}).name, 'Company type': (j.company || {}).type, 'ASN': j.asn ? 'AS' + j.asn.asn + ' ' + (j.asn.org || '') : '', 'Abuse e-mail': (j.abuse || {}).email, 'Abuse phone': (j.abuse || {}).phone, 'VPN': j.is_vpn, 'Proxy': j.is_proxy, 'Tor': j.is_tor, 'Hosting / data centre': j.is_datacenter, 'Mobile network': j.is_mobile, 'Reported abuser': j.is_abuser, 'Place': [(j.location || {}).city, (j.location || {}).state, (j.location || {}).country].filter(Boolean).join(', ') }],
+    ['RDAP – IP owner & abuse contact', q => 'https://rdap.org/ip/' + encodeURIComponent(q), j => { const E = [...(j.entities || []), ...(j.entities || []).flatMap(e => e.entities || [])], v = role => { const e = E.find(e => (e.roles || []).includes(role)); const c = e && (e.vcardArray || [])[1] || []; return c.filter(f => ['fn', 'email', 'tel'].includes(f[0])).map(f => f[3]).join(', '); }; return { 'Network name': j.name, 'Range': j.startAddress ? j.startAddress + ' – ' + j.endAddress : '', 'Country': j.country, 'Owner': v('registrant'), 'Abuse contact': v('abuse'), 'Admin / NOC': v('administrative') || v('technical'), 'Type': j.type }; }],
+    ['Shodan InternetDB – open ports', q => 'https://internetdb.shodan.io/' + encodeURIComponent(q), j => j.detail ? null : { 'Open ports': (j.ports || []).join(', '), 'Host names': (j.hostnames || []).join(', '), 'Tags': (j.tags || []).join(', '), 'Known weaknesses': (j.vulns || []).slice(0, 8).join(', ') }],
+    ['GeoJS', q => 'https://get.geojs.io/v1/ip/geo/' + encodeURIComponent(q) + '.json', j => ({ 'Place': [j.city, j.region, j.country].filter(Boolean).join(', '), 'Organisation': j.organization_name, 'ASN': j.asn ? 'AS' + j.asn : '' })]
+  ],
+  mac: [['MACVendors.com', q => 'https://api.macvendors.com/' + encodeURIComponent(q.replace(/[^0-9a-f]/gi, '').slice(0, 6)), j => ({ 'Maker': typeof j === 'string' ? j : j.errors ? '' : '' }), 'text']],
+  whois: [
+    ['Wayback Machine – first / last copy', q => 'https://archive.org/wayback/available?url=' + encodeURIComponent(q) + '&timestamp=19960101', j => { const s = ((j.archived_snapshots || {}).closest) || null; return s ? { 'Oldest saved copy': String(s.timestamp).replace(/^(\d{4})(\d\d)(\d\d).*/, '$3-$2-$1'), 'Copy link': s.url } : { 'Saved copies': 'None – site never archived (often a new / fake site)' }; }],
+    ['crt.sh – SSL certificates', q => 'https://crt.sh/?output=json&q=' + encodeURIComponent(q), j => { if (!Array.isArray(j)) return null; const d = j.map(c => c.not_before).filter(Boolean).sort(), n = uniq(j.flatMap(c => String(c.name_value || '').split('\n'))).filter(x => !x.startsWith('*')); return { 'Certificates': j.length, 'First certificate': (d[0] || '').slice(0, 10), 'Latest certificate': (d[d.length - 1] || '').slice(0, 10), 'Issuers': uniq(j.map(c => (String(c.issuer_name || '').match(/O=([^,]+)/) || [])[1]).filter(Boolean)).slice(0, 4).join(', '), 'Sub-domains seen': n.slice(0, 15).join(', ') }; }]
+  ],
+  ifsc: [['Razorpay IFSC', q => 'https://ifsc.razorpay.com/' + encodeURIComponent(q.toUpperCase()), j => ({ 'Bank': j.BANK, 'Branch': j.BRANCH, 'Address': j.ADDRESS, 'City / District': [j.CITY, j.DISTRICT].filter(Boolean).join(' / '), 'State': j.STATE, 'Contact': j.CONTACT, 'MICR': j.MICR, 'UPI / IMPS / NEFT / RTGS': ['UPI', 'IMPS', 'NEFT', 'RTGS'].map(k => k + (j[k] ? ' ✓' : ' ✗')).join('  ') })]],
+  pin: [['India Post PIN code', q => 'https://api.postalpincode.in/pincode/' + encodeURIComponent(q), j => { const o = (j[0] || {}).PostOffice || []; return o.length ? { 'District': o[0].District, 'State': o[0].State, 'Post offices': o.slice(0, 10).map(p => p.Name).join(', ') } : null; }]]
+};
+/* offline readers for Indian IDs – no internet needed */
+XT.GST = { '01': 'Jammu & Kashmir', '02': 'Himachal Pradesh', '03': 'Punjab', '04': 'Chandigarh', '05': 'Uttarakhand', '06': 'Haryana', '07': 'Delhi', '08': 'Rajasthan', '09': 'Uttar Pradesh', '10': 'Bihar', '11': 'Sikkim', '12': 'Arunachal Pradesh', '13': 'Nagaland', '14': 'Manipur', '15': 'Mizoram', '16': 'Tripura', '17': 'Meghalaya', '18': 'Assam', '19': 'West Bengal', '20': 'Jharkhand', '21': 'Odisha', '22': 'Chhattisgarh', '23': 'Madhya Pradesh', '24': 'Gujarat', '26': 'Dadra & Nagar Haveli and Daman & Diu', '27': 'Maharashtra', '29': 'Karnataka', '30': 'Goa', '31': 'Lakshadweep', '32': 'Kerala', '33': 'Tamil Nadu', '34': 'Puducherry', '35': 'Andaman & Nicobar', '36': 'Telangana', '37': 'Andhra Pradesh', '38': 'Ladakh', '97': 'Other territory' };
+XT.PANT = { P: 'Individual person', C: 'Company', H: 'HUF (Hindu undivided family)', F: 'Firm / LLP', A: 'Association of persons', T: 'Trust', B: 'Body of individuals', L: 'Local authority', J: 'Artificial juridical person', G: 'Government' };
+XT.CINT = { PLC: 'Public limited company', PTC: 'Private limited company', OPC: 'One person company', GOI: 'Government of India company', SGC: 'State government company', FTC: 'Subsidiary of a foreign company', NPL: 'Not-for-profit (Section 8) company', GAP: 'Public company limited by guarantee', GAT: 'Private company limited by guarantee', ULL: 'Public unlimited company', ULT: 'Private unlimited company', FLC: 'Financial lease company' };
+XT.UPI = { ybl: 'PhonePe (Yes Bank)', ibl: 'PhonePe (ICICI Bank)', axl: 'PhonePe (Axis Bank)', okaxis: 'Google Pay (Axis Bank)', okhdfcbank: 'Google Pay (HDFC Bank)', okicici: 'Google Pay (ICICI Bank)', oksbi: 'Google Pay (SBI)', paytm: 'Paytm', ptyes: 'Paytm (Yes Bank)', ptaxis: 'Paytm (Axis Bank)', pthdfc: 'Paytm (HDFC Bank)', ptsbi: 'Paytm (SBI)', upi: 'BHIM', apl: 'Amazon Pay (Axis Bank)', yapl: 'Amazon Pay (Yes Bank)', rapl: 'Amazon Pay (RBL)', fbl: 'Federal Bank / Jupiter', jupiteraxis: 'Jupiter (Axis Bank)', fam: 'FamPay', freecharge: 'Freecharge', airtel: 'Airtel Payments Bank', jio: 'Jio Payments Bank', icici: 'ICICI Bank', hdfcbank: 'HDFC Bank', sbi: 'State Bank of India', axisbank: 'Axis Bank', kotak: 'Kotak Bank', kmbl: 'Kotak Bank', pnb: 'Punjab National Bank', barodampay: 'Bank of Baroda', cnrb: 'Canara Bank', idfcbank: 'IDFC First Bank', indus: 'IndusInd Bank', aubank: 'AU Small Finance Bank', yesbank: 'Yes Bank', slice: 'Slice', navi: 'Navi', superyes: 'super.money (Yes Bank)', waaxis: 'WhatsApp Pay (Axis)', wahdfcbank: 'WhatsApp Pay (HDFC)', waicici: 'WhatsApp Pay (ICICI)', wasbi: 'WhatsApp Pay (SBI)', mobikwik: 'MobiKwik', ikwik: 'MobiKwik', abfspay: 'Aditya Birla', postbank: 'India Post Payments Bank', dbs: 'DBS Bank', rbl: 'RBL Bank', equitas: 'Equitas Bank', okbizaxis: 'Google Pay business (Axis)', pockets: 'ICICI Pockets', timecosmos: 'Cred / Tim', axisb: 'CRED (Axis Bank)', yescred: 'CRED (Yes Bank)', naviaxis: 'Navi (Axis Bank)' };
+XT.idKind = function (v) {
+  const s = String(v || '').trim(), u = s.toUpperCase().replace(/\s/g, '');
+  if (/^[A-Z]{4}0[A-Z0-9]{6}$/.test(u)) return 'ifsc';
+  if (/^\d{6}$/.test(u)) return 'pin';
+  if (/^[LU]\d{5}[A-Z]{2}\d{4}[A-Z]{3}\d{6}$/.test(u)) return 'cin';
+  if (/^[A-Z]{3}-\d{4}$/.test(u)) return 'llpin';
+  if (/^\d{2}[A-Z]{5}\d{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/.test(u)) return 'gstin';
+  if (/^[A-Z]{5}\d{4}[A-Z]$/.test(u)) return 'pan';
+  if (/^[\w.\-]{2,}@[a-z]{2,}$/i.test(s) && !/\.[a-z]{2,}$/i.test(s)) return 'upi';
+  if (/^\d{8}$/.test(u)) return 'din';
+  return '';
+};
+XT.idRead = function (v) {
+  const k = XT.idKind(v), u = String(v).toUpperCase().replace(/\s/g, '');
+  if (k === 'cin') return { 'Type': 'CIN (company number)', 'Listed': u[0] === 'L' ? 'Listed on stock exchange' : 'Not listed', 'Industry code (NIC)': u.slice(1, 6), 'State of registration': u.slice(6, 8), 'Year registered': u.slice(8, 12), 'Company kind': XT.CINT[u.slice(12, 15)] || u.slice(12, 15), 'ROC number': u.slice(15) };
+  if (k === 'llpin') return { 'Type': 'LLPIN (LLP number)', 'Note': 'Check partners (DPIN) on the MCA site' };
+  if (k === 'gstin') return { 'Type': 'GSTIN', 'State': XT.GST[u.slice(0, 2)] || u.slice(0, 2), 'PAN inside': u.slice(2, 12), 'PAN holder': XT.PANT[u[5]] || '', 'Registration no. in state': u[12] };
+  if (k === 'pan') return { 'Type': 'PAN', 'Holder kind': XT.PANT[u[3]] || 'Unknown', 'Name starts with': u[4] + ' (surname / entity name)' };
+  if (k === 'upi') { const h = String(v).split('@')[1].toLowerCase(); return { 'Type': 'UPI ID', 'Handle': '@' + h, 'App / bank': XT.UPI[h] || 'Not in list – check NPCI handle list', 'Who to ask': XT.UPI[h] ? 'Send notice to ' + XT.UPI[h].replace(/ \((.*)\)/, ' / $1') + ' for KYC, linked account & mobile' : '' }; }
+  if (k === 'ifsc') return { 'Type': 'IFSC', 'Bank code': u.slice(0, 4), 'Branch code': u.slice(5) };
+  if (k === 'pin') return { 'Type': 'PIN code' };
+  if (k === 'din') return { 'Type': 'DIN / DPIN (director number) – 8 digits', 'Note': 'No open database; open the MCA “View DIN details” page (value copied)' };
+  return null;
+};
+/* run the open databases for a tool and show them in one card */
+XT.fetchApi = async function (cur, vals, out, btn) {
+  const jobs = [];
+  vals.slice(0, cur === 'ip' ? 5 : 3).forEach(v => {
+    const k = ['ip', 'mac', 'whois'].includes(cur) ? cur : XT.idKind(v);
+    const off = XT.idRead(v); if (off) jobs.push({ v, src: 'Read on this computer', off });
+    (XT.API[k] || []).forEach(a => jobs.push({ v, src: a[0], a }));
+  });
+  if (!jobs.length) return;
+  const R = XT.apiNet = { cat: cur, rows: [] };
+  for (let i = 0; i < jobs.length; i++) {
+    const j = jobs[i]; if (btn) btn.textContent = `Database ${i + 1} / ${jobs.length}…`;
+    if (j.off) { R.rows.push({ v: j.v, src: j.src, f: j.off }); continue; }
+    const [, u, map, kind] = j.a; let row = { v: j.v, src: j.src, url: u(j.v) };
+    try { const r = await XT.get(row.url, 9000); if (r.ok) { const d = kind === 'text' ? await r.text() : await r.json(); const f = map(d); if (f) { Object.keys(f).forEach(k => { if (f[k] === '' || f[k] == null || f[k] === false && !/VPN|Proxy|Tor|Hosting|abuser|Mobile/.test(k)) delete f[k]; }); row.f = f; } else row.err = 'Nothing found'; } else row.err = r.status === 404 ? 'Nothing found' : 'Answered ' + r.status + ' (limit reached?)'; }
+    catch (e) { row.err = 'No answer (blocked or offline)'; }
+    R.rows.push(row); XT.apiShow(out);
+  }
+  XT.apiShow(out);
+};
+XT.apiShow = function (out) {
+  const R = XT.apiNet; if (!out || !R || !R.rows.length) return;
+  const val = x => x === true ? '<span class="badge bad">Yes</span>' : x === false ? '<span class="badge good">No</span>' : /^https?:\/\//.test(x) ? `<a href="${esc(x)}" target="_blank" rel="noopener noreferrer">${esc(x)}</a>` : esc(String(x));
+  out.innerHTML = `<h3 style="margin-top:16px">From open databases <span class="muted small">(${R.rows.filter(r => r.f).length} of ${R.rows.length} answered)</span></h3><div class="xt-res">${R.rows.map(r => `<div class="xt-r"><div class="small" style="margin-bottom:4px"><b>${esc(r.src)}</b> · <span class="mono">${esc(r.v)}</span></div>${r.f ? `<dl class="kv">${Object.entries(r.f).map(([k, v]) => `<dt>${esc(k)}</dt><dd>${val(v)}</dd>`).join('')}</dl>` : `<span class="muted small">${esc(r.err || '')}</span>`}</div>`).join('')}</div>
+    <div class="row" style="margin-top:8px"><button class="btn" id="xtApiCsv">Download CSV</button></div>`;
+  $('#xtApiCsv', out).onclick = () => UI.download('open_db_' + R.cat + '_' + today() + '.csv', UI.toCSV(['value', 'source', 'field', 'result'].map(k => ({ key: k, label: k })), R.rows.flatMap(r => r.f ? Object.entries(r.f).map(([k, v]) => ({ value: r.v, source: r.src, field: k, result: String(v) })) : [{ value: r.v, source: r.src, field: '', result: r.err }])), 'text/csv');
 };
