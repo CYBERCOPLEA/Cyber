@@ -1553,3 +1553,17 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
 .cd-ct{display:inline-block;padding:1px 8px;border-radius:10px;background:#ede9fe;color:#5b21b6;font-size:12px;font-weight:600;white-space:nowrap}
 .lv-old{background:#fff7ed;color:#7c2d12;border:1px solid #f97316;border-radius:8px;padding:10px 12px;margin:8px 0;font-size:13px}.lv-old ol{margin:6px 0 8px 18px;padding:0}
 .lv-old *{color:#7c2d12}.lv-old b{color:#9a3412}.lv-old .btn.primary{color:#fff}
+/* Crime Data – at a glance common data */
+.gl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-top:10px}
+.gl-b{display:flex;flex-direction:column;align-items:flex-start;gap:1px;padding:10px 12px;border-radius:12px;border:1px solid var(--border);background:rgba(148,163,184,.06);color:inherit;cursor:pointer;text-align:left;min-width:0;font:inherit}
+.gl-b .gl-i{font-size:18px}.gl-b .gl-l{font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.03em}
+.gl-b b{font-size:24px;line-height:1.1}.gl-b small{font-size:11px;color:var(--text-muted)}
+.gl-b .gl-t{font-size:12px;margin-top:4px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:ui-monospace,Consolas,monospace}
+.gl-b .gl-t em{display:block;font-style:normal;font-family:inherit;color:#f59e0b;font-size:11px}
+.gl-b.hot{border-color:rgba(239,68,68,.6);background:linear-gradient(160deg,rgba(239,68,68,.16),rgba(239,68,68,.04))}.gl-b.hot b{color:#f87171}
+.gl-b:hover{border-color:#ef4444;transform:translateY(-1px)}
+.gl-act{display:flex;flex-direction:column;gap:4px}
+.gl-r{display:grid;grid-template-columns:28px 120px minmax(140px,1.2fr) minmax(140px,1fr) minmax(120px,1.4fr) auto;gap:10px;align-items:center;padding:6px 10px;border-radius:8px;border:1px solid var(--border);background:rgba(148,163,184,.05)}
+.gl-r .gl-n{width:24px;height:24px;border-radius:50%;background:#ef4444;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px}
+.gl-r .gl-k{font-size:12px;color:var(--text-muted)}.gl-r .gl-w{color:#f59e0b;font-weight:600;font-size:13px}.gl-r .gl-x{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media (max-width:900px){.gl-r{grid-template-columns:24px 1fr auto}.gl-r .gl-k,.gl-r .gl-x{display:none}}
