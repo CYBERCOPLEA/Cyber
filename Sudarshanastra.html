@@ -1583,6 +1583,26 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
 #btnLock:hover{background:rgba(239,68,68,.14);border-color:#ef4444}
 #btnTheme{height:34px}
 
+/* Upload + page */
+.of-up-box{margin-top:10px}
+#ofDz{padding:18px;background:rgba(6,182,212,.05)}
+#ofDz select{margin-left:4px}
+.of-secs{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px;margin:14px 0}
+.of-sc{display:grid;grid-template-columns:auto 1fr auto;gap:2px 8px;align-items:center;text-align:left;padding:10px 12px;border-radius:12px;border:1px solid var(--border);border-left:4px solid var(--c);background:var(--surface-1);color:var(--text-primary);cursor:pointer}
+.of-sc:hover{box-shadow:0 2px 10px rgba(0,0,0,.12)}
+.of-sc.on{background:color-mix(in srgb,var(--c) 16%,transparent);border-color:var(--c)}
+.of-sc .of-si{font-size:20px;grid-row:span 2}
+.of-sc .of-sn{font-weight:700}
+.of-sc .of-sv{font-size:20px;font-weight:800;color:var(--c)}
+.of-sc .small{grid-column:2/4}
+.of-bar{display:grid;grid-template-columns:110px 1fr 34px 70px;white-space:nowrap;gap:8px;align-items:center;padding:4px 0;cursor:pointer}
+.of-bar i{display:block;height:10px;border-radius:6px;background:linear-gradient(90deg,#06b6d4,#6366f1);min-width:4px}
+.of-bar b{text-align:right}
+.of-rc{display:flex;gap:6px;align-items:center;padding:5px 0;border-bottom:1px dashed var(--border);font-size:13px}
+.of-rc b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:55%}
+.of-hint{margin:6px 2px 0;padding:8px 12px;border-radius:10px;border:1px dashed var(--border)}
+.of-hint a{font-weight:700}
+
 </style>
 </head>
 <body>
@@ -1630,7 +1650,7 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
         <div class="hp-feat" style="--fc:#06b6d4"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><div><b>Analytics</b><p>The same mobile, account, IP or e-mail across complaints, banks and platforms.</p></div></div>
         <div class="hp-feat" style="--fc:#eab308"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h5"/></svg></span><div><b>Case File &amp; Notices</b><p>Case reports, notices to banks and platforms, and CSV / PDF exports.</p></div></div>
     </section>
-    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-10 21:27 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
+    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-10 21:38 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
   </div>
 
   <div class="lg-wrap" id="lgWrap" aria-hidden="true">
@@ -12040,30 +12060,61 @@ const Off = {
 
   /* ================= Upload + (files by section) ================= */
   DUTYX: /\.(pdf|xlsx?|ods|csv|txt|docx?|odt|rtf)$/i,
-  SEC: ['Good Work', 'Press Note', 'Duty Chart', 'Crime Data', 'Others'],
+  SEC: ['Crime Data', 'Good Work', 'Press Note', 'Duty Chart', 'Others'],
   async files() { return this.get('files', []); },
-  async filesBox(el, section, redraw) {
-    const list = await this.files();
-    el.innerHTML = `<div class="card of-files"><div class="row" style="gap:8px;flex-wrap:wrap"><h3 class="grow" style="margin:0">📎 ${section ? esc(section) + ' – files' : 'Upload + <span class="badge">' + list.length + ' files</span>'}</h3>
-        <label class="small muted">Section</label><select class="of-sec"></select><button class="btn primary of-up">⬆ Upload from PC</button></div>
-      <div class="of-drop small muted">…or drop files here (Word, PDF, Excel, photos – anything)</div>
-      ${section ? '' : '<div class="row" style="gap:6px;margin:8px 0"><input class="of-q" placeholder="Find file…" style="flex:1"><select class="of-f"><option value="">All sections</option></select></div>'}<div class="of-list"></div></div>`;
-    const sel = $('.of-sec', el); EditList.attach(sel, 'off-sec', this.SEC, 'Office sections'); if (section) { if (![...sel.options].some(o => o.value === section)) sel.insertAdjacentHTML('afterbegin', `<option>${esc(section)}</option>`); sel.value = section; }
-    if (!section) { const f = $('.of-f', el); f.innerHTML += uniq(list.map(x => x.sec)).map(s => `<option>${esc(s)}</option>`).join(''); }
-    const add = async fs => { for (const f of fs) { const id = 'o' + uid(); await DB.set('offf:' + id, f); list.push({ id, name: f.name, size: f.size, sec: sel.value, added: new Date().toISOString() }); } await this.put('files'); UI.toast(fs.length + ' file(s) kept in ' + sel.value);
-      if (sel.value === 'Duty Chart') { let n = 0; for (const f of fs) if (this.DUTYX.test(f.name)) { const k = await this.dutyFromFile(f); if (k) { n += k; const x = list.find(y => y.name === f.name && y.sec === 'Duty Chart'); if (x) x.done = new Date().toISOString(); } } if (n) { await this.put('files'); if (S.page === 'offx' && S.sub.offx === 'duty') return render(); } } (redraw || (() => this.filesBox(el, section)))(); };
-    $('.of-up', el).onclick = () => { const i = document.createElement('input'); i.type = 'file'; i.multiple = true; i.onchange = () => add([...i.files]); i.click(); };
-    const dz = $('.of-drop', el); dz.ondragover = e => { e.preventDefault(); dz.classList.add('over'); }; dz.ondragleave = () => dz.classList.remove('over'); dz.ondrop = e => { e.preventDefault(); dz.classList.remove('over'); add([...e.dataTransfer.files]); };
-    const draw = () => { const q = section ? '' : $('.of-q', el).value.toLowerCase(), fs = section || $('.of-f', el).value;
-      const L = list.filter(x => (!fs || x.sec === fs) && (!q || (x.name + ' ' + (x.note || '')).toLowerCase().includes(q))).slice().reverse();
-      $('.of-list', el).innerHTML = L.length ? `<table class="tbl fu-t"><thead><tr><th>File</th>${section ? '' : '<th>Section</th>'}<th>Size</th><th>Added</th><th></th></tr></thead><tbody>${L.map(x => `<tr><td><b>${esc(x.name)}</b>${x.done ? ' <span class="fm-tag my">✔ processed</span>' : ''}${x.note ? `<div class="small muted">${esc(x.note)}</div>` : ''}</td>${section ? '' : `<td><span class="fm-tag">${esc(x.sec)}</span></td>`}<td class="small">${SOP.size(x.size)}</td><td class="small">${this.dmy(x.added)}</td><td class="fu-acts"><button class="btn sm" data-o="${x.id}">Open</button>${x.sec === 'Duty Chart' && this.DUTYX.test(x.name) ? `<button class="btn sm primary" data-pr="${x.id}" title="Read this file into a duty chart and the staff list">⚙ Process</button>` : ''}<button class="btn sm" data-r="${x.id}">✏ Rename / move</button><button class="btn sm danger" data-d="${x.id}">🗑</button></td></tr>`).join('')}</tbody></table>` : '<div class="muted small" style="margin-top:6px">No files yet.</div>';
-      const get = id => list.find(x => x.id === id);
-      $$('[data-o]', el).forEach(b => b.onclick = async () => { const x = get(b.dataset.o), f = await DB.get('offf:' + x.id); if (!f) return UI.toast('File not found'); const u = URL.createObjectURL(f); if (/\.(pdf|png|jpe?g|gif|webp|txt|html?)$/i.test(x.name)) window.open(u, '_blank'); else { const a = document.createElement('a'); a.href = u; a.download = x.name; a.click(); } setTimeout(() => URL.revokeObjectURL(u), 60000); });
-      $$('[data-pr]', el).forEach(b => b.onclick = async () => { const x = get(b.dataset.pr), f = await DB.get('offf:' + x.id); if (!f) return UI.toast('File not found'); b.disabled = true; b.textContent = '⏳ Reading…'; const n = await this.dutyFromFile(f, x.name); if (n) { x.done = new Date().toISOString(); await this.put('files'); go('offx', 'duty'); render(); } else { b.disabled = false; b.textContent = '⚙ Process'; } });
-      $$('[data-r]', el).forEach(b => b.onclick = () => { const x = get(b.dataset.r), m = UI.modal('✏ File', `<div class="map-grid"><label>Name<input id="ofN" value="${esc(x.name)}"></label><label>Section<select id="ofS"></select></label><label style="grid-column:1/-1">Note<input id="ofT" value="${esc(x.note || '')}"></label></div>`, [{ label: 'Cancel', onClick: UI.closeModal }, { label: 'Save', cls: 'primary', onClick: async () => { x.name = $('#ofN', m).value.trim() || x.name; x.sec = $('#ofS', m).value; x.note = $('#ofT', m).value.trim(); await this.put('files'); UI.closeModal(); draw(); } }]);
+  SECX: { 'Crime Data': ['🗃', '#ef4444', 'crime'], 'Good Work': ['🏅', '#eab308', 'good'], 'Press Note': ['📰', '#ec4899', 'press'], 'Duty Chart': ['📅', '#22c55e', 'duty'], 'Others': ['📁', '#64748b', ''] },
+  ftype(n) { n = String(n || '').toLowerCase(); return /\.pdf$/.test(n) ? 'PDF' : /\.(docx?|odt|rtf)$/.test(n) ? 'Word' : /\.(xlsx?|ods|csv)$/.test(n) ? 'Excel' : /\.(png|jpe?g|gif|webp|bmp|heic|tiff?)$/.test(n) ? 'Photo' : /\.(mp4|mov|avi|mkv|3gp|webm)$/.test(n) ? 'Video' : /\.(mp3|wav|m4a|ogg|opus|aac)$/.test(n) ? 'Audio' : /\.(zip|rar|7z|gz)$/.test(n) ? 'Zip' : /\.(txt|json|html?)$/.test(n) ? 'Text' : 'Other'; },
+  FTI: { PDF: '📕', Word: '📘', Excel: '📗', Photo: '🖼', Video: '🎬', Audio: '🎵', Zip: '🗜', Text: '📄', Other: '📎' },
+  /* small line at the bottom of Crime Data / Good Work / Press Note / Duty Chart – files now live only in Upload + */
+  async filesHint(el, section) {
+    if (!el) return; const n = (await this.files()).filter(x => x.sec === section).length;
+    el.innerHTML = `<div class="of-hint small muted">📎 ${n ? `<b>${n}</b> file${n > 1 ? 's' : ''} kept for ${esc(section)}` : `Files for ${esc(section)}`} are in <a href="#" class="of-hl">⬆ Upload +</a></div>`;
+    $('.of-hl', el).onclick = e => { e.preventDefault(); this._fsec = section; go('offx', 'files'); };
+  },
+  /* ⬆ Upload + : the one place for office files – upload, sort by section, find and see at a glance */
+  async filesPage(el) {
+    const list = await this.files(), secs = () => uniq([...EditList.items('off-sec', this.SEC), ...list.map(x => x.sec)]);
+    const st = this._fst || (this._fst = { s: '', t: '', q: '', o: 'new' }); if (this._fsec) { st.s = this._fsec; this._fsec = null; }
+    const tsz = a => a.reduce((s, x) => s + (+x.size || 0), 0), wk = Date.now() - 7 * 864e5;
+    const pend = list.filter(x => x.sec === 'Duty Chart' && this.DUTYX.test(x.name) && !x.done).length;
+    el.innerHTML = `<div class="card of-files"><div class="row" style="gap:8px;flex-wrap:wrap;align-items:center"><h3 class="grow" style="margin:0">⬆ Upload + <span class="small muted" style="font-weight:400">– all office files in one place, kept on this computer</span></h3></div>
+      ${UI.kpis([['Total files', fmtNum(list.length), SOP.size(tsz(list))], ['Added this week', fmtNum(list.filter(x => +new Date(x.added) > wk).length)], ['Sections used', fmtNum(uniq(list.map(x => x.sec)).length)], ['Duty files to process', fmtNum(pend), pend ? 'Press ⚙ Process' : 'All done', pend ? 'c4' : 'c3']])}
+      <div class="of-up-box"><div class="of-drop" id="ofDz"><div style="font-size:26px">📥</div><b>Drop files here</b> or <button class="btn primary" id="ofUp">⬆ Choose files from PC</button><div class="small muted" style="margin-top:4px">Word, PDF, Excel, photos, video – anything. Save into: <select id="ofSec"></select></div><div class="small muted">Duty Chart files (PDF / Excel / Word) are read into the duty chart automatically.</div></div></div></div>
+      <div class="of-secs" id="ofSecs"></div>
+      <div class="grid g2" style="gap:14px"><div class="card"><h3>By file type</h3><div id="ofTy"></div></div><div class="card"><h3>Recently added</h3><div id="ofRec"></div></div></div>
+      <div class="card"><div class="row" style="gap:6px;flex-wrap:wrap"><h3 class="grow" style="margin:0">Files <span class="badge" id="ofCnt"></span></h3><input id="ofQ" placeholder="🔍 Find file or note…" style="flex:1;min-width:180px"><select id="ofF"><option value="">All sections</option></select><select id="ofT"><option value="">All types</option></select><select id="ofO"><option value="new">Newest first</option><option value="old">Oldest first</option><option value="name">Name A–Z</option><option value="big">Biggest first</option></select></div><div id="ofL" style="margin-top:8px"></div></div>`;
+    const sel = $('#ofSec', el); EditList.attach(sel, 'off-sec', this.SEC, 'Office sections'); if (st.s && [...sel.options].some(o => o.value === st.s)) sel.value = st.s;
+    const add = async fs => { if (!fs.length) return; const sec = sel.value; for (const f of fs) { const id = 'o' + uid(); await DB.set('offf:' + id, f); list.push({ id, name: f.name, size: f.size, sec, added: new Date().toISOString() }); } await this.put('files'); UI.toast(fs.length + ' file(s) kept in ' + sec); st.s = sec; st.q = ''; st.t = '';
+      if (sec === 'Duty Chart') { let n = 0; for (const f of fs) if (this.DUTYX.test(f.name)) { const k = await this.dutyFromFile(f); if (k) { n += k; const x = list.find(y => y.name === f.name && y.sec === 'Duty Chart' && !y.done); if (x) x.done = new Date().toISOString(); } } if (n) await this.put('files'); }
+      this.filesPage(el); };
+    $('#ofUp', el).onclick = e => { e.stopPropagation(); const i = document.createElement('input'); i.type = 'file'; i.multiple = true; i.onchange = () => add([...i.files]); i.click(); };
+    const dz = $('#ofDz', el); dz.ondragover = e => { e.preventDefault(); dz.classList.add('over'); }; dz.ondragleave = () => dz.classList.remove('over'); dz.ondrop = e => { e.preventDefault(); dz.classList.remove('over'); add([...e.dataTransfer.files]); };
+    // section cards with counts – click to filter
+    const SO = Object.keys(this.SECX), SS = secs().sort((a, b) => (SO.indexOf(a) + 1 || 99) - (SO.indexOf(b) + 1 || 99)), cnt = s => list.filter(x => x.sec === s), last = a => a.length ? this.dmy(a.reduce((m, x) => x.added > m ? x.added : m, '')).slice(0, 5) : '–';
+    $('#ofSecs', el).innerHTML = [['', '🗂', '#06b6d4', 'All files', list]].concat(SS.map(s => { const X = this.SECX[s] || ['📁', '#64748b']; return [s, X[0], X[1], s, cnt(s)]; })).map(([k, ic, c, t, a]) => `<button class="of-sc${st.s === k ? ' on' : ''}" data-sc="${esc(k)}" style="--c:${c}"><span class="of-si">${ic}</span><span class="of-sn">${esc(t)}</span><span class="of-sv">${a.length}</span><span class="small muted">${a.length ? SOP.size(tsz(a)) + ' · last ' + last(a) : 'no files yet'}</span></button>`).join('');
+    $$('[data-sc]', el).forEach(b => b.onclick = () => { st.s = b.dataset.sc; if (st.s) sel.value = st.s; $$('[data-sc]', el).forEach(x => x.classList.toggle('on', x === b)); $('#ofF', el).value = st.s; draw(); });
+    // type breakdown and recent
+    const TY = {}; list.forEach(x => { const t = this.ftype(x.name); (TY[t] = TY[t] || []).push(x); }); const tk = Object.keys(TY).sort((a, b) => TY[b].length - TY[a].length), mx = Math.max(1, ...tk.map(t => TY[t].length));
+    $('#ofTy', el).innerHTML = tk.length ? tk.map(t => `<div class="of-bar" data-ty="${t}" title="Show only ${t} files"><span>${this.FTI[t]} ${t}</span><i style="width:${Math.round(TY[t].length / mx * 100)}%"></i><b>${TY[t].length}</b><span class="small muted">${SOP.size(tsz(TY[t]))}</span></div>`).join('') : '<div class="muted small">No files yet.</div>';
+    $$('[data-ty]', el).forEach(b => b.onclick = () => { st.t = st.t === b.dataset.ty ? '' : b.dataset.ty; $('#ofT', el).value = st.t; draw(); });
+    $('#ofRec', el).innerHTML = list.length ? list.slice().sort((a, b) => a.added < b.added ? 1 : -1).slice(0, 6).map(x => `<div class="of-rc">${this.FTI[this.ftype(x.name)]} <b>${esc(x.name)}</b> <span class="fm-tag">${esc(x.sec)}</span><span class="small muted" style="margin-left:auto">${this.dmy(x.added)}</span></div>`).join('') : '<div class="muted small">Nothing added yet.</div>';
+    $('#ofF', el).innerHTML += SS.map(s => `<option>${esc(s)}</option>`).join(''); $('#ofF', el).value = st.s;
+    $('#ofT', el).innerHTML += Object.keys(this.FTI).map(t => `<option>${t}</option>`).join(''); $('#ofT', el).value = st.t; $('#ofQ', el).value = st.q; $('#ofO', el).value = st.o;
+    const get = id => list.find(x => x.id === id);
+    const draw = () => { const q = st.q.toLowerCase();
+      const L = list.filter(x => (!st.s || x.sec === st.s) && (!st.t || this.ftype(x.name) === st.t) && (!q || (x.name + ' ' + (x.note || '') + ' ' + x.sec).toLowerCase().includes(q)));
+      L.sort(st.o === 'name' ? (a, b) => a.name.localeCompare(b.name) : st.o === 'big' ? (a, b) => (b.size || 0) - (a.size || 0) : st.o === 'old' ? (a, b) => a.added < b.added ? -1 : 1 : (a, b) => a.added < b.added ? 1 : -1);
+      $('#ofCnt', el).textContent = L.length + (L.length !== list.length ? ' of ' + list.length : '');
+      $('#ofL', el).innerHTML = L.length ? `<table class="tbl fu-t"><thead><tr><th>File</th><th>Section</th><th>Type</th><th>Size</th><th>Added</th><th></th></tr></thead><tbody>${L.map(x => { const t = this.ftype(x.name), X = this.SECX[x.sec]; return `<tr><td><b>${this.FTI[t]} ${esc(x.name)}</b>${x.done ? ' <span class="fm-tag my">✔ processed</span>' : ''}${x.note ? `<div class="small muted">${esc(x.note)}</div>` : ''}</td><td><span class="fm-tag" style="${X ? `background:${X[1]}33;color:${X[1]}` : ''}">${esc(x.sec)}</span></td><td class="small">${t}</td><td class="small">${SOP.size(x.size)}</td><td class="small">${this.dmy(x.added)}</td><td class="fu-acts"><button class="btn sm" data-o="${x.id}">Open</button>${x.sec === 'Duty Chart' && this.DUTYX.test(x.name) ? `<button class="btn sm primary" data-pr="${x.id}" title="Read this file into a duty chart and the staff list">⚙ Process</button>` : ''}${X && X[2] ? `<button class="btn sm" data-g="${X[2]}" title="Open the ${esc(x.sec)} page">↗ ${esc(x.sec)}</button>` : ''}<button class="btn sm" data-r="${x.id}">✏ Rename / move</button><button class="btn sm danger" data-d="${x.id}" title="Delete">🗑</button></td></tr>`; }).join('')}</tbody></table>` : `<div class="muted small" style="margin-top:6px">${list.length ? 'No file matches – clear the search or filters.' : 'No files yet. Drop files in the box above.'}</div>`;
+      $$('[data-o]', el).forEach(b => b.onclick = async () => { const x = get(b.dataset.o), f = await DB.get('offf:' + x.id); if (!f) return UI.toast('File not found'); const u = URL.createObjectURL(f); if (/\.(pdf|png|jpe?g|gif|webp|txt|html?|mp4|mp3)$/i.test(x.name)) window.open(u, '_blank'); else { const a = document.createElement('a'); a.href = u; a.download = x.name; a.click(); } setTimeout(() => URL.revokeObjectURL(u), 60000); });
+      $$('[data-g]', el).forEach(b => b.onclick = () => go('offx', b.dataset.g));
+      $$('[data-pr]', el).forEach(b => b.onclick = async () => { const x = get(b.dataset.pr), f = await DB.get('offf:' + x.id); if (!f) return UI.toast('File not found'); b.disabled = true; b.textContent = '⏳ Reading…'; const n = await this.dutyFromFile(f, x.name); if (n) { x.done = new Date().toISOString(); await this.put('files'); go('offx', 'duty'); } else { b.disabled = false; b.textContent = '⚙ Process'; } });
+      $$('[data-r]', el).forEach(b => b.onclick = () => { const x = get(b.dataset.r), m = UI.modal('✏ File', `<div class="map-grid"><label>Name<input id="ofN" value="${esc(x.name)}"></label><label>Section<select id="ofS"></select></label><label style="grid-column:1/-1">Note<input id="ofTn" value="${esc(x.note || '')}"></label></div>`, [{ label: 'Cancel', onClick: UI.closeModal }, { label: 'Save', cls: 'primary', onClick: async () => { x.name = $('#ofN', m).value.trim() || x.name; x.sec = $('#ofS', m).value; x.note = $('#ofTn', m).value.trim(); await this.put('files'); UI.closeModal(); this.filesPage(el); } }]);
         EditList.attach($('#ofS', m), 'off-sec', this.SEC, 'Office sections'); if (![...$('#ofS', m).options].some(o => o.value === x.sec)) $('#ofS', m).insertAdjacentHTML('afterbegin', `<option>${esc(x.sec)}</option>`); $('#ofS', m).value = x.sec; });
-      $$('[data-d]', el).forEach(b => b.onclick = async () => { const x = get(b.dataset.d); if (!UI.confirm(`Delete "${x.name}"?`)) return; list.splice(list.indexOf(x), 1); await DB.del('offf:' + x.id); await this.put('files'); draw(); }); };
-    if (!section) { $('.of-q', el).oninput = draw; $('.of-f', el).onchange = draw; }
+      $$('[data-d]', el).forEach(b => b.onclick = async () => { const x = get(b.dataset.d); if (!UI.confirm(`Delete "${x.name}"?`)) return; list.splice(list.indexOf(x), 1); await DB.del('offf:' + x.id); await this.put('files'); this.filesPage(el); }); };
+    $('#ofQ', el).oninput = e => { st.q = e.target.value; draw(); };
+    $('#ofF', el).onchange = e => { st.s = e.target.value; if (st.s) sel.value = st.s; $$('[data-sc]', el).forEach(x => x.classList.toggle('on', x.dataset.sc === st.s)); draw(); };
+    $('#ofT', el).onchange = e => { st.t = e.target.value; draw(); }; $('#ofO', el).onchange = e => { st.o = e.target.value; draw(); };
     draw();
   },
 
@@ -12091,7 +12142,7 @@ const Off = {
       this.gwEdit({ date: this.today(), cat: 'Debit freeze / hold', title: `${c.name || 'Case'} – ${c.fir ? 'FIR ' + c.fir : ''}`, fir: c.fir || '', sections: c.section || '', team: [c.io_rank, c.io].filter(Boolean).join(' '), frozen: sum(d.txns || [], t => +t.hold || 0), victims: uniq((d.ncrp || []).map(n => n.ack_no)).length, accused: acc.join(', '), desc: '' }, el, true); };
     $('#gwRep', el).onclick = async () => { const cf = await this.cfg(); const t = `GOOD WORK REPORT\n${cf.office.toUpperCase()}\n${st.m ? 'Month: ' + new Date(st.m + '-01').toLocaleDateString('en-IN', { month: 'long', year: 'numeric' }) : 'Date: ' + this.dmy(this.today())}\n\nSubject: Good work done by ${cf.office}\n\nSummary: ${F.length} good work(s) · ${tot('arrested')} arrested · ${this.inr(tot('refunded'))} refunded to victims · ${this.inr(tot('frozen'))} put on hold · ${tot('items')} items recovered.\n\n` + F.slice().sort((a, b) => (a.date || '').localeCompare(b.date || '')).map((x, i) => `${i + 1}. ${this.dmy(x.date)} – ${x.title || ''} (${x.cat || ''})${x.fir ? '\n   FIR: ' + x.fir + (x.sections ? ' u/s ' + x.sections : '') : ''}${x.accused ? '\n   Accused: ' + x.accused : ''}${x.arrested ? '\n   Arrested: ' + x.arrested : ''}${x.refunded ? '\n   Refunded: ' + this.inr(x.refunded) : ''}${x.frozen ? '\n   On hold: ' + this.inr(x.frozen) : ''}${x.recovery ? '\n   Recovered: ' + x.recovery : ''}${x.desc ? '\n   ' + x.desc : ''}${x.team ? '\n   Team: ' + x.team : ''}`).join('\n\n');
       this.textDrawer('Good work report', t, 'good_work_report'); };
-    this.filesBox($('#gwFiles', el), 'Good Work');
+    this.filesHint($('#gwFiles', el), 'Good Work');
   },
   gwEdit(r, el, isNew) {
     const L = this.D.good, x = r && !isNew ? r : { id: null, ...(r || { date: this.today() }) };
@@ -12141,7 +12192,7 @@ const Off = {
     $('#pnPr', el).onclick = () => NoticeKit.print(out.value); $('#pnWd', el).onclick = () => NoticeKit.docx('press_note_' + (val().date || '') + '.docx', out.value); $('#pnCp', el).onclick = () => { navigator.clipboard && navigator.clipboard.writeText(out.value); UI.toast('Copied'); };
     NoticeKit.tools($('#pnBtns', el), out, {});
     if (!cur && !out.value) make();
-    this.filesBox($('#pnFiles', el), 'Press Note');
+    this.filesHint($('#pnFiles', el), 'Press Note');
   },
 
   /* ================= Crime Data ================= */
@@ -12216,7 +12267,7 @@ const Off = {
       const cols = order.map(l => colDef[lab2key[l]]).filter(Boolean);
       Table($('#cdT', el), { rows: F, pageSize: 50, exportName: 'crime_data', sortKey: 'seen', sortDir: -1, after: bind, onRow: r => this.cdEdit(r, re), columns: cols });
     }
-    this.filesBox($('#cdFiles', el), 'Crime Data');
+    this.filesHint($('#cdFiles', el), 'Crime Data');
   },
   locOf(r) { if (r.istate || r.idist) return { state: String(r.istate || '').replace(/^[A-Z]{2} – /, '').toUpperCase(), district: String(r.idist || '').toUpperCase() }; if (r.state || r.district) return r; const i = String(r.ifsc || (r.type === 'ifsc' ? r.value : '')).split(' / ')[0].toUpperCase().trim(); if (!i || typeof IFSCDB === 'undefined') return {}; const M = this._loc || (this._loc = new Map()); if (!M.has(i)) { let d = null; try { d = IFSCDB.get(i); } catch (e) { } M.set(i, d && d.state ? { state: d.state, district: d.district || '' } : {}); } return M.get(i); },
   placeOf(r) { const l = this.locOf(r); return [l.district, l.state].filter(Boolean).join(', '); },
@@ -12328,7 +12379,7 @@ const Off = {
       <div class="s"><b>Station House Officer</b><br>${esc(cf.office)}</div></body></html>`; };
     $('#dcPrint', el).onclick = () => { const w = window.open('', '_blank'); if (!w) return UI.toast('Pop-up blocked'); w.document.write(html().replace('<body>', '<body><button onclick="print()" class="np" style="margin-bottom:10px">🖨 Print / Save as PDF</button><style>@media print{.np{display:none}}</style>')); w.document.close(); };
     $('#dcWord', el).onclick = () => UI.download('duty_chart_' + C.date + '.doc', html(), 'application/msword');
-    this.filesBox($('#dcFiles', el), 'Duty Chart');
+    this.filesHint($('#dcFiles', el), 'Duty Chart');
   },
   /* ---------- read a duty chart file (PDF / Excel / Word / CSV, Hindi or English) into a chart + staff ---------- */
   RK: [['Sub-Inspector', /उप\s*निरीक्षक|उ\s*0\s*नि\s*0?|उ\s*\.\s*नि\s*\.?|उ\s*नि\b|sub[\s\-]*inspector|\bS\.?\s?I\b(?!\w)|\bSI\b/i], ['Inspector', /प्रभारी\s*निरीक्षक|निरीक्षक|इंस्पेक्टर|इन्सपेक्टर|\binsp(?:ector)?\b\.?|प्र\s*0\s*नि\s*0?|\bSHO\b/i],
@@ -12441,7 +12492,7 @@ $('#nb').onclick=()=>{if(!confirm('Start a new empty batch? The submitted batch 
 
 PAGE_META.offx = { group: 'Office', title: 'Office Work', desc: 'Crime data of all cases, good work, press notes, duty chart and office files – the same in every case, kept on this computer.', order: ['crime', 'good', 'press', 'duty', 'files'], names: { good: '🏅 Good Work', press: '📰 Press Note', crime: '🗃 Crime Data', duty: '📅 Duty Chart', files: '⬆ Upload +' } };
 Pages.offx = main => { const { cur, body } = tabs(main, 'offx', [['crime', '🗃 Crime Data'], ['good', '🏅 Good Work'], ['press', '📰 Press Note'], ['duty', '📅 Duty Chart'], ['files', '⬆ Upload +']], 'Office Work');
-  ({ good: () => Off.good(body), press: () => Off.press(body), crime: () => Off.crime(body), duty: () => Off.duty(body), files: () => Off.filesBox(body, null) }[cur] || (() => Off.good(body)))(); };
+  ({ good: () => Off.good(body), press: () => Off.press(body), crime: () => Off.crime(body), duty: () => Off.duty(body), files: () => Off.filesPage(body) }[cur] || (() => Off.good(body)))(); };
 
 /* sidebar: OFFICE drop-down (Search in Local Drive moves inside it) */
 (() => {
