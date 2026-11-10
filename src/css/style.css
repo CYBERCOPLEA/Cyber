@@ -1520,3 +1520,6 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
 .hp-fi .fxn.fx-r{width:26px;height:26px}.hp-trust i .fxn.fx-r,li[class^="t-"] > i .fxn.fx-r{width:24px;height:24px}
 [data-login] .fxn.fx-r{width:20px;height:20px;margin-right:2px}.rx-tag .fxn.fx-r{width:14px;height:14px;filter:none}
 #loginForm button.primary .fxn{width:18px;height:18px}
+.cd-bar>.btn{padding:6px 9px;font-size:12.5px;white-space:nowrap;gap:5px}
+.cd-bar>h3{flex-basis:100%}
+@media (min-width:1500px){.cd-bar>.btn{flex:1 1 auto;justify-content:center}}
