@@ -1441,7 +1441,7 @@ mark.cc-q{background:#f97316;color:#000;border-radius:3px}
 
 /* ---- notice office format: Arial Narrow 11 ---- */
 textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !important;font-size:11pt !important;line-height:1.4}
-.nk-pv{font-family:'Arial Narrow',Arial,sans-serif;font-size:11pt;line-height:1.35;background:#fff;color:#000;padding:28px 36px;border-radius:8px;min-height:430px;max-height:70vh;overflow:auto;margin-top:10px;box-shadow:0 4px 18px rgba(0,0,0,.35)}
+.nk-pv{font-family:var(--doc-font,'Arial Narrow',Arial,sans-serif);font-size:var(--doc-size,11pt);line-height:var(--doc-lh,1.35);background:#fff;color:#000;padding:28px 36px;border-radius:8px;min-height:430px;max-height:70vh;overflow:auto;margin-top:10px;box-shadow:0 4px 18px rgba(0,0,0,.35)}
 .nk-imp{border-color:#22c55e !important;color:#86efac !important}
 .nk-mail-b{border-color:#0ea5e9 !important;color:#7dd3fc !important}
 .nk-mail p{margin:6px 0}
@@ -1616,7 +1616,7 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
 .ofh-cols label{display:block;margin-top:6px}
 @media(max-width:700px){.ofh-cols{grid-template-columns:1fr}}
 .pn-tg{display:flex;gap:4px}
-.pn-sheet{background:#fff;color:#000;border-radius:6px;padding:34px 40px;min-height:640px;box-shadow:0 4px 18px rgba(0,0,0,.35);font-family:'Times New Roman',serif;font-size:15px;line-height:1.5;cursor:text}
+.pn-sheet{background:#fff;color:#000;border-radius:6px;padding:34px 40px;min-height:640px;box-shadow:0 4px 18px rgba(0,0,0,.35);font-family:var(--doc-font,'Times New Roman',serif);font-size:var(--doc-size,12pt);line-height:var(--doc-lh,1.45);cursor:text}
 .pn-sheet .pn-body div{min-height:1.2em}
 .ofh-g label{display:flex;flex-direction:column;gap:4px}
 .ofh-g input[type=color]{width:64px;height:30px;padding:2px}
@@ -1637,6 +1637,14 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
 .cb-grid label{display:flex;flex-direction:column;gap:4px}
 .cb-sel{margin-bottom:10px}.cb-sel select{width:100%}
 .dash-hero{flex-wrap:wrap}.db-cbw{flex-basis:100%;min-width:0}.db-cbw .cb-strip{margin:4px 0 0;background:color-mix(in srgb,var(--surface-2) 70%,transparent)}
+
+/* Document font bar (Office and Action pages) */
+.df-bar{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;margin:-4px 0 14px;padding:8px 12px;border:1px solid var(--border);border-radius:12px;background:var(--surface-1)}
+.df-bar .df-ic{font-size:20px;align-self:center}
+.df-bar label{display:flex;flex-direction:column;gap:3px;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.4px}
+.df-bar select{min-width:110px}.df-bar .df-f{min-width:190px}
+.df-bar .df-pv{margin-left:auto;align-self:center;background:#fff;color:#000;border-radius:8px;padding:4px 12px;font-family:var(--doc-font);font-size:var(--doc-size);line-height:var(--doc-lh)}
+.nk-ta{font-family:var(--doc-font,inherit)!important}
 
 </style>
 </head>
@@ -1685,7 +1693,7 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
         <div class="hp-feat" style="--fc:#06b6d4"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><div><b>Analytics</b><p>The same mobile, account, IP or e-mail across complaints, banks and platforms.</p></div></div>
         <div class="hp-feat" style="--fc:#eab308"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h5"/></svg></span><div><b>Case File &amp; Notices</b><p>Case reports, notices to banks and platforms, and CSV / PDF exports.</p></div></div>
     </section>
-    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-10 22:08 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
+    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-10 22:13 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
   </div>
 
   <div class="lg-wrap" id="lgWrap" aria-hidden="true">
@@ -4472,7 +4480,7 @@ function render() {
   try { (Pages[S.page] || Pages.dashboard)(main); } catch (e) { console.error(e); main.innerHTML = `<div class="card err">Error: ${esc(e.message)}</div>`; }
   const d = S.data; $('#sideInfo').innerHTML = `<b>${esc(activeCase().name || '')}</b><br>${d.txns.length} txns · ${d.kyc.length} KYC<br>${d.social.length} social · ${typeof Trail !== 'undefined' ? Trail.complaints().length : d.ncrp.length} complaints<br><br>🔒 Data stays on this computer.`;
 }
-function applyTheme() { document.documentElement.dataset.theme = S.settings.theme === 'light' ? 'light' : 'dark'; }
+function applyTheme() { document.documentElement.dataset.theme = S.settings.theme === 'light' ? 'light' : 'dark'; try { DocFont.apply(); } catch (e) { } }
 
 /* ---------- Cases ---------- */
 function fillCaseSel() { $('#caseSel').innerHTML = S.cases.map(c => `<option value="${c.id}" ${c.id === S.caseId ? 'selected' : ''}>${esc(c.name)}${c.fir ? ' · ' + esc(c.fir) : ''}</option>`).join(''); }
@@ -6010,7 +6018,7 @@ const Docx = {
     const sect = `<w:sectPr>${foot ? '<w:footerReference w:type="default" r:id="rIdFoot"/>' : ''}<w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1000" w:right="850" w:bottom="1000" w:left="850" w:header="500" w:footer="450" w:gutter="0"/></w:sectPr>`;
     const fld = k => `<w:fldSimple w:instr="${k}"><w:r><w:rPr><w:sz w:val="16"/><w:color w:val="666666"/></w:rPr><w:t>1</w:t></w:r></w:fldSimple>`;
     const footer = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:ftr ${W}>${this.p(this.r(foot + '   ·   Page ', { sz: 8, color: '666666' }) + fld('PAGE') + this.r(' of ', { sz: 8, color: '666666' }) + fld('NUMPAGES'), { align: 'center', after: 0 })}</w:ftr>`;
-    const styles = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="${o.font || 'Calibri'}" w:hAnsi="${o.font || 'Calibri'}" w:cs="${o.font || 'Calibri'}" w:eastAsia="${o.font || 'Calibri'}"/><w:sz w:val="${(o.size || 10.5) * 2}"/><w:szCs w:val="${(o.size || 10.5) * 2}"/><w:lang w:val="en-IN"/></w:rPr></w:rPrDefault><w:pPrDefault><w:pPr><w:spacing w:after="100" w:line="264" w:lineRule="auto"/></w:pPr></w:pPrDefault></w:docDefaults><w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/></w:style></w:styles>`;
+    const styles = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="${o.font || 'Calibri'}" w:hAnsi="${o.font || 'Calibri'}" w:cs="${o.font || 'Calibri'}" w:eastAsia="${o.font || 'Calibri'}"/><w:sz w:val="${(o.size || 10.5) * 2}"/><w:szCs w:val="${(o.size || 10.5) * 2}"/><w:lang w:val="en-IN"/></w:rPr></w:rPrDefault><w:pPrDefault><w:pPr><w:spacing w:after="100" w:line="${Math.round(240 * (o.lh || 1.1))}" w:lineRule="auto"/></w:pPr></w:pPrDefault></w:docDefaults><w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/></w:style></w:styles>`;
     const rels = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rIdStyles" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>${foot ? '<Relationship Id="rIdFoot" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer" Target="footer1.xml"/>' : ''}${imgs.map(i => `<Relationship Id="${i.rid}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/${i.rid}.png"/>`).join('')}</Relationships>`;
     const files = [
       { name: '[Content_Types].xml', data: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Default Extension="png" ContentType="image/png"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>${foot ? '<Override PartName="/word/footer1.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml"/>' : ''}<Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/></Types>` },
@@ -6786,6 +6794,7 @@ tabs = function (main, page, list, title, actions = '') {
   main.innerHTML = `<div class="page-head"><div class="ph-text"><div class="crumb">${esc(M ? M.group : '')}${M ? ' <span>›</span> ' : ''}${esc(tt)}</div><h2>${esc(tt)}</h2>${M ? `<div class="ph-desc">${esc(M.desc)}</div>` : ''}</div><div class="ph-actions">${actions}</div></div>
     <div class="tabs">${list.map(t => `<div class="tab ${t[0] === cur ? 'active' : ''}" data-t="${t[0]}">${esc(t[1])}${t[2] ? `<span class="tcount">${t[2]}</span>` : ''}</div>`).join('')}</div><div id="tabBody"></div>`;
   $$('.tab', main).forEach(t => t.onclick = () => { S.sub[page] = t.dataset.t; render(); });
+  if (M && /^(Office|Action)$/.test(M.group) && typeof DocFont !== 'undefined') { $('.tabs', main).insertAdjacentHTML('afterend', DocFont.bar()); DocFont.bind($('.df-bar', main)); }
   return { cur, body: $('#tabBody', main) };
 };
 
@@ -11393,8 +11402,29 @@ const EditList = {
    and the office format: Arial Narrow 11 pt, headline and subject in bold. */
 // jurisdiction line: "Ghaziabad" → "Police Commissionerate Ghaziabad" (kept as typed if it already says Commissionerate / District)
 function juris(d) { d = String(d || 'Ghaziabad').trim(); return /commissionerate|district|कमिश्नरेट|जनपद|जिला/i.test(d) ? d : 'Police Commissionerate ' + d; }
+/* Document font – one choice of font type, size and line spacing used by every notice, draft, press note, duty chart and report (screen view, Print / PDF and Word) */
+const DocFont = {
+  FONTS: [['English', ['Arial Narrow', 'Arial', 'Times New Roman', 'Calibri', 'Cambria', 'Georgia', 'Verdana', 'Tahoma', 'Bookman Old Style', 'Garamond', 'Century Gothic', 'Courier New']],
+    ['हिंदी / Hindi', ['Mangal', 'Nirmala UI', 'Kokila', 'Aparajita', 'Utsaah', 'Noto Sans Devanagari']]],
+  SIZES: [9, 10, 10.5, 11, 12, 13, 14, 16, 18, 20],
+  LH: [['1', 'Single'], ['1.15', '1.15'], ['1.35', 'Normal'], ['1.5', '1.5'], ['2', 'Double']],
+  DEF: { f: 'Arial Narrow', s: 11, lh: 1.35 },
+  get() { const o = Object.assign({}, this.DEF, (typeof S !== 'undefined' && S.settings && S.settings.docFont) || {}); o.s = +o.s || 11; o.lh = +o.lh || 1.35; return o; },
+  css(f) { f = f || this.get().f; return `'${String(f).replace(/'/g, '')}', 'Nirmala UI', Mangal, 'Noto Sans Devanagari', Arial, sans-serif`; },
+  apply() { const o = this.get(), r = document.documentElement.style; r.setProperty('--doc-font', this.css(o.f)); r.setProperty('--doc-size', o.s + 'pt'); r.setProperty('--doc-lh', o.lh); },
+  async set(k, v) { S.settings.docFont = Object.assign(this.get(), { [k]: k === 'f' ? v : +v }); this.apply(); await saveMeta(); $$('.df-bar').forEach(b => this.sync(b)); },
+  sync(b) { const o = this.get(); $('.df-f', b).value = o.f; $('.df-s', b).value = String(o.s); $('.df-l', b).value = String(o.lh); },
+  bar(cls = '') { const o = this.get();
+    return `<div class="df-bar ${cls}" title="Font used in notices, drafts, press notes, duty chart and reports – on screen, in Print / PDF and in Word"><span class="df-ic">🔤</span>
+      <label><span>Font Type</span><select class="df-f">${this.FONTS.map(([g, L]) => `<optgroup label="${g}">${L.map(f => `<option value="${f}" style="font-family:'${f}'">${f}</option>`).join('')}</optgroup>`).join('')}${this.FONTS.some(([, L]) => L.includes(o.f)) ? '' : `<option>${esc(o.f)}</option>`}</select></label>
+      <label><span>Font Size</span><select class="df-s">${this.SIZES.map(s => `<option value="${s}">${s} pt</option>`).join('')}</select></label>
+      <label><span>Spacing</span><select class="df-l">${this.LH.map(([v, l]) => `<option value="${v}">${l}</option>`).join('')}</select></label>
+      <button class="btn sm df-r" title="Back to Arial Narrow 11 pt">↺</button><span class="df-pv">Aa अआ 123</span></div>`; },
+  bind(b) { if (!b) return; this.sync(b); $('.df-f', b).onchange = e => this.set('f', e.target.value); $('.df-s', b).onchange = e => this.set('s', e.target.value); $('.df-l', b).onchange = e => this.set('lh', e.target.value);
+    $('.df-r', b).onclick = async () => { S.settings.docFont = Object.assign({}, this.DEF); this.apply(); await saveMeta(); $$('.df-bar').forEach(x => this.sync(x)); UI.toast('Font reset to Arial Narrow 11 pt'); }; }
+};
 const NoticeKit = {
-  FONT: "'Arial Narrow', Arial, sans-serif",
+  get FONT() { return DocFont.css(); },
   MAIL: 'https://mail.gov.in',
   REC: {
     bank: ['Bank', ['State Bank of India', 'HDFC Bank', 'ICICI Bank', 'Axis Bank', 'Punjab National Bank', 'Bank of Baroda', 'Kotak Mahindra Bank', 'Canara Bank', 'Union Bank of India', 'Bank of India', 'Indian Bank', 'IndusInd Bank', 'Yes Bank', 'IDFC First Bank', 'AU Small Finance Bank', 'Airtel Payments Bank', 'Paytm Payments Bank', 'Fino Payments Bank', 'India Post Payments Bank']],
@@ -11444,7 +11474,7 @@ const NoticeKit = {
       const c = top && b && !/^(subject|sub\.?|विषय|re)\s*[:\-–]/i.test(s); if (s && !c) top = false; return { t, b, c }; });
   },
   html(text) { return this.lines(text).map(x => `<div style="${x.b ? 'font-weight:bold;' : ''}${x.c ? 'text-align:center;' : ''}min-height:1.2em;white-space:pre-wrap">${esc(x.t)}</div>`).join(''); },
-  page(text, title) { return `<html><head><meta charset="utf-8"><title>${esc(title || 'Notice')}</title><style>@page{size:A4;margin:2cm}body{font-family:${this.FONT};font-size:11pt;line-height:1.35;color:#000}</style></head><body>${this.html(text)}</body></html>`; },
+  page(text, title) { return `<html><head><meta charset="utf-8"><title>${esc(title || 'Notice')}</title><style>@page{size:A4;margin:2cm}body{font-family:${this.FONT};font-size:${DocFont.get().s}pt;line-height:${DocFont.get().lh};color:#000}</style></head><body>${this.html(text)}</body></html>`; },
   print(text) { const w = window.open('', '_blank'); if (!w) return UI.toast('Pop-up blocked. Allow pop-ups for this page.');
     w.document.write(this.page(text).replace('<body>', '<body><div class="np" style="font:13px Arial;margin-bottom:12px"><button onclick="print()">🖨 Print / Save as PDF</button></div><style>@media print{.np{display:none}}</style>')); w.document.close(); },
   doc(name, text) { UI.download(name, this.page(text, name), 'application/msword'); },
@@ -11520,7 +11550,7 @@ const NoticeKit = {
 /* every notice uses the office format */
 Reports.printText = t => NoticeKit.print(t);
 Docx.letter = function (text, title) {
-  return this.build(NoticeKit.lines(text).map(x => this.p(this.r(x.t, { b: x.b }), { after: 0, align: x.c ? 'center' : undefined })).join(''), { font: 'Arial Narrow', size: 11, title });
+  return this.build(NoticeKit.lines(text).map(x => this.p(this.r(x.t, { b: x.b }), { after: 0, align: x.c ? 'center' : undefined })).join(''), { font: DocFont.get().f, size: DocFont.get().s, lh: DocFont.get().lh, title });
 };
 (() => { // headline on generated drafts
   const of = Notices.fill; Notices.fill = function (key) { const t = of.apply(this, arguments); return (S.settings.myTpl || []).some(m => m.id === key) || !t ? t : NoticeKit.head(t); };
@@ -12325,12 +12355,12 @@ const Off = {
     $('#pnSave', el).onclick = async () => { if (!out.value.trim()) return UI.toast('Make the press note first'); const o = val(); let x = L.find(y => y.id === U.id); if (!x) { x = { id: uid() + '' }; L.push(x); U.id = x.id; } Object.assign(x, { title: o.head || 'Press note', date: o.date, f: o, text: out.value }); await this.put('press'); UI.toast('Press note saved'); this.press(el); };
     $$('[data-pn]', el).forEach(n => n.onclick = e => { if (e.target.closest('button')) return; U.id = n.dataset.pn; this.press(el); });
     $$('[data-pd]', el).forEach(b => b.onclick = async () => { if (!UI.confirm('Delete this press note?')) return; L.splice(L.findIndex(x => x.id === b.dataset.pd), 1); if (U.id === b.dataset.pd) U.id = null; await this.put('press'); this.press(el); });
-    const plain = () => out.value.replace(/^\s*\*\*(.+)\*\*\s*$/gm, '$1'), font = () => hi() ? "'Nirmala UI', Mangal, 'Noto Sans Devanagari', Arial, sans-serif" : "'Times New Roman', serif";
-    const page = () => `<html><head><meta charset="utf-8"><title>Press note</title><style>@page{size:A4;margin:1.6cm}body{font-family:${font()};font-size:12pt;line-height:1.45;color:#000}</style></head><body>${this.headHtml(cf, hi())}${NoticeKit.html(out.value)}</body></html>`;
+    const plain = () => out.value.replace(/^\s*\*\*(.+)\*\*\s*$/gm, '$1'), font = () => DocFont.css(hi() && !DocFont.FONTS[1][1].includes(DocFont.get().f) ? 'Nirmala UI' : DocFont.get().f);
+    const page = () => `<html><head><meta charset="utf-8"><title>Press note</title><style>@page{size:A4;margin:1.6cm}body{font-family:${font()};font-size:${DocFont.get().s}pt;line-height:${DocFont.get().lh};color:#000}</style></head><body>${this.headHtml(cf, hi())}${NoticeKit.html(out.value)}</body></html>`;
     $('#pnPr', el).onclick = () => { const w = window.open('', '_blank'); if (!w) return UI.toast('Pop-up blocked. Allow pop-ups for this page.'); w.document.write(page().replace('<body>', '<body><div class="np" style="font:13px Arial;margin-bottom:12px"><button onclick="print()">🖨 Print / Save as PDF</button></div><style>@media print{.np{display:none}}</style>')); w.document.close(); };
-    $('#pnWd', el).onclick = async () => { const H = hi(), h = await this.headDocx(cf, H), fn = H ? 'Nirmala UI' : 'Times New Roman';
+    $('#pnWd', el).onclick = async () => { const H = hi(), h = await this.headDocx(cf, H), D = DocFont.get(), fn = H && !DocFont.FONTS[1][1].includes(D.f) ? 'Nirmala UI' : D.f;
       const body = NoticeKit.lines(out.value).map(x => Docx.p(Docx.r(x.t, { b: x.b }), { after: 0, align: x.c ? 'center' : undefined })).join('');
-      Docx.save('press_note_' + (val().date || '') + (H ? '_hindi' : '') + '.docx', Docx.build(h.xml + body, { images: h.images, font: fn, size: 12, title: 'Press note' })); };
+      Docx.save('press_note_' + (val().date || '') + (H ? '_hindi' : '') + '.docx', Docx.build(h.xml + body, { images: h.images, font: fn, size: D.s, lh: D.lh, title: 'Press note' })); };
     $('#pnCp', el).onclick = () => { navigator.clipboard && navigator.clipboard.writeText(plain()); UI.toast('Copied'); };
     NoticeKit.tools($('#pnBtns', el), out, {});
     if (!cur && !out.value) make(); else view(U.v || 'pv');
@@ -12515,7 +12545,7 @@ const Off = {
     $$('[data-dc]', el).forEach(n => n.onclick = e => { if (e.target.closest('button')) return; U.id = n.dataset.dc; re(); });
     $$('[data-dup]', el).forEach(b => b.onclick = () => { const s = charts.find(x => x.id === b.dataset.dup); U.id = null; U.draft = { id: null, date: this.today(), title: s.title, order: '', rows: s.rows.map(r => ({ ...r })) }; re(); });
     $$('[data-dd]', el).forEach(b => b.onclick = async () => { if (!UI.confirm('Delete this duty chart?')) return; charts.splice(charts.findIndex(x => x.id === b.dataset.dd), 1); if (U.id === b.dataset.dd) U.id = null; await this.put('duty'); re(); });
-    const html = () => { take(); return `<html><head><meta charset="utf-8"><title>Duty chart ${this.dmy(C.date)}</title><style>@page{size:A4;margin:1.4cm}body{font-family:'Arial Narrow',Arial,sans-serif;font-size:11pt;color:#000}.h{display:flex;align-items:center;gap:14px;border-bottom:2px solid #000;padding-bottom:8px;margin-bottom:10px}.h img{height:70px}.h b{font-size:15pt}.h div{text-align:center;flex:1}table{border-collapse:collapse;width:100%}th,td{border:1px solid #000;padding:4px 6px;text-align:left;vertical-align:top}th{background:#e5e7eb}.s{margin-top:40px;text-align:right}</style></head><body>
+    const html = () => { take(); return `<html><head><meta charset="utf-8"><title>Duty chart ${this.dmy(C.date)}</title><style>@page{size:A4;margin:1.4cm}body{font-family:${DocFont.css()};font-size:${DocFont.get().s}pt;line-height:${DocFont.get().lh};color:#000}.h{display:flex;align-items:center;gap:14px;border-bottom:2px solid #000;padding-bottom:8px;margin-bottom:10px}.h img{height:70px}.h b{font-size:15pt}.h div{text-align:center;flex:1}table{border-collapse:collapse;width:100%}th,td{border:1px solid #000;padding:4px 6px;text-align:left;vertical-align:top}th{background:#e5e7eb}.s{margin-top:40px;text-align:right}</style></head><body>
       <div class="h">${cf.logo ? `<img src="${cf.logo}">` : ''}<div><b>${esc(cf.office.toUpperCase())}</b><br><b>${esc((C.title || 'DUTY CHART').toUpperCase())}</b><br>Date: ${esc(new Date(C.date).toLocaleDateString('en-IN', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' }))}${C.order ? '<br>Order No. ' + esc(C.order) : ''}</div>${cf.logo ? '<span style="width:70px"></span>' : ''}</div>
       <table><tr><th>S.No.</th><th>Rank</th><th>Name</th><th>Mobile</th><th>Duty / assignment</th><th>Shift / time</th><th>Place</th><th>Remarks</th></tr>${C.rows.map((r, i) => `<tr><td>${i + 1}</td><td>${esc(r.rank || '')}</td><td><b>${esc(r.name || '')}</b></td><td>${esc(r.mobile || '')}</td><td>${esc(r.duty || '')}</td><td>${esc(r.shift || '')}</td><td>${esc(r.place || '')}</td><td>${esc(r.remarks || '')}</td></tr>`).join('')}</table>
       <div class="s"><b>Station House Officer</b><br>${esc(cf.office)}</div></body></html>`; };

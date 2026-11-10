@@ -70,6 +70,7 @@ tabs = function (main, page, list, title, actions = '') {
   main.innerHTML = `<div class="page-head"><div class="ph-text"><div class="crumb">${esc(M ? M.group : '')}${M ? ' <span>›</span> ' : ''}${esc(tt)}</div><h2>${esc(tt)}</h2>${M ? `<div class="ph-desc">${esc(M.desc)}</div>` : ''}</div><div class="ph-actions">${actions}</div></div>
     <div class="tabs">${list.map(t => `<div class="tab ${t[0] === cur ? 'active' : ''}" data-t="${t[0]}">${esc(t[1])}${t[2] ? `<span class="tcount">${t[2]}</span>` : ''}</div>`).join('')}</div><div id="tabBody"></div>`;
   $$('.tab', main).forEach(t => t.onclick = () => { S.sub[page] = t.dataset.t; render(); });
+  if (M && /^(Office|Action)$/.test(M.group) && typeof DocFont !== 'undefined') { $('.tabs', main).insertAdjacentHTML('afterend', DocFont.bar()); DocFont.bind($('.df-bar', main)); }
   return { cur, body: $('#tabBody', main) };
 };
 

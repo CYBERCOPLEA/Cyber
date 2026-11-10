@@ -1433,7 +1433,7 @@ mark.cc-q{background:#f97316;color:#000;border-radius:3px}
 
 /* ---- notice office format: Arial Narrow 11 ---- */
 textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !important;font-size:11pt !important;line-height:1.4}
-.nk-pv{font-family:'Arial Narrow',Arial,sans-serif;font-size:11pt;line-height:1.35;background:#fff;color:#000;padding:28px 36px;border-radius:8px;min-height:430px;max-height:70vh;overflow:auto;margin-top:10px;box-shadow:0 4px 18px rgba(0,0,0,.35)}
+.nk-pv{font-family:var(--doc-font,'Arial Narrow',Arial,sans-serif);font-size:var(--doc-size,11pt);line-height:var(--doc-lh,1.35);background:#fff;color:#000;padding:28px 36px;border-radius:8px;min-height:430px;max-height:70vh;overflow:auto;margin-top:10px;box-shadow:0 4px 18px rgba(0,0,0,.35)}
 .nk-imp{border-color:#22c55e !important;color:#86efac !important}
 .nk-mail-b{border-color:#0ea5e9 !important;color:#7dd3fc !important}
 .nk-mail p{margin:6px 0}
@@ -1608,7 +1608,7 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
 .ofh-cols label{display:block;margin-top:6px}
 @media(max-width:700px){.ofh-cols{grid-template-columns:1fr}}
 .pn-tg{display:flex;gap:4px}
-.pn-sheet{background:#fff;color:#000;border-radius:6px;padding:34px 40px;min-height:640px;box-shadow:0 4px 18px rgba(0,0,0,.35);font-family:'Times New Roman',serif;font-size:15px;line-height:1.5;cursor:text}
+.pn-sheet{background:#fff;color:#000;border-radius:6px;padding:34px 40px;min-height:640px;box-shadow:0 4px 18px rgba(0,0,0,.35);font-family:var(--doc-font,'Times New Roman',serif);font-size:var(--doc-size,12pt);line-height:var(--doc-lh,1.45);cursor:text}
 .pn-sheet .pn-body div{min-height:1.2em}
 .ofh-g label{display:flex;flex-direction:column;gap:4px}
 .ofh-g input[type=color]{width:64px;height:30px;padding:2px}
@@ -1629,3 +1629,11 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
 .cb-grid label{display:flex;flex-direction:column;gap:4px}
 .cb-sel{margin-bottom:10px}.cb-sel select{width:100%}
 .dash-hero{flex-wrap:wrap}.db-cbw{flex-basis:100%;min-width:0}.db-cbw .cb-strip{margin:4px 0 0;background:color-mix(in srgb,var(--surface-2) 70%,transparent)}
+
+/* Document font bar (Office and Action pages) */
+.df-bar{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;margin:-4px 0 14px;padding:8px 12px;border:1px solid var(--border);border-radius:12px;background:var(--surface-1)}
+.df-bar .df-ic{font-size:20px;align-self:center}
+.df-bar label{display:flex;flex-direction:column;gap:3px;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.4px}
+.df-bar select{min-width:110px}.df-bar .df-f{min-width:190px}
+.df-bar .df-pv{margin-left:auto;align-self:center;background:#fff;color:#000;border-radius:8px;padding:4px 12px;font-family:var(--doc-font);font-size:var(--doc-size);line-height:var(--doc-lh)}
+.nk-ta{font-family:var(--doc-font,inherit)!important}

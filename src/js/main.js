@@ -135,7 +135,7 @@ function render() {
   try { (Pages[S.page] || Pages.dashboard)(main); } catch (e) { console.error(e); main.innerHTML = `<div class="card err">Error: ${esc(e.message)}</div>`; }
   const d = S.data; $('#sideInfo').innerHTML = `<b>${esc(activeCase().name || '')}</b><br>${d.txns.length} txns · ${d.kyc.length} KYC<br>${d.social.length} social · ${typeof Trail !== 'undefined' ? Trail.complaints().length : d.ncrp.length} complaints<br><br>🔒 Data stays on this computer.`;
 }
-function applyTheme() { document.documentElement.dataset.theme = S.settings.theme === 'light' ? 'light' : 'dark'; }
+function applyTheme() { document.documentElement.dataset.theme = S.settings.theme === 'light' ? 'light' : 'dark'; try { DocFont.apply(); } catch (e) { } }
 
 /* ---------- Cases ---------- */
 function fillCaseSel() { $('#caseSel').innerHTML = S.cases.map(c => `<option value="${c.id}" ${c.id === S.caseId ? 'selected' : ''}>${esc(c.name)}${c.fir ? ' · ' + esc(c.fir) : ''}</option>`).join(''); }
