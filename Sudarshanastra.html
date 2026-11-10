@@ -1770,6 +1770,19 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
 .tf-tf span{white-space:nowrap}.tf-tf a{white-space:nowrap}
 .tf-tile .tf-chip{border-radius:8px;white-space:normal}
 
+/* editable time + found-in column */
+.tsc-tb{border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:10px;padding:7px 12px;font-weight:700;cursor:pointer;font-size:12.5px}
+.tsc-tb.on{background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;border-color:transparent}
+.tsc-tp{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;margin:-4px 0 12px;padding:12px 14px;border:1px dashed var(--accent);border-radius:12px;background:var(--surface-2);font-size:13px;font-weight:700}
+.tsc-tp label{display:flex;align-items:center;gap:6px}.tsc-tp select,.tsc-tp input{min-width:0;width:auto}
+.tsc-tp .tsc-h{flex-basis:100%;font-weight:400}.tsc-tp.flash{box-shadow:0 0 0 3px var(--accent)}
+.tsc-tbtn{display:flex;gap:6px}
+.tsc-eh{font-size:12px;font-weight:700;white-space:nowrap}
+.tw-ns{display:flex;flex-wrap:wrap;gap:4px;align-items:center;max-width:380px}
+.tw-n{display:inline-flex;align-items:center;gap:4px;padding:2px 7px;border-radius:8px;border:1px solid var(--border);background:var(--surface-2);font-family:ui-monospace,Consolas,monospace;font-size:12px;color:var(--text);text-decoration:none}
+.tw-n:hover{border-color:var(--accent);background:var(--surface)}.tw-n b{color:var(--accent);font-family:system-ui,sans-serif}
+.tw-c{font-size:11px;font-weight:800;padding:2px 6px;border-radius:6px;background:rgba(239,68,68,.15);color:#ef4444}
+
 </style>
 </head>
 <body>
@@ -1817,7 +1830,7 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
         <div class="hp-feat" style="--fc:#06b6d4"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><div><b>Analytics</b><p>The same mobile, account, IP or e-mail across complaints, banks and platforms.</p></div></div>
         <div class="hp-feat" style="--fc:#eab308"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h5"/></svg></span><div><b>Case File &amp; Notices</b><p>Case reports, notices to banks and platforms, and CSV / PDF exports.</p></div></div>
     </section>
-    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-11 00:56 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
+    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-11 01:03 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
   </div>
 
   <div class="lg-wrap" id="lgWrap" aria-hidden="true">
@@ -10706,7 +10719,7 @@ const TelUI = {
     Charts.bindTips(el);
   },
   timeCharts(el, d) {
-    el.innerHTML = `<div class="grid g2"><div class="card"><h3>Hour of day</h3><div class="sub">Night = 11 pm to 5 am</div><div id="tt1"></div></div><div class="card"><h3>Day by day</h3><div id="tt2"></div></div></div>
+    el.innerHTML = `<div class="grid g2"><div class="card"><h3>Hour of day</h3><div class="sub">Late night = ${TSC.win('l')}${TSC.eh()}</div><div id="tt1"></div></div><div class="card"><h3>Day by day</h3><div id="tt2"></div></div></div>
       <div class="card"><h3>Weekday × hour</h3><div class="sub">Darker = more activity. Shows the daily routine (sleep, work, travel).</div><div id="tt3"></div></div>`;
     Charts.vbar($('#tt1', el), Array.from({ length: 24 }, (_, h) => ({ label: h + ':00', value: d.filter(r => Tel.hour(r) === h).length })));
     Charts.line($('#tt2', el), [...groupBy(d, Tel.day)].sort((a, b) => a[0].localeCompare(b[0])).map(([k, v]) => ({ label: k, value: v.length })));
@@ -10770,17 +10783,17 @@ const TelUI = {
       const tp = P.filter(p => p.target === t && p.out + p.inn).sort((a, c) => (c.out + c.inn) - (a.out + a.inn))[0]; if (tp) f.push(`${b(t)} talked most with ${b(tp.other)} – ${tp.out + tp.inn} calls, ${Tel.hms(tp.dur)} (${tp.out} out, ${tp.inn} in)${Tel.also('mobile', tp.other) ? ' · ⚑ also in ' + esc(Tel.also('mobile', tp.other)) : ''}.`);
       const bz = uniq(v.filter(r => /[A-Z]/.test(r.other)).map(r => Tel.hdrInfo(r.other)).filter(h => h && /Bank|Payment|Loan|Trading/.test(h.cat)).map(h => h.ent)); if (bz.length) f.push(`SMS from banks / payment / loan apps to ${esc(t)}: ${b(bz.slice(0, 10).join(', '))}${bz.length > 10 ? ' …' : ''} – see SMS Analysis.`);
       const im = uniq(v.map(r => r.imei)); if (im.length > 1) f.push(`${b(t)} was used in ${b(im.length + ' handsets')} (IMEI ${im.slice(0, 4).map(esc).join(', ')}) – handset changed.`);
-      const home = groupBy(v.filter(r => Tel.tower(r) && (Tel.hour(r) >= 22 || Tel.hour(r) < 6)), Tel.tower), work = groupBy(v.filter(r => Tel.tower(r) && Tel.hour(r) >= 10 && Tel.hour(r) < 18), Tel.tower);
+      const home = groupBy(v.filter(r => Tel.tower(r) && CDRX.night(r)), Tel.tower), work = groupBy(v.filter(r => Tel.tower(r) && CDRX.day(r)), Tel.tower);
       const top = m => [...m].sort((a, c) => c[1].length - a[1].length)[0];
       const h = top(home), w = top(work);
-      if (h && h[1].length >= 3) f.push(`Likely ${b('night / home')} location of ${esc(t)}: ${b(h[1].find(r => r.addr)?.addr || h[0])} (${h[1].length} records between 10 pm and 6 am).`);
+      if (h && h[1].length >= 3) f.push(`Likely ${b('night / home')} location of ${esc(t)}: ${b(h[1].find(r => r.addr)?.addr || h[0])} (${h[1].length} records between ${TSC.win('n')}).`);
       if (w && w[1].length >= 3 && (!h || w[0] !== h[0])) f.push(`Likely ${b('day / work')} location: ${b(w[1].find(r => r.addr)?.addr || w[0])} (${w[1].length} records, 10 am – 6 pm).`);
       const ts = v.map(r => [Date.parse(r.ts.replace(' ', 'T')), r.ts]).filter(x => !isNaN(x[0])).sort((a, c) => a[0] - c[0]); let gap = null;
       for (let i = 1; i < ts.length; i++) if (!gap || ts[i][0] - ts[i - 1][0] > gap[1][0] - gap[0][0]) gap = [ts[i - 1], ts[i]];
       if (gap && gap[1][0] - gap[0][0] > 36 * 3600e3) f.push(`No activity for ${b(Math.round((gap[1][0] - gap[0][0]) / 3600e3) + ' hours')} from ${esc(Tel.dd(gap[0][1]))} to ${esc(Tel.dd(gap[1][1]))} – phone off or another SIM used.`);
       const rm = uniq(v.map(r => r.roam.toUpperCase()).filter(Boolean)); if (rm.length > 1) f.push(`Roaming circles seen: ${rm.slice(0, 6).map(esc).join(', ')}.`);
     }
-    const nt = d.filter(r => (r.dir === 'IN' || r.dir === 'OUT') && Tel.night(r)); if (nt.length) f.push(`${b(nt.length + ' night calls')} (11 pm – 5 am) with ${uniq(nt.map(r => r.other)).length} numbers.`);
+    const nt = d.filter(r => (r.dir === 'IN' || r.dir === 'OUT') && Tel.night(r)); if (nt.length) f.push(`${b(nt.length + ' night calls')} (${TSC.win('l')}) with ${uniq(nt.map(r => r.other)).length} numbers.`);
     const mi = [...groupBy(d.filter(r => r.imei), r => r.imei)].filter(([, v]) => uniq(v.map(r => r.target)).length > 1); if (mi.length) f.push(`${b(mi.length + ' handset(s)')} used with more than one SIM: ${mi.slice(0, 3).map(([i, v]) => esc(i) + ' → ' + uniq(v.map(r => r.target)).map(esc).join(', ')).join('; ')}.`);
     if (linked.length) f.push(`${b(linked.length + ' contact number(s)')} also found in this case's other data: ${linked.slice(0, 5).map(o => esc(o) + ' (' + esc(Tel.also('mobile', o)) + ')').join(', ')}.`);
     if (common.length) f.push(`${b(common.length + ' number(s)')} in touch with 2 or more targets: ${common.slice(0, 5).map(([o]) => esc(o)).join(', ')}.`);
@@ -10803,13 +10816,13 @@ const TelUI = {
   cdr_dev(el, d) { this.devTables(el, d, 'A target in more than one handset = handset changed; a handset with more than one number = SIMs swapped in it.'); },
   cdr_loc(el, d) {
     const L = d.filter(Tel.tower);
-    const T = [...groupBy(L, Tel.tower)].map(([t, v]) => ({ t, addr: v.find(r => r.addr)?.addr || '', n: v.length, night: v.filter(r => Tel.hour(r) >= 22 || Tel.hour(r) < 6).length, day: v.filter(r => Tel.hour(r) >= 10 && Tel.hour(r) < 18).length, days: uniq(v.map(Tel.day)).length, first: v.reduce((a, r) => !a || r.ts < a ? r.ts : a, ''), last: v.reduce((a, r) => r.ts > a ? r.ts : a, ''), ll: v.find(r => r.lat) || null, recs: v }));
+    const T = [...groupBy(L, Tel.tower)].map(([t, v]) => ({ t, addr: v.find(r => r.addr)?.addr || '', n: v.length, night: v.filter(CDRX.night).length, day: v.filter(CDRX.day).length, days: uniq(v.map(Tel.day)).length, first: v.reduce((a, r) => !a || r.ts < a ? r.ts : a, ''), last: v.reduce((a, r) => r.ts > a ? r.ts : a, ''), ll: v.find(r => r.lat) || null, recs: v }));
     const D = [...groupBy(L, r => r.target + '|' + Tel.day(r))].map(([k, v]) => { v = v.slice().sort((a, b) => a.ts.localeCompare(b.ts)); const f = v[0], l = v[v.length - 1]; return { target: f.target, day: Tel.day(f), ft: f.ts.slice(11, 19), ftow: f.addr || f.cell, lt: l.ts.slice(11, 19), ltow: l.addr || l.cell, nt: uniq(v.map(Tel.tower)).length, recs: v }; });
     const M = []; for (const [t, v] of groupBy(L, r => r.target)) { let prev = ''; v.slice().sort((a, b) => a.ts.localeCompare(b.ts)).forEach(r => { const tw = Tel.tower(r); if (tw !== prev) { M.push({ target: t, ts: r.ts, tw, addr: r.addr, dir: r.dir, other: r.other }); prev = tw; } }); }
-    el.innerHTML = `<div class="card"><h3>Towers</h3><div class="sub">Night = 10 pm – 6 am (often home). Day = 10 am – 6 pm (often work). Click a row for records.</div><div id="cl1"></div></div>
+    el.innerHTML = `<div class="card"><h3>📡 Towers</h3><div class="sub">Night = ${TSC.win('n')} (often home). Day = ${TSC.win('d')} (often work).${TSC.eh()} <b>${{ cdr: 'Found in CDR of', ipdr: 'Found in IPDR of', tdr: 'Numbers seen here' }[S.telKind] || 'Found in'}</b> shows which numbers used each tower – click a number for its records there, or a row for all records.</div><div id="cl1"></div></div>
       <div class="card"><h3>Day-wise first and last location</h3><div class="sub">Where the phone started and ended each day.</div><div id="cl2"></div></div>
       <div class="card"><h3>Movement (each change of tower, in time order)</h3><div id="cl3"></div></div>`;
-    Table($('#cl1', el), { rows: T, sortKey: 'n', sortDir: -1, exportName: 'cdr_towers', onRow: x => this.recDrawer('Tower ' + x.t, x.recs), columns: [{ key: 't', label: 'Cell ID / tower', render: x => `<span class="mono ipv">${esc(x.t)}</span>` }, { key: 'addr', label: 'Address', render: x => `<span class="small">${esc(x.addr)}</span>${x.ll ? ` <a href="https://www.google.com/maps?q=${x.ll.lat},${x.ll.lon}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">map ↗</a>` : ''}` }, { key: 'n', label: 'Records', num: true }, { key: 'night', label: 'Night', num: true }, { key: 'day', label: 'Day', num: true }, { key: 'days', label: 'Days seen', num: true }, { key: 'first', label: 'First', render: x => esc(Tel.dd(x.first)) }, { key: 'last', label: 'Last', render: x => esc(Tel.dd(x.last)) }] });
+    Table($('#cl1', el), { rows: T, sortKey: 'n', sortDir: -1, exportName: 'cdr_towers', onRow: x => this.recDrawer('Tower ' + x.t, x.recs), columns: [{ key: 't', label: 'Cell ID / tower', render: x => `<span class="mono ipv">${esc(x.t)}</span>` }, { key: 'addr', label: 'Address', render: x => `<span class="small">${esc(x.addr)}</span>${x.ll ? ` <a href="https://www.google.com/maps?q=${x.ll.lat},${x.ll.lon}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">map ↗</a>` : ''}` }, TSC.fcol(), { key: 'n', label: 'Records', num: true }, { key: 'night', label: 'Night', num: true }, { key: 'day', label: 'Day', num: true }, { key: 'days', label: 'Days seen', num: true }, { key: 'first', label: 'First', render: x => esc(Tel.dd(x.first)) }, { key: 'last', label: 'Last', render: x => esc(Tel.dd(x.last)) }] });
     Table($('#cl2', el), { rows: D, sortKey: 'day', exportName: 'cdr_daywise', onRow: x => this.recDrawer(x.target + ' · ' + x.day, x.recs), columns: [{ key: 'target', label: 'Target' }, { key: 'day', label: 'Date', render: x => esc(Tel.dd(x.day)) }, { key: 'ft', label: 'First at' }, { key: 'ftow', label: 'First tower', render: x => `<span class="small">${esc(x.ftow)}</span>` }, { key: 'lt', label: 'Last at' }, { key: 'ltow', label: 'Last tower', render: x => `<span class="small">${esc(x.ltow)}</span>` }, { key: 'nt', label: 'Towers that day', num: true }] });
     Table($('#cl3', el), { rows: M, sortKey: 'ts', exportName: 'cdr_movement', pageSize: 50, columns: [{ key: 'target', label: 'Target' }, { key: 'ts', label: 'Time', render: x => esc(Tel.dd(x.ts)) }, { key: 'tw', label: 'Tower', render: x => `<span class="mono ipv">${esc(x.tw)}</span>` }, { key: 'addr', label: 'Address', render: x => `<span class="small">${esc(x.addr)}</span>` }, { key: 'dir', label: 'Event' }, { key: 'other', label: 'With' }] });
   },
@@ -11109,7 +11122,7 @@ const CDRX = {
     return [...groupBy(v.filter(Tel.tower), Tel.tower)].map(([t, w]) => { const ll = w.find(r => r.lat) || {}; return { t, addr: (w.find(r => r.addr) || {}).addr || '', n: w.length, days: uniq(w.map(Tel.day)).length, lat: ll.lat || '', lon: ll.lon || '', roam: (w.find(r => r.roam) || {}).roam || '', first: w[0].ts, last: w[w.length - 1].ts, recs: w }; }).sort((a, b) => b.n - a.n || b.days - a.days);
   },
   night: r => { const h = Tel.hour(r); return h >= 20 || h < 8; },
-  home(v) { const s = this.sorted(v), N = this.towers(s.filter(this.night)), D = this.towers(s.filter(r => !this.night(r))), A = this.towers(s);
+  home(v) { const s = this.sorted(v), N = this.towers(s.filter(this.night)), D = this.towers(s.filter(CDRX.day)), A = this.towers(s);
     const fl = this.towers(s.filter((r, i, a) => i === 0 || a[i - 1].ts.slice(0, 10) !== r.ts.slice(0, 10) || i === a.length - 1 || a[i + 1].ts.slice(0, 10) !== r.ts.slice(0, 10)));
     return { home: N[0], work: D.find(x => !N[0] || x.t !== N[0].t) || D[0], max: A[0], dayFirstLast: fl[0], N, D, A };
   }
@@ -11125,12 +11138,12 @@ TelUI.cdr_loc = function (el, d) {
   _cdrLoc.call(this, el, d);
   const box = (lbl, x, note, col) => x ? `<div class="cx-hw" style="--hc:${col}"><div class="cx-hl">${lbl}</div><b>${esc(x.addr || x.t)}</b><div class="small muted mono">${esc(x.t)}</div><div class="small">${fmtNum(x.n)} records · ${x.days} days${CDRX.map(x.lat, x.lon)}</div><div class="small muted">${esc(Tel.dd(x.first).slice(0, 10))} → ${esc(Tel.dd(x.last).slice(0, 10))} · ${note}</div></div>` : '';
   const H = [...CDRX.byT(d)].filter(([t]) => t).map(([t, v]) => [t, CDRX.home(v)]);
-  el.insertAdjacentHTML('afterbegin', `<div class="card"><h3>Home, work and most-stay location</h3><div class="sub">Home = tower used most at night (8 pm – 8 am). Work = tower used most in the day (8 am – 8 pm). Max stay = tower with the most records. Raid / verification starts here.</div>
+  el.insertAdjacentHTML('afterbegin', `<div class="card"><h3>Home, work and most-stay location</h3><div class="sub">Home = tower used most at night (${TSC.win('n')}). Work = tower used most in the day (${TSC.win('d')}).${TSC.eh()} Max stay = tower with the most records. Raid / verification starts here.</div>
     ${H.map(([t, h]) => `<div class="small" style="margin:8px 0 4px"><b class="mono">${esc(t)}</b></div><div class="cx-hws">${box('🏠 Home (night)', h.home, 'night', '#6366f1')}${box('🏢 Work (day)', h.work, 'day', '#f59e0b')}${box('📍 Max stay', h.max, 'all hours', '#10b981')}${box('🌅 Day first / last call', h.dayFirstLast, 'where the day starts & ends', '#ec4899')}</div>`).join('')}</div>
-    <div class="grid g2"><div class="card"><h3>Night max stay (8 pm – 8 am)</h3><div id="cxN"></div></div><div class="card"><h3>Day max stay (8 am – 8 pm)</h3><div id="cxD"></div></div></div>`);
-  const all = CDRX.sorted(d), cols = [{ key: 't', label: 'Tower', render: x => `<span class="small">${esc(x.addr || x.t)}</span>${CDRX.map(x.lat, x.lon)}<div class="muted small mono">${esc(x.t)}</div>` }, { key: 'n', label: 'Records', num: true }, { key: 'days', label: 'Days', num: true }, { key: 'last', label: 'Last seen', render: x => esc(Tel.dd(x.last).slice(0, 10)) }];
+    <div class="grid g2"><div class="card"><h3>🌙 Night max stay (${TSC.win('n')})${TSC.eh()}</h3><div id="cxN"></div></div><div class="card"><h3>☀ Day max stay (${TSC.win('d')})${TSC.eh()}</h3><div id="cxD"></div></div></div>`);
+  const all = CDRX.sorted(d), cols = [{ key: 't', label: 'Tower', render: x => `<span class="small">${esc(x.addr || x.t)}</span>${CDRX.map(x.lat, x.lon)}<div class="muted small mono">${esc(x.t)}</div>` }, TSC.fcol(), { key: 'n', label: 'Records', num: true }, { key: 'days', label: 'Days', num: true }, { key: 'last', label: 'Last seen', render: x => esc(Tel.dd(x.last).slice(0, 10)) }];
   Table($('#cxN', el), { rows: CDRX.towers(all.filter(CDRX.night)), sortKey: 'n', sortDir: -1, pageSize: 8, exportName: 'night_max_stay', onRow: x => this.recDrawer('Night · ' + (x.addr || x.t), x.recs), columns: cols });
-  Table($('#cxD', el), { rows: CDRX.towers(all.filter(r => !CDRX.night(r))), sortKey: 'n', sortDir: -1, pageSize: 8, exportName: 'day_max_stay', onRow: x => this.recDrawer('Day · ' + (x.addr || x.t), x.recs), columns: cols });
+  Table($('#cxD', el), { rows: CDRX.towers(all.filter(CDRX.day)), sortKey: 'n', sortDir: -1, pageSize: 8, exportName: 'day_max_stay', onRow: x => this.recDrawer('Day · ' + (x.addr || x.t), x.recs), columns: cols });
 };
 
 /* IMEI / IMSI periods, and for IMEI-based CDR the numbers (SIMs) used in each handset */
@@ -11502,7 +11515,7 @@ const TSC = {
 { const _page = TelUI.page;
   TelUI.page = function (main) {
     const k = TK[S.telKind] ? S.telKind : 'cdr', st = TSC.st();
-    if (st._case !== S.caseId) { S.telScope = { _case: S.caseId }; }
+    if (st._case !== S.caseId) { S.telScope = { _case: S.caseId }; if (S.telTime) S.telTime.from = S.telTime.to = ''; }
     Tel._sn = TSC.st()[k] || '';
     if (Tel._sn && !TSC.nums(k).some(x => x[0] === Tel._sn)) Tel._sn = TSC.st()[k] = '';
     TSC._r = []; _page.call(this, main);
@@ -11543,7 +11556,7 @@ TelUI.cdrAll = function (el, d) {
   TT.filter(x => x.im > 1).sort((a, b) => b.im - a.im).slice(0, 3).forEach(x => dev.push({ h: `<b class="mono">${esc(x.n)}</b> ${OB(x.n)}<div class="small">changed handset – <b>${x.im}</b> IMEIs</div>`, go: 'dev', recs: x.recs, t: x.n + ' · handsets' }));
   if (G.length) act.push({ v: fmtNum(G.length), h: `periods of 24 h+ with the phone <b>off / unused</b> (${uniq(G.map(x => x.target)).length} targets)`, go: 'off', recs: G.flatMap(x => x.recs), t: 'Phone off 24 h+' });
   G.slice().sort((a, b) => b.h - a.h).slice(0, 2).forEach(x => act.push({ h: `<b class="mono">${esc(x.target)}</b> ${OB(x.target)} off <b>${CDRX.span(x.h)}</b><div class="small">from ${esc(Tel.dd(x.from))}${x.devCh ? ' · <b>handset changed</b>' : ''}${x.moved ? ' · came back elsewhere' : ''}</div>`, go: 'off', recs: x.recs, t: x.target + ' · off ' + CDRX.span(x.h) }));
-  { const nc = d.filter(r => (r.dir === 'IN' || r.dir === 'OUT') && Tel.night(r)); act.push({ v: fmtNum(nc.length), h: 'night calls (11 pm – 5 am)', go: 'time', recs: nc, t: 'Night calls' }); }
+  { const nc = d.filter(r => (r.dir === 'IN' || r.dir === 'OUT') && Tel.night(r)); act.push({ v: fmtNum(nc.length), h: 'night calls (' + TSC.win('l') + ')', go: 'time', recs: nc, t: 'Night calls' }); }
   TT.filter(x => x.home).slice().sort((a, b) => b.rN - a.rN).slice(0, 4).forEach(x => { const h = CDRX.home(x.recs).home; loc.push({ h: `<b class="mono">${esc(x.n)}</b> ${OB(x.n)}<div class="small">🏠 ${esc(x.home)}</div>`, go: 'loc', recs: h ? h.recs : x.recs, t: x.n + ' · home (night) tower' }); });
   { const CI = [...groupBy(d.filter(CDRX.circle), CDRX.circle)].sort((a, b) => b[1].length - a[1].length); if (CI.length) loc.push({ v: fmtNum(CI.length), h: `states / circles seen<div class="small muted">${CI.slice(0, 3).map(([c, w]) => esc(c) + ' ' + fmtNum(w.length)).join(' · ')}</div>`, go: 'roam', recs: d.filter(CDRX.circle), t: 'States / circles' }); }
   el.insertAdjacentHTML('beforeend', TSC.groups([
@@ -11590,7 +11603,7 @@ TelUI.prof = function (el, d, k) {
   if (im.length || ims.length) g.push({ i: '📱', t: 'Handsets & SIM cards', c: '#a855f7', items: [...IP.slice(-4).map(x => ({ h: `📱 IMEI <b class="mono">${esc(x.key)}</b><div class="small">${esc(Tel.dd(x.from).slice(0, 10))} → ${esc(Tel.dd(x.to).slice(0, 10))} · ${x.dayN} days</div>`, go: 'dev', recs: x.recs, t: n + ' · IMEI ' + x.key })),
     ...(ims.length > 1 || !im.length ? SP.slice(-3).map(x => ({ h: `💳 IMSI <b class="mono">${esc(x.key)}</b>${TSC.mncOp(x.key) ? ` <span class="opb" style="--oc:${TSC.OPC[TSC.mncOp(x.key)]}">${TSC.mncOp(x.key)}</span>` : ''}<div class="small">${esc(Tel.dd(x.from).slice(0, 10))} → ${esc(Tel.dd(x.to).slice(0, 10))}</div>`, go: 'dev', recs: x.recs, t: n + ' · IMSI ' + x.key })) : [])] });
   const hrs = Array.from({ length: 24 }, (_, h) => v.filter(r => Tel.hour(r) === h).length), pk = hrs.indexOf(Math.max(...hrs)), NT = v.filter(Tel.night);
-  g.push({ i: '⏱', t: 'Activity', c: '#f59e0b', items: [{ v: pk + ':00', h: `most active hour (${pk}:00 – ${pk + 1}:00)`, go: 'time', recs: v.filter(r => Tel.hour(r) === pk), t: n + ' · busiest hour ' + pk + ':00' }, { v: Math.round(NT.length / Math.max(1, v.length) * 100) + '%', h: 'of activity at night (11 pm – 5 am)', go: 'time', recs: NT, t: n + ' · night activity' },
+  g.push({ i: '⏱', t: 'Activity', c: '#f59e0b', items: [{ v: pk + ':00', h: `most active hour (${pk}:00 – ${pk + 1}:00)`, go: 'time', recs: v.filter(r => Tel.hour(r) === pk), t: n + ' · busiest hour ' + pk + ':00' }, { v: Math.round(NT.length / Math.max(1, v.length) * 100) + '%', h: 'of activity at night (' + TSC.win('l') + ')', go: 'time', recs: NT, t: n + ' · night activity' },
     ...G.slice(0, 3).map(x => ({ h: `Off for <b>${CDRX.span(x.h)}</b><div class="small">from ${esc(Tel.dd(x.from))}${x.devCh ? ' · <b>handset changed</b>' : ''}${x.moved ? ' · came back elsewhere' : ''}</div>`, go: 'off', recs: x.recs, t: n + ' · off ' + CDRX.span(x.h) }))] });
   if (st.length) { const RP = CDRX.runs(v, CDRX.circle); g.push({ i: '🌍', t: 'Movement', c: '#10b981', items: RP.slice(-5).map(x => ({ h: `<b>${esc(x.key)}</b><div class="small">${esc(Tel.dd(x.from).slice(0, 10))} → ${esc(Tel.dd(x.to).slice(0, 10))} · ${x.dayN} days</div><div class="small muted">${esc(x.fl || '')}</div>`, go: k === 'cdr' ? 'roam' : 'loc', recs: x.recs, t: n + ' in ' + x.key })) }); }
   el.insertAdjacentHTML('beforeend', TSC.groups(g) + `<div class="grid g2"><div class="card"><h3>${k === 'ipdr' ? 'Apps' : 'Top contacts'}</h3><div id="tfC"></div></div><div class="card"><h3>Hour of day</h3><div id="tfH"></div></div></div>`);
@@ -11686,6 +11699,52 @@ TSC.wire = function (el) {
   el.addEventListener('mousemove', e => { const t = e.target.closest('[data-ri]'); if (!t) { if (el._tip) { el._tip = 0; hide(e); } return; } const x = this._r[t.dataset.ri]; if (!x) return; el._tip = 1; Charts.tip(e, x.tip || (x.tip = this.tipOf(x))); });
   el.addEventListener('mouseleave', e => { el._tip = 0; hide(e); });
 };
+
+/* ===== Editable time: night / day / late-night hours and a date range – used by every CDR / IPDR / TDR tab ===== */
+TSC.TD = { nf: 20, nt: 8, df: 8, dt: 20, lf: 23, lt: 5 };
+TSC.tm = function () { if (!S.telTime) { let h = {}; try { h = JSON.parse(localStorage.getItem('sa.telTime') || '{}'); } catch (e) { } S.telTime = Object.assign({}, this.TD, h, { from: '', to: '' }); } return S.telTime; };
+TSC.saveT = function () { const t = this.tm(); try { localStorage.setItem('sa.telTime', JSON.stringify({ nf: t.nf, nt: t.nt, df: t.df, dt: t.dt, lf: t.lf, lt: t.lt })); } catch (e) { } };
+TSC.inH = (h, a, b) => a === b || (a < b ? h >= a && h < b : h >= a || h < b);
+TSC.h12 = h => (h % 12 || 12) + (h < 12 ? ' am' : ' pm');
+TSC.win = w => { const t = TSC.tm(); return TSC.h12(t[w + 'f']) + ' – ' + TSC.h12(t[w + 't']); };
+TSC.sig = () => { const t = TSC.tm(); return [t.nf, t.nt, t.df, t.dt, t.lf, t.lt, t.from, t.to].join(','); };
+TSC.eh = () => ' <a href="#" class="tsc-eh" title="Change the hours / dates used here">✎ edit</a>';
+CDRX.night = r => TSC.inH(Tel.hour(r), TSC.tm().nf, TSC.tm().nt);
+CDRX.day = r => TSC.inH(Tel.hour(r), TSC.tm().df, TSC.tm().dt);
+Tel.night = r => TSC.inH(Tel.hour(r), TSC.tm().lf, TSC.tm().lt);
+/* cached results depend on the hours and dates */
+{ const _c = Analysis.cached; Analysis.cached = (k, f) => _c(S.page === 'tele' && /^tel:/.test(k) ? k + '|@' + TSC.sig() : k, f); }
+/* date range: every tab sees only records inside it */
+{ const _of = Tel.of; Tel.of = function (k) { const d = _of.call(this, k), t = TSC.tm(); if (S.page !== 'tele' || !(t.from || t.to)) return d;
+  return Analysis.cached('tel:' + String(k).toUpperCase() + ':dated', () => d.filter(r => { const x = String(r.ts || '').slice(0, 10); return (!t.from || x >= t.from) && (!t.to || x <= t.to); })); }; }
+{ const _bar = TSC.bar; TSC.bar = function (main, k) {
+  _bar.call(this, main, k); const b = $('.tsc', main); if (!b) return;
+  const t = this.tm(), hs = id => `<select data-tt="${id}">${Array.from({ length: 24 }, (_, h) => `<option value="${h}"${h === t[id] ? ' selected' : ''}>${TSC.h12(h)}</option>`).join('')}</select>`, dated = t.from || t.to;
+  b.insertAdjacentHTML('beforeend', `<button class="tsc-tb${dated ? ' on' : ''}" id="tscTime" title="Edit the date range and the night / day hours used by every tab">🕐 ${dated ? esc((t.from ? Tel.dd(t.from) : 'start') + ' → ' + (t.to ? Tel.dd(t.to) : 'end')) : 'All dates'} · 🌙 ${this.win('n')} · ☀ ${this.win('d')} <b>✎</b></button>`);
+  b.insertAdjacentHTML('afterend', `<div class="tsc-tp" id="tscTP"${S.telTP ? '' : ' hidden'}>
+    <label>📅 From <input type="date" data-tt="from" value="${esc(t.from)}"></label><label>to <input type="date" data-tt="to" value="${esc(t.to)}"></label>
+    <label>🌙 Night (home / night stay) ${hs('nf')} to ${hs('nt')}</label><label>☀ Day (work / day stay) ${hs('df')} to ${hs('dt')}</label><label>🌃 Late-night calls ${hs('lf')} to ${hs('lt')}</label>
+    <div class="tsc-tbtn"><button class="btn sm primary" id="tscTA">✔ Apply</button><button class="btn sm" id="tscTR">↺ Default</button></div>
+    <div class="tsc-h">Applies to every tab: overview, home / work, night &amp; day max stay, towers, off periods, night calls, common items. Hours are remembered on this computer; the date range is for this case.</div></div>`);
+  $('#tscTime', main).onclick = () => { S.telTP = !S.telTP; $('#tscTP', main).hidden = !S.telTP; };
+  $('#tscTA', main).onclick = () => { $$('#tscTP [data-tt]', main).forEach(i => t[i.dataset.tt] = i.type === 'date' ? i.value : +i.value); if (t.from && t.to && t.from > t.to) [t.from, t.to] = [t.to, t.from]; this.saveT(); render(); UI.toast('Time settings applied'); };
+  $('#tscTR', main).onclick = () => { Object.assign(t, this.TD, { from: '', to: '' }); this.saveT(); render(); };
+}; }
+/* "Found in CDR of" – which numbers used a tower, with counts; click a number for its records on that tower */
+TSC.tgs = x => x._tg || (x._tg = [...groupBy(x.recs || [], TSC.user)].filter(([t]) => t).map(([t, w]) => [t, w.length]).sort((a, b) => b[1] - a[1]));
+TSC.fcol = function () {
+  return { key: 'tg', label: { cdr: 'Found in CDR of', ipdr: 'Found in IPDR of', tdr: 'Numbers seen here' }[S.telKind] || 'Found in', sortVal: x => TSC.tgs(x).length, csv: x => TSC.tgs(x).map(([t, n]) => t + ' (' + n + ')').join('; '),
+    render: x => { const g = TSC.tgs(x); return `<div class="tw-ns">${g.length > 1 ? `<span class="tw-c" title="Used by ${g.length} numbers">${g.length} nos.</span>` : ''}${g.slice(0, 5).map(([t, n]) => `<a href="#" class="tw-n" data-ri="${TSC._r.push({ tw: x, n: t }) - 1}" title="Show the ${n} records of ${esc(t)} on this tower">${esc(t)}${TSC.opb(t)}<b>${fmtNum(n)}</b></a>`).join('')}${g.length > 5 ? `<span class="muted small">+${g.length - 5} more</span>` : ''}</div>`; } };
+};
+document.addEventListener('click', e => {
+  const a = e.target.closest && e.target.closest('.tw-n');
+  if (a) { e.preventDefault(); e.stopPropagation(); const o = TSC._r[a.dataset.ri]; if (o && o.tw) TelUI.recDrawer(o.n + ' · ' + (o.tw.addr || o.tw.t), (o.tw.recs || []).filter(r => TSC.user(r) === o.n)); return; }
+  const h = e.target.closest && e.target.closest('.tsc-eh');
+  if (h) { e.preventDefault(); e.stopPropagation(); S.telTP = true; const p = $('#tscTP'); if (p) { p.hidden = false; p.scrollIntoView({ block: 'center', behavior: 'smooth' }); p.classList.add('flash'); setTimeout(() => p.classList.remove('flash'), 1200); } }
+}, true);
+/* TDR: towers in the dumps and the numbers seen on each */
+if (!TelUI.TABS.tdr.some(x => x[0] === 'loc')) TelUI.TABS.tdr.splice(2, 0, ['loc', '📡 Towers & numbers']);
+TelUI.tdr_loc = function (el, d) { _cdrLoc.call(this, el, d); };
 
 </script>
 <script>

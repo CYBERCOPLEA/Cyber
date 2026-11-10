@@ -27,7 +27,7 @@ const CDRX = {
     return [...groupBy(v.filter(Tel.tower), Tel.tower)].map(([t, w]) => { const ll = w.find(r => r.lat) || {}; return { t, addr: (w.find(r => r.addr) || {}).addr || '', n: w.length, days: uniq(w.map(Tel.day)).length, lat: ll.lat || '', lon: ll.lon || '', roam: (w.find(r => r.roam) || {}).roam || '', first: w[0].ts, last: w[w.length - 1].ts, recs: w }; }).sort((a, b) => b.n - a.n || b.days - a.days);
   },
   night: r => { const h = Tel.hour(r); return h >= 20 || h < 8; },
-  home(v) { const s = this.sorted(v), N = this.towers(s.filter(this.night)), D = this.towers(s.filter(r => !this.night(r))), A = this.towers(s);
+  home(v) { const s = this.sorted(v), N = this.towers(s.filter(this.night)), D = this.towers(s.filter(CDRX.day)), A = this.towers(s);
     const fl = this.towers(s.filter((r, i, a) => i === 0 || a[i - 1].ts.slice(0, 10) !== r.ts.slice(0, 10) || i === a.length - 1 || a[i + 1].ts.slice(0, 10) !== r.ts.slice(0, 10)));
     return { home: N[0], work: D.find(x => !N[0] || x.t !== N[0].t) || D[0], max: A[0], dayFirstLast: fl[0], N, D, A };
   }
@@ -43,12 +43,12 @@ TelUI.cdr_loc = function (el, d) {
   _cdrLoc.call(this, el, d);
   const box = (lbl, x, note, col) => x ? `<div class="cx-hw" style="--hc:${col}"><div class="cx-hl">${lbl}</div><b>${esc(x.addr || x.t)}</b><div class="small muted mono">${esc(x.t)}</div><div class="small">${fmtNum(x.n)} records · ${x.days} days${CDRX.map(x.lat, x.lon)}</div><div class="small muted">${esc(Tel.dd(x.first).slice(0, 10))} → ${esc(Tel.dd(x.last).slice(0, 10))} · ${note}</div></div>` : '';
   const H = [...CDRX.byT(d)].filter(([t]) => t).map(([t, v]) => [t, CDRX.home(v)]);
-  el.insertAdjacentHTML('afterbegin', `<div class="card"><h3>Home, work and most-stay location</h3><div class="sub">Home = tower used most at night (8 pm – 8 am). Work = tower used most in the day (8 am – 8 pm). Max stay = tower with the most records. Raid / verification starts here.</div>
+  el.insertAdjacentHTML('afterbegin', `<div class="card"><h3>Home, work and most-stay location</h3><div class="sub">Home = tower used most at night (${TSC.win('n')}). Work = tower used most in the day (${TSC.win('d')}).${TSC.eh()} Max stay = tower with the most records. Raid / verification starts here.</div>
     ${H.map(([t, h]) => `<div class="small" style="margin:8px 0 4px"><b class="mono">${esc(t)}</b></div><div class="cx-hws">${box('🏠 Home (night)', h.home, 'night', '#6366f1')}${box('🏢 Work (day)', h.work, 'day', '#f59e0b')}${box('📍 Max stay', h.max, 'all hours', '#10b981')}${box('🌅 Day first / last call', h.dayFirstLast, 'where the day starts & ends', '#ec4899')}</div>`).join('')}</div>
-    <div class="grid g2"><div class="card"><h3>Night max stay (8 pm – 8 am)</h3><div id="cxN"></div></div><div class="card"><h3>Day max stay (8 am – 8 pm)</h3><div id="cxD"></div></div></div>`);
-  const all = CDRX.sorted(d), cols = [{ key: 't', label: 'Tower', render: x => `<span class="small">${esc(x.addr || x.t)}</span>${CDRX.map(x.lat, x.lon)}<div class="muted small mono">${esc(x.t)}</div>` }, { key: 'n', label: 'Records', num: true }, { key: 'days', label: 'Days', num: true }, { key: 'last', label: 'Last seen', render: x => esc(Tel.dd(x.last).slice(0, 10)) }];
+    <div class="grid g2"><div class="card"><h3>🌙 Night max stay (${TSC.win('n')})${TSC.eh()}</h3><div id="cxN"></div></div><div class="card"><h3>☀ Day max stay (${TSC.win('d')})${TSC.eh()}</h3><div id="cxD"></div></div></div>`);
+  const all = CDRX.sorted(d), cols = [{ key: 't', label: 'Tower', render: x => `<span class="small">${esc(x.addr || x.t)}</span>${CDRX.map(x.lat, x.lon)}<div class="muted small mono">${esc(x.t)}</div>` }, TSC.fcol(), { key: 'n', label: 'Records', num: true }, { key: 'days', label: 'Days', num: true }, { key: 'last', label: 'Last seen', render: x => esc(Tel.dd(x.last).slice(0, 10)) }];
   Table($('#cxN', el), { rows: CDRX.towers(all.filter(CDRX.night)), sortKey: 'n', sortDir: -1, pageSize: 8, exportName: 'night_max_stay', onRow: x => this.recDrawer('Night · ' + (x.addr || x.t), x.recs), columns: cols });
-  Table($('#cxD', el), { rows: CDRX.towers(all.filter(r => !CDRX.night(r))), sortKey: 'n', sortDir: -1, pageSize: 8, exportName: 'day_max_stay', onRow: x => this.recDrawer('Day · ' + (x.addr || x.t), x.recs), columns: cols });
+  Table($('#cxD', el), { rows: CDRX.towers(all.filter(CDRX.day)), sortKey: 'n', sortDir: -1, pageSize: 8, exportName: 'day_max_stay', onRow: x => this.recDrawer('Day · ' + (x.addr || x.t), x.recs), columns: cols });
 };
 
 /* IMEI / IMSI periods, and for IMEI-based CDR the numbers (SIMs) used in each handset */

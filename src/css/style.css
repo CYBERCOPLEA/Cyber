@@ -1761,3 +1761,16 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
 .tf-tf{display:flex;justify-content:space-between;gap:6px;font-size:11px;color:var(--text-muted);margin-top:2px}
 .tf-tf span{white-space:nowrap}.tf-tf a{white-space:nowrap}
 .tf-tile .tf-chip{border-radius:8px;white-space:normal}
+
+/* editable time + found-in column */
+.tsc-tb{border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:10px;padding:7px 12px;font-weight:700;cursor:pointer;font-size:12.5px}
+.tsc-tb.on{background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;border-color:transparent}
+.tsc-tp{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;margin:-4px 0 12px;padding:12px 14px;border:1px dashed var(--accent);border-radius:12px;background:var(--surface-2);font-size:13px;font-weight:700}
+.tsc-tp label{display:flex;align-items:center;gap:6px}.tsc-tp select,.tsc-tp input{min-width:0;width:auto}
+.tsc-tp .tsc-h{flex-basis:100%;font-weight:400}.tsc-tp.flash{box-shadow:0 0 0 3px var(--accent)}
+.tsc-tbtn{display:flex;gap:6px}
+.tsc-eh{font-size:12px;font-weight:700;white-space:nowrap}
+.tw-ns{display:flex;flex-wrap:wrap;gap:4px;align-items:center;max-width:380px}
+.tw-n{display:inline-flex;align-items:center;gap:4px;padding:2px 7px;border-radius:8px;border:1px solid var(--border);background:var(--surface-2);font-family:ui-monospace,Consolas,monospace;font-size:12px;color:var(--text);text-decoration:none}
+.tw-n:hover{border-color:var(--accent);background:var(--surface)}.tw-n b{color:var(--accent);font-family:system-ui,sans-serif}
+.tw-c{font-size:11px;font-weight:800;padding:2px 6px;border-radius:6px;background:rgba(239,68,68,.15);color:#ef4444}
