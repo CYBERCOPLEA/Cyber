@@ -585,7 +585,7 @@ Pages.others = main => {
 };
 const OthTabs = {
   cases(el) {
-    el.innerHTML = `<div class="card"><h3>Case details</h3><div class="sub">Shown on reports and notices.</div><div class="map-grid" id="cd">${[['name', 'Case name'], ['fir', 'FIR / Case No'], ['section', 'Sections of law'], ['ps', 'Police Station'], ['io', 'Investigating Officer'], ['io_rank', 'IO rank / designation'], ['io_mobile', 'IO mobile'], ['io_email', 'IO official email'], ['district', 'District'], ['ack', 'Main NCRP Ack No'], ['status', 'Status']].map(([k, l]) => `<div class="f"><label>${l}</label><input data-k="${k}" value="${esc(activeCase()[k] || '')}"></div>`).join('')}</div>
+    el.innerHTML = `<div class="card"><h3>Case details</h3><div class="sub">Shown on reports and notices.</div><div class="map-grid" id="cd">${[['name', 'Case name'], ['fir', 'FIR / Case No'], ['section', 'Sections of law'], ['ps', 'Police Station'], ['io', 'Investigating Officer'], ['io_rank', 'IO rank / designation'], ['io_mobile', 'IO mobile'], ['io_email', 'IO official email'], ['district', 'Police Commissionerate'], ['ack', 'Main NCRP Ack No'], ['status', 'Status']].map(([k, l]) => `<div class="f"><label>${l}</label><input data-k="${k}" value="${esc(activeCase()[k] || '')}"></div>`).join('')}</div>
       <div class="f" style="margin-top:10px"><label>Brief facts</label><textarea data-k="desc" style="font-family:inherit">${esc(activeCase().desc || '')}</textarea></div>
       <div class="row" style="margin-top:10px"><button class="btn primary" id="cdSave">Save details</button></div></div>
       <div class="card"><h3>All cases</h3><div id="cl"></div></div>`;

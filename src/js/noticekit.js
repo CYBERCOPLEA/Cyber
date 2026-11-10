@@ -1,6 +1,8 @@
 /* noticekit.js - shared tools for every notice / letter drafter:
    recipient lists that fit the notice (editable), Import Notice Draft, Email via NIC / Gov mail,
    and the office format: Arial Narrow 11 pt, headline and subject in bold. */
+// jurisdiction line: "Ghaziabad" → "Police Commissionerate Ghaziabad" (kept as typed if it already says Commissionerate / District)
+function juris(d) { d = String(d || 'Ghaziabad').trim(); return /commissionerate|district|कमिश्नरेट|जनपद|जिला/i.test(d) ? d : 'Police Commissionerate ' + d; }
 const NoticeKit = {
   FONT: "'Arial Narrow', Arial, sans-serif",
   MAIL: 'https://mail.gov.in',
@@ -61,7 +63,7 @@ const NoticeKit = {
   head(text, title) {
     const L = this.lines(text); if (L.some(x => x.c)) return text;
     const c = activeCase(), ps = String(c.ps || '________').replace(/\s*\bP\.?S\.?$/i, '').trim(), d = c.district || 'Ghaziabad';
-    return `OFFICE OF THE STATION HOUSE OFFICER\nPOLICE STATION ${ps.toUpperCase()}, DISTRICT ${d.toUpperCase()}${title ? '\n' + title.toUpperCase() : ''}\n\n` + text;
+    return `OFFICE OF THE STATION HOUSE OFFICER\nPOLICE STATION ${ps.toUpperCase()}, ${juris(d).toUpperCase()}${title ? '\n' + title.toUpperCase() : ''}\n\n` + text;
   },
 
   /* ---------- import a draft ---------- */
