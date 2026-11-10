@@ -13,7 +13,7 @@ const NavCustom = {
   items(subs) { return [...subs.children].filter(n => n.classList.contains('nav-sub') && !n.classList.contains('sop-upl') && !n.classList.contains('nc-x') && !n.classList.contains('nc-edit')); },
   id(n) { const d = Object.entries(n.dataset).find(([k]) => !k.startsWith('nc')); return d ? d[0] + ':' + d[1] : 't:' + n.textContent.trim(); },
   textNode(n) { const w = document.createTreeWalker(n, NodeFilter.SHOW_TEXT); let best = null, t; while ((t = w.nextNode())) if (t.nodeValue.trim() && (!best || t.nodeValue.trim().length > best.nodeValue.trim().length)) best = t; return best; },
-  orig(n) { if (n.dataset.ncOrig == null) { const t = this.textNode(n); n.dataset.ncOrig = t ? t.nodeValue.trim() : n.textContent.trim(); } return n.dataset.ncOrig; },
+  orig(n) { if (n.dataset.ncOrig == null) { const t = this.textNode(n); n.dataset.ncOrig = (t ? t.nodeValue.trim() : n.textContent.trim()).replace(/^\d+[.)]\s*/, ''); } return n.dataset.ncOrig; },
   busy: false,
   apply() {
     if (this.busy) return; this.busy = true;

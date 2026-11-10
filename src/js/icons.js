@@ -23,7 +23,7 @@ const FX = (() => {
   const n = (name, cls = '') => N[name] ? `<i class="fxn ${cls}" data-n="${name}" aria-hidden="true"></i>` : '';
   const brand = (slug, cls = '') => { const b = BR[slug]; return b ? `<svg class="bx ${cls}" viewBox="0 0 24 24" aria-hidden="true"><path fill="#${b[0]}" d="${b[1]}"/></svg>` : ''; };
   /* which icon for a menu / tab label */
-  const KW = [[/money trail/i, 'money-with-wings'], [/dashboard|overview|summary/i, 'bar-chart'], [/complaint|ncrp/i, 'police-car-light'], [/money trail|layer|trail/i, 'link'], [/kyc|beneficiar|caf\b|identity/i, 'identification-card'],
+  const KW = [[/\bmnp\b|porting|operator/i, 'mobile-phone'], [/imei|handset/i, 'mobile-phone'], [/\bmac\b|wi-?fi|router/i, 'laptop'], [/e-?mail header|header/i, 'envelope'], [/who\s?is|domain|dns|website/i, 'globe-with-meridians'], [/ifsc|branch/i, 'bank'], [/company|\bcin\b|\bdin\b|gstin?|\bpan\b|\bmca\b|firm/i, 'briefcase'], [/crypto|bitcoin|usdt/i, 'money-with-wings'], [/vehicle|challan|rto/i, 'police-car-light'], [/money trail/i, 'money-with-wings'], [/dashboard|overview|summary/i, 'bar-chart'], [/complaint|ncrp/i, 'police-car-light'], [/money trail|layer|trail/i, 'link'], [/kyc|beneficiar|caf\b|identity/i, 'identification-card'],
     [/bank|financ|statement/i, 'bank'], [/suspect|mule|accused/i, 'detective'], [/common|cross|↔/i, 'link'], [/graph|chart|mind map|flow/i, 'chart-increasing'], [/time|velocity|fast|rapid/i, 'stopwatch'],
     [/hotspot|geo\b|location|place/i, 'round-pushpin'], [/pattern/i, 'puzzle-piece'], [/entity/i, 'spider-web'], [/flag|bulk|split/i, 'triangular-flag'], [/\bip\b|ipdr|ip log/i, 'satellite-antenna'],
     [/social|whatsapp|facebook|telegram|instagram/i, 'speech-balloon'], [/press/i, 'newspaper'], [/good work|award|reward/i, 'trophy'], [/duty|staff|roster/i, 'calendar'], [/crime data|master/i, 'file-cabinet'],
@@ -45,8 +45,18 @@ const FX = (() => {
     [['.hp-feat .hp-fi > svg', e => { const t = (e.closest('.hp-feat').querySelector('b') || {}).textContent || ''; const H = [[/ncrp|complaint/i, 'police-car-light'], [/money/i, 'money-with-wings'], [/bank|financ/i, 'bank'], [/social/i, 'speech-balloon'], [/analytic/i, 'bar-chart'], [/case file|notice/i, 'file-folder']]; const h = H.find(x => x[0].test(t)); return h ? h[1] : pick(t); }], ['.t-off > i > svg', 'laptop'], ['.t-pri > i > svg', 'shield'], ['.t-lock > i > svg', 'locked'], ['[data-login] > svg', 'key'], ['.rx-tag > svg', 'shield']]
       .forEach(([sel, k]) => q(sel).forEach(e => { const nm = typeof k === 'function' ? k(e) : k; if (nm && N[nm]) e.outerHTML = n(nm, 'fx-r'); }));
     q('#loginForm button.primary').forEach(b => { if (!b.querySelector('.fxn')) b.insertAdjacentHTML('afterbegin', n('key', 'fx-t')); });
-    q('.tabs .tab').forEach(t => { if (t.querySelector('.fxn,.bx') || PIC.test(t.textContent)) return; const k = pick(t.textContent); if (k) t.insertAdjacentHTML('afterbegin', n(k, 'fx-t')); });
-    q('.nav-sub').forEach(t => { if (t.querySelector('.fxn,.bx') || t.classList.contains('lea-sub') || PIC.test(t.textContent) || t.matches('.nc-edit,.sop-upl,.lea-edit')) return; const k = pick(t.textContent.replace(/^\s*\d+\.\s*/, '')); if (!k) return; const dot = t.querySelector(':scope > i:not([class])'); if (dot) dot.outerHTML = n(k, 'fx-s'); else t.insertAdjacentHTML('afterbegin', n(k, 'fx-s')); });
+    /* every tab and sub-menu item starts with one badge: a fitting icon, or else its number in the list */
+    const num = (t, sel) => { const L = [...t.parentElement.children].filter(x => x.matches(sel)); return L.indexOf(t) + 1; };
+    const NUMD = /^\s*\d+[.)]\s*/;
+    q('.tabs .tab').forEach(t => { if (t.querySelector('.fxn,.bx,.nsn') || PIC.test(t.textContent)) return; const k = pick(t.textContent); t.insertAdjacentHTML('afterbegin', k ? n(k, 'fx-t') : `<i class="nsn" aria-hidden="true">${num(t, '.tab')}</i>`); });
+    q('.nav-sub').forEach(t => { const s0 = t.querySelector(':scope > span'); if (s0 && s0.firstChild && s0.firstChild.nodeType === 3 && NUMD.test(s0.firstChild.data) && (t.querySelector('.fxn,.bx,.nsn,.fx') || PIC.test(t.textContent.replace(NUMD, '')))) s0.firstChild.data = s0.firstChild.data.replace(NUMD, '');
+      if (t.querySelector('.fxn,.bx,.nsn') || t.classList.contains('lea-sub') || t.matches('.nc-edit,.sop-upl,.lea-edit') || !t.parentElement) return;
+      const sp = t.querySelector(':scope > span'), raw = t.textContent;
+      if (PIC.test(raw.replace(NUMD, ''))) { if (sp && NUMD.test(sp.textContent) && sp.firstChild && sp.firstChild.nodeType === 3) sp.firstChild.data = sp.firstChild.data.replace(NUMD, ''); return; }
+      const k = pick(raw.replace(NUMD, '')), dot = t.querySelector(':scope > i:not([class])');
+      const html = k ? n(k, 'fx-s') : `<i class="nsn" aria-hidden="true">${(raw.match(/^\s*(\d+)/) || [])[1] || num(t, '.nav-sub:not(.nc-edit):not(.sop-upl):not(.lea-edit)')}</i>`;
+      if (sp && NUMD.test(sp.textContent) && sp.firstChild && sp.firstChild.nodeType === 3) sp.firstChild.data = sp.firstChild.data.replace(NUMD, '');
+      if (dot) dot.outerHTML = html; else t.insertAdjacentHTML('afterbegin', html); });
     q('[data-lea] .lea-ic, [data-row] .lea-ic').forEach(s => { const id = s.closest('[data-lea],[data-row]'); const b = LEAB[id.dataset.lea || id.dataset.row]; if (b && !s.querySelector('.bx')) { s.dataset.em = s.textContent; s.innerHTML = brand(b); } });
     q('.pchip[data-plat]').forEach(c => { const b = PLATB[c.dataset.plat]; const i = c.querySelector(':scope > i'); if (b && i && !i.querySelector('.bx')) { i.className = 'pbx'; i.innerHTML = brand(b); } });
     q('.d2-lk[data-act^="soc:"]').forEach(c => { const b = PLATB[c.dataset.act.slice(4)]; if (b && !c.querySelector('.bx')) c.querySelector('span').insertAdjacentHTML('afterbegin', brand(b)); });
