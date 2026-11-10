@@ -733,6 +733,7 @@ function TelDemo() {
   const F4 = 'DEMO › SMS_9000000101.csv', HS = ['AX-HDFCBK-S', 'VM-SBIINB', 'JD-PAYTMB', 'VK-KREDTB', 'AD-AMAZON', 'BZ-JIOSVC', 'TX-GROWWS'];
   for (let i = 0; i < 90; i++) { const day = Math.floor(rnd() * 12); out.push({ kind: 'SMS', _src: F4, ts: at(day, 8 + Math.floor(rnd() * 14), Math.floor(rnd() * 60)), target: T, other: i < 70 ? pick(HS) : pick(['9000000202', '9123456780']), dir: i < 80 ? 'SMS-IN' : 'SMS-OUT', msg: i < 70 ? 'Dummy alert message (DEMO)' : '' }); }
   for (let i = 0; i < 7; i++) out.push({ kind: 'SMS', _src: F4, ts: at(5, 15, 2 + i), target: T, other: pick(['AX-HDFCBK-S', 'VM-SBIINB']), dir: 'SMS-IN', msg: 'OTP for transaction (DEMO)' });
-  out.forEach(r => r.id = uid());
+  const BOP = { '9876501234': 'AIRTEL--UP (West)', '9123456780': 'JIO--Delhi', '9000000202': 'VI--UP (West)', '9000000203': 'BSNL--UP (West)', '9000000204': 'JIO--Haryana', '9000000205': 'AIRTEL--Delhi', '9000000401': 'JIO--UP (West)', '9000000402': 'VI--Delhi' };
+  out.forEach(r => { r.id = uid(); if ((r.kind === 'CDR') && BOP[r.other]) r.bop = BOP[r.other]; });
   return out;
 }

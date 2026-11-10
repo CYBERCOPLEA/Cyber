@@ -1748,3 +1748,16 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
 .cx-cb{display:flex;align-items:center;gap:8px;padding:7px 12px;border-radius:10px;border:1px solid var(--border);background:var(--surface-2);color:var(--text);font-weight:700;cursor:pointer}
 .cx-cb b{min-width:22px;padding:1px 7px;border-radius:999px;background:var(--surface);text-align:center}
 .cx-cb.on{background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;border-color:transparent}.cx-cb.on b{background:rgba(255,255,255,.25)}
+
+/* operator badge + finding tiles */
+.opb{display:inline-block;padding:1px 7px;border-radius:6px;font-size:11px;font-weight:800;letter-spacing:.02em;color:#fff;background:var(--oc);vertical-align:middle;font-family:system-ui,sans-serif}
+.opb.big{font-size:14px;padding:3px 10px;border-radius:8px;vertical-align:6px}
+.tf-tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.tf-tile{display:flex;flex-direction:column;gap:3px;padding:9px 11px;border:1px solid var(--border);border-left:4px solid var(--tc);border-radius:10px;background:var(--surface-2);cursor:pointer;font-size:13px;line-height:1.4;min-width:0;transition:transform .12s,box-shadow .12s}
+.tf-tile:hover,.tf-tile:focus{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.18);outline:none;border-color:var(--tc)}
+.tf-tile .mono{word-break:break-all}
+.tf-tv{font-size:22px;font-weight:800;color:var(--tc);line-height:1.1}
+.tf-tx{flex:1}
+.tf-tf{display:flex;justify-content:space-between;gap:6px;font-size:11px;color:var(--text-muted);margin-top:2px}
+.tf-tf span{white-space:nowrap}.tf-tf a{white-space:nowrap}
+.tf-tile .tf-chip{border-radius:8px;white-space:normal}

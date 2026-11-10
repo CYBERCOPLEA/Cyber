@@ -1757,6 +1757,19 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
 .cx-cb b{min-width:22px;padding:1px 7px;border-radius:999px;background:var(--surface);text-align:center}
 .cx-cb.on{background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;border-color:transparent}.cx-cb.on b{background:rgba(255,255,255,.25)}
 
+/* operator badge + finding tiles */
+.opb{display:inline-block;padding:1px 7px;border-radius:6px;font-size:11px;font-weight:800;letter-spacing:.02em;color:#fff;background:var(--oc);vertical-align:middle;font-family:system-ui,sans-serif}
+.opb.big{font-size:14px;padding:3px 10px;border-radius:8px;vertical-align:6px}
+.tf-tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.tf-tile{display:flex;flex-direction:column;gap:3px;padding:9px 11px;border:1px solid var(--border);border-left:4px solid var(--tc);border-radius:10px;background:var(--surface-2);cursor:pointer;font-size:13px;line-height:1.4;min-width:0;transition:transform .12s,box-shadow .12s}
+.tf-tile:hover,.tf-tile:focus{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.18);outline:none;border-color:var(--tc)}
+.tf-tile .mono{word-break:break-all}
+.tf-tv{font-size:22px;font-weight:800;color:var(--tc);line-height:1.1}
+.tf-tx{flex:1}
+.tf-tf{display:flex;justify-content:space-between;gap:6px;font-size:11px;color:var(--text-muted);margin-top:2px}
+.tf-tf span{white-space:nowrap}.tf-tf a{white-space:nowrap}
+.tf-tile .tf-chip{border-radius:8px;white-space:normal}
+
 </style>
 </head>
 <body>
@@ -1804,7 +1817,7 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
         <div class="hp-feat" style="--fc:#06b6d4"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><div><b>Analytics</b><p>The same mobile, account, IP or e-mail across complaints, banks and platforms.</p></div></div>
         <div class="hp-feat" style="--fc:#eab308"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h5"/></svg></span><div><b>Case File &amp; Notices</b><p>Case reports, notices to banks and platforms, and CSV / PDF exports.</p></div></div>
     </section>
-    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-11 00:35 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
+    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-11 00:56 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
   </div>
 
   <div class="lg-wrap" id="lgWrap" aria-hidden="true">
@@ -11060,7 +11073,8 @@ function TelDemo() {
   const F4 = 'DEMO › SMS_9000000101.csv', HS = ['AX-HDFCBK-S', 'VM-SBIINB', 'JD-PAYTMB', 'VK-KREDTB', 'AD-AMAZON', 'BZ-JIOSVC', 'TX-GROWWS'];
   for (let i = 0; i < 90; i++) { const day = Math.floor(rnd() * 12); out.push({ kind: 'SMS', _src: F4, ts: at(day, 8 + Math.floor(rnd() * 14), Math.floor(rnd() * 60)), target: T, other: i < 70 ? pick(HS) : pick(['9000000202', '9123456780']), dir: i < 80 ? 'SMS-IN' : 'SMS-OUT', msg: i < 70 ? 'Dummy alert message (DEMO)' : '' }); }
   for (let i = 0; i < 7; i++) out.push({ kind: 'SMS', _src: F4, ts: at(5, 15, 2 + i), target: T, other: pick(['AX-HDFCBK-S', 'VM-SBIINB']), dir: 'SMS-IN', msg: 'OTP for transaction (DEMO)' });
-  out.forEach(r => r.id = uid());
+  const BOP = { '9876501234': 'AIRTEL--UP (West)', '9123456780': 'JIO--Delhi', '9000000202': 'VI--UP (West)', '9000000203': 'BSNL--UP (West)', '9000000204': 'JIO--Haryana', '9000000205': 'AIRTEL--Delhi', '9000000401': 'JIO--UP (West)', '9000000402': 'VI--Delhi' };
+  out.forEach(r => { r.id = uid(); if ((r.kind === 'CDR') && BOP[r.other]) r.bop = BOP[r.other]; });
   return out;
 }
 
@@ -11450,7 +11464,7 @@ const TSC = {
     kinds.insertAdjacentHTML('afterend', `<div class="tsc">
       <label class="tsc-f"><span>📂 Source</span><select id="tscCase" title="Case whose files are analysed">${S.cases.map(c => `<option value="${c.id}"${c.id === S.caseId ? ' selected' : ''}>${esc(c.name)}${c.fir ? ' · ' + esc(c.fir) : ''}</option>`).join('')}</select></label>
       <div class="tsc-f"><span>🔍 Analyse</span><div class="tsc-seg"><button data-sc="all" class="${one ? '' : 'on'}" title="${esc(L[2])}">📚 ${L[0]} <b>${fmtNum(N.length)}</b></button><button data-sc="one" class="${one ? 'on' : ''}">🎯 ${L[1]}</button></div></div>
-      ${one ? `<label class="tsc-f tsc-n"><span>📱 Number</span><select id="tscNum">${N.slice(0, 3000).map(([n, c]) => `<option value="${esc(n)}"${n === st[k] ? ' selected' : ''}>${esc(n)} · ${fmtNum(c)} records</option>`).join('')}</select></label>` : `<span class="tsc-h">${esc(L[2])}</span>`}
+      ${one ? `<label class="tsc-f tsc-n"><span>📱 Number</span><select id="tscNum">${N.slice(0, 3000).map(([n, c]) => `<option value="${esc(n)}"${n === st[k] ? ' selected' : ''}>${esc(n)}${TSC.op(n) ? ' · ' + TSC.op(n) : ''} · ${fmtNum(c)} records</option>`).join('')}</select></label>` : `<span class="tsc-h">${esc(L[2])}</span>`}
     </div>`);
     $('#tscCase', main).onchange = async e => { await switchCase(e.target.value); S.telScope = {}; render(); };
     $$('[data-sc]', main).forEach(b => b.onclick = () => { st[k] = b.dataset.sc === 'one' ? (N[0] || [''])[0] : ''; if (b.dataset.sc === 'one' && !N.length) UI.toast('Import files first'); S.sub.tele = 'sum'; render(); });
@@ -11477,7 +11491,7 @@ const TSC = {
     if (!rows.length) { $('#tfS', el).innerHTML = '<div class="muted">Nothing stands out yet. Import more files or add a watchlist.</div>'; return; }
     Table($('#tfS', el), { rows, sortKey: 'score', sortDir: -1, pageSize: 15, exportName: 'suspects', onRow: x => x.target ? this.go(x.n) : x.recs && TelUI.recDrawer(x.n, x.recs), columns: [
       { key: 'score', label: 'Priority', num: true, render: x => `<div class="tf-bar"><i style="width:${Math.round(x.score / max * 100)}%"></i></div><b>${x.score}</b>` },
-      { key: 'n', label: 'Number / ID', render: x => `<b class="mono">${esc(x.n)}</b> ${x.target ? '<span class="badge">target</span>' : '<span class="badge warn">contact</span>'}` },
+      { key: 'n', label: 'Number / ID', render: x => `<b class="mono">${esc(x.n)}</b> ${TSC.opb(x.n)} ${x.target ? '<span class="badge">target</span>' : '<span class="badge warn">contact</span>'}` },
       { key: 'why', label: 'Why', csv: x => x.why.map(r => r[0]).join('; '), render: x => this.chips(x.why) },
       { key: 'act', label: '', csv: () => '', render: x => x.target ? `<a href="#" class="btn sm" data-tsc="${esc(x.n)}">Analyse →</a>` : '' }] });
     this.wire(el);
@@ -11491,7 +11505,7 @@ const TSC = {
     if (st._case !== S.caseId) { S.telScope = { _case: S.caseId }; }
     Tel._sn = TSC.st()[k] || '';
     if (Tel._sn && !TSC.nums(k).some(x => x[0] === Tel._sn)) Tel._sn = TSC.st()[k] = '';
-    _page.call(this, main);
+    TSC._r = []; _page.call(this, main);
     try { TSC.bar(main, k); } catch (e) { console.error(e); }
   }; }
 
@@ -11514,19 +11528,37 @@ TelUI.cdrAll = function (el, d) {
   const linked = [...byOther.keys()].filter(o => Tel.isMob(o) && Tel.also('mobile', o)), sharedIm = [...groupBy(d.filter(r => r.imei), r => r.imei)].filter(([, v]) => uniq(v.map(r => r.target)).length > 1);
   el.innerHTML = UI.kpis([['Target numbers', fmtNum(T.length), uniq(d.map(r => r._src)).length + ' file(s)', 'c5'], ['Records', fmtNum(d.length), Tel.dd(first).slice(0, 10) + ' → ' + Tel.dd(last).slice(0, 10), 'c2'], ['Contacts', fmtNum(byOther.size), fmtNum(common.length) + ' shared by 2+ targets', 'c1'],
     ['Linked to case', fmtNum(linked.length), 'contacts in bank / KYC / NCRP / social', 'c3'], ['Calls out / in', `${fmtNum(calls.filter(r => r.dir === 'OUT').length)} / ${fmtNum(calls.filter(r => r.dir === 'IN').length)}`, 'talk ' + Tel.hms(sum(calls, r => r.dur)), 'c6'], ['Handsets', fmtNum(uniq(d.map(r => r.imei).filter(Boolean)).length), fmtNum(sharedIm.length) + ' shared by 2+ numbers', 'c4']]);
+  const OB = n => TSC.opb(n), R1 = v => v.flatMap(p => p.recs), CM = CDRX.common(d), Tn = v => uniq(v.map(p => p.target));
+  const comS = common.slice().sort((a, b) => b[1].length - a[1].length || sum(b[1], p => p.n) - sum(a[1], p => p.n));
+  const net = [], lnk = [], dev = [], act = [], loc = [];
+  if (common.length) net.push({ v: fmtNum(common.length), h: 'numbers talk to <b>2 or more targets</b> – likely handlers / same gang', go: 'com', recs: R1(common.flatMap(x => x[1])), t: 'Common numbers – in touch with 2+ targets' });
+  comS.slice(0, 3).forEach(([o, v]) => net.push({ h: `<b class="mono">${esc(o)}</b> ${OB(o)}<div class="small">talks to <b>${v.length}</b> targets · ${fmtNum(sum(v, p => p.n))} records</div><div class="small muted mono">${Tn(v).slice(0, 4).map(esc).join(', ')}</div>`, go: 'com', recs: R1(v), t: o + ' · common contact' }));
+  if (x2x.length) net.push({ v: fmtNum(uniq(x2x.map(r => [r.target, r.other].sort().join())).length), h: 'pairs of targets called each other directly', go: 'com', recs: x2x, t: 'Target ↔ target calls' });
+  [['imei', 'IMEI (handsets)'], ['imsi', 'IMSI (SIM cards)'], ['cell', 'Cell IDs'], ['ll', 'Lat-Long places'], ['sms', 'SMS senders']].forEach(([t, l]) => { const X = CM.filter(x => x.type === t); if (X.length) net.push({ v: fmtNum(X.length), h: `common <b>${l}</b> between CDRs<div class="small muted mono">${X.slice().sort((a, b) => b.cN - a.cN).slice(0, 2).map(x => esc(x.v)).join(', ')}</div>`, go: 'com', recs: X.flatMap(x => x.recs), t: 'Common ' + l }); });
+  if (linked.length) lnk.push({ v: fmtNum(linked.length), h: 'contacts also appear in bank / KYC / NCRP / social data', go: 'com', recs: R1(linked.flatMap(o => byOther.get(o))), t: 'Contacts linked to this case' });
+  linked.slice().sort((a, b) => sum(byOther.get(b), p => p.n) - sum(byOther.get(a), p => p.n)).slice(0, 3).forEach(o => { const v = byOther.get(o); lnk.push({ h: `<b class="mono">${esc(o)}</b> ${OB(o)} <span class="tf-chip bad">in ${esc(Tel.also('mobile', o))}</span><div class="small">${fmtNum(sum(v, p => p.n))} records with ${Tn(v).slice(0, 3).map(esc).join(', ')}</div>`, go: 'com', recs: R1(v), t: o + ' · linked to case' }); });
+  if (W.size) { const wr = d.filter(r => W.has(r.other) || W.has(r.target) || W.has(r.imei)); lnk.push({ v: fmtNum(wr.length), h: 'records match the <b>watchlist</b>', go: 'watch', recs: wr, t: 'Watchlist matches' }); } else lnk.push({ h: 'Add suspect numbers / IMEIs to the <b>watchlist</b> to check them in every CDR', go: 'watch' });
+  if (sharedIm.length) dev.push({ v: fmtNum(sharedIm.length), h: 'handsets used with <b>2+ target numbers</b> – same person, many SIMs', go: 'dev', recs: sharedIm.flatMap(x => x[1]), t: 'Handsets shared by targets' });
+  sharedIm.slice().sort((a, b) => b[1].length - a[1].length).slice(0, 2).forEach(([m, v]) => { const t = uniq(v.map(r => r.target)); dev.push({ h: `IMEI <b class="mono">${esc(m)}</b><div class="small">used with <b>${t.length}</b> numbers: <span class="mono">${t.slice(0, 3).map(esc).join(', ')}</span></div>`, go: 'dev', recs: v, t: 'IMEI ' + m }); });
+  TT.filter(x => x.im > 1).sort((a, b) => b.im - a.im).slice(0, 3).forEach(x => dev.push({ h: `<b class="mono">${esc(x.n)}</b> ${OB(x.n)}<div class="small">changed handset – <b>${x.im}</b> IMEIs</div>`, go: 'dev', recs: x.recs, t: x.n + ' · handsets' }));
+  if (G.length) act.push({ v: fmtNum(G.length), h: `periods of 24 h+ with the phone <b>off / unused</b> (${uniq(G.map(x => x.target)).length} targets)`, go: 'off', recs: G.flatMap(x => x.recs), t: 'Phone off 24 h+' });
+  G.slice().sort((a, b) => b.h - a.h).slice(0, 2).forEach(x => act.push({ h: `<b class="mono">${esc(x.target)}</b> ${OB(x.target)} off <b>${CDRX.span(x.h)}</b><div class="small">from ${esc(Tel.dd(x.from))}${x.devCh ? ' · <b>handset changed</b>' : ''}${x.moved ? ' · came back elsewhere' : ''}</div>`, go: 'off', recs: x.recs, t: x.target + ' · off ' + CDRX.span(x.h) }));
+  { const nc = d.filter(r => (r.dir === 'IN' || r.dir === 'OUT') && Tel.night(r)); act.push({ v: fmtNum(nc.length), h: 'night calls (11 pm – 5 am)', go: 'time', recs: nc, t: 'Night calls' }); }
+  TT.filter(x => x.home).slice().sort((a, b) => b.rN - a.rN).slice(0, 4).forEach(x => { const h = CDRX.home(x.recs).home; loc.push({ h: `<b class="mono">${esc(x.n)}</b> ${OB(x.n)}<div class="small">🏠 ${esc(x.home)}</div>`, go: 'loc', recs: h ? h.recs : x.recs, t: x.n + ' · home (night) tower' }); });
+  { const CI = [...groupBy(d.filter(CDRX.circle), CDRX.circle)].sort((a, b) => b[1].length - a[1].length); if (CI.length) loc.push({ v: fmtNum(CI.length), h: `states / circles seen<div class="small muted">${CI.slice(0, 3).map(([c, w]) => esc(c) + ' ' + fmtNum(w.length)).join(' · ')}</div>`, go: 'roam', recs: d.filter(CDRX.circle), t: 'States / circles' }); }
   el.insertAdjacentHTML('beforeend', TSC.groups([
-    { i: '👥', t: 'Network – who is connected', c: '#3b82f6', items: [common.length ? [`<b>${fmtNum(common.length)}</b> numbers talk to 2 or more targets – likely handlers / same gang. Top: ${common.sort((a, b) => b[1].length - a[1].length).slice(0, 3).map(([o, v]) => `<b>${esc(o)}</b> (${v.length})`).join(', ')}`, 'com'] : null, x2x.length ? [`<b>${fmtNum(uniq(x2x.map(r => [r.target, r.other].sort().join())).length)}</b> pairs of targets called each other directly`, 'com'] : null, (() => { const C = CDRX.common(d), c = t => C.filter(x => x.type === t).length, parts = [['imei', 'IMEI'], ['imsi', 'IMSI'], ['cell', 'cell IDs'], ['ll', 'places'], ['sms', 'SMS senders']].filter(([t]) => c(t)).map(([t, l]) => `<b>${c(t)}</b> ${l}`); return parts.length ? [`Shared between targets: ${parts.join(', ')}`, 'com'] : null; })()].filter(Boolean) },
-    { i: '🔗', t: 'Links to this case', c: '#ef4444', items: [linked.length ? [`<b>${fmtNum(linked.length)}</b> contacts also appear in bank / KYC / NCRP / social data`, 'com'] : null, W.size ? [`Watchlist: <b>${fmtNum(d.filter(r => W.has(r.other) || W.has(r.target) || W.has(r.imei)).length)}</b> matching records`, 'watch'] : ['Add suspect numbers / IMEIs to the watchlist to check them in every CDR', 'watch']].filter(Boolean) },
-    { i: '📱', t: 'Devices', c: '#a855f7', items: [sharedIm.length ? [`<b>${fmtNum(sharedIm.length)}</b> handsets used with 2+ target numbers – same person, many SIMs`, 'dev'] : null, TT.filter(x => x.im > 1).length ? [`<b>${TT.filter(x => x.im > 1).length}</b> targets changed handset`, 'dev'] : null].filter(Boolean) },
-    { i: '⏱', t: 'Activity', c: '#f59e0b', items: [G.length ? [`<b>${G.length}</b> periods of 24 h+ with the phone off / unused (${uniq(G.map(x => x.target)).length} targets)`, 'off'] : null, [`Night calls (11 pm – 5 am): <b>${fmtNum(d.filter(r => (r.dir === 'IN' || r.dir === 'OUT') && Tel.night(r)).length)}</b>`, 'time']].filter(Boolean) },
-    { i: '📍', t: 'Location', c: '#10b981', items: [[`Home / work tower worked out for <b>${TT.filter(x => x.home).length}</b> targets`, 'loc'], [`<b>${uniq(d.map(CDRX.circle).filter(Boolean)).length}</b> states / circles seen`, 'roam']] }
+    { i: '👥', t: 'Network – who is connected', c: '#3b82f6', max: 9, items: net },
+    { i: '🔗', t: 'Links to this case', c: '#ef4444', items: lnk },
+    { i: '📱', t: 'Devices', c: '#a855f7', items: dev },
+    { i: '⏱', t: 'Activity', c: '#f59e0b', items: act },
+    { i: '📍', t: 'Location', c: '#10b981', items: loc }
   ]));
   TSC.board(el, [...TT, ...CC], 'Suspects to act on', 'Ranked by links: in other case data, watchlist, talking to many targets, many handsets, phone-off periods, night calls. Click a target to analyse it alone; click a contact for its calls.');
   el.insertAdjacentHTML('beforeend', `<div class="card"><h3>📋 Targets at a glance</h3><div class="sub">One row per CDR. Press <b>Analyse →</b> to open the full profile of that number.</div><div id="tfT"></div></div>
     <div class="grid g2"><div class="card"><h3>Top contacts</h3><div id="cs1"></div></div><div class="card"><h3>Hour of day</h3><div id="cs4"></div></div></div>`);
-  Table($('#tfT', el), { rows: TT, sortKey: 'why', sortDir: -1, pageSize: 15, exportName: 'targets', onRow: x => TSC.go(x.n), columns: [{ key: 'n', label: 'Target', render: x => `<b class="mono">${esc(x.n)}</b>` }, { key: 'rN', label: 'Records', num: true }, { key: 'c', label: 'Contacts', num: true }, { key: 'im', label: 'Handsets', num: true }, { key: 'st', label: 'States', num: true }, { key: 'home', label: 'Home (night)', render: x => `<span class="small">${esc(x.home)}</span>` }, { key: 'why', label: 'Flags', csv: x => x.why.map(r => r[0]).join('; '), sortVal: x => x.score, render: x => TSC.chips(x.why) }, { key: 'act', label: '', csv: () => '', render: x => `<a href="#" class="btn sm" data-tsc="${esc(x.n)}">Analyse →</a>` }] });
+  Table($('#tfT', el), { rows: TT, sortKey: 'why', sortDir: -1, pageSize: 15, exportName: 'targets', onRow: x => TSC.go(x.n), columns: [{ key: 'n', label: 'Target', render: x => `<b class="mono">${esc(x.n)}</b>` }, { key: 'op', label: 'Operator', sortVal: x => TSC.op(x.n), csv: x => TSC.op(x.n), render: x => TSC.opb(x.n) }, { key: 'rN', label: 'Records', num: true }, { key: 'c', label: 'Contacts', num: true }, { key: 'im', label: 'Handsets', num: true }, { key: 'st', label: 'States', num: true }, { key: 'home', label: 'Home (night)', render: x => `<span class="small">${esc(x.home)}</span>` }, { key: 'why', label: 'Flags', csv: x => x.why.map(r => r[0]).join('; '), sortVal: x => x.score, render: x => TSC.chips(x.why) }, { key: 'act', label: '', csv: () => '', render: x => `<a href="#" class="btn sm" data-tsc="${esc(x.n)}">Analyse →</a>` }] });
   const top = P.slice().sort((a, b) => b.n - a.n);
-  Charts.hbar($('#cs1', el), top.slice(0, 15).map(p => ({ label: p.other, value: p.n, sub: `${p.target} · ${p.out} out · ${p.inn} in · ${Tel.hms(p.dur)}${Tel.also('mobile', p.other) ? ' · ⚑ ' + Tel.also('mobile', p.other) : ''}`, p })), { onClick: x => this.recDrawer(x.p.target + ' ↔ ' + x.p.other, x.p.recs) });
+  Charts.hbar($('#cs1', el), top.slice(0, 15).map(p => ({ label: p.other, value: p.n, sub: `${TSC.op(p.other) ? TSC.op(p.other) + ' · ' : ''}${p.target} · ${p.out} out · ${p.inn} in · ${Tel.hms(p.dur)}${Tel.also('mobile', p.other) ? ' · ⚑ ' + Tel.also('mobile', p.other) : ''}`, p })), { onClick: x => this.recDrawer(x.p.target + ' ↔ ' + x.p.other, x.p.recs) });
   Charts.vbar($('#cs4', el), Array.from({ length: 24 }, (_, h) => ({ label: h + ':00', value: d.filter(r => Tel.hour(r) === h).length })));
   TSC.wire(el);
 };
@@ -11540,27 +11572,30 @@ TelUI.prof = function (el, d, k) {
   const kind = { cdr: 'CDR', ipdr: 'IPDR', tdr: 'Tower dump', sms: 'SMS' }[k];
   const kp = k === 'ipdr' ? [['Sessions', fmtNum(v.length), '', 'c2'], ['Public IPs', fmtNum(uniq(v.map(r => r.xip).filter(Boolean)).length), '', 'c5'], ['Apps', fmtNum(uniq(v.map(IPX.app).filter(Boolean)).length), '', 'c1'], ['VPN / remote', fmtNum(v.filter(IPX.vpn).length), 'sessions', 'c3'], ['Data used', Tel.bytes(Tel.vol(v)), '', 'c6'], ['Handsets', fmtNum(im.length), '', 'c4']]
     : [['Records', fmtNum(v.length), '', 'c2'], ['Contacts', fmtNum(C.length), fmtNum(C.filter(c => c.a).length) + ' in case data', 'c1'], ['Calls out / in', `${fmtNum(v.filter(r => r.dir === 'OUT').length)} / ${fmtNum(v.filter(r => r.dir === 'IN').length)}`, 'talk ' + Tel.hms(sum(v.filter(r => r.dir === 'IN' || r.dir === 'OUT'), r => r.dur)), 'c6'], ['SMS', fmtNum(v.filter(r => /^SMS/.test(r.dir)).length), '', 'c3'], ['Handsets / SIMs', `${im.length} / ${ims.length}`, '', 'c4'], ['States', fmtNum(st.length), st.slice(0, 3).join(', '), 'c5']];
-  el.innerHTML = `<div class="card tf-prof"><div class="tf-ph"><div><div class="muted small">${kind} profile</div><div class="tf-num mono">${esc(n)}</div><div class="small muted">${esc(Tel.dd(first))} → ${esc(Tel.dd(lastR.ts || ''))}</div></div><div class="tf-pf">${TSC.chips(flags) || '<span class="tf-chip">no red flags yet</span>'}</div>
+  el.innerHTML = `<div class="card tf-prof"><div class="tf-ph"><div><div class="muted small">${kind} profile</div><div class="tf-num mono">${esc(n)} ${TSC.opb(n, 1)}</div><div class="small muted">${esc(Tel.dd(first))} → ${esc(Tel.dd(lastR.ts || ''))}</div></div><div class="tf-pf">${TSC.chips(flags) || '<span class="tf-chip">no red flags yet</span>'}</div>
     <div class="tf-last"><div class="muted small">Last seen</div><b>${esc(CDRX.loc(lastR) || '—')}</b><div class="small">${esc(Tel.dd(lastR.ts || ''))}${lastR.imei ? ' · IMEI ' + esc(lastR.imei) : ''}</div></div></div>${TSC.boxes(v)}</div>` + UI.kpis(kp);
-  const g = [];
+  const g = [], OB = n => TSC.opb(n);
   if (k === 'ipdr') {
     const A = [...groupBy(v.filter(IPX.app), IPX.app)].sort((a, b) => b[1].length - a[1].length);
-    g.push({ i: '📲', t: 'Apps used', c: '#3b82f6', items: A.slice(0, 6).map(([a, w]) => [`<b>${esc(a)}</b> – ${fmtNum(w.length)} sessions, ${Tel.bytes(Tel.vol(w))}`, 'dst']) });
-    const vp = v.filter(IPX.vpn); if (vp.length) g.push({ i: '🛡', t: 'Hiding / remote access', c: '#ef4444', items: [[`<b>${fmtNum(vp.length)}</b> VPN / proxy / remote sessions: ${uniq(vp.map(IPX.app)).slice(0, 4).map(esc).join(', ')}`, 'vpn']] });
-    g.push({ i: '📝', t: 'For platform notice', c: '#10b981', items: [['Own public IP + port + time list for WhatsApp / Meta / Google', 'req']] });
+    g.push({ i: '📲', t: 'Apps used', c: '#3b82f6', items: A.slice(0, 6).map(([a, w]) => ({ h: `<b>${esc(a)}</b><div class="small">${fmtNum(w.length)} sessions · ${Tel.bytes(Tel.vol(w))}</div>`, go: 'dst', recs: w, t: n + ' · ' + a })) });
+    const vp = v.filter(IPX.vpn); if (vp.length) g.push({ i: '🛡', t: 'Hiding / remote access', c: '#ef4444', items: [{ v: fmtNum(vp.length), h: `VPN / proxy / remote sessions<div class="small">${uniq(vp.map(IPX.app)).slice(0, 4).map(esc).join(', ')}</div>`, go: 'vpn', recs: vp, t: n + ' · VPN / remote' }] });
+    g.push({ i: '📝', t: 'For platform notice', c: '#10b981', items: [{ h: 'Own public IP + port + time list for WhatsApp / Meta / Google', go: 'req' }] });
   } else if (k === 'tdr') {
     const sp = Tel.tdrSpots(), S2 = [...groupBy(v, r => (sp.of.get(r._src) || {}).label || r._src)];
-    g.push({ i: '📍', t: 'Present at crime spots', c: '#ef4444', items: S2.map(([s, w]) => [`<b>${esc(s)}</b> – ${w.length} records, ${esc(Tel.dd(w[0].ts).slice(11, 16))} to ${esc(Tel.dd(w[w.length - 1].ts).slice(11, 16))}`, 'spot']) });
+    g.push({ i: '📍', t: 'Present at crime spots', c: '#ef4444', items: S2.map(([s, w]) => ({ h: `<b>${esc(s)}</b><div class="small">${w.length} records · ${esc(Tel.dd(w[0].ts).slice(11, 16))} to ${esc(Tel.dd(w[w.length - 1].ts).slice(11, 16))}</div>`, go: 'spot', recs: w, t: n + ' at ' + s })) });
   }
-  if (C.length) g.push({ i: '👥', t: 'Top contacts', c: '#3b82f6', items: C.slice(0, 6).map(c => [`<b class="mono">${esc(c.o)}</b> – ${c.n} records${c.dur ? ', ' + Tel.hms(c.dur) : ''}${c.night ? ', ' + c.night + ' at night' : ''}${c.a ? ` <span class="tf-chip bad">in ${esc(c.a)}</span>` : ''}${c.w ? ' <span class="tf-chip bad">watchlist</span>' : ''}`, 'con']) });
-  const lk = C.filter(c => c.a || c.w); if (lk.length) g.push({ i: '🔗', t: 'Contacts linked to this case', c: '#ef4444', items: lk.slice(0, 6).map(c => [`<b class="mono">${esc(c.o)}</b> ${c.a ? 'in ' + esc(c.a) : 'on watchlist'} – ${c.n} records, last ${esc(Tel.dd(c.last).slice(0, 10))}`, k === 'cdr' ? 'com' : '']) });
-  const IP = CDRX.runs(v, r => r.imei); if (im.length) g.push({ i: '📱', t: 'Handsets', c: '#a855f7', items: IP.slice(-6).map(x => [`<span class="mono">${esc(x.key)}</span> ${esc(Tel.dd(x.from).slice(0, 10))} → ${esc(Tel.dd(x.to).slice(0, 10))} (${fmtNum(x.n)})`, 'dev']) });
-  const hrs = Array.from({ length: 24 }, (_, h) => v.filter(r => Tel.hour(r) === h).length), pk = hrs.indexOf(Math.max(...hrs)), nt = v.filter(Tel.night).length;
-  g.push({ i: '⏱', t: 'Activity', c: '#f59e0b', items: [[`Most active at <b>${pk}:00 – ${pk + 1}:00</b>; ${Math.round(nt / Math.max(1, v.length) * 100)}% of activity at night`, 'time'], ...G.slice(0, 3).map(x => [`Off for <b>${CDRX.span(x.h)}</b> from ${esc(Tel.dd(x.from))}${x.devCh ? ' – <b>handset changed</b>' : ''}${x.moved ? ' – came back at another place' : ''}`, 'off'])] });
-  if (st.length) { const RP = CDRX.runs(v, CDRX.circle); g.push({ i: '🌍', t: 'Movement', c: '#10b981', items: RP.slice(-5).map(x => [`<b>${esc(x.key)}</b> ${esc(Tel.dd(x.from).slice(0, 10))} → ${esc(Tel.dd(x.to).slice(0, 10))} (${x.dayN} days)`, k === 'cdr' ? 'roam' : 'loc']) }); }
+  if (C.length) g.push({ i: '👥', t: 'Top contacts', c: '#3b82f6', items: C.slice(0, 6).map(c => ({ h: `<b class="mono">${esc(c.o)}</b> ${OB(c.o)}<div class="small">${c.n} records${c.dur ? ' · ' + Tel.hms(c.dur) : ''}${c.night ? ' · ' + c.night + ' at night' : ''}</div>${c.a ? `<span class="tf-chip bad">in ${esc(c.a)}</span> ` : ''}${c.w ? '<span class="tf-chip bad">watchlist</span>' : ''}`, go: 'con', recs: c.recs, t: n + ' ↔ ' + c.o })) });
+  const lk = C.filter(c => c.a || c.w); if (lk.length) g.push({ i: '🔗', t: 'Contacts linked to this case', c: '#ef4444', items: lk.slice(0, 6).map(c => ({ h: `<b class="mono">${esc(c.o)}</b> ${OB(c.o)}<div class="small">${c.a ? 'in ' + esc(c.a) : 'on watchlist'} · ${c.n} records · last ${esc(Tel.dd(c.last).slice(0, 10))}</div>`, go: k === 'cdr' ? 'com' : '', recs: c.recs, t: n + ' ↔ ' + c.o })) });
+  const IP = CDRX.runs(v, r => r.imei), SP = CDRX.runs(v, r => r.imsi);
+  if (im.length || ims.length) g.push({ i: '📱', t: 'Handsets & SIM cards', c: '#a855f7', items: [...IP.slice(-4).map(x => ({ h: `📱 IMEI <b class="mono">${esc(x.key)}</b><div class="small">${esc(Tel.dd(x.from).slice(0, 10))} → ${esc(Tel.dd(x.to).slice(0, 10))} · ${x.dayN} days</div>`, go: 'dev', recs: x.recs, t: n + ' · IMEI ' + x.key })),
+    ...(ims.length > 1 || !im.length ? SP.slice(-3).map(x => ({ h: `💳 IMSI <b class="mono">${esc(x.key)}</b>${TSC.mncOp(x.key) ? ` <span class="opb" style="--oc:${TSC.OPC[TSC.mncOp(x.key)]}">${TSC.mncOp(x.key)}</span>` : ''}<div class="small">${esc(Tel.dd(x.from).slice(0, 10))} → ${esc(Tel.dd(x.to).slice(0, 10))}</div>`, go: 'dev', recs: x.recs, t: n + ' · IMSI ' + x.key })) : [])] });
+  const hrs = Array.from({ length: 24 }, (_, h) => v.filter(r => Tel.hour(r) === h).length), pk = hrs.indexOf(Math.max(...hrs)), NT = v.filter(Tel.night);
+  g.push({ i: '⏱', t: 'Activity', c: '#f59e0b', items: [{ v: pk + ':00', h: `most active hour (${pk}:00 – ${pk + 1}:00)`, go: 'time', recs: v.filter(r => Tel.hour(r) === pk), t: n + ' · busiest hour ' + pk + ':00' }, { v: Math.round(NT.length / Math.max(1, v.length) * 100) + '%', h: 'of activity at night (11 pm – 5 am)', go: 'time', recs: NT, t: n + ' · night activity' },
+    ...G.slice(0, 3).map(x => ({ h: `Off for <b>${CDRX.span(x.h)}</b><div class="small">from ${esc(Tel.dd(x.from))}${x.devCh ? ' · <b>handset changed</b>' : ''}${x.moved ? ' · came back elsewhere' : ''}</div>`, go: 'off', recs: x.recs, t: n + ' · off ' + CDRX.span(x.h) }))] });
+  if (st.length) { const RP = CDRX.runs(v, CDRX.circle); g.push({ i: '🌍', t: 'Movement', c: '#10b981', items: RP.slice(-5).map(x => ({ h: `<b>${esc(x.key)}</b><div class="small">${esc(Tel.dd(x.from).slice(0, 10))} → ${esc(Tel.dd(x.to).slice(0, 10))} · ${x.dayN} days</div><div class="small muted">${esc(x.fl || '')}</div>`, go: k === 'cdr' ? 'roam' : 'loc', recs: x.recs, t: n + ' in ' + x.key })) }); }
   el.insertAdjacentHTML('beforeend', TSC.groups(g) + `<div class="grid g2"><div class="card"><h3>${k === 'ipdr' ? 'Apps' : 'Top contacts'}</h3><div id="tfC"></div></div><div class="card"><h3>Hour of day</h3><div id="tfH"></div></div></div>`);
   if (k === 'ipdr') Charts.hbar($('#tfC', el), [...groupBy(v.filter(IPX.app), IPX.app)].map(([a, w]) => ({ label: a, value: w.length, sub: Tel.bytes(Tel.vol(w)), recs: w })).sort((a, b) => b.value - a.value).slice(0, 15), { onClick: x => this.recDrawer(x.label, x.recs) });
-  else Charts.hbar($('#tfC', el), C.slice(0, 15).map(c => ({ label: c.o, value: c.n, sub: (c.dur ? Tel.hms(c.dur) : '') + (c.a ? ' · ⚑ ' + c.a : ''), recs: c.recs })), { onClick: x => this.recDrawer(n + ' ↔ ' + x.label, x.recs) });
+  else Charts.hbar($('#tfC', el), C.slice(0, 15).map(c => ({ label: c.o, value: c.n, sub: (TSC.op(c.o) ? TSC.op(c.o) + ' · ' : '') + (c.dur ? Tel.hms(c.dur) : '') + (c.a ? ' · ⚑ ' + c.a : ''), recs: c.recs })), { onClick: x => this.recDrawer(n + ' ↔ ' + x.label, x.recs) });
   Charts.vbar($('#tfH', el), hrs.map((x, h) => ({ label: h + ':00', value: x })));
   TSC.wire(el);
 };
@@ -11589,6 +11624,68 @@ TelUI.prof = function (el, d, k) {
       const k1 = $('.kpis', el); if (k1) k1.after(box); else el.prepend(box); TSC.wire(box);
     } catch (e) { console.error(e); }
   }; }
+
+/* ===== Telecom operator of a number (Airtel / Jio / Vi / BSNL / MTNL) and finding tiles with live popup ===== */
+TSC.OPC = { Airtel: '#e11d48', Jio: '#1d4ed8', Vi: '#d97706', BSNL: '#0e7490', MTNL: '#7c3aed', Reliance: '#475569', Tata: '#0f766e' };
+TSC.MNC = (() => { const m = {}, add = (op, s) => s.split(' ').forEach(x => { const r = x.split('-'); if (r.length === 1) m[x] = op; else for (let i = +r[0]; i <= +r[1]; i++) m[String(i)] = op; });
+  add('Airtel', '40402 40403 40410 40416 40431 40440 40445 40449 40470 40490 40492-40498 40551-40556');
+  add('Vi', '40401 40404 40405 40407 40411-40415 40419 40420 40422 40424 40427 40430 40443 40444 40446 40456 40460 40478 40482 40484 40486-40489 40566 40567 40570 405750-405756 405799 405845 405846 405848-405850 405852 405853');
+  add('BSNL', '40434 40438 40451 40453-40455 40457-40459 40462 40464 40466 40471-40477 40479-40481');
+  add('MTNL', '40468 40469'); add('Jio', '405840 405854-405874'); return m; })();
+TSC.opName = function (s) { s = String(s || '').toUpperCase(); if (!s) return '';
+  return /AIRTEL|BHARTI/.test(s) ? 'Airtel' : /JIO|RJIL/.test(s) ? 'Jio' : /VODA|IDEA|VIINDIA|(^|[^A-Z])VIL?([^A-Z]|$)/.test(s) ? 'Vi' : /BSNL|CELLONE/.test(s) ? 'BSNL' : /MTNL|DOLPHIN/.test(s) ? 'MTNL' : /RELIANCE|RCOM/.test(s) ? 'Reliance' : /TATA|DOCOMO/.test(s) ? 'Tata' : ''; };
+TSC.mncOp = function (s) { const g = String(s || '').replace(/\D/g, ''); if (!/^40[45]/.test(g)) return ''; return this.MNC[g.slice(0, 6)] || this.MNC[g.slice(0, 5)] || ''; };
+TSC.opMap = function () {
+  return Analysis.cached('telop:map', () => {
+    const M = new Map(), vote = (n, op, w) => { if (!n || !op) return; let x = M.get(n); if (!x) M.set(n, x = {}); x[op] = (x[op] || 0) + w; }, meta = S.data.telMeta || {};
+    for (const r of Tel.all()) {
+      if (r.target && Tel.isMob(r.target)) { vote(r.target, this.mncOp(r.imsi), 5); if (r.kind !== 'TDR') vote(r.target, this.opName(r._src) || this.opName((meta[r._src] || {}).Operator), 2); if (!r.imsi) vote(r.target, this.mncOp(r.cell), 1); }
+      if (r.other && Tel.isMob(r.other) && r.bop) vote(r.other, this.opName(String(r.bop).split(/--|,|\//)[0]) || this.opName(r.bop), 3);
+    }
+    const O = new Map(); for (const [n, x] of M) { const b = Object.entries(x).sort((a, c) => c[1] - a[1])[0]; if (b) O.set(n, b[0]); } return O;
+  });
+};
+TSC.op = function (n) { return Tel.isMob(String(n || '')) ? this.opMap().get(String(n)) || '' : ''; };
+TSC.opb = function (n, big) { const o = TSC.op(n); return o ? `<span class="opb${big ? ' big' : ''}" style="--oc:${TSC.OPC[o] || '#64748b'}" title="Telecom operator (from IMSI / file / B-party operator column; ported numbers show the current operator)">${esc(o)}</span>` : ''; };
+/* every mobile number shown with the "also in" badge on the telecom pages gets the operator too */
+{ const _b = Tel.alsoB.bind(Tel); Tel.alsoB = (t, v) => _b(t, v) + (t === 'mobile' && S.page === 'tele' ? TSC.opb(v) : ''); }
+
+/* findings: every line is a box – hover for a live popup, click for all records */
+TSC._r = [];
+TSC.groups = function (G) {
+  G = G.filter(g => g.items.length); if (!G.length) return '';
+  return `<div class="tf-grid">${G.map(g => `<div class="tf-card" style="--tc:${g.c}"><div class="tf-h">${g.i} ${esc(g.t)}</div><div class="tf-tiles">${g.items.slice(0, g.max || 6).map(x => this.tile(x, g)).join('')}</div></div>`).join('')}</div>`;
+};
+TSC.tile = function (x, g) {
+  if (Array.isArray(x)) x = { h: x[0], go: x[1], recs: x[2], t: x[3] };
+  x.gt = g.t; const id = this._r.push(x) - 1, R = x.recs || [];
+  return `<div class="tf-tile${x.cls ? ' ' + x.cls : ''}" data-ri="${id}" tabindex="0" role="button">${x.v != null ? `<div class="tf-tv">${x.v}</div>` : ''}<div class="tf-tx">${x.h}</div><div class="tf-tf"><span>${R.length ? '🔍 ' + fmtNum(R.length) + ' records' : ''}</span>${x.go ? `<a href="#" class="tf-go" data-tgo="${x.go}">open tab →</a>` : ''}</div></div>`;
+};
+TSC.tipOf = function (x) {
+  const R = x.recs || []; if (!R.length) return `<b>${esc(x.t || x.gt)}</b><br><i>Click to open the tab</i>`;
+  const ts = R.map(r => r.ts).filter(Boolean).sort(), calls = R.filter(r => r.dir === 'IN' || r.dir === 'OUT'), top = (f, k) => [...groupBy(R.filter(f), f)].sort((a, b) => b[1].length - a[1].length).slice(0, k);
+  const T = top(r => r.target, 3), O = top(r => r.other, 3), tw = top(Tel.tower, 1)[0], im = uniq(R.map(r => r.imei).filter(Boolean)), op = n => TSC.op(n) ? ' (' + TSC.op(n) + ')' : '';
+  return `<b>${esc(x.t || x.gt)}</b><br>${fmtNum(R.length)} records · ${esc(Tel.dd(ts[0] || ''))} → ${esc(Tel.dd(ts[ts.length - 1] || ''))}`
+    + (calls.length ? `<br>📞 ${fmtNum(calls.filter(r => r.dir === 'OUT').length)} out / ${fmtNum(calls.filter(r => r.dir === 'IN').length)} in · talk ${Tel.hms(sum(calls, r => r.dur || 0))}` : '')
+    + (T.length ? `<br>🎯 ${T.map(([n, w]) => esc(n) + op(n) + ' ×' + w.length).join(', ')}` : '')
+    + (O.length ? `<br>👥 ${O.map(([n, w]) => esc(n) + op(n) + ' ×' + w.length).join(', ')}` : '')
+    + (tw ? `<br>📡 ${esc((tw[1].find(r => r.addr) || {}).addr || tw[0])}` : '') + (im.length ? `<br>📱 ${esc(im.slice(0, 2).join(', '))}${im.length > 2 ? ' +' + (im.length - 2) : ''}` : '')
+    + '<br><i>Click for every record</i>';
+};
+TSC.wire = function (el) {
+  if (el._tw) return; el._tw = 1;
+  const hide = e => Charts.tip(e, null);
+  el.addEventListener('click', e => {
+    const a = e.target.closest('[data-tsc],[data-tgo]');
+    if (a && el.contains(a)) { e.preventDefault(); e.stopPropagation(); hide(e); if (a.dataset.tsc) this.go(a.dataset.tsc); else { S.sub.tele = a.dataset.tgo; render(); } return; }
+    const t = e.target.closest('[data-ri]'); if (!t || !el.contains(t) || e.target.closest('a[href^="http"]')) return;
+    const x = this._r[t.dataset.ri]; if (!x) return; hide(e);
+    if (x.recs && x.recs.length) TelUI.recDrawer(x.t || x.gt, x.recs); else if (x.go) { S.sub.tele = x.go; render(); }
+  });
+  el.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.matches && e.target.matches('[data-ri]')) e.target.click(); });
+  el.addEventListener('mousemove', e => { const t = e.target.closest('[data-ri]'); if (!t) { if (el._tip) { el._tip = 0; hide(e); } return; } const x = this._r[t.dataset.ri]; if (!x) return; el._tip = 1; Charts.tip(e, x.tip || (x.tip = this.tipOf(x))); });
+  el.addEventListener('mouseleave', e => { el._tip = 0; hide(e); });
+};
 
 </script>
 <script>
