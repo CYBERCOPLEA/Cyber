@@ -1701,3 +1701,8 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
 /* Tools – Fetch online */
 .xt-fetch{background:linear-gradient(135deg,#0ea5e9,#6366f1);color:#fff;border-color:transparent}
 .xt-ft td{vertical-align:top}.xt-pre{margin:0;white-space:pre-wrap;font:12px/1.4 ui-monospace,Consolas,monospace;max-height:220px;overflow:auto}
+
+/* websites panel spans the whole row */
+.nc-row .nc-sites{grid-column:1/-1;margin-left:22px;min-width:0}
+.nc-sites>.small{line-height:1.5;max-width:none}
+.nc-sites .nc-s input{min-width:0;width:100%}
