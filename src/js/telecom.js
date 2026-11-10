@@ -276,6 +276,7 @@ const Tel = {
     ['Loan / credit app', /KREDIT|MPOKKET|CASHE|NAVI|MNYVIEW|MONEYVIEW|SLICE|LAZYPY|LAZYPAY|BAJAJF|BAJFIN|HOMECR|TATACAP|FIBE|EARLYS|STASHF|KISSHT|ZESTMN|TRUBAL|SMCOIN|PAYSNS|LOAN|CREDIT|FINSERV|FINANCE/],
     ['Trading / crypto', /ZERODHA|UPSTOX|GROWW|ANGEL|5PAISA|WAZIRX|COINDCX|BINANCE|COINSW|MOTILAL|SHAREKHAN|NSE|BSE|CDSL|NSDL/],
     ['Telecom', /JIO|AIRTEL|VODAFONE|VIINDIA|^VI$|BSNL|MTNL/],
+    ['Delivery / courier', /DELHIV|DLHVRY|BLUDRT|BLUEDART|DTDC|ECOMEX|ECOMXP|XPRSBS|XPRESSB|SHADOW|SHDWFX|EKART|INDPST|INDIAPOST|SPEEDP|PORTER|DUNZO|SHPRKT|SHIPRKT|SHIPROCKET|DELIVR|COURIER|SMARTR|GATI|SAFEXP/],
     ['Shopping / food', /AMAZON|FLPKRT|FLIPKART|MYNTRA|MEESHO|AJIO|NYKAA|SWIGGY|ZOMATO|BLINKIT|ZEPTO|BIGBSKT|DMART|JIOMRT/],
     ['Government', /GOVT|UIDAI|AADHAR|ITDEPT|INCOME|EPFO|CBDT|DIGILK|NICSI|CEIR|TRAI|DOT|PARIVA|VAHAN|SARTHI|IRCTC|POLICE|ECI|MYGOV|CBSE|UPSC/],
     ['Social / OTP', /WHATSAPP|FACEBK|INSTA|TELEGRAM|GOOGLE|GOOGLE|MSFT|MICROSOFT|APPLE|TWITTR|SNAPCH|TRUECALL|OLA|UBER|RAPIDO/]
@@ -478,7 +479,7 @@ const TelUI = {
     const C = [...byOther].filter(([, v]) => v.length >= 2).map(([o, v]) => ({ o, t: v.map(p => p.target), n: sum(v, p => p.n), dur: sum(v, p => p.dur), recs: v.flatMap(p => p.recs) }));
     const types = [['mobile', d.flatMap(r => [r.target, r.other]).filter(Tel.isMob)], ['imei', d.map(r => r.imei).filter(Boolean)]];
     const L = []; for (const [t, vals] of types) for (const v of uniq(vals)) { const a = Tel.also(t, v); if (a) L.push({ t, v, a, recs: d.filter(r => r.target === v || r.other === v || r.imei === v) }); }
-    el.innerHTML = `<div class="card"><h3>Numbers in touch with two or more targets</h3><div class="sub">Likely the same gang / handler.</div><div id="cm1"></div></div><div class="card"><h3>Found in other data of this case</h3><div class="sub">Numbers and IMEIs from these CDRs that also appear in bank / KYC, NCRP complaints, social media, Google, WhatsApp, Telegram or CAF data.</div><div id="cm2"></div></div>`;
+    el.innerHTML = `<div class="card"><h3>Common Numbers in touch with two or more targets</h3><div class="sub">Likely the same gang / handler.</div><div id="cm1"></div></div><div class="card"><h3>Found in other data of this case</h3><div class="sub">Numbers and IMEIs from these CDRs that also appear in bank / KYC, NCRP complaints, social media, Google, WhatsApp, Telegram or CAF data.</div><div id="cm2"></div></div>`;
     Table($('#cm1', el), { rows: C, sortKey: 'n', sortDir: -1, exportName: 'cdr_common', onRow: x => this.recDrawer(x.o, x.recs), columns: [{ key: 'o', label: 'Number', render: x => `<b class="mono">${esc(x.o)}</b> ${Tel.alsoB('mobile', x.o)}` }, { key: 't', label: 'Targets', csv: x => x.t.join(' '), sortVal: x => x.t.length, render: x => `<span class="badge warn">${x.t.length}</span> ${x.t.map(esc).join(', ')}` }, { key: 'n', label: 'Records', num: true }, { key: 'dur', label: 'Talk time', num: true, render: x => Tel.hms(x.dur) }] });
     Table($('#cm2', el), { rows: L, exportName: 'cdr_linked', onRow: x => this.recDrawer(x.v, x.recs), columns: [{ key: 't', label: 'Type' }, { key: 'v', label: 'Value', render: x => `<b class="mono">${esc(x.v)}</b>` }, { key: 'a', label: 'Also in' }, { key: 'n', label: 'CDR records', num: true, sortVal: x => x.recs.length, render: x => fmtNum(x.recs.length), csv: x => x.recs.length }] });
   },

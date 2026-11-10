@@ -152,6 +152,7 @@ TelUI.cdr_com = function (el, d) {
   const T = new Set(d.map(r => r.target).filter(Boolean));
   const X = [...groupBy(d.filter(r => r.other && T.has(r.other) && r.other !== r.target), r => [r.target, r.other].sort().join(' ↔ '))].map(([k, v]) => ({ k, n: v.length, calls: v.filter(r => r.dir === 'IN' || r.dir === 'OUT').length, sms: v.filter(r => /^SMS/.test(r.dir)).length, dur: sum(v, r => r.dur || 0), first: v.reduce((a, r) => !a || r.ts < a ? r.ts : a, ''), last: v.reduce((a, r) => r.ts > a ? r.ts : a, ''), recs: v })).sort((a, b) => b.n - a.n);
   el.insertAdjacentHTML('afterbegin', `<div class="card"><h3>CDR ↔ CDR – targets calling each other</h3><div class="sub">${T.size < 2 ? 'Load CDRs of two or more numbers to see direct contact between them.' : X.length ? 'Direct calls / SMS between the numbers whose CDRs are loaded.' : 'No direct contact between the loaded targets.'}</div><div id="cxX"></div></div>`);
+  this.cdrCommon(el, d);
   if (X.length) Table($('#cxX', el), { rows: X, sortKey: 'n', sortDir: -1, exportName: 'cdr_to_cdr', onRow: x => this.recDrawer(x.k, x.recs), columns: [{ key: 'k', label: 'Targets', render: x => `<b class="mono">${esc(x.k)}</b>` }, { key: 'n', label: 'Records', num: true }, { key: 'calls', label: 'Calls', num: true }, { key: 'sms', label: 'SMS', num: true }, { key: 'dur', label: 'Talk', num: true, render: x => Tel.hms(x.dur) }, { key: 'first', label: 'First', render: x => esc(Tel.dd(x.first)) }, { key: 'last', label: 'Last', render: x => esc(Tel.dd(x.last)) }] });
 };
 
@@ -181,4 +182,47 @@ TelUI.cdrFindings = function (d, ...a) {
     if ((S.data.cdrWatch || []).length) { const W = new Set(S.data.cdrWatch.map(String)); const n = d.filter(r => W.has(r.other) || W.has(r.target) || W.has(r.imei)).length; if (n) f.push(`${b(n + ' record(s)')} match your watchlist – see Watchlist.`); }
   } catch (e) { console.error(e); }
   return f;
+};
+
+/* ===== Common across CDRs: target number, B party, IMEI, IMSI, cell ID, lat-long, SMS sender – and which CDRs share it ===== */
+CDRX.CT = [['all', 'All common items', '⚑'], ['tgt', 'Target number in other CDR', '🎯'], ['b', 'Common B-party number', '👥'], ['imei', 'Common IMEI', '📱'], ['imsi', 'Common IMSI', '💳'], ['cell', 'Common Cell ID', '📡'], ['ll', 'Common Lat-Long', '📍'], ['sms', 'Common SMS sender', '✉'], ['x', 'Also in IPDR / TDR', '🔗']];
+CDRX.common = function (d) {
+  return Analysis.cached('tel:cdrcommon', () => {
+    const T = new Set(d.map(r => r.target).filter(Boolean)), out = [];
+    const add = (type, key, get, label) => {
+      const m = new Map();
+      for (const r of d) { const v = get(r); if (!v || !r.target) continue; let x = m.get(v); if (!x) m.set(v, x = { type, v, by: new Map(), recs: [] }); x.by.set(r.target, (x.by.get(r.target) || 0) + 1); x.recs.push(r); }
+      for (const x of m.values()) if (x.by.size >= 2) { x.n = x.recs.length; x.cdrs = [...x.by.keys()]; x.cN = x.cdrs.length; x.info = label ? label(x) : ''; x.first = x.recs.reduce((a, r) => !a || r.ts < a ? r.ts : a, ''); x.last = x.recs.reduce((a, r) => r.ts > a ? r.ts : a, ''); out.push(x); }
+    };
+    /* a target number that shows up as B party in other targets' CDR */
+    { const m = new Map(); for (const r of d) if (r.other && T.has(r.other) && r.other !== r.target) { let x = m.get(r.other); if (!x) m.set(r.other, x = { type: 'tgt', v: r.other, by: new Map(), recs: [] }); x.by.set(r.target, (x.by.get(r.target) || 0) + 1); x.recs.push(r); }
+      for (const x of m.values()) { x.n = x.recs.length; x.cdrs = [...x.by.keys()]; x.cN = x.cdrs.length; x.info = 'own CDR loaded'; x.first = x.recs.reduce((a, r) => !a || r.ts < a ? r.ts : a, ''); x.last = x.recs.reduce((a, r) => r.ts > a ? r.ts : a, ''); out.push(x); } }
+    add('b', 'other', r => r.other && !/[A-Z]/.test(r.other) && !T.has(r.other) && r.other.length >= 8 ? r.other : '', x => Tel.also('mobile', x.v) ? 'also in ' + Tel.also('mobile', x.v) : (x.recs.find(r => r.bop) || {}).bop || '');
+    add('imei', 'imei', r => r.imei, x => 'TAC ' + x.v.slice(0, 8));
+    add('imsi', 'imsi', r => r.imsi, x => 'network ' + x.v.slice(0, 3) + '-' + x.v.slice(3, 5));
+    add('cell', 'cell', r => r.cell, x => (x.recs.find(r => r.addr) || {}).addr || '');
+    add('ll', 'll', r => r.lat && r.lon ? (+r.lat).toFixed(3) + ', ' + (+r.lon).toFixed(3) : '', x => (x.recs.find(r => r.addr) || {}).addr || '');
+    add('sms', 'sms', r => /[A-Z]/.test(r.other || '') ? (Tel.hdrInfo(r.other) || {}).ent || '' : '', x => (Tel.hdrInfo(x.v) || {}).cat || '');
+    /* CDR values found in IPDR / TDR of this case */
+    const oth = Tel.all().filter(r => r.kind !== 'CDR' && r.kind !== 'SMS'), oi = new Map();
+    for (const r of oth) for (const v of [r.target, r.other, r.imei]) if (v) { let s = oi.get(v); if (!s) oi.set(v, s = new Set()); s.add(r.kind); }
+    const xm = new Map(); for (const r of d) for (const v of [r.target, r.other, r.imei]) if (v && oi.has(v)) { let x = xm.get(v); if (!x) xm.set(v, x = { type: 'x', v, by: new Map(), recs: [] }); x.by.set(r.target, (x.by.get(r.target) || 0) + 1); x.recs.push(r); }
+    for (const x of xm.values()) { x.n = x.recs.length; x.cdrs = [...x.by.keys()]; x.cN = x.cdrs.length; x.info = 'in ' + [...oi.get(x.v)].join(' + '); x.first = x.recs.reduce((a, r) => !a || r.ts < a ? r.ts : a, ''); x.last = x.recs.reduce((a, r) => r.ts > a ? r.ts : a, ''); out.push(x); }
+    return out;
+  });
+};
+TelUI.cdrCommon = function (el, d) {
+  const all = CDRX.common(d), cur = S.cdrComT || 'all', cnt = t => t === 'all' ? all.filter(x => x.type !== 'x').length : all.filter(x => x.type === t).length, T = uniq(d.map(r => r.target).filter(Boolean));
+  const rows = all.filter(x => cur === 'all' ? x.type !== 'x' : x.type === cur), lbl = Object.fromEntries(CDRX.CT.map(c => [c[0], c[1]]));
+  el.insertAdjacentHTML('afterbegin', `<div class="card cx-com"><h3>⚑ Common across CDRs – what links the targets</h3><div class="sub">${T.length < 2 ? 'Load the CDRs of two or more numbers: this finds every number, handset, SIM, tower, place and SMS sender they share.' : `Across <b>${T.length}</b> CDRs. Each row shows the shared item and <b>which CDR numbers</b> it appears in, with record counts. Click a row for every record.`}</div>
+    <div class="cx-ct">${CDRX.CT.map(([id, l, i]) => `<button class="cx-cb ${id === cur ? 'on' : ''}" data-ct="${id}"><span>${i} ${l}</span><b>${fmtNum(cnt(id))}</b></button>`).join('')}</div><div id="cxCm"></div></div>`);
+  $$('[data-ct]', el).forEach(b => b.onclick = () => { S.cdrComT = b.dataset.ct; const c = $('.cx-com', el); c.remove(); this.cdrCommon(el, d); });
+  if (!rows.length) { $('#cxCm', el).innerHTML = `<div class="muted">No common ${esc(lbl[cur].replace(/^Common /, '').toLowerCase())} found${T.length < 2 ? ' – only one CDR loaded' : ''}.</div>`; return; }
+  Table($('#cxCm', el), { rows, sortKey: 'cN', sortDir: -1, pageSize: 25, exportName: 'cdr_common_' + cur, onRow: x => this.recDrawer(lbl[x.type] + ' · ' + x.v, x.recs), columns: [
+    ...(cur === 'all' || cur === 'x' ? [{ key: 'type', label: 'Type', render: x => `<span class="badge">${esc(lbl[x.type].replace(/^Common /, ''))}</span>`, csv: x => lbl[x.type] }] : []),
+    { key: 'v', label: 'Common item', render: x => `<b class="mono">${esc(x.v)}</b>${x.type === 'b' || x.type === 'tgt' ? ' ' + Tel.alsoB('mobile', x.v) : x.type === 'imei' ? ' ' + Tel.alsoB('imei', x.v) : ''}${x.type === 'll' ? CDRX.map(...x.v.split(', ')) : ''}` },
+    { key: 'info', label: 'Details', render: x => `<span class="small">${esc(x.info)}</span>` },
+    { key: 'cN', label: 'CDRs', num: true, render: x => `<span class="badge ${x.cN > 2 ? 'bad' : 'warn'}">${x.cN}</span>` },
+    { key: 'cdrs', label: 'Found in CDR of (records)', sortVal: x => x.cN, csv: x => x.cdrs.map(t => t + ' (' + x.by.get(t) + ')').join('; '), render: x => `<span class="mono small">${x.cdrs.slice(0, 8).map(t => `${esc(t)} <span class="muted">(${x.by.get(t)})</span>`).join(', ')}${x.cdrs.length > 8 ? ' …' : ''}</span>` },
+    { key: 'n', label: 'Records', num: true }, { key: 'first', label: 'First', render: x => esc(Tel.dd(x.first)) }, { key: 'last', label: 'Last', render: x => esc(Tel.dd(x.last)) }] });
 };

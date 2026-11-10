@@ -1750,6 +1750,13 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
 .tf-pf{flex:1;min-width:220px;display:flex;flex-wrap:wrap;gap:6px;align-content:flex-start;padding-top:18px}
 .tf-last{min-width:240px;max-width:420px;padding:8px 12px;border-left:4px solid #ec4899;border-radius:8px;background:var(--surface-2)}
 
+/* CDR common items */
+.cx-com{border-color:rgba(245,158,11,.55)}
+.cx-ct{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 12px}
+.cx-cb{display:flex;align-items:center;gap:8px;padding:7px 12px;border-radius:10px;border:1px solid var(--border);background:var(--surface-2);color:var(--text);font-weight:700;cursor:pointer}
+.cx-cb b{min-width:22px;padding:1px 7px;border-radius:999px;background:var(--surface);text-align:center}
+.cx-cb.on{background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;border-color:transparent}.cx-cb.on b{background:rgba(255,255,255,.25)}
+
 </style>
 </head>
 <body>
@@ -1797,7 +1804,7 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
         <div class="hp-feat" style="--fc:#06b6d4"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><div><b>Analytics</b><p>The same mobile, account, IP or e-mail across complaints, banks and platforms.</p></div></div>
         <div class="hp-feat" style="--fc:#eab308"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h5"/></svg></span><div><b>Case File &amp; Notices</b><p>Case reports, notices to banks and platforms, and CSV / PDF exports.</p></div></div>
     </section>
-    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-11 00:28 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
+    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-11 00:35 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
   </div>
 
   <div class="lg-wrap" id="lgWrap" aria-hidden="true">
@@ -10596,6 +10603,7 @@ const Tel = {
     ['Loan / credit app', /KREDIT|MPOKKET|CASHE|NAVI|MNYVIEW|MONEYVIEW|SLICE|LAZYPY|LAZYPAY|BAJAJF|BAJFIN|HOMECR|TATACAP|FIBE|EARLYS|STASHF|KISSHT|ZESTMN|TRUBAL|SMCOIN|PAYSNS|LOAN|CREDIT|FINSERV|FINANCE/],
     ['Trading / crypto', /ZERODHA|UPSTOX|GROWW|ANGEL|5PAISA|WAZIRX|COINDCX|BINANCE|COINSW|MOTILAL|SHAREKHAN|NSE|BSE|CDSL|NSDL/],
     ['Telecom', /JIO|AIRTEL|VODAFONE|VIINDIA|^VI$|BSNL|MTNL/],
+    ['Delivery / courier', /DELHIV|DLHVRY|BLUDRT|BLUEDART|DTDC|ECOMEX|ECOMXP|XPRSBS|XPRESSB|SHADOW|SHDWFX|EKART|INDPST|INDIAPOST|SPEEDP|PORTER|DUNZO|SHPRKT|SHIPRKT|SHIPROCKET|DELIVR|COURIER|SMARTR|GATI|SAFEXP/],
     ['Shopping / food', /AMAZON|FLPKRT|FLIPKART|MYNTRA|MEESHO|AJIO|NYKAA|SWIGGY|ZOMATO|BLINKIT|ZEPTO|BIGBSKT|DMART|JIOMRT/],
     ['Government', /GOVT|UIDAI|AADHAR|ITDEPT|INCOME|EPFO|CBDT|DIGILK|NICSI|CEIR|TRAI|DOT|PARIVA|VAHAN|SARTHI|IRCTC|POLICE|ECI|MYGOV|CBSE|UPSC/],
     ['Social / OTP', /WHATSAPP|FACEBK|INSTA|TELEGRAM|GOOGLE|GOOGLE|MSFT|MICROSOFT|APPLE|TWITTR|SNAPCH|TRUECALL|OLA|UBER|RAPIDO/]
@@ -10798,7 +10806,7 @@ const TelUI = {
     const C = [...byOther].filter(([, v]) => v.length >= 2).map(([o, v]) => ({ o, t: v.map(p => p.target), n: sum(v, p => p.n), dur: sum(v, p => p.dur), recs: v.flatMap(p => p.recs) }));
     const types = [['mobile', d.flatMap(r => [r.target, r.other]).filter(Tel.isMob)], ['imei', d.map(r => r.imei).filter(Boolean)]];
     const L = []; for (const [t, vals] of types) for (const v of uniq(vals)) { const a = Tel.also(t, v); if (a) L.push({ t, v, a, recs: d.filter(r => r.target === v || r.other === v || r.imei === v) }); }
-    el.innerHTML = `<div class="card"><h3>Numbers in touch with two or more targets</h3><div class="sub">Likely the same gang / handler.</div><div id="cm1"></div></div><div class="card"><h3>Found in other data of this case</h3><div class="sub">Numbers and IMEIs from these CDRs that also appear in bank / KYC, NCRP complaints, social media, Google, WhatsApp, Telegram or CAF data.</div><div id="cm2"></div></div>`;
+    el.innerHTML = `<div class="card"><h3>Common Numbers in touch with two or more targets</h3><div class="sub">Likely the same gang / handler.</div><div id="cm1"></div></div><div class="card"><h3>Found in other data of this case</h3><div class="sub">Numbers and IMEIs from these CDRs that also appear in bank / KYC, NCRP complaints, social media, Google, WhatsApp, Telegram or CAF data.</div><div id="cm2"></div></div>`;
     Table($('#cm1', el), { rows: C, sortKey: 'n', sortDir: -1, exportName: 'cdr_common', onRow: x => this.recDrawer(x.o, x.recs), columns: [{ key: 'o', label: 'Number', render: x => `<b class="mono">${esc(x.o)}</b> ${Tel.alsoB('mobile', x.o)}` }, { key: 't', label: 'Targets', csv: x => x.t.join(' '), sortVal: x => x.t.length, render: x => `<span class="badge warn">${x.t.length}</span> ${x.t.map(esc).join(', ')}` }, { key: 'n', label: 'Records', num: true }, { key: 'dur', label: 'Talk time', num: true, render: x => Tel.hms(x.dur) }] });
     Table($('#cm2', el), { rows: L, exportName: 'cdr_linked', onRow: x => this.recDrawer(x.v, x.recs), columns: [{ key: 't', label: 'Type' }, { key: 'v', label: 'Value', render: x => `<b class="mono">${esc(x.v)}</b>` }, { key: 'a', label: 'Also in' }, { key: 'n', label: 'CDR records', num: true, sortVal: x => x.recs.length, render: x => fmtNum(x.recs.length), csv: x => x.recs.length }] });
   },
@@ -11212,6 +11220,7 @@ TelUI.cdr_com = function (el, d) {
   const T = new Set(d.map(r => r.target).filter(Boolean));
   const X = [...groupBy(d.filter(r => r.other && T.has(r.other) && r.other !== r.target), r => [r.target, r.other].sort().join(' ↔ '))].map(([k, v]) => ({ k, n: v.length, calls: v.filter(r => r.dir === 'IN' || r.dir === 'OUT').length, sms: v.filter(r => /^SMS/.test(r.dir)).length, dur: sum(v, r => r.dur || 0), first: v.reduce((a, r) => !a || r.ts < a ? r.ts : a, ''), last: v.reduce((a, r) => r.ts > a ? r.ts : a, ''), recs: v })).sort((a, b) => b.n - a.n);
   el.insertAdjacentHTML('afterbegin', `<div class="card"><h3>CDR ↔ CDR – targets calling each other</h3><div class="sub">${T.size < 2 ? 'Load CDRs of two or more numbers to see direct contact between them.' : X.length ? 'Direct calls / SMS between the numbers whose CDRs are loaded.' : 'No direct contact between the loaded targets.'}</div><div id="cxX"></div></div>`);
+  this.cdrCommon(el, d);
   if (X.length) Table($('#cxX', el), { rows: X, sortKey: 'n', sortDir: -1, exportName: 'cdr_to_cdr', onRow: x => this.recDrawer(x.k, x.recs), columns: [{ key: 'k', label: 'Targets', render: x => `<b class="mono">${esc(x.k)}</b>` }, { key: 'n', label: 'Records', num: true }, { key: 'calls', label: 'Calls', num: true }, { key: 'sms', label: 'SMS', num: true }, { key: 'dur', label: 'Talk', num: true, render: x => Tel.hms(x.dur) }, { key: 'first', label: 'First', render: x => esc(Tel.dd(x.first)) }, { key: 'last', label: 'Last', render: x => esc(Tel.dd(x.last)) }] });
 };
 
@@ -11241,6 +11250,49 @@ TelUI.cdrFindings = function (d, ...a) {
     if ((S.data.cdrWatch || []).length) { const W = new Set(S.data.cdrWatch.map(String)); const n = d.filter(r => W.has(r.other) || W.has(r.target) || W.has(r.imei)).length; if (n) f.push(`${b(n + ' record(s)')} match your watchlist – see Watchlist.`); }
   } catch (e) { console.error(e); }
   return f;
+};
+
+/* ===== Common across CDRs: target number, B party, IMEI, IMSI, cell ID, lat-long, SMS sender – and which CDRs share it ===== */
+CDRX.CT = [['all', 'All common items', '⚑'], ['tgt', 'Target number in other CDR', '🎯'], ['b', 'Common B-party number', '👥'], ['imei', 'Common IMEI', '📱'], ['imsi', 'Common IMSI', '💳'], ['cell', 'Common Cell ID', '📡'], ['ll', 'Common Lat-Long', '📍'], ['sms', 'Common SMS sender', '✉'], ['x', 'Also in IPDR / TDR', '🔗']];
+CDRX.common = function (d) {
+  return Analysis.cached('tel:cdrcommon', () => {
+    const T = new Set(d.map(r => r.target).filter(Boolean)), out = [];
+    const add = (type, key, get, label) => {
+      const m = new Map();
+      for (const r of d) { const v = get(r); if (!v || !r.target) continue; let x = m.get(v); if (!x) m.set(v, x = { type, v, by: new Map(), recs: [] }); x.by.set(r.target, (x.by.get(r.target) || 0) + 1); x.recs.push(r); }
+      for (const x of m.values()) if (x.by.size >= 2) { x.n = x.recs.length; x.cdrs = [...x.by.keys()]; x.cN = x.cdrs.length; x.info = label ? label(x) : ''; x.first = x.recs.reduce((a, r) => !a || r.ts < a ? r.ts : a, ''); x.last = x.recs.reduce((a, r) => r.ts > a ? r.ts : a, ''); out.push(x); }
+    };
+    /* a target number that shows up as B party in other targets' CDR */
+    { const m = new Map(); for (const r of d) if (r.other && T.has(r.other) && r.other !== r.target) { let x = m.get(r.other); if (!x) m.set(r.other, x = { type: 'tgt', v: r.other, by: new Map(), recs: [] }); x.by.set(r.target, (x.by.get(r.target) || 0) + 1); x.recs.push(r); }
+      for (const x of m.values()) { x.n = x.recs.length; x.cdrs = [...x.by.keys()]; x.cN = x.cdrs.length; x.info = 'own CDR loaded'; x.first = x.recs.reduce((a, r) => !a || r.ts < a ? r.ts : a, ''); x.last = x.recs.reduce((a, r) => r.ts > a ? r.ts : a, ''); out.push(x); } }
+    add('b', 'other', r => r.other && !/[A-Z]/.test(r.other) && !T.has(r.other) && r.other.length >= 8 ? r.other : '', x => Tel.also('mobile', x.v) ? 'also in ' + Tel.also('mobile', x.v) : (x.recs.find(r => r.bop) || {}).bop || '');
+    add('imei', 'imei', r => r.imei, x => 'TAC ' + x.v.slice(0, 8));
+    add('imsi', 'imsi', r => r.imsi, x => 'network ' + x.v.slice(0, 3) + '-' + x.v.slice(3, 5));
+    add('cell', 'cell', r => r.cell, x => (x.recs.find(r => r.addr) || {}).addr || '');
+    add('ll', 'll', r => r.lat && r.lon ? (+r.lat).toFixed(3) + ', ' + (+r.lon).toFixed(3) : '', x => (x.recs.find(r => r.addr) || {}).addr || '');
+    add('sms', 'sms', r => /[A-Z]/.test(r.other || '') ? (Tel.hdrInfo(r.other) || {}).ent || '' : '', x => (Tel.hdrInfo(x.v) || {}).cat || '');
+    /* CDR values found in IPDR / TDR of this case */
+    const oth = Tel.all().filter(r => r.kind !== 'CDR' && r.kind !== 'SMS'), oi = new Map();
+    for (const r of oth) for (const v of [r.target, r.other, r.imei]) if (v) { let s = oi.get(v); if (!s) oi.set(v, s = new Set()); s.add(r.kind); }
+    const xm = new Map(); for (const r of d) for (const v of [r.target, r.other, r.imei]) if (v && oi.has(v)) { let x = xm.get(v); if (!x) xm.set(v, x = { type: 'x', v, by: new Map(), recs: [] }); x.by.set(r.target, (x.by.get(r.target) || 0) + 1); x.recs.push(r); }
+    for (const x of xm.values()) { x.n = x.recs.length; x.cdrs = [...x.by.keys()]; x.cN = x.cdrs.length; x.info = 'in ' + [...oi.get(x.v)].join(' + '); x.first = x.recs.reduce((a, r) => !a || r.ts < a ? r.ts : a, ''); x.last = x.recs.reduce((a, r) => r.ts > a ? r.ts : a, ''); out.push(x); }
+    return out;
+  });
+};
+TelUI.cdrCommon = function (el, d) {
+  const all = CDRX.common(d), cur = S.cdrComT || 'all', cnt = t => t === 'all' ? all.filter(x => x.type !== 'x').length : all.filter(x => x.type === t).length, T = uniq(d.map(r => r.target).filter(Boolean));
+  const rows = all.filter(x => cur === 'all' ? x.type !== 'x' : x.type === cur), lbl = Object.fromEntries(CDRX.CT.map(c => [c[0], c[1]]));
+  el.insertAdjacentHTML('afterbegin', `<div class="card cx-com"><h3>⚑ Common across CDRs – what links the targets</h3><div class="sub">${T.length < 2 ? 'Load the CDRs of two or more numbers: this finds every number, handset, SIM, tower, place and SMS sender they share.' : `Across <b>${T.length}</b> CDRs. Each row shows the shared item and <b>which CDR numbers</b> it appears in, with record counts. Click a row for every record.`}</div>
+    <div class="cx-ct">${CDRX.CT.map(([id, l, i]) => `<button class="cx-cb ${id === cur ? 'on' : ''}" data-ct="${id}"><span>${i} ${l}</span><b>${fmtNum(cnt(id))}</b></button>`).join('')}</div><div id="cxCm"></div></div>`);
+  $$('[data-ct]', el).forEach(b => b.onclick = () => { S.cdrComT = b.dataset.ct; const c = $('.cx-com', el); c.remove(); this.cdrCommon(el, d); });
+  if (!rows.length) { $('#cxCm', el).innerHTML = `<div class="muted">No common ${esc(lbl[cur].replace(/^Common /, '').toLowerCase())} found${T.length < 2 ? ' – only one CDR loaded' : ''}.</div>`; return; }
+  Table($('#cxCm', el), { rows, sortKey: 'cN', sortDir: -1, pageSize: 25, exportName: 'cdr_common_' + cur, onRow: x => this.recDrawer(lbl[x.type] + ' · ' + x.v, x.recs), columns: [
+    ...(cur === 'all' || cur === 'x' ? [{ key: 'type', label: 'Type', render: x => `<span class="badge">${esc(lbl[x.type].replace(/^Common /, ''))}</span>`, csv: x => lbl[x.type] }] : []),
+    { key: 'v', label: 'Common item', render: x => `<b class="mono">${esc(x.v)}</b>${x.type === 'b' || x.type === 'tgt' ? ' ' + Tel.alsoB('mobile', x.v) : x.type === 'imei' ? ' ' + Tel.alsoB('imei', x.v) : ''}${x.type === 'll' ? CDRX.map(...x.v.split(', ')) : ''}` },
+    { key: 'info', label: 'Details', render: x => `<span class="small">${esc(x.info)}</span>` },
+    { key: 'cN', label: 'CDRs', num: true, render: x => `<span class="badge ${x.cN > 2 ? 'bad' : 'warn'}">${x.cN}</span>` },
+    { key: 'cdrs', label: 'Found in CDR of (records)', sortVal: x => x.cN, csv: x => x.cdrs.map(t => t + ' (' + x.by.get(t) + ')').join('; '), render: x => `<span class="mono small">${x.cdrs.slice(0, 8).map(t => `${esc(t)} <span class="muted">(${x.by.get(t)})</span>`).join(', ')}${x.cdrs.length > 8 ? ' …' : ''}</span>` },
+    { key: 'n', label: 'Records', num: true }, { key: 'first', label: 'First', render: x => esc(Tel.dd(x.first)) }, { key: 'last', label: 'Last', render: x => esc(Tel.dd(x.last)) }] });
 };
 
 </script>
@@ -11463,7 +11515,7 @@ TelUI.cdrAll = function (el, d) {
   el.innerHTML = UI.kpis([['Target numbers', fmtNum(T.length), uniq(d.map(r => r._src)).length + ' file(s)', 'c5'], ['Records', fmtNum(d.length), Tel.dd(first).slice(0, 10) + ' → ' + Tel.dd(last).slice(0, 10), 'c2'], ['Contacts', fmtNum(byOther.size), fmtNum(common.length) + ' shared by 2+ targets', 'c1'],
     ['Linked to case', fmtNum(linked.length), 'contacts in bank / KYC / NCRP / social', 'c3'], ['Calls out / in', `${fmtNum(calls.filter(r => r.dir === 'OUT').length)} / ${fmtNum(calls.filter(r => r.dir === 'IN').length)}`, 'talk ' + Tel.hms(sum(calls, r => r.dur)), 'c6'], ['Handsets', fmtNum(uniq(d.map(r => r.imei).filter(Boolean)).length), fmtNum(sharedIm.length) + ' shared by 2+ numbers', 'c4']]);
   el.insertAdjacentHTML('beforeend', TSC.groups([
-    { i: '👥', t: 'Network – who is connected', c: '#3b82f6', items: [common.length ? [`<b>${fmtNum(common.length)}</b> numbers talk to 2 or more targets – likely handlers / same gang. Top: ${common.sort((a, b) => b[1].length - a[1].length).slice(0, 3).map(([o, v]) => `<b>${esc(o)}</b> (${v.length})`).join(', ')}`, 'com'] : null, x2x.length ? [`<b>${fmtNum(uniq(x2x.map(r => [r.target, r.other].sort().join())).length)}</b> pairs of targets called each other directly`, 'com'] : null].filter(Boolean) },
+    { i: '👥', t: 'Network – who is connected', c: '#3b82f6', items: [common.length ? [`<b>${fmtNum(common.length)}</b> numbers talk to 2 or more targets – likely handlers / same gang. Top: ${common.sort((a, b) => b[1].length - a[1].length).slice(0, 3).map(([o, v]) => `<b>${esc(o)}</b> (${v.length})`).join(', ')}`, 'com'] : null, x2x.length ? [`<b>${fmtNum(uniq(x2x.map(r => [r.target, r.other].sort().join())).length)}</b> pairs of targets called each other directly`, 'com'] : null, (() => { const C = CDRX.common(d), c = t => C.filter(x => x.type === t).length, parts = [['imei', 'IMEI'], ['imsi', 'IMSI'], ['cell', 'cell IDs'], ['ll', 'places'], ['sms', 'SMS senders']].filter(([t]) => c(t)).map(([t, l]) => `<b>${c(t)}</b> ${l}`); return parts.length ? [`Shared between targets: ${parts.join(', ')}`, 'com'] : null; })()].filter(Boolean) },
     { i: '🔗', t: 'Links to this case', c: '#ef4444', items: [linked.length ? [`<b>${fmtNum(linked.length)}</b> contacts also appear in bank / KYC / NCRP / social data`, 'com'] : null, W.size ? [`Watchlist: <b>${fmtNum(d.filter(r => W.has(r.other) || W.has(r.target) || W.has(r.imei)).length)}</b> matching records`, 'watch'] : ['Add suspect numbers / IMEIs to the watchlist to check them in every CDR', 'watch']].filter(Boolean) },
     { i: '📱', t: 'Devices', c: '#a855f7', items: [sharedIm.length ? [`<b>${fmtNum(sharedIm.length)}</b> handsets used with 2+ target numbers – same person, many SIMs`, 'dev'] : null, TT.filter(x => x.im > 1).length ? [`<b>${TT.filter(x => x.im > 1).length}</b> targets changed handset`, 'dev'] : null].filter(Boolean) },
     { i: '⏱', t: 'Activity', c: '#f59e0b', items: [G.length ? [`<b>${G.length}</b> periods of 24 h+ with the phone off / unused (${uniq(G.map(x => x.target)).length} targets)`, 'off'] : null, [`Night calls (11 pm – 5 am): <b>${fmtNum(d.filter(r => (r.dir === 'IN' || r.dir === 'OUT') && Tel.night(r)).length)}</b>`, 'time']].filter(Boolean) },
