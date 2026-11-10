@@ -1697,6 +1697,15 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
 .cm-t td{white-space:nowrap;font-size:12.5px}.cm-t td.cm-e{color:var(--text-muted)}
 .cm-t tr.cm-on td{background:color-mix(in srgb,var(--accent) 10%,transparent)}
 
+/* Tools edit list – websites inside each tool */
+.nc-row{flex-wrap:wrap}
+.nc-sb{white-space:nowrap}.nc-sb b{margin-left:2px;color:var(--accent)}.nc-sb.on{background:var(--accent);color:#fff;border-color:var(--accent)}.nc-sb.on b{color:#fff}
+.nc-sites{flex-basis:100%;margin:6px 0 4px 26px;padding:10px 12px;border-left:3px solid var(--accent);border-radius:8px;background:var(--surface-2)}
+.nc-s{display:grid;grid-template-columns:24px minmax(140px,1fr) minmax(220px,2fr) 60px auto auto;gap:6px;align-items:center;margin-bottom:5px}
+.nc-s.nc-sa{grid-template-columns:24px minmax(140px,1fr) minmax(220px,2fr) auto;margin-top:8px}
+.nc-sn{color:var(--text-muted);font-size:12px;text-align:center}
+.nc-s input{width:100%;min-width:0}.nc-s{grid-template-columns:24px minmax(160px,1fr) minmax(260px,2.4fr) 60px auto auto!important}.nc-s.nc-sa{grid-template-columns:24px minmax(160px,1fr) minmax(260px,2.4fr) auto!important}
+
 </style>
 </head>
 <body>
@@ -1744,7 +1753,7 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
         <div class="hp-feat" style="--fc:#06b6d4"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><div><b>Analytics</b><p>The same mobile, account, IP or e-mail across complaints, banks and platforms.</p></div></div>
         <div class="hp-feat" style="--fc:#eab308"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h5"/></svg></span><div><b>Case File &amp; Notices</b><p>Case reports, notices to banks and platforms, and CSV / PDF exports.</p></div></div>
     </section>
-    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-10 22:48 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
+    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-10 23:04 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
   </div>
 
   <div class="lg-wrap" id="lgWrap" aria-hidden="true">
@@ -9748,9 +9757,10 @@ const XT = {
   },
   links: null, cats: null,
   async load() {
-    if (!this.links && DB.db) { try { this.links = (await DB.get('tools:links')) || []; this.cats = (await DB.get('tools:cats')) || []; } catch (e) { this.links = []; this.cats = []; } }
+    if (!this.links && DB.db) { try { this.links = (await DB.get('tools:links')) || []; this.cats = (await DB.get('tools:cats')) || []; this.hide = (await DB.get('tools:hide')) || {}; } catch (e) { this.links = []; this.cats = []; this.hide = {}; } }
   },
-  async save() { await DB.set('tools:links', this.links); await DB.set('tools:cats', this.cats); },
+  hide: {},
+  async save() { await DB.set('tools:links', this.links); await DB.set('tools:cats', this.cats); await DB.set('tools:hide', this.hide || {}); },
   all() { return [...this.CATS, ...(this.cats || []).map(c => [c.id, c.name, c.color || '#64748b', 'Your own section'])]; },
   cat(id) { return this.all().find(c => c[0] === id); },
   url(u, q) { u = String(u).trim(); if (!/^https?:\/\//i.test(u)) u = 'https://' + u; return u.includes('{q}') ? u.replace(/\{q\}/g, encodeURIComponent(q || '')) : u; },
@@ -9859,7 +9869,7 @@ Pages.tools = function (main) {
 };
 
 XT.siteBtns = function (cat, q) {
-  const own = XT.links.filter(l => l.cat === cat), built = XT.SITES[cat] || [];
+  const own = XT.links.filter(l => l.cat === cat), built = (XT.SITES[cat] || []).filter(([n]) => !((XT.hide || {})[cat] || []).includes(n));
   const b = (name, u, id) => `<span class="xt-site${id ? ' own' : ''}"><a class="btn"${String(u).includes('{q}') ? '' : ' data-copy="1"'} href="${esc(XT.url(u, q))}" target="_blank" rel="noopener noreferrer" title="${esc(XT.url(u, q))}">${esc(name)} ↗</a>${id ? `<button class="xt-del" data-del="${id}" title="Remove this button">✕</button>` : ''}</span>`;
   return `${built.map(([n, u]) => b(n, u)).join('')}${own.map(l => b(l.name, l.url, l.id)).join('')}`;
 };
@@ -10051,6 +10061,38 @@ XT.addView = function (body) {
     if ((S.page === 'tools' || S.page === 'ifsc') && !S.xtOpen) setOpen(true);
   };
 })();
+
+/* Tools edit list: each tool holds many websites – add, rename, change link, remove (built-in ones are hidden, not lost) */
+XT.siteList = cat => [...(XT.SITES[cat] || []).filter(([n]) => !((XT.hide || {})[cat] || []).includes(n)).map(([n, u]) => ({ name: n, url: u, b: 1 })), ...(XT.links || []).filter(l => l.cat === cat).map(l => ({ name: l.name, url: l.url, id: l.id }))];
+XT.navSites = async function (body, o) {
+  await XT.load(); if (!XT.links) return;
+  $$('[data-row]', body).forEach(r => { const id = r.dataset.row, up = $('[data-up]', r); if (!up || $('.nc-sb', r)) return;
+    if (/^xt:/.test(id) && XT.cat(id.slice(3))) up.insertAdjacentHTML('beforebegin', `<button class="btn sm nc-sb" data-sites="${esc(id.slice(3))}" title="Add, edit or remove the websites of this tool">🌐 Websites <b>${XT.siteList(id.slice(3)).length}</b></button>`);
+    else if (/^x:/.test(id)) up.insertAdjacentHTML('beforebegin', `<button class="btn sm nc-sb" data-mk="${esc(id.slice(2))}" title="Turn this link into a tool that can hold many websites">🌐 Make it a tool</button>`); });
+  if (body._xs) return; body._xs = 1;
+  body.addEventListener('click', e => { const b = e.target.closest('[data-sites],[data-mk]'); if (!b) return; e.preventDefault(); e.stopPropagation();
+    if (b.dataset.mk) return o.mk(b.dataset.mk);
+    const r = b.closest('[data-row]'), ex = $('.nc-sites', r); if (ex) { ex.remove(); b.classList.remove('on'); return; }
+    b.classList.add('on'); r.insertAdjacentHTML('beforeend', '<div class="nc-sites"></div>'); XT.sitesEd($('.nc-sites', r), b.dataset.sites, b); });
+};
+XT.sitesEd = function (box, cat, btn) {
+  const L = XT.siteList(cat), fix = u => /^https?:\/\//i.test(u) ? u : 'https://' + u;
+  box.innerHTML = `<div class="small muted" style="margin-bottom:6px">Websites inside <b>${esc(XT.cat(cat)[1])}</b>. Changes are saved at once. Tip: put <b>{q}</b> in the link where the IP / number / value should go, e.g. https://ipinfo.io/{q}</div>
+    ${L.map((s, i) => `<div class="nc-s" data-i="${i}"><span class="nc-sn">${i + 1}</span><input data-sn value="${esc(s.name)}" placeholder="Website name"><input data-su value="${esc(s.url)}" placeholder="https://…"><span class="small muted nc-sk">${s.b ? 'Built-in' : 'Yours'}</span><button class="btn sm" data-so title="Open this website">↗</button><button class="btn sm danger" data-sd title="Remove">🗑</button></div>`).join('') || '<div class="muted small">No website yet.</div>'}
+    <div class="nc-s nc-sa"><span class="nc-sn">+</span><input data-nn placeholder="New website name"><input data-nu placeholder="https://… (use {q} for the value)"><button class="btn sm primary" data-sa>➕ Add website</button></div>`;
+  const save = async () => { await XT.save(); if (typeof XT.side === 'function') XT.side(); const c = btn && btn.querySelector('b'); if (c) c.textContent = XT.siteList(cat).length; if (S.page === 'tools') render(); };
+  $$('.nc-s[data-i]', box).forEach(row => { const s = L[+row.dataset.i];
+    const upd = async () => { const n = $('[data-sn]', row).value.trim() || s.name, u = fix($('[data-su]', row).value.trim() || s.url); if (n === s.name && u === s.url) return;
+      if (s.b) { (XT.hide[cat] = XT.hide[cat] || []).push(s.name); const l = { id: uid(), cat, name: n, url: u, added: new Date().toISOString() }; XT.links.push(l); Object.assign(s, { b: 0, id: l.id }); $('.nc-sk', row).textContent = 'Yours'; }
+      else { const l = XT.links.find(x => x.id === s.id); if (l) Object.assign(l, { name: n, url: u }); }
+      s.name = n; s.url = u; await save(); UI.toast('Website saved'); };
+    $('[data-sn]', row).onchange = upd; $('[data-su]', row).onchange = upd;
+    $('[data-so]', row).onclick = e => { e.preventDefault(); window.open(XT.url($('[data-su]', row).value, ''), '_blank', 'noopener'); };
+    $('[data-sd]', row).onclick = async e => { e.preventDefault(); if (!UI.confirm(`Remove "${s.name}" from ${XT.cat(cat)[1]}?`)) return; if (s.b) (XT.hide[cat] = XT.hide[cat] || []).push(s.name); else XT.links = XT.links.filter(x => x.id !== s.id); await save(); XT.sitesEd(box, cat, btn); };
+  });
+  $('[data-sa]', box).onclick = async e => { e.preventDefault(); const n = $('[data-nn]', box).value.trim(), u = $('[data-nu]', box).value.trim(); if (!n || !u) return UI.toast('Give the website name and its link');
+    XT.links.push({ id: uid(), cat, name: n, url: fix(u), added: new Date().toISOString() }); await save(); XT.sitesEd(box, cat, btn); UI.toast('Website added'); $('[data-nn]', box).focus(); };
+};
 
 </script>
 <script>
@@ -11063,6 +11105,9 @@ const NavCustom = {
     const un = $('[data-unhide]', body); if (un) un.onclick = e => { e.preventDefault(); take(); c.hidden = []; this.store(C); this.apply(); this.edit(subs); };
     $('#ncA', body).onclick = () => { const n = $('#ncN', body).value.trim(), u = $('#ncU', body).value.trim(); if (!n || !/^https?:\/\//i.test(u)) return UI.toast('Give a name and a link starting with https://');
       take(); const id = 'n' + Date.now(); c.extra.push({ id, name: n, url: u }); c.order = [...$$('[data-row]', body).map(r => r.dataset.row), 'x:' + id]; this.store(C); this.apply(); this.edit(subs); };
+    if (typeof XT !== 'undefined' && rows.some(r => /^xt:/.test(r.id))) XT.navSites(body, { mk: async xid => { const e = c.extra.find(x => x.id === xid); if (!e) return; if (!UI.confirm(`Turn "${e.name}" into a tool? You can then add many websites inside it.`)) return;
+      await XT.load(); const cid = 'u' + uid(); XT.cats.push({ id: cid, name: e.name, color: '#0ea5e9' }); XT.links.push({ id: uid(), cat: cid, name: e.name, url: e.url, added: new Date().toISOString() }); await XT.save();
+      take(); c.extra = c.extra.filter(x => x.id !== xid); c.order = (c.order || []).map(x => x === 'x:' + xid ? 'xt:' + cid : x); this.store(C); XT.side(); this.apply(); this.edit(subs); UI.toast(`"${e.name}" is now a tool – press 🌐 Websites to add more`); } });
   }
 };
 (() => {

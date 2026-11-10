@@ -82,6 +82,9 @@ const NavCustom = {
     const un = $('[data-unhide]', body); if (un) un.onclick = e => { e.preventDefault(); take(); c.hidden = []; this.store(C); this.apply(); this.edit(subs); };
     $('#ncA', body).onclick = () => { const n = $('#ncN', body).value.trim(), u = $('#ncU', body).value.trim(); if (!n || !/^https?:\/\//i.test(u)) return UI.toast('Give a name and a link starting with https://');
       take(); const id = 'n' + Date.now(); c.extra.push({ id, name: n, url: u }); c.order = [...$$('[data-row]', body).map(r => r.dataset.row), 'x:' + id]; this.store(C); this.apply(); this.edit(subs); };
+    if (typeof XT !== 'undefined' && rows.some(r => /^xt:/.test(r.id))) XT.navSites(body, { mk: async xid => { const e = c.extra.find(x => x.id === xid); if (!e) return; if (!UI.confirm(`Turn "${e.name}" into a tool? You can then add many websites inside it.`)) return;
+      await XT.load(); const cid = 'u' + uid(); XT.cats.push({ id: cid, name: e.name, color: '#0ea5e9' }); XT.links.push({ id: uid(), cat: cid, name: e.name, url: e.url, added: new Date().toISOString() }); await XT.save();
+      take(); c.extra = c.extra.filter(x => x.id !== xid); c.order = (c.order || []).map(x => x === 'x:' + xid ? 'xt:' + cid : x); this.store(C); XT.side(); this.apply(); this.edit(subs); UI.toast(`"${e.name}" is now a tool – press 🌐 Websites to add more`); } });
   }
 };
 (() => {

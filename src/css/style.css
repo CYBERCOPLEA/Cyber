@@ -1688,3 +1688,12 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
 .cm-t th{position:sticky;top:0;cursor:pointer;white-space:nowrap;z-index:1}
 .cm-t td{white-space:nowrap;font-size:12.5px}.cm-t td.cm-e{color:var(--text-muted)}
 .cm-t tr.cm-on td{background:color-mix(in srgb,var(--accent) 10%,transparent)}
+
+/* Tools edit list – websites inside each tool */
+.nc-row{flex-wrap:wrap}
+.nc-sb{white-space:nowrap}.nc-sb b{margin-left:2px;color:var(--accent)}.nc-sb.on{background:var(--accent);color:#fff;border-color:var(--accent)}.nc-sb.on b{color:#fff}
+.nc-sites{flex-basis:100%;margin:6px 0 4px 26px;padding:10px 12px;border-left:3px solid var(--accent);border-radius:8px;background:var(--surface-2)}
+.nc-s{display:grid;grid-template-columns:24px minmax(140px,1fr) minmax(220px,2fr) 60px auto auto;gap:6px;align-items:center;margin-bottom:5px}
+.nc-s.nc-sa{grid-template-columns:24px minmax(140px,1fr) minmax(220px,2fr) auto;margin-top:8px}
+.nc-sn{color:var(--text-muted);font-size:12px;text-align:center}
+.nc-s input{width:100%;min-width:0}.nc-s{grid-template-columns:24px minmax(160px,1fr) minmax(260px,2.4fr) 60px auto auto!important}.nc-s.nc-sa{grid-template-columns:24px minmax(160px,1fr) minmax(260px,2.4fr) auto!important}
