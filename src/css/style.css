@@ -1711,3 +1711,9 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
 .nsn{display:inline-grid;place-items:center;flex:none;width:1.2em;height:1.2em;margin-right:7px;border-radius:6px;background:var(--pc,var(--accent,#6366f1));color:#fff;font-style:normal;font-weight:800;font-size:11px;line-height:1;box-shadow:0 1px 2px rgba(0,0,0,.25)}
 .tab .nsn{margin-right:6px}
 .nav-subs>.nav-sub:not(.sop-upl):not(.nc-edit)>i.nsn{display:inline-grid;width:1.2em;height:1.2em;border-radius:6px;background:var(--pc,var(--accent,#6366f1))}
+
+/* CDR – home / work boxes */
+.cx-hws{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.cx-hw{border:1px solid var(--border);border-left:4px solid var(--hc);border-radius:10px;padding:10px 12px;background:var(--surface-2)}
+.cx-hl{font-size:12px;font-weight:800;color:var(--hc);margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em}
+.cx-hot{border-color:#f59e0b}

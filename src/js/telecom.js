@@ -26,13 +26,13 @@ const TelRead = {
     ['apn', /^apn|accesspoint/], ['dur', /dur(ation)?|^dur$|callsec|seconds/],
     ['end', /(end|stop|termination|close|disconnect)\w*(time|date)|^(end|stop)$/],
     ['imei', /imei/], ['imsi', /imsi/],
-    ['ll2', /last\w*(latlong|latlon|latlng)/], ['ll', /latlong|latlon|latlng/], ['bop', /lrntsp|translationoflrn|lrnoperator|lrnlsa|bpartyoperator|operatorname/],
+    ['ll2', /last\w*(latlong|latlon|latlng)/], ['ll', /latlong|latlon|latlng/], ['bop', /lrntsp|translationoflrn|lrnoperator|lrnlsa|bpartyoperator|bpartyprovider|bpartycircle|operatorname/],
     ['addr2', /last\w*(addr|location|site|tower|bts|area)/], ['cell2', /last\w*(cell|cgi|lac|bts|tower|ecgi)/],
     ['addr', /addr|location|sitename|^site$|towername|btsloc|^area$|place|cellsite/], ['cell', /cell|cgi|^lac|bts|towerid|siteid|ecgi/],
     ['lat', /^lat/], ['lon', /^(lon|lng)/], ['roam', /roam|circle|^vlr/],
     ['dir', /calltype|callingtype|typeofcall|eventtype|recordtype|usagetype|direction|^type$|messagetype|smstype|calltyp|^inout$|^status$/],
     ['svc', /servicetype|^service$|bearer/], ['msg', /message$|messagetext|smstext|content|^text$|^body$/],
-    ['target', /target|msisdn|mobileno|mobilenumber|subscriber(no|num)|servicenum|usernum|userid|^mobile$/],
+    ['target', /target|^cdrno$|^cdr$|cdrnumber|msisdn|mobileno|mobilenumber|subscriber(no|num)|servicenum|usernum|userid|^mobile$/],
     ['pb', /^b$|bparty|bnum|called|partyb|otherparty|othernum|receiver|recipient|dial|^to(no|number)?$|destination(no|num)?$/],
     ['pa', /^a$|aparty|anum|calling|partya|sender|header|originat|^from(no|number)?$/],
     ['dt', h => /date/.test(h) && /time/.test(h)], ['date', /date|^day$/], ['time', /time/]
@@ -43,7 +43,7 @@ const TelRead = {
     const nm = f.name.toLowerCase();
     if (/\.(xlsx|xlsm|xls|ods)$/.test(nm)) {
       const wb = XLSX.read(await f.arrayBuffer(), { type: 'array', cellDates: false });
-      return wb.SheetNames.map(s => XLSX.utils.sheet_to_json(wb.Sheets[s], { header: 1, raw: true, defval: '' }));
+      return wb.SheetNames.map(s => { const a = XLSX.utils.sheet_to_json(wb.Sheets[s], { header: 1, raw: true, defval: '' }); a.sheet = s; return a; });
     }
     if (/\.(pdf|html?|eml)$/.test(nm)) throw new Error('please give the CDR as Excel / CSV (PDF is not supported for CDR)');
     let t = await f.text(); t = t.replace(/^\uFEFF/, '');
@@ -95,9 +95,12 @@ const TelRead = {
   },
   /* one file → records */
   parse(sheets, name, want) {
-    const out = [];
+    const out = [], seen = new Map(); let si = -1;
+    /* analyser reports (Mapping + Summary, MaxStay, Night_Mapping …): read only the Mapping sheet, the rest are totals or copies */
+    const hasMap = sheets.some(r => r && /^mapping$/i.test(r.sheet || ''));
     for (const rows of sheets) {
-      if (!rows || rows.length < 2) continue;
+      si++; if (!rows || rows.length < 2) continue;
+      if (hasMap && !/^mapping$/i.test(rows.sheet || '')) continue;
       let best = -1, bs = 0, map = null;
       for (let i = 0; i < Math.min(rows.length, 60); i++) {
         const m = {}; rows[i].forEach((c, j) => { const f = this.field(c); if (f) (m[f] = m[f] || []).push(j); });
@@ -147,7 +150,8 @@ const TelRead = {
         const ts = 'dt' in map ? this.dt(g(r, 'dt')) : this.dt(g(r, 'date'), g(r, 'time'));
         if (!ts) continue;
         const pa = this.num(g(r, 'pa')), pb = this.num(g(r, 'pb'));
-        let target = this.num(g(r, 'target')), other = '', dir = this.dir(g(r, 'dir'), kind);
+        const tv = (map.target || []).map(j => this.num(r[j])).filter(Boolean), imT = tv.find(x => /^\d{14,16}$/.test(x)) || '';
+        let target = tv.find(x => !/^\d{14,16}$/.test(x)) || imT, other = '', dir = this.dir(g(r, 'dir'), kind);
         if (kind === 'IPDR') { target = target || pa || preNum; }
         else if (target) other = pb && pb !== target ? pb : pa && pa !== target ? pa : pb;
         else if (fixedT) { target = fixedT; other = pa === fixedT ? pb : pa || pb; if (!dir) dir = pa === fixedT ? 'OUT' : 'IN'; }
@@ -156,6 +160,7 @@ const TelRead = {
         if (kind === 'SMS' && !dir) dir = 'SMS';
         const sv = String(g(r, 'svc')).toLowerCase(); if (/sms/.test(sv) && !/^SMS/.test(dir)) dir = dir === 'IN' ? 'SMS-IN' : dir === 'OUT' ? 'SMS-OUT' : 'SMS'; else if (/data|gprs|packet/.test(sv)) dir = 'DATA';
         const rec = { kind, _src: name, ts, target, other, dir, imei: (x => x.length >= 14 ? x : '')(N.imei(g(r, 'imei'))), imsi: String(g(r, 'imsi')).replace(/\D/g, ''), cell: String(g(r, 'cell')).trim(), addr: this.addr(g(r, 'addr')), roam: (x => /^[-–]?$|^na$/i.test(x) ? '' : x)(N.text(g(r, 'roam'))) };
+        if (imT) { rec.byImei = true; if (!rec.imei) rec.imei = imT.slice(0, 15); }
         if ('cell2' in map) rec.cell2 = String(g(r, 'cell2')).trim(); if ('addr2' in map) rec.addr2 = this.addr(g(r, 'addr2'));
         if ('lat' in map) { rec.lat = parseFloat(g(r, 'lat')) || ''; rec.lon = parseFloat(g(r, 'lon')) || ''; }
         else if ('ll' in map) { const m = String(g(r, 'll')).match(/(-?\d{1,2}\.\d+)\s*[\/,; ]\s*(-?\d{1,3}\.\d+)/); if (m) { rec.lat = +m[1]; rec.lon = +m[2]; } }
@@ -171,6 +176,7 @@ const TelRead = {
           if (e && e.length > 12) rec.end = e;
           rec.dur = this.secs(g(r, 'dur')) || (rec.end ? Math.max(0, (Date.parse(rec.end.replace(' ', 'T')) - Date.parse((rec.alloc || ts).replace(' ', 'T'))) / 1000) : 0);
         } else rec.dur = this.secs(g(r, 'dur'));
+        const dk = [rec.target, rec.other, rec.ts, rec.dir, rec.dur, rec.cell].join('|'), ws = seen.get(dk); if (ws != null && ws !== si) continue; seen.set(dk, si);
         out.push(rec);
       }
     }
