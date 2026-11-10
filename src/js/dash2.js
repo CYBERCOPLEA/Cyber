@@ -125,7 +125,7 @@ const Dash2 = {
     const soc = {}; for (const [id] of Analysis.SOC_PLAT) soc[id] = d.social.filter(r => Analysis.platOf(r) === id).length;
     soc.whatsapp += n(d.whatsapp); soc.telegram += n(d.telegram); soc.google += n(d.google);
     for (const r of d.meta || []) if (soc[r.platform] != null) soc[r.platform]++;
-    const cafN = (window.CAF ? CAF.list() : d.caf || []).length;
+    const cafN = (typeof CAF !== 'undefined' ? CAF.list() : d.caf || []).length;
     const tile = (k, ic, title, col, big, bigL, links) => `<div class="d2-tile" style="--tc:${col}"><div class="d2-th"><span class="d2-ic">${ic}</span><b>${title}</b><span class="d2-big">${big}<small>${bigL}</small></span></div><div class="d2-links">${links.map(([l, v, act, sub]) => `<button class="d2-lk ${v ? '' : 'z'}" data-act="${act}" data-sub="${sub || ''}"><span>${l}</span><b>${v}</b></button>`).join('')}</div></div>`;
     return `<div class="card d2-glance"><div class="d2-hd"><h3>Case at a glance</h3><span class="sub">Every section and its tabs – click any line to open it.</span></div><div class="d2-tiles">
       ${tile('fin', '🏦', 'Financial Trail', '#10b981', f(comps.length), 'complaints', [['Complaints (NCRP)', f(comps.length || n(d.ncrp)), 'ncrp'], ['Money Trail – transactions', f(n(d.txns)), 'trail'], ['Accounts in trail', f(acc.length), 'financial', 'suspects'], ['High-risk / mule accounts', f(acc.filter(a => a.score >= 60).length), 'financial', 'suspects'], ['KYC records', f(n(d.kyc)), 'financial'], ['Amount on hold', fmtINR(sum(acc, a => a.hold) || sum(d.ncrp, r => r.hold_amount)), 'financial', 'suspects']])}

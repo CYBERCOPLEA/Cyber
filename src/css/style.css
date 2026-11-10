@@ -1333,3 +1333,12 @@ svg.c2.dn .dn-c2{font-size:24px}
 .d2-tag{display:inline-block;padding:0 6px;border-radius:6px;font-size:10px;font-weight:700;text-transform:uppercase}.d2-tag.v{background:#0ea5e933;color:#38bdf8}.d2-tag.s{background:#ef444433;color:#f87171}
 .d2-chips{margin:4px 0 10px}.d2-h{margin:14px 0 6px}.d2-oc .list-item{gap:10px;align-items:center}
 .d2-tc{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}.d2-tc small{font-size:11px;color:var(--text-muted)}
+
+/* ---- live numbers everywhere (livenum.js) ---- */
+.kpi.ln{position:relative}
+.kpi.ln::after{content:"⤢";position:absolute;right:9px;top:7px;font-size:12px;opacity:.35;transition:.14s}
+.kpi.ln:hover::after{opacity:1;color:var(--kc,var(--accent))}
+.d2-lk.ln{position:relative}
+.d2-lk.dx-live:hover{transform:translateX(2px)}
+.ln-go{margin-left:6px;padding:0 7px;border-radius:6px;font-weight:800;opacity:.45;border:1px solid transparent}
+.ln-go:hover{opacity:1;border-color:var(--tc);background:color-mix(in srgb,var(--tc) 25%,transparent)}
