@@ -1516,3 +1516,4 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
 .pchip i.pbx{background:none !important;width:auto;height:auto;margin-right:5px}.pchip i.pbx .bx{width:16px;height:16px}
 .d2-ic .fx,.kpi .fx{width:1.25em;height:1.25em}
 .nav-sub i.fxn,.nav-subs>.nav-sub:not(.sop-upl):not(.nc-edit)>i.fxn{display:inline-block;width:1.15em;height:1.15em;border-radius:0;background-color:transparent;box-shadow:none;background-size:contain;background-repeat:no-repeat;background-position:center;margin-right:2px}
+.cd-pol{display:inline-flex;flex-wrap:wrap;gap:8px;flex-basis:100%;padding-top:2px}
