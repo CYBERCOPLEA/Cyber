@@ -1678,6 +1678,11 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
 #mdBody:has(.ip-case){max-width:none}
 .ip-grid>label:first-child{grid-column:span 2}
 
+/* New case form – own colour (pink / orange), Import = green, Dashboard case details = indigo */
+.cbm{border-color:color-mix(in srgb,#ec4899 50%,var(--border))!important;margin-bottom:0}
+.cbm-hd{background:linear-gradient(120deg,#9d174d,#ec4899 55%,#f97316)!important}
+.cbm-in{padding:12px 14px 4px}
+
 </style>
 </head>
 <body>
@@ -1725,7 +1730,7 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
         <div class="hp-feat" style="--fc:#06b6d4"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><div><b>Analytics</b><p>The same mobile, account, IP or e-mail across complaints, banks and platforms.</p></div></div>
         <div class="hp-feat" style="--fc:#eab308"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h5"/></svg></span><div><b>Case File &amp; Notices</b><p>Case reports, notices to banks and platforms, and CSV / PDF exports.</p></div></div>
     </section>
-    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-10 22:28 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
+    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-10 22:32 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
   </div>
 
   <div class="lg-wrap" id="lgWrap" aria-hidden="true">
@@ -4565,8 +4570,8 @@ const CaseBox = {
   open(id) {
     let sel = id === 'new' ? 'new' : (id || S.caseId);
     const draw = () => { const c = sel === 'new' ? { year: String(new Date().getFullYear()), ps: activeCase().ps || '', district: activeCase().district || '', state: activeCase().state || 'UP – Uttar Pradesh' } : S.cases.find(x => x.id === sel) || {};
-      const m = UI.modal(sel === 'new' ? '➕ New case' : '📁 Case details', `<div class="cb-sel"><label>Select case<select id="cbSel"><option value="new" ${sel === 'new' ? 'selected' : ''}>➕ New case</option>${S.cases.map(x => `<option value="${x.id}" ${x.id === sel ? 'selected' : ''}>${esc(x.name)}${x.fir ? ' · ' + esc(x.fir) : ''}</option>`).join('')}</select></label></div>
-        <div class="map-grid cb-grid">${this.F.map(([k, l, t]) => this.field(k, l, t, k === 'year' ? this.yearOf(c) : c[k])).join('')}<label style="grid-column:1/-1">Case name <span class="small muted">(blank = made from Case Type and FIR)</span><input data-cb="name" value="${esc(sel === 'new' ? '' : c.name || '')}" placeholder="${esc(this.autoName(c))}"></label></div><div class="small" id="cbErr" style="color:var(--bad);min-height:1.2em"></div>`,
+      const m = UI.modal(sel === 'new' ? '➕ New case' : '📁 Case details', `<div class="ip-case cbm"><div class="ip-hd cbm-hd"><span class="ip-ic">${sel === 'new' ? '➕' : '📁'}</span><b>${sel === 'new' ? 'Create new case' : 'Case details'}</b><span class="ip-st">${sel === 'new' ? 'Fill the details and press <b>Save</b>' : esc(c.name || '')}</span></div><div class="cbm-in"><div class="cb-sel"><label>Select case<select id="cbSel"><option value="new" ${sel === 'new' ? 'selected' : ''}>➕ New case</option>${S.cases.map(x => `<option value="${x.id}" ${x.id === sel ? 'selected' : ''}>${esc(x.name)}${x.fir ? ' · ' + esc(x.fir) : ''}</option>`).join('')}</select></label></div>
+        <div class="map-grid cb-grid">${this.F.map(([k, l, t]) => this.field(k, l, t, k === 'year' ? this.yearOf(c) : c[k])).join('')}<label style="grid-column:1/-1">Case name <span class="small muted">(blank = made from Case Type and FIR)</span><input data-cb="name" value="${esc(sel === 'new' ? '' : c.name || '')}" placeholder="${esc(this.autoName(c))}"></label></div><div class="small" id="cbErr" style="color:var(--bad);min-height:1.2em"></div></div></div>`,
         [{ label: 'Close', onClick: UI.closeModal }, { label: sel === 'new' ? '💾 Save new case' : '💾 Save', cls: 'primary', onClick: () => this.save(sel, m) }]);
       this.wire(m); $('#cbSel', m).onchange = e => { sel = e.target.value; draw(); }; };
     draw();

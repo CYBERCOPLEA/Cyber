@@ -1669,3 +1669,8 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
 .ip-drop{padding:26px}.ip-dic{font-size:26px;line-height:1;margin-bottom:6px}
 #mdBody:has(.ip-case){max-width:none}
 .ip-grid>label:first-child{grid-column:span 2}
+
+/* New case form – own colour (pink / orange), Import = green, Dashboard case details = indigo */
+.cbm{border-color:color-mix(in srgb,#ec4899 50%,var(--border))!important;margin-bottom:0}
+.cbm-hd{background:linear-gradient(120deg,#9d174d,#ec4899 55%,#f97316)!important}
+.cbm-in{padding:12px 14px 4px}
