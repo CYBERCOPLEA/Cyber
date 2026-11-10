@@ -1437,3 +1437,26 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
 .nk-imp{border-color:#22c55e !important;color:#86efac !important}
 .nk-mail-b{border-color:#0ea5e9 !important;color:#7dd3fc !important}
 .nk-mail p{margin:6px 0}
+
+/* ---- Notice Format & Memo library ---- */
+.cf-subs.open{max-height:none}
+.fm-grid{display:grid;grid-template-columns:340px 1fr;gap:14px;align-items:start}
+@media(max-width:1000px){.fm-grid{grid-template-columns:1fr}}
+.fm-side{position:sticky;top:8px;max-height:calc(100vh - 120px);overflow:auto;border-top:3px solid #3b82f6}
+.fm-cat{margin-top:10px;border-radius:10px;border:1px solid color-mix(in srgb,var(--fc) 45%,transparent);overflow:hidden}
+.fm-ch{display:flex;align-items:center;gap:8px;padding:9px 10px;cursor:pointer;background:linear-gradient(90deg,color-mix(in srgb,var(--fc) 35%,transparent),transparent);border-left:5px solid var(--fc)}
+.fm-ch b{flex:1;color:#fff}
+.fm-chev{transition:transform .2s}.fm-cat:not(.open) .fm-chev{transform:rotate(-90deg)}
+.fm-items{display:none;padding:6px}.fm-cat.open .fm-items{display:block}
+.fm-it{padding:7px 10px;margin:3px 0;border-radius:7px;cursor:pointer;border-left:3px solid transparent;font-size:13.5px}
+.fm-it:hover{background:color-mix(in srgb,var(--fc) 14%,transparent)}
+.fm-it.on{background:color-mix(in srgb,var(--fc) 26%,transparent);border-left-color:var(--fc);font-weight:700}
+.fm-tag{font-size:10.5px;padding:1px 6px;border-radius:999px;background:rgba(148,163,184,.25);color:var(--text-muted);font-weight:600}
+.fm-tag.my{background:rgba(34,197,94,.25);color:#86efac}
+.fm-acts{display:flex;gap:4px;flex-wrap:wrap;padding:6px 4px 2px;border-top:1px dashed var(--border);margin-top:4px}
+.fm-ed{border-top:3px solid #a855f7}
+.fm-dot{width:12px;height:12px;border-radius:50%;margin-right:8px;display:inline-block}
+.fm-chips{display:flex;flex-wrap:wrap;gap:4px;margin:8px 0}
+.fm-chips .btn{font-family:monospace;font-size:11.5px;padding:2px 6px}
+.fm-up{border-top:3px solid #22c55e}
+.fu-acts{white-space:nowrap}.fu-acts .btn{margin-left:3px}

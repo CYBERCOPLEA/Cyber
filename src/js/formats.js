@@ -1,0 +1,251 @@
+/* formats.js - Action › Case File & Notices drop-down:
+   1. Case File (existing page)  2. Notice Format  3. Memo  4. Upload +
+   Format libraries are grouped by category. Every category can be added to, edited, renamed, reordered and cleaned up.
+   Formats fill themselves from the open case ({{fir}}, {{ps}}, {{accounts}} …) and use the office format (NoticeKit). */
+const Formats = {
+  SIG: '\n\n\n({{io}})\n{{io_rank}}\nInvestigating Officer\nPolice Station {{ps}}, District {{district}}\nMobile: {{io_mobile}}   E-mail: {{io_email}}',
+  L(to, subject, body, close) { return `Ref. No.: {{ref}}\nDate: {{date}}\n\nTo,\n${to}\n\nSubject: ${subject}\n\nSir / Madam,\n\n${body}\n\n${close || 'The matter relates to proceeds of crime and loss to the victim(s); the information may kindly be provided on priority to the e-mail ID given below.'}${this.SIG}`; },
+  M(title, body) { return `${title}\n\n${body}${this.SIG}`; },
+  B: null,
+  built() {
+    if (this.B) return this.B; const L = this.L.bind(this), M = this.M.bind(this);
+    const RE = 'In connection with the investigation of the above case registered at Police Station {{ps}}, District {{district}}, under {{section}} (NCRP Ack No. {{ack}}),';
+    const BK = 'The Nodal Officer / Branch Manager\n{{to}}', TS = 'The Nodal Officer (LEA)\n{{to}}';
+    this.B = {
+      notice: [
+        ['bank', 'Notice to Bank', '#10b981', 'bank', [
+          ['f_bk_freeze', 'Debit freeze / lien (Sec 106 BNSS)', L(BK, 'Request for debit freeze / lien on account(s) involved in cyber fraud – {{fir}}', `${RE} the following account(s) maintained with your bank have received the proceeds of crime:\n\n{{accounts}}\n\nUnder Section 106 of the Bharatiya Nagarik Suraksha Sanhita, 2023, you are requested to:\n1. Immediately mark a DEBIT FREEZE / LIEN for the disputed amount on the above account(s).\n2. Intimate the balance available and the amount put on hold.\n3. Not allow any debit, transfer or closure without the written permission of the undersigned.\n4. Provide the account opening form / KYC and statement from the date of opening.`)],
+          ['f_bk_benef', 'Beneficiary / KYC details (Sec 94 BNSS)', L(BK, 'Request for beneficiary account details and KYC – {{fir}}', `${RE} you are requested under Section 94 of the Bharatiya Nagarik Suraksha Sanhita, 2023 to furnish for the following account(s):\n\n{{accounts}}\n\n1. Account opening form with KYC documents (ID, address proof, photograph).\n2. Statement of account from the date of opening till date.\n3. Registered mobile number, e-mail ID and nominee details.\n4. Net-banking / mobile-banking / UPI login IP addresses with date, time and device ID.\n5. ATM / debit card details and ATM withdrawal locations with CCTV availability.\n6. Linked UPI IDs / VPAs and beneficiaries added.`)],
+          ['f_bk_unfreeze', 'Unfreeze / release of amount', L(BK, 'Request to release / unfreeze the amount on hold – {{fir}}', `${RE} the following account(s) were placed under debit freeze / lien at the request of this office:\n\n{{accounts}}\n\nIn compliance with the order of the Hon'ble Court dated ____________ / on verification, you are requested to release the amount of ₹________ to the victim's account No. ____________ (IFSC ________) / lift the debit freeze from the above account(s), and send a confirmation to this office.`)],
+          ['f_bk_cctv', 'ATM / branch CCTV footage', L(BK, 'Request for preservation and supply of CCTV footage – {{fir}}', `${RE} cash was withdrawn / transactions were made through the following account(s) / ATM(s):\n\n{{accounts}}\n\nYou are requested to preserve and provide the CCTV footage of the ATM / branch concerned for the time of each transaction (±30 minutes), with ATM ID, address, EJ / journal print and card details used.`)],
+          ['f_bk_linked', 'Linked accounts & data (PAN / mobile / e-mail)', L(BK, 'Request for all accounts and data linked with suspect identifiers – {{fir}}', `${RE} you are requested to search your records and furnish details of ALL accounts, cards, loans, lockers and wallets linked with the following identifiers:\n\nMobile number(s):\n{{mobiles}}\n\nE-mail ID(s):\n{{emails}}\n\nPAN / Aadhaar / other ID: ____________\n\nFor each account please provide KYC, statement, linked mobile / e-mail, UPI IDs, login IPs and current balance.`)],
+          ['f_bk_cc', 'Credit card details', L(BK, 'Request for credit card details and transactions – {{fir}}', `${RE} the following credit card(s) / accounts were used in the offence:\n\nCard No. / account: ____________\n{{accounts}}\n\nYou are requested to furnish:\n1. Card holder's application form with KYC documents and photograph.\n2. Card statement for the period ____________ to ____________.\n3. Merchant name, MID / TID and location of each disputed transaction.\n4. Delivery address of the card, registered mobile / e-mail and change history.\n5. IP address / device details of online transactions and OTP delivery number.`)]
+        ]],
+        ['tsp', 'Notice to TSP / ISP', '#3b82f6', 'tel', [
+          ['f_ts_cdr', 'CDR (call detail records)', L(TS, 'Request for CDR with cell-ID and IMEI – {{fir}}', `${RE} you are requested under Section 94 of the Bharatiya Nagarik Suraksha Sanhita, 2023 to provide Call Detail Records (incoming, outgoing, SMS) with cell-ID / location, IMEI and roaming details for the period ____________ to ____________ of:\n\n{{mobiles}}`)],
+          ['f_ts_ipdr', 'IPDR (internet records)', L(TS, 'Request for IPDR – {{fir}}', `${RE} you are requested to provide IPDR (source / public IP, port, destination IP, start and end time, cell-ID, IMEI) for the period ____________ to ____________ of:\n\n{{mobiles}}\n\nAnd / or the subscriber(s) to whom the following IP address(es) were allotted at the given date-time:\n\n{{ips}}`)],
+          ['f_ts_tdr', 'TDR (tower dump)', L(TS, 'Request for tower dump data – {{fir}}', `${RE} you are requested to provide the tower dump (all mobile numbers with IMEI that used the cell site) of the following location(s) / cell-ID(s):\n\nLocation / Cell-ID: ____________\nDate: ____________   Time: ____________ to ____________ (IST)\n\nPlease provide the data with cell-ID, IMEI, call type and duration in Excel / CSV format.`)],
+          ['f_ts_revip', 'Reverse IP scan for VPN / proxy', L('The Nodal Officer (LEA)\n{{to}}', 'Request for subscriber details behind IP / VPN / proxy – {{fir}}', `${RE} the accused accessed the victim's accounts / platforms from the following IP address(es):\n\n{{ips}}\n\nThe IP(s) appear to belong to a VPN / proxy / hosting service of your organisation. You are requested to provide:\n1. Subscriber / customer details (name, e-mail, mobile, payment details) using the IP at the given date-time.\n2. Real source IP addresses that connected to your server / exit node at that time.\n3. Account creation details, login history with IPs, and payment transactions.\n4. Preserve all logs for 180 days.`)],
+          ['f_ts_own', 'Ownership history / MNP', L(TS, 'Request for ownership history of mobile number(s) – {{fir}}', `${RE} you are requested to provide the complete ownership history of the following mobile number(s) since the date of first allotment, with CAF, ID proof and activation / deactivation / port-in / port-out (MNP) dates:\n\n{{mobiles}}`)],
+          ['f_ts_pos', 'POS / retailer details (SIM sale)', L(TS, 'Request for Point-of-Sale details of SIM(s) – {{fir}}', `${RE} you are requested to provide the Point-of-Sale (POS) / retailer details through which the following SIM(s) were issued: POS name, code, address, mobile, agent who did e-KYC, distributor, and the list of all other SIMs activated by the same POS / agent during ____________ to ____________:\n\n{{mobiles}}`)],
+          ['f_ts_rech', 'Recharge history', L(TS, 'Request for recharge history – {{fir}}', `${RE} you are requested to provide the recharge history (date, time, amount, mode – retailer / UPI / card / wallet, transaction ID, retailer details or payer account / VPA) for the period ____________ to ____________ of:\n\n{{mobiles}}`)],
+          ['f_ts_imei', 'Numbers used in IMEI(s)', L(TS, 'Request for mobile numbers used in IMEI(s) – {{fir}}', `${RE} you are requested to provide all mobile numbers used in the following handset IMEI(s) during ____________ to ____________, with subscriber details and first / last use date:\n\n{{imeis}}`)]
+        ]],
+        ['deliv', 'Notice to Delivery partners', '#f97316', 'deliv', [
+          ['f_dl_parcel', 'Delivery / consignment details', L('The Nodal Officer / Grievance Officer\n{{to}}', 'Request for delivery and consignee details – {{fir}}', `${RE} the following order(s) / consignment(s) / AWB number(s) are connected with the offence:\n\nOrder / AWB No.: ____________\nMobile / e-mail used: \n{{mobiles}}\n\nYou are requested to provide:\n1. Name, address, mobile and e-mail of the consignor and consignee.\n2. Delivery address, delivery date-time, GPS location and proof of delivery (photo / signature / OTP).\n3. Name and mobile of the delivery executive and hub.\n4. Payment mode and transaction details (COD / UPI / card).\n5. Other orders delivered to the same address / mobile.`)],
+          ['f_dl_cctv', 'Hub / counter CCTV', L('The Hub Manager\n{{to}}', 'Request to preserve CCTV of the delivery hub – {{fir}}', `${RE} you are requested to preserve and provide the CCTV footage of the hub / counter ____________ for ____________ (date) between ____________ and ____________ hours, when the consignment No. ____________ was booked / collected.`)]
+        ]],
+        ['mail', 'Notice to Email / Google-Gmail', '#ef4444', 'plat', [
+          ['f_gm_bsi', 'Gmail / Google account – subscriber & IP logs', L('The Nodal Officer (LEA Requests)\nGoogle LLC / Google India Pvt Ltd', 'Request for subscriber information and IP logs – {{fir}}', `${RE} the following Google account(s) were used by the accused:\n\n{{emails}}\n\nUnder Section 94 of the Bharatiya Nagarik Suraksha Sanhita, 2023 read with Section 79(3)(b) of the IT Act, 2000, you are requested to provide:\n1. Basic subscriber information – name, recovery e-mail / phone, creation date and IP.\n2. Login / logout IP addresses with date-time (IST) and port for the period ____________ to ____________.\n3. Linked accounts, devices, Google Pay / YouTube / Play details.\n4. Preserve the account content for 180 days.`)],
+          ['f_gm_email', 'Other e-mail provider', L('The Nodal Officer\n{{to}}', 'Request for e-mail account details – {{fir}}', `${RE} the following e-mail ID(s) were used in the offence:\n\n{{emails}}\n\nYou are requested to provide registration details, alternate e-mail / mobile, creation IP, login IP logs with date-time for the period ____________ to ____________, and to preserve the data.`)],
+          ['f_gm_takedown', 'Take-down / block (Sec 79(3)(b) IT Act)', L('The Grievance Officer\n{{to}}', 'Notice under Section 79(3)(b) of the IT Act, 2000 for removal of unlawful content – {{fir}}', `${RE} the following URL(s) / profile(s) on your platform are being used for cyber fraud / unlawful activity:\n\n{{profiles}}\n\nYou are directed to remove / disable access to the above content expeditiously and to preserve all related records (subscriber details, IP logs, content) for investigation.`)]
+        ]],
+        ['pay', 'Notice to GPay / UPI apps', '#8b5cf6', 'pay', [
+          ['f_py_gpay', 'Google Pay – UPI ID / transaction details', L('The Nodal Officer\nGoogle Pay (Google India Digital Services Pvt Ltd)', 'Request for UPI ID and transaction details – {{fir}}', `${RE} the following UPI ID(s) / mobile number(s) were used to receive the proceeds of crime:\n\n{{upis}}\n\n{{mobiles}}\n\nYou are requested to provide:\n1. Registered name, mobile, e-mail and linked bank account(s) with IFSC.\n2. Transaction history with UTR / RRN for the period ____________ to ____________.\n3. Device ID / IMEI, device model and IP addresses of registration and transactions.\n4. Account creation date and KYC, if any.`)],
+          ['f_py_upi', 'Other UPI app / wallet (PhonePe, Paytm…)', L('The Nodal Officer\n{{to}}', 'Request for wallet / UPI details – {{fir}}', `${RE} the following UPI ID(s) / wallet(s) were used in the offence:\n\n{{upis}}\n\nYou are requested to provide KYC, linked bank accounts, transaction history with UTR, device and IP details, and to block further debits from the wallet.`)],
+          ['f_py_npci', 'NPCI – UPI linkage', L('The Nodal Officer\nNational Payments Corporation of India (NPCI)', 'Request for UPI linkage details – {{fir}}', `${RE} you are requested to provide the PSP / app, bank and account linked with the following UPI ID(s) / mobile(s), and the UTR trail of the disputed transactions:\n\n{{upis}}\n\n{{mobiles}}`)]
+        ]],
+        ['jmis', 'JMIS ~ Samanvaya', '#14b8a6', 'jmis', [
+          ['f_jm_link', 'Samanvaya – inter-state linkage request', L('The Nodal Officer\nIndian Cyber Crime Coordination Centre (I4C), MHA\n(Samanvaya / JMIS)', 'Request for inter-state linkages of suspect identifiers – {{fir}}', `${RE} the following identifiers of the accused have been found:\n\nAccount(s):\n{{accounts}}\n\nMobile(s):\n{{mobiles}}\n\nUPI ID(s):\n{{upis}}\n\nYou are requested to provide the complaints / FIRs of other States / districts linked with these identifiers on Samanvaya, so that the investigation can be coordinated and the accused traced.`)],
+          ['f_jm_atr', 'JMIS – action taken report', M('ACTION TAKEN REPORT (JMIS)', `Case: {{fir}}   PS: {{ps}}   District: {{district}}\nSection(s): {{section}}\nNCRP Ack No.: {{ack}}\nDate: {{date}}\n\n1. Brief facts: ____________\n2. Amount defrauded: ₹________   Amount on hold: ₹________   Refunded: ₹________\n3. Accounts frozen:\n{{accounts}}\n4. Mobile numbers / SIMs blocked:\n{{mobiles}}\n5. Accused identified / arrested: ____________\n6. Notices issued (35(3) BNSS / 94 BNSS): ____________\n7. Present status of investigation: ____________`)]
+        ]]
+      ],
+      memo: [
+        ['arrest', 'Arrest', '#ef4444', 'person', [
+          ['f_m_arrest', 'Arrest memo (Sec 36 BNSS)', M('ARREST MEMO\n(Section 36 of the Bharatiya Nagarik Suraksha Sanhita, 2023)', `1. Case: {{fir}}   Section(s): {{section}}   PS: {{ps}}, District {{district}}\n2. Name of person arrested: {{name}}\n3. Father's / husband's name: {{father}}\n4. Address: {{address}}\n5. Mobile: {{mobile}}\n6. Date and time of arrest: ____________\n7. Place of arrest: ____________\n8. Grounds of arrest (informed to the person): ____________\n9. Name of the arresting officer: {{io}}, {{io_rank}}\n10. Attesting witness (family member / respectable person of the locality):\n    Name ____________  Address ____________  Signature ____________\n11. Relative / friend informed (Sec 48 BNSS): Name ____________  Mobile ____________  Time ____________\n12. Injuries, if any (inspection memo): ____________\n13. Right to consult an advocate informed: Yes / No\n\nSignature of person arrested: ____________`)],
+          ['f_m_inform', 'Information of arrest to relative (Sec 48 BNSS)', M('INTIMATION OF ARREST\n(Section 48 of the Bharatiya Nagarik Suraksha Sanhita, 2023)', `To,\n____________ (relative / friend of the arrested person)\n\nThis is to inform you that {{name}}, son / daughter of {{father}}, resident of {{address}}, has been arrested on ____________ at ____________ hrs in {{fir}}, under {{section}}, Police Station {{ps}}, District {{district}}.\n\nThe arrested person will be produced before the competent court within 24 hours. You may contact the undersigned at the number given below.`)],
+          ['f_m_search', 'Personal search memo', M('PERSONAL SEARCH MEMO', `Case: {{fir}}   PS: {{ps}}   Date: {{date}}\n\nPersonal search of the arrested person {{name}}, S/o {{father}}, R/o {{address}}, was taken in the presence of the witnesses below, and the following articles were found:\n\n1. Mobile phone(s): make ____________ IMEI ____________ SIM ____________\n2. Debit / credit cards: ____________\n3. Cash: ₹________\n4. Other: ____________\n\nWitness 1: ____________   Witness 2: ____________\nSignature of arrested person: ____________`)]
+        ]],
+        ['bnss', 'Notice 35(3) BNSS', '#a855f7', 'person', [
+          ['f_m_353', 'Notice of appearance – Sec 35(3) BNSS', M('NOTICE UNDER SECTION 35(3) OF THE BHARATIYA NAGARIK SURAKSHA SANHITA, 2023', `Date: {{date}}\n\nTo,\n{{name}}\nS/o {{father}}\n{{address}}\nMobile: {{mobile}}\n\nSubject: Notice under Section 35(3) BNSS, 2023 – {{fir}}\n\nWhereas, during the investigation of the above case registered at Police Station {{ps}}, District {{district}}, under {{section}}, it has been found that there are reasonable grounds to question you in connection with the said offence.\n\nNow, therefore, you are directed under Section 35(3) BNSS to appear before the undersigned at Police Station {{ps}} on ____ / ____ / ______ at ______ hrs, and to comply with the following conditions:\n1. You shall not commit any offence.\n2. You shall not tamper with the evidence or influence any witness.\n3. You shall join the investigation as and when required.\n4. You shall bring your ID proof, mobile phone(s) / SIM(s) in use, bank passbook / cheque book / cards and statements.\n\nPlease note that as per Section 35(5) and 35(6) BNSS, failure to comply with this notice may render you liable to arrest.`)],
+          ['f_m_353c', 'Compliance report of 35(3) notice', M('COMPLIANCE / SERVICE REPORT – NOTICE U/S 35(3) BNSS', `Case: {{fir}}   PS: {{ps}}\nName of noticee: {{name}}   Mobile: {{mobile}}\nAddress: {{address}}\n\n1. Date of issue of notice: ____________\n2. Mode of service (in person / affixed / e-mail / WhatsApp): ____________\n3. Date of appearance: ____________\n4. Conditions complied: Yes / No – details ____________\n5. Documents / devices produced: ____________\n6. Further action: ____________`)]
+        ]],
+        ['enq', 'Enquiry to suspect', '#f59e0b', 'person', [
+          ['f_m_quest', 'Questionnaire for suspect (cyber fraud)', M('QUESTIONNAIRE – EXAMINATION OF SUSPECT', `Case: {{fir}}   PS: {{ps}}   Date: {{date}}\nName: {{name}}   S/o {{father}}\nAddress: {{address}}   Mobile: {{mobile}}\n\n1. Which mobile numbers, SIMs and handsets (IMEI) do you use / have used?\n2. Which bank accounts, UPI IDs, wallets and cards are in your name? Who operates them?\n3. Account: {{acc}} – who opened it, who holds the cheque book / cards / net-banking, and for what consideration?\n4. Who gave you instructions, through which app (WhatsApp / Telegram) and which numbers / usernames?\n5. Where was the money transferred or withdrawn? Who received the cash?\n6. Commission received, amount and mode.\n7. Other persons, accounts or SIMs supplied to the same group.\n8. Social media / e-mail accounts used.\n\nAnswers: ____________\n\nSignature of suspect: ____________`)],
+          ['f_m_stmt', 'Statement of witness (Sec 180 BNSS)', M('STATEMENT UNDER SECTION 180 BNSS, 2023', `Case: {{fir}}   PS: {{ps}}   Date: {{date}}\nName: {{name}}   S/o {{father}}\nAddress: {{address}}   Mobile: {{mobile}}\n\nStatement:\n____________`)]
+        ]],
+        ['seize', 'Seizure / recovery', '#06b6d4', 'person', [
+          ['f_m_seize', 'Seizure memo (Sec 106 BNSS)', M('SEIZURE MEMO\n(Section 106 BNSS, 2023 – with audio-video recording as per Section 105)', `Case: {{fir}}   PS: {{ps}}   Date: {{date}}   Time: ______\nPlace: ____________\nFrom (person): {{name}}, S/o {{father}}, R/o {{address}}\n\nArticles seized:\n1. Mobile phone – make ____________ IMEI-1 ____________ IMEI-2 ____________ SIM ____________\n2. Laptop / storage – ____________ (hash value: ____________)\n3. Bank documents / cards – ____________\n4. Cash – ₹________\n\nThe articles were sealed with seal ______ and the sample seal is attached. Copy given to the person.\n\nWitness 1: ____________   Witness 2: ____________\nSignature of person: ____________`)],
+          ['f_m_hash', 'Digital evidence / Sec 63 BSA certificate', M('CERTIFICATE UNDER SECTION 63(4) OF THE BHARATIYA SAKSHYA ADHINIYAM, 2023', `Case: {{fir}}   PS: {{ps}}\n\nI, {{io}}, {{io_rank}}, certify that the electronic record(s) described below were produced from the computer / device ____________ which was in regular use, and that the information was fed in the ordinary course of activities.\n\nDescription of record: ____________\nDevice / source: ____________\nHash value (SHA-256): ____________\n\nPlace: {{district}}   Date: {{date}}`)]
+        ]]
+      ]
+    };
+    return this.B;
+  },
+
+  /* ---------- user changes (kept in settings: same in every case) ---------- */
+  st() { const s = S.settings.fmt || (S.settings.fmt = {}); s.text = s.text || {}; s.name = s.name || {}; s.hide = s.hide || []; s.extra = s.extra || []; s.order = s.order || {}; return s; },
+  cats(lib) { return this.built()[lib]; },
+  items(lib, cat) {
+    const c = this.cats(lib).find(x => x[0] === cat), s = this.st(); if (!c) return [];
+    let L = c[4].filter(([id]) => !s.hide.includes(id)).map(([id, n, t]) => ({ id, name: s.name[id] || n, text: s.text[id] ?? t, orig: t, built: true, edited: id in s.text }));
+    L = L.concat(s.extra.filter(x => x.lib === lib && x.cat === cat).map(x => ({ ...x, built: false })));
+    const o = s.order[lib + ':' + cat]; if (o) L.sort((a, b) => (o.indexOf(a.id) + 1 || 999) - (o.indexOf(b.id) + 1 || 999));
+    return L;
+  },
+  find(id) { for (const lib of ['notice', 'memo']) for (const c of this.cats(lib)) { const it = this.items(lib, c[0]).find(x => x.id === id); if (it) return { lib, cat: c, it }; } return null; },
+  vars(o = {}) {
+    let v = {}; try { v = Notices.vars(o.bank || '', o.platform || '', o.ref || '', o.company || ''); } catch (e) { }
+    const p = o.person || {}, bl = '____________';
+    return { ...v, date: new Date().toLocaleDateString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric' }), to: o.to || bl, ref: o.ref || '________', io: v.io || 'Name of IO', io_rank: v.io_rank || 'Designation',
+      name: p.name || bl, father: p.father || bl, address: p.addr || p.address || bl, mobile: p.mobile || bl, acc: p.acc ? p.acc + (p.bank ? ' (' + p.bank + ')' : '') : bl };
+  },
+  fill(text, o) { const v = this.vars(o); return NoticeKit.head(String(text).replace(/\{\{(\w+)\}\}/g, (m, k) => v[k] ?? '________')); },
+  VARS: [['fir', 'FIR No.'], ['ps', 'Police station'], ['district', 'District'], ['section', 'Sections'], ['ack', 'NCRP Ack'], ['date', 'Today'], ['ref', 'Ref No.'], ['to', 'Recipient'], ['accounts', 'Suspect accounts'], ['mobiles', 'Mobiles'], ['upis', 'UPI IDs'], ['emails', 'E-mails'], ['ips', 'IP addresses'], ['imeis', 'IMEIs'], ['profiles', 'Profiles / URLs'], ['name', 'Person name'], ['father', 'Father'], ['address', 'Address'], ['mobile', 'Person mobile'], ['acc', 'Person account'], ['io', 'IO name'], ['io_rank', 'IO rank'], ['io_mobile', 'IO mobile'], ['io_email', 'IO e-mail']],
+
+  /* ---------- library page (Notice Format / Memo) ---------- */
+  lib(el, lib) {
+    const s = this.st(), cats = this.cats(lib), ui = this._ui || (this._ui = {}), U = ui[lib] || (ui[lib] = { id: null, open: {} });
+    if (!U.id) { const f = this.items(lib, cats[0][0])[0]; U.id = f && f.id; }
+    const isMemo = lib === 'memo';
+    el.innerHTML = `<div class="note warn">Formats are drafts to save typing – check the sections of law and wording against current law and your office format before signing. Changes you make to a format are kept for every case.</div>
+      <div class="fm-grid"><div class="card fm-side"><div class="row" style="gap:6px"><input id="fmQ" placeholder="Find a format…" style="flex:1"><button class="btn sm" id="fmAll" title="Open / close all">⇕</button></div><div id="fmCats"></div></div>
+      <div class="card fm-ed"><div id="fmHd"></div>
+        <div class="row" style="gap:8px;flex-wrap:wrap;margin-top:8px"><label>${isMemo ? 'Person' : 'To'}</label><select id="fmTo" style="min-width:240px"></select><label>Ref No</label><input id="fmRef" style="width:150px" value="${esc(U.ref || '')}"><button class="btn primary" id="fmGo">✨ Fill for this case</button></div>
+        <textarea id="fmOut" style="min-height:460px;margin-top:10px" spellcheck="true"></textarea>
+        <div class="row nt-btns" id="fmBtns" style="margin-top:8px;gap:6px;flex-wrap:wrap"><button class="btn" id="fmPr">🖨 Print / PDF</button><button class="btn" id="fmWd">⬇ Word (.docx)</button><button class="btn" id="fmCp">Copy</button><button class="btn primary" id="fmSave">💾 Save to case drafts</button><button class="btn" id="fmTask">+ Follow-up task</button><span style="flex:1"></span><button class="btn" id="fmEdit">✏ Edit format</button><button class="btn sm hidden" id="fmReset">↺ Original</button></div></div></div>`;
+    const q = $('#fmQ', el), out = $('#fmOut', el), to = $('#fmTo', el);
+    const drawCats = () => {
+      const f = q.value.trim().toLowerCase();
+      $('#fmCats', el).innerHTML = cats.map(([cid, cn, col]) => {
+        const L = this.items(lib, cid).filter(x => !f || (x.name + ' ' + cn).toLowerCase().includes(f)), open = f || U.open[cid] !== false;
+        return `<div class="fm-cat ${open ? 'open' : ''}" style="--fc:${col}"><div class="fm-ch" data-c="${cid}"><b>${esc(cn)}</b><span class="badge">${L.length}</span><span class="fm-chev">▾</span></div>
+          <div class="fm-items">${L.map(x => `<div class="fm-it ${x.id === U.id ? 'on' : ''}" data-f="${x.id}">${esc(x.name)}${x.built ? (x.edited ? ' <span class="fm-tag">edited</span>' : '') : ' <span class="fm-tag my">mine</span>'}</div>`).join('') || '<div class="small muted" style="padding:4px 8px">No format here yet.</div>'}
+          <div class="fm-acts"><button class="btn sm" data-up="${cid}" title="Upload your own format (Word / text / PDF) into this category">📤 Upload</button><button class="btn sm" data-new="${cid}">➕ New</button><button class="btn sm" data-ed="${cid}">✏ Edit list</button></div></div></div>`; }).join('');
+      $$('.fm-ch', el).forEach(h => h.onclick = () => { U.open[h.dataset.c] = !h.parentNode.classList.contains('open'); drawCats(); });
+      $$('[data-f]', el).forEach(x => x.onclick = () => { U.id = x.dataset.f; drawCats(); pick(); });
+      $$('[data-up]', el).forEach(b => b.onclick = () => this.upload(lib, b.dataset.up, id => { U.id = id; this.lib(el, lib); }));
+      $$('[data-new]', el).forEach(b => b.onclick = () => { const n = window.prompt('Name of the new format'); if (!n) return; const id = 'u_' + uid(); s.extra.push({ id, lib, cat: b.dataset.new, name: n.trim(), text: isMemo ? n.trim().toUpperCase() + '\n\nCase: {{fir}}   PS: {{ps}}   Date: {{date}}\n\n' : Formats.L('{{to}}', n.trim() + ' – {{fir}}', '____________') }); saveMeta(); U.id = id; this.lib(el, lib); this.editRaw(id, () => this.lib(el, lib)); });
+      $$('[data-ed]', el).forEach(b => b.onclick = () => this.editList(lib, b.dataset.ed, () => this.lib(el, lib)));
+    };
+    const cur = () => this.find(U.id);
+    const opts = () => { const F = cur(); const kind = F ? F.cat[3] : 'person', o = [];
+      if (kind === 'bank') NoticeKit.caseBanks().forEach(b => o.push(['w:' + b, b]));
+      if (kind === 'plat') NoticeKit.casePlats().forEach(b => o.push(['w:' + b, b]));
+      if (kind === 'person') { (typeof CCTNS !== 'undefined' ? CCTNS.accused() : []).forEach((a, i) => o.push(['a:' + i, a.name + (a.mobile ? ' · ' + a.mobile : '')])); }
+      NoticeKit.recipients(to, kind, o, ''); };
+    const fillNow = () => { const F = cur(); if (!F) { out.value = ''; return; } const v = to.value, nm = NoticeKit.nameOf(v); let person = null;
+      if (v.startsWith('a:') && typeof CCTNS !== 'undefined') person = CCTNS.accused()[+v.slice(2)];
+      else if (v.startsWith('s:') && F.cat[3] === 'person') person = { name: nm };
+      U.ref = $('#fmRef', el).value;
+      out.value = this.fill(F.it.text, { to: nm || '', bank: F.cat[3] === 'bank' ? nm : '', platform: nm, company: nm, ref: U.ref, person }); out.dispatchEvent(new Event('input')); };
+    const pick = () => { const F = cur();
+      $('#fmHd', el).innerHTML = F ? `<div class="row"><span class="fm-dot" style="background:${F.cat[2]}"></span><h3 style="margin:0" class="grow">${esc(F.it.name)}</h3><span class="small muted">${esc(F.cat[1])}${F.it.built ? '' : ' · your format'}</span></div>` : '<h3>Pick a format on the left</h3>';
+      $('#fmReset', el).classList.toggle('hidden', !(F && F.it.built && F.it.edited)); opts(); fillNow(); };
+    q.oninput = drawCats; $('#fmAll', el).onclick = () => { const any = cats.some(c => U.open[c[0]] !== false); cats.forEach(c => U.open[c[0]] = !any); drawCats(); };
+    $('#fmGo', el).onclick = fillNow; to.addEventListener('change', () => { if (to.value !== '__edit') fillNow(); });
+    $('#fmPr', el).onclick = () => NoticeKit.print(out.value);
+    $('#fmWd', el).onclick = () => { const F = cur(); NoticeKit.docx(((F ? F.it.name : 'format') + (NoticeKit.nameOf(to.value) ? ' - ' + NoticeKit.nameOf(to.value) : '')).replace(/[^\w\- ]+/g, '_') + '.docx', out.value); };
+    $('#fmCp', el).onclick = () => { navigator.clipboard && navigator.clipboard.writeText(out.value); UI.toast('Copied'); };
+    $('#fmSave', el).onclick = () => { const F = cur(); if (!out.value.trim()) return; const D = S.data.drafts || (S.data.drafts = []), nm = (F ? F.it.name : 'Format') + (NoticeKit.nameOf(to.value) ? ' – ' + NoticeKit.nameOf(to.value) : '');
+      D.push({ id: uid() + '', name: nm, tpl: F ? F.it.id : '', tplName: F ? F.cat[1] + ' · ' + F.it.name : '', text: out.value, created: new Date().toISOString(), updated: new Date().toISOString() }); saveCase(); UI.toast('Saved in Case File › Notice Drafts'); };
+    $('#fmTask', el).onclick = () => { const F = cur(); S.data.tasks.push({ id: uid(), text: 'Follow up: ' + (F ? F.it.name : 'notice') + (NoticeKit.nameOf(to.value) ? ' – ' + NoticeKit.nameOf(to.value) : ''), due: new Date(Date.now() + 7 * 864e5).toISOString().slice(0, 10), done: false }); saveCase(); UI.toast('Task added (due in 7 days)'); };
+    $('#fmEdit', el).onclick = () => U.id && this.editRaw(U.id, () => this.lib(el, lib));
+    $('#fmReset', el).onclick = () => { if (!UI.confirm('Go back to the original wording of this format?')) return; delete s.text[U.id]; saveMeta(); this.lib(el, lib); };
+    NoticeKit.tools($('#fmBtns', el), out, { vars: () => { const nm = NoticeKit.nameOf(to.value); return { bank: nm, platform: nm, company: nm, ref: $('#fmRef', el).value }; } });
+    drawCats(); pick();
+  },
+  // edit the wording of a format (with {{placeholders}})
+  editRaw(id, done) {
+    const F = this.find(id); if (!F) return; const s = this.st();
+    const b = UI.modal('✏ Edit format – ' + F.it.name, `<div class="small muted">Words in {{double brackets}} are filled from the case. Click a chip to insert it where the cursor is.</div>
+      <div class="fm-chips">${this.VARS.map(([k, l]) => `<button class="btn sm" data-v="${k}" title="${esc(l)}">{{${k}}}</button>`).join('')}</div>
+      <div class="row" style="gap:6px;margin:6px 0"><label>Name</label><input id="fmN" value="${esc(F.it.name)}" style="flex:1"></div>
+      <textarea id="fmRaw" class="nk-ta" style="min-height:380px">${esc(F.it.text)}</textarea>`,
+      [{ label: 'Cancel', onClick: UI.closeModal }, { label: '💾 Save format', cls: 'primary', onClick: () => {
+        const t = $('#fmRaw', b).value, n = $('#fmN', b).value.trim() || F.it.name;
+        if (F.it.built) { if (t !== F.it.orig) s.text[id] = t; else delete s.text[id]; s.name[id] = n; } else { const x = s.extra.find(y => y.id === id); x.text = t; x.name = n; }
+        saveMeta(); UI.closeModal(); UI.toast('Format saved'); done && done(); } }]);
+    const ta = $('#fmRaw', b);
+    $$('[data-v]', b).forEach(c => c.onclick = () => { const v = '{{' + c.dataset.v + '}}', p = ta.selectionStart; ta.value = ta.value.slice(0, p) + v + ta.value.slice(ta.selectionEnd); ta.focus(); ta.selectionStart = ta.selectionEnd = p + v.length; });
+  },
+  // rename / reorder / delete formats in one category (same tools as other lists)
+  editList(lib, cat, done) {
+    const s = this.st(), c = this.cats(lib).find(x => x[0] === cat); let L = this.items(lib, cat).map(x => ({ id: x.id, name: x.name, built: x.built }));
+    const ov = document.createElement('div'); ov.className = 'el-ov';
+    ov.innerHTML = `<div class="el-box"><div class="el-hd"><b>✏ ${esc(c[1])} – formats</b><button class="btn sm" data-x>✕</button></div>
+      <div class="small muted">Drag ⠿ or ▲ ▼ to reorder · type to rename · 🗑 to delete</div><div class="el-rows"></div>
+      <div class="row" style="gap:6px;margin-top:12px"><button class="btn sm" data-rest>↺ Bring back deleted built-in formats</button><span style="flex:1"></span><button class="btn" data-x>Cancel</button><button class="btn primary" data-save>Save</button></div></div>`;
+    document.body.appendChild(ov); const rows = ov.querySelector('.el-rows'), gone = [];
+    const take = () => rows.querySelectorAll('input').forEach((i, k) => L[k].name = i.value.trim() || L[k].name);
+    const draw = () => { rows.innerHTML = L.map((x, i) => `<div class="el-row" draggable="true" data-i="${i}"><span class="el-dr">⠿</span><input value="${esc(x.name)}"><button class="btn sm" data-up="${i}" ${i ? '' : 'disabled'}>▲</button><button class="btn sm" data-dn="${i}" ${i < L.length - 1 ? '' : 'disabled'}>▼</button><button class="btn sm danger" data-del="${i}">🗑</button></div>`).join('');
+      let from = -1; rows.querySelectorAll('.el-row').forEach(r => { r.ondragstart = () => { take(); from = +r.dataset.i; }; r.ondragover = e => e.preventDefault(); r.ondrop = e => { e.preventDefault(); const t = +r.dataset.i; if (from < 0 || from === t) return; const [m] = L.splice(from, 1); L.splice(t, 0, m); draw(); }; }); };
+    const close = () => ov.remove();
+    ov.addEventListener('click', e => { const t = e.target.closest('button'); if (!t) return;
+      if (t.dataset.up !== undefined || t.dataset.dn !== undefined) { take(); const i = +(t.dataset.up ?? t.dataset.dn), j = i + (t.dataset.up !== undefined ? -1 : 1); [L[i], L[j]] = [L[j], L[i]]; draw(); }
+      else if (t.dataset.del !== undefined) { take(); const i = +t.dataset.del; if (confirm(`Delete "${L[i].name}"?`)) { gone.push(L[i]); L.splice(i, 1); draw(); } }
+      else if (t.hasAttribute('data-rest')) { s.hide = s.hide.filter(id => !c[4].some(x => x[0] === id)); saveMeta(); close(); done && done(); }
+      else if (t.hasAttribute('data-save')) { take();
+        L.forEach(x => { if (x.built) s.name[x.id] = x.name; else { const y = s.extra.find(z => z.id === x.id); if (y) y.name = x.name; } });
+        gone.forEach(x => { if (x.built) s.hide.push(x.id); else s.extra = s.extra.filter(z => z.id !== x.id); });
+        s.order[lib + ':' + cat] = L.map(x => x.id); saveMeta(); close(); UI.toast('List saved'); done && done(); }
+      else if (t.hasAttribute('data-x')) close(); });
+    draw();
+  },
+  upload(lib, cat, done) {
+    const inp = document.createElement('input'); inp.type = 'file'; inp.multiple = true; inp.accept = '.docx,.doc,.odt,.rtf,.txt,.htm,.html,.pdf';
+    inp.onchange = async () => { const s = this.st(); let last = null, n = 0;
+      for (const f of inp.files) { let t = ''; try { t = await NoticeKit.readAny(f); } catch (e) { } if (!t.trim()) { UI.toast('Could not read ' + f.name, 5000); continue; }
+        last = 'u_' + uid(); s.extra.push({ id: last, lib, cat, name: f.name.replace(/\.[^.]+$/, ''), text: t, file: f.name }); n++; }
+      if (n) { saveMeta(); UI.toast(`${n} format(s) added. Put {{fir}}, {{ps}}, {{accounts}} … in them with ✏ Edit format so they fill from the case.`, 6000); done && done(last); } };
+    inp.click();
+  },
+
+  /* ---------- Upload + : keep any file (formats, letters, scans) ---------- */
+  async files() { if (!this._f) { try { this._f = (await DB.get('fmtf:list')) || []; } catch (e) { this._f = []; } } return this._f; },
+  async upTab(el) {
+    const list = await this.files(), CAT = ['Notice to Bank', 'Notice to TSP / ISP', 'Delivery partners', 'Email / Google', 'GPay / UPI', 'JMIS ~ Samanvaya', 'Memo', 'Court / prosecution', 'Office', 'Other'];
+    el.innerHTML = `<div class="card fm-up"><h3>⬆ Upload + <span class="badge">${list.length} files</span></h3><div class="sub">Keep your own formats, letters, scanned orders and any other file here – Word, PDF, Excel, images, anything. Files stay on this computer and are the same in every case. Word / text / PDF files can be turned into a fill-in format with one click.</div>
+      <div class="g-drop cc-drop" id="fuDrop"><b>Drop files here</b> or <button class="btn primary" id="fuPick">📄 Choose files</button><div class="row" style="justify-content:center;gap:6px;margin-top:8px"><label>Category</label><select id="fuCat"></select></div></div>
+      <div class="row" style="gap:6px;margin:10px 0"><input id="fuQ" placeholder="Find file…" style="flex:1"><select id="fuF"><option value="">All categories</option>${uniq(list.map(x => x.cat)).map(c => `<option>${esc(c)}</option>`).join('')}</select></div><div id="fuList"></div></div>`;
+    EditList.attach($('#fuCat', el), 'fmt-filecat', CAT, 'File categories');
+    const add = async fs => { for (const f of fs) { const id = 'f' + uid(); await DB.set('fmtf:' + id, f); list.push({ id, name: f.name, size: f.size, type: f.type, cat: $('#fuCat', el).value, added: new Date().toISOString() }); } await DB.set('fmtf:list', list); UI.toast(fs.length + ' file(s) kept'); this.upTab(el); };
+    $('#fuPick', el).onclick = e => { e.stopPropagation(); const i = document.createElement('input'); i.type = 'file'; i.multiple = true; i.onchange = () => add([...i.files]); i.click(); };
+    const d = $('#fuDrop', el); d.ondragover = e => { e.preventDefault(); d.classList.add('over'); }; d.ondragleave = () => d.classList.remove('over'); d.ondrop = e => { e.preventDefault(); d.classList.remove('over'); add([...e.dataTransfer.files]); };
+    const draw = () => { const q = $('#fuQ', el).value.toLowerCase(), c = $('#fuF', el).value, L = list.filter(x => (!c || x.cat === c) && (!q || x.name.toLowerCase().includes(q))).slice().reverse();
+      $('#fuList', el).innerHTML = L.length ? `<table class="tbl fu-t"><thead><tr><th>File</th><th>Category</th><th>Size</th><th>Added</th><th></th></tr></thead><tbody>${L.map(x => `<tr><td><b>${esc(x.name)}</b>${x.note ? `<div class="small muted">${esc(x.note)}</div>` : ''}</td><td><span class="fm-tag">${esc(x.cat || '')}</span></td><td class="small">${SOP.size(x.size)}</td><td class="small">${esc(x.added.slice(0, 10).split('-').reverse().join('-'))}</td>
+        <td class="fu-acts"><button class="btn sm" data-o="${x.id}">Open</button><button class="btn sm" data-r="${x.id}">✏ Rename</button>${/\.(docx?|odt|rtf|txt|html?|pdf)$/i.test(x.name) ? `<button class="btn sm srch" data-u="${x.id}">➜ Use as format</button>` : ''}<button class="btn sm danger" data-d="${x.id}">🗑</button></td></tr>`).join('')}</tbody></table>` : '<div class="muted small">No files yet.</div>';
+      const get = id => list.find(x => x.id === id);
+      $$('[data-o]', el).forEach(b => b.onclick = async () => { const f = await DB.get('fmtf:' + b.dataset.o); if (!f) return UI.toast('File not found'); const u = URL.createObjectURL(f); if (/\.(pdf|png|jpe?g|gif|txt|html?)$/i.test(get(b.dataset.o).name)) window.open(u, '_blank'); else { const a = document.createElement('a'); a.href = u; a.download = get(b.dataset.o).name; a.click(); } setTimeout(() => URL.revokeObjectURL(u), 60000); });
+      $$('[data-r]', el).forEach(b => b.onclick = async () => { const x = get(b.dataset.r), n = window.prompt('New name', x.name); if (!n) return; x.name = n.trim(); const nt = window.prompt('Note (optional)', x.note || ''); if (nt !== null) x.note = nt; await DB.set('fmtf:list', list); draw(); });
+      $$('[data-d]', el).forEach(b => b.onclick = async () => { const x = get(b.dataset.d); if (!UI.confirm(`Delete "${x.name}"?`)) return; list.splice(list.indexOf(x), 1); await DB.del('fmtf:' + x.id); await DB.set('fmtf:list', list); this.upTab(el); });
+      $$('[data-u]', el).forEach(b => b.onclick = async () => { const x = get(b.dataset.u), f = await DB.get('fmtf:' + x.id); const file = f instanceof File ? f : new File([f], x.name);
+        let t = ''; try { t = await NoticeKit.readAny(file); } catch (e) { } if (!t.trim()) return UI.toast('Could not read text from this file', 5000);
+        const isMemo = /memo/i.test(x.cat || ''), lib = isMemo ? 'memo' : 'notice', map = { 'Notice to Bank': 'bank', 'Notice to TSP / ISP': 'tsp', 'Delivery partners': 'deliv', 'Email / Google': 'mail', 'GPay / UPI': 'pay', 'JMIS ~ Samanvaya': 'jmis' };
+        const cat = isMemo ? 'enq' : (map[x.cat] || 'bank'), id = 'u_' + uid(); this.st().extra.push({ id, lib, cat, name: x.name.replace(/\.[^.]+$/, ''), text: t, file: x.name }); saveMeta();
+        (this._ui || (this._ui = {}))[lib] = { id, open: {} }; UI.toast('Added as a format – now open in ' + (isMemo ? 'Memo' : 'Notice Format')); go('formats', lib); }); };
+    $('#fuQ', el).oninput = draw; $('#fuF', el).onchange = draw; draw();
+  }
+};
+
+PAGE_META.formats = { group: 'Action', title: 'Notice Format & Memo', desc: 'Ready formats by category – fill from the case, edit, upload your own, print, Word, e-mail. Upload + keeps any file you need again.', order: ['notice', 'memo', 'upload'], names: { notice: '📨 Notice Format', memo: '📝 Memo', upload: '⬆ Upload +' } };
+Pages.formats = main => { const { cur, body } = tabs(main, 'formats', [['notice', '📨 Notice Format'], ['memo', '📝 Memo'], ['upload', '⬆ Upload +']], 'Notice Format & Memo'); if (cur === 'upload') Formats.upTab(body); else Formats.lib(body, cur === 'memo' ? 'memo' : 'notice'); };
+
+Object.assign(NoticeKit.REC, {
+  deliv: ['Delivery partner', ['Amazon (Amazon Seller Services)', 'Flipkart / Ekart', 'Delhivery', 'Blue Dart', 'DTDC', 'Ecom Express', 'Xpressbees', 'Shadowfax', 'India Post', 'Swiggy', 'Zomato', 'Meesho']],
+  jmis: ['Agency', ['I4C, MHA (Samanvaya / JMIS)', 'State Cyber Nodal Officer, UP', 'Cyber Crime Cell of other State', 'SP / SSP of other district']]
+});
+
+// formats in Case File › Notice Drafts too
+(() => {
+  const of = Notices.fill; Notices.fill = function (key, bank, platform, ref, company) {
+    const F = String(key).startsWith('f_') || String(key).startsWith('u_') ? Formats.find(key) : null;
+    return F ? Formats.fill(F.it.text, { to: bank || platform || company || '', bank, platform, ref, company }) : of.apply(this, arguments); };
+  const or = Notices.render; Notices.render = function (el) { or.apply(this, arguments); const sel = $('#ntT', el); if (!sel) return;
+    for (const lib of ['notice', 'memo']) for (const [cid, cn] of Formats.cats(lib)) { const L = Formats.items(lib, cid); if (!L.length) continue; const g = document.createElement('optgroup'); g.label = (lib === 'memo' ? 'Memo · ' : 'Format · ') + cn; g.innerHTML = L.map(x => `<option value="${x.id}">${esc(x.name)}</option>`).join(''); sel.appendChild(g); } };
+})();
+
+/* sidebar: Case File & Notices becomes a drop-down */
+(() => {
+  const nav = $('#sidebar'), it = nav && $('.nav-item[data-page="others"]', nav); if (!it) return;
+  const SUB = [['others', '', 'Case File & Drafts', '#eab308'], ['formats', 'notice', 'Notice Format', '#3b82f6'], ['formats', 'memo', 'Memo', '#ef4444'], ['formats', 'upload', 'Upload +', '#22c55e']];
+  it.insertAdjacentHTML('beforeend', '<span class="nav-chev">▾</span>');
+  it.insertAdjacentHTML('afterend', `<div class="nav-subs cf-subs">${SUB.map(([p, s, l, c], i) => `<div class="nav-sub" data-cf="${p}|${s}" style="--pc:${c}"><i></i><span>${i + 1}. ${l}</span></div>`).join('')}</div>`);
+  const subs = $('.cf-subs', nav), setOpen = on => { S.cfOpen = on; subs.classList.toggle('open', on); it.classList.toggle('open', on); };
+  setOpen(false);
+  it.addEventListener('click', e => { e.stopImmediatePropagation(); setOpen(!S.cfOpen); }, true);
+  $$('[data-cf]', subs).forEach(n => n.onclick = () => { const [p, s] = n.dataset.cf.split('|'); go(p, s || undefined); });
+  const or = render; render = function () { const r = or.apply(this, arguments);
+    $$('[data-cf]', subs).forEach(n => { const [p, s] = n.dataset.cf.split('|'); n.classList.toggle('active', S.page === p && (!s || (S.sub.formats || 'notice') === s)); });
+    const on = S.page === 'others' || S.page === 'formats'; it.classList.toggle('active', on); if (on && !S.cfOpen) setOpen(true); return r; };
+})();
