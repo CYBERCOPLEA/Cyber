@@ -86,11 +86,11 @@ const CCTNS = {
     const c = activeCase(), base = Notices.T[type], mine = this.T[type];
     const items = (extra.items || []).map((x, i) => `${i + 1}. ${[x.what, x.name].filter(Boolean).join(' – ')}`).join('\n');
     let text;
-    if (base) { text = Notices.fill(type, extra.bank || (item && /bank/i.test(item.who) ? item.who : ''), extra.platform || '', '');
+    if (base) { text = Notices.fill(type, extra.bank || (item && /bank/i.test(item.who) ? item.who : ''), extra.platform || '', '', extra.company || '');
       if (items && type === 'telecom') text = text.replace(/1\. _{6,}[^\n]*|(\d+\. \d{10}\n?)+/m, items + '\n'); }
     else { const v = { ps: c.ps || '________', fir: c.fir ? 'FIR No. ' + c.fir : 'Case No. ________', section: c.section || '________', district: c.district || 'Ghaziabad', place: 'Police Station ' + (c.ps || '________') + (c.district ? ', ' + c.district : ''), items: items || '1. ____________' };
       const f = s => s.replace(/\{\{(\w+)\}\}/g, (_, k) => v[k] ?? '');
-      text = `Date: ${new Date().toLocaleDateString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric' })}\n\nTo,\n${extra.to || '____________'}\n${extra.addr || ''}${extra.mobile ? '\nMobile: ' + extra.mobile : ''}\n\nSubject: ${f(mine.subject)}\n\n${f(mine.body)}\n\n\n(${c.io || 'Investigating Officer'})\nInvestigating Officer\nPolice Station ${c.ps || '________'}${c.district ? ', ' + c.district : ''}`; }
+      text = `Date: ${new Date().toLocaleDateString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric' })}\n\nTo,\n${extra.to || '____________'}\n${extra.addr || ''}${extra.mobile ? '\nMobile: ' + extra.mobile : ''}\n\nSubject: ${f(mine.subject)}\n\n${f(mine.body)}\n\n\n(${c.io || 'Investigating Officer'})\nInvestigating Officer\nPolice Station ${c.ps || '________'}${c.district ? ', ' + c.district : ''}`; text = NoticeKit.head(text, f(mine.subject).split(' – ')[0]); }
     return text;
   },
   openNotice(type, row) {
@@ -99,19 +99,27 @@ const CCTNS = {
     const whoList = uniq(items.map(x => x.who).filter(Boolean));
     const body = UI.drawer('Draft notice', `<div class="note warn">Draft to save typing – check sections, dates and wording against current law and your office format before signing.</div>
       <div class="row" style="flex-wrap:wrap;gap:8px"><label>Notice</label><select id="ccT">${Object.entries(all).map(([k, n]) => `<option value="${k}" ${k === type ? 'selected' : ''}>${esc(n)}</option>`).join('')}</select>
-      <label>To</label><select id="ccW"><option value="">— choose —</option>${[...whoList.map(w => ['w:' + w, w]), ...acc.map((a, i) => ['a:' + i, a.name + (a.mobile ? ' · ' + a.mobile : '')])].map(([v, l]) => `<option value="${esc(v)}">${esc(l)}</option>`).join('')}</select><button class="btn primary" id="ccGo">Make draft</button></div>
-      <textarea id="ccOut" style="min-height:430px;margin-top:10px;font-family:Georgia,serif;font-size:14px"></textarea>
-      <div class="row" style="margin-top:8px;gap:8px"><button class="btn" id="ccPr">🖨 Print</button><button class="btn" id="ccWd">⬇ Word (.doc)</button><button class="btn" id="ccCp">Copy</button><span class="spacer"></span><button class="btn primary" id="ccSave">✔ Save as sent + follow-up task</button></div>`);
+      <label>To</label><select id="ccTo"></select><button class="btn primary" id="ccGo">Make draft</button></div>
+      <textarea id="ccOut" style="min-height:430px;margin-top:10px"></textarea>
+      <div class="row" style="margin-top:8px;gap:8px"><button class="btn" id="ccPr">🖨 Print</button><button class="btn" id="ccWd">⬇ Word (.docx)</button><button class="btn" id="ccCp">Copy</button><span class="spacer"></span><button class="btn primary" id="ccSave">✔ Save as sent + follow-up task</button></div>`);
     $('#drawer').classList.add('dx-wide');
-    const make = () => { const t = $('#ccT', body).value, w = $('#ccW', body).value; let ex = { items };
-      if (w.startsWith('w:')) { const who = w.slice(2); ex = { items: items.filter(x => x.who === who), bank: who, platform: who, to: who }; }
+    const banks = NoticeKit.caseBanks(), plats = NoticeKit.casePlats();
+    const toList = () => { const t = $('#ccT', body).value, k = NoticeKit.kindOf(t), sel = $('#ccTo', body);
+      const opts = [...whoList.map(w => ['w:' + w, w])];
+      if (k === 'bank') banks.filter(b => !whoList.includes(b)).forEach(b => opts.push(['w:' + b, b]));
+      if (k === 'plat') plats.filter(b => !whoList.includes(b)).forEach(b => opts.push(['w:' + b, b]));
+      if (k === 'person' || k === 'other') acc.forEach((a, i) => opts.push(['a:' + i, a.name + (a.mobile ? ' · ' + a.mobile : '')]));
+      NoticeKit.recipients(sel, k === 'other' ? 'person' : k, opts, ''); };
+    const make = () => { const t = $('#ccT', body).value, w = $('#ccTo', body).value; let ex = { items };
+      if (w.startsWith('w:') || w.startsWith('s:')) { const who = w.slice(2), mine = items.filter(x => x.who === who); ex = { items: mine.length ? mine : items, bank: who, platform: who, company: who, to: who }; }
       if (w.startsWith('a:')) { const a = acc[+w.slice(2)]; ex = { to: a.name, addr: a.addr, mobile: a.mobile, items: [{ what: a.acc ? 'A/c ' + a.acc : '', name: a.bank }] }; }
       $('#ccOut', body).value = this.notice(t, row, ex); };
-    $('#ccGo', body).onclick = make; $('#ccT', body).onchange = make; $('#ccW', body).onchange = make; make();
+    toList(); $('#ccGo', body).onclick = make; $('#ccT', body).onchange = () => { toList(); make(); }; $('#ccTo', body).onchange = make; make();
+    NoticeKit.tools($('#ccPr', body).parentNode, $('#ccOut', body), { vars: () => { const w = NoticeKit.nameOf($('#ccTo', body).value); return { bank: w, platform: w, company: w }; } });
     $('#ccPr', body).onclick = () => Reports.printText($('#ccOut', body).value);
     $('#ccCp', body).onclick = () => { navigator.clipboard && navigator.clipboard.writeText($('#ccOut', body).value); UI.toast('Copied'); };
-    $("#ccWd", body).onclick = () => UI.download('notice_' + $('#ccT', body).value + '.doc', `<html><head><meta charset="utf-8"></head><body style="font-family:Times New Roman;font-size:12pt;white-space:pre-wrap">${esc($('#ccOut', body).value)}</body></html>`, 'application/msword');
-    $('#ccSave', body).onclick = () => { const t = $('#ccT', body).value, w = $('#ccW', body), to = w.value ? w.options[w.selectedIndex].text.split(' · ')[0] : '';
+    $("#ccWd", body).onclick = () => NoticeKit.docx('notice_' + $('#ccT', body).value + '.docx', $('#ccOut', body).value);
+    $('#ccSave', body).onclick = () => { const t = $('#ccT', body).value, w = $('#ccTo', body), to = w.value ? w.options[w.selectedIndex].text.split(' · ')[0] : '';
       this.st().notices.push({ id: uid(), type: t, name: all[t], to, when: new Date().toISOString(), text: $('#ccOut', body).value });
       S.data.tasks.push({ id: uid(), text: 'Follow up: ' + all[t] + (to ? ' – ' + to : ''), due: new Date(Date.now() + 7 * 864e5).toISOString().slice(0, 10), done: false });
       saveCase(); UI.toast('Notice saved in the case, follow-up task added'); UI.closeDrawer(); render(); };

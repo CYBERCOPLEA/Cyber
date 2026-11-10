@@ -1439,6 +1439,13 @@ mark.cc-q{background:#f97316;color:#000;border-radius:3px}
 .el-row.drag{opacity:.5}
 .el-dr{cursor:grab;color:var(--text-muted);text-align:center}
 
+/* ---- notice office format: Arial Narrow 11 ---- */
+textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !important;font-size:11pt !important;line-height:1.4}
+.nk-pv{font-family:'Arial Narrow',Arial,sans-serif;font-size:11pt;line-height:1.35;background:#fff;color:#000;padding:28px 36px;border-radius:8px;min-height:430px;max-height:70vh;overflow:auto;margin-top:10px;box-shadow:0 4px 18px rgba(0,0,0,.35)}
+.nk-imp{border-color:#22c55e !important;color:#86efac !important}
+.nk-mail-b{border-color:#0ea5e9 !important;color:#7dd3fc !important}
+.nk-mail p{margin:6px 0}
+
 </style>
 </head>
 <body>
@@ -1486,7 +1493,7 @@ mark.cc-q{background:#f97316;color:#000;border-radius:3px}
         <div class="hp-feat" style="--fc:#06b6d4"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><div><b>Analytics</b><p>The same mobile, account, IP or e-mail across complaints, banks and platforms.</p></div></div>
         <div class="hp-feat" style="--fc:#eab308"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h5"/></svg></span><div><b>Case File &amp; Notices</b><p>Case reports, notices to banks and platforms, and CSV / PDF exports.</p></div></div>
     </section>
-    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-10 11:06 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
+    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-10 11:22 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
   </div>
 
   <div class="lg-wrap" id="lgWrap" aria-hidden="true">
@@ -5874,6 +5881,8 @@ Notices.render = function (el) {
       <input id="ntFind" placeholder="Search drafts…" style="width:100%;margin:6px 0 8px">
       <div id="ntDrafts"></div></div></div>`;
   const out = $('#ntOut', el), nm = $('#ntName', el), tsel = $('#ntT', el);
+  NoticeKit.recipients($('#ntB', el), 'bank', banks.map(b => [b, b]), ''); NoticeKit.recipients($('#ntP', el), 'plat', plats.map(b => [b, b]), '');
+  NoticeKit.tools($('.nt-btns', el), out, { vars: () => ({ bank: NoticeKit.nameOf($('#ntB', el).value), platform: NoticeKit.nameOf($('#ntP', el).value), company: $('#ntC', el).value.trim(), ref: $('#ntRef', el).value }), after: () => this.render(el) });
   const draw = () => {
     const f = ($('#ntFind', el).value || '').toLowerCase(), L = D.slice().sort((a, b) => b.updated.localeCompare(a.updated)).filter(d => !f || (d.name + ' ' + d.text).toLowerCase().includes(f));
     $('#ntDrafts', el).innerHTML = L.length ? L.map(d => `<div class="nt-item ${d.id === st.id ? 'on' : ''}" data-d="${d.id}"><div class="grow"><b>${esc(d.name)}</b><div class="small muted">${esc(d.tplName || '')}</div><div class="small muted">Edited ${esc(new Date(d.updated).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }))}</div></div><div class="nt-acts"><button class="btn sm" data-dup="${d.id}" title="Make a copy">⧉</button><button class="btn sm danger" data-del="${d.id}" title="Delete">✕</button></div></div>`).join('') : `<div class="muted small">${D.length ? 'No draft matches.' : 'No saved drafts yet. Generate a notice, edit it and press 💾 Save draft.'}</div>`;
@@ -5883,7 +5892,7 @@ Notices.render = function (el) {
   };
   const state = () => { const d = D.find(x => x.id === st.id); $('#ntState', el).innerHTML = d ? `Editing saved draft${st.dirty ? ' · <span class="err">unsaved changes</span>' : ' · saved'}` : (out.value ? 'New draft · <span class="err">not saved yet</span>' : ''); };
   const tplName = () => { const o = tsel.selectedOptions[0]; return o ? o.textContent : ''; };
-  const gen = () => { out.value = this.fill(tsel.value, $('#ntB', el).value, $('#ntP', el).value, $('#ntRef', el).value, $('#ntC', el).value.trim()); nm.value = tplName().replace(/\s*\(.*?\)\s*/g, ' ').trim() + ($('#ntB', el).value ? ' – ' + $('#ntB', el).value : $('#ntC', el).value ? ' – ' + $('#ntC', el).value : $('#ntP', el).value ? ' – ' + $('#ntP', el).value : ''); st.id = null; st.dirty = false; state(); draw(); };
+  const gen = () => { out.value = this.fill(tsel.value, NoticeKit.nameOf($('#ntB', el).value), NoticeKit.nameOf($('#ntP', el).value), $('#ntRef', el).value, $('#ntC', el).value.trim()); nm.value = tplName().replace(/\s*\(.*?\)\s*/g, ' ').trim() + (NoticeKit.nameOf($('#ntB', el).value) ? ' – ' + NoticeKit.nameOf($('#ntB', el).value) : $('#ntC', el).value ? ' – ' + $('#ntC', el).value : NoticeKit.nameOf($('#ntP', el).value) ? ' – ' + NoticeKit.nameOf($('#ntP', el).value) : ''); st.id = null; st.dirty = false; state(); draw(); };
   const save = asNew => { const text = out.value; if (!text.trim()) { UI.toast('Nothing to save'); return; } let d = !asNew && D.find(x => x.id === st.id); const name = nm.value.trim() || tplName() || 'Notice';
     if (d) Object.assign(d, { name, text, updated: new Date().toISOString() }); else { d = { id: uid() + '', name: asNew && st.id ? name + ' (copy)' : name, tpl: tsel.value, tplName: tplName(), text, created: new Date().toISOString(), updated: new Date().toISOString() }; D.push(d); }
     st.id = d.id; st.dirty = false; saveCase(); state(); draw(); $('.nt-list .badge', el).textContent = D.length; UI.toast('Draft saved'); };
@@ -11123,6 +11132,144 @@ const EditList = {
 
 </script>
 <script>
+/* noticekit.js - shared tools for every notice / letter drafter:
+   recipient lists that fit the notice (editable), Import Notice Draft, Email via NIC / Gov mail,
+   and the office format: Arial Narrow 11 pt, headline and subject in bold. */
+const NoticeKit = {
+  FONT: "'Arial Narrow', Arial, sans-serif",
+  MAIL: 'https://mail.gov.in',
+  REC: {
+    bank: ['Bank', ['State Bank of India', 'HDFC Bank', 'ICICI Bank', 'Axis Bank', 'Punjab National Bank', 'Bank of Baroda', 'Kotak Mahindra Bank', 'Canara Bank', 'Union Bank of India', 'Bank of India', 'Indian Bank', 'IndusInd Bank', 'Yes Bank', 'IDFC First Bank', 'AU Small Finance Bank', 'Airtel Payments Bank', 'Paytm Payments Bank', 'Fino Payments Bank', 'India Post Payments Bank']],
+    tel: ['Telecom operator', ['Reliance Jio Infocomm Ltd', 'Bharti Airtel Ltd', 'Vodafone Idea Ltd (Vi)', 'Bharat Sanchar Nigam Ltd (BSNL)', 'MTNL']],
+    plat: ['Platform', ['Meta Platforms (WhatsApp)', 'Meta Platforms (Facebook / Instagram)', 'Google LLC (Gmail / YouTube)', 'Telegram Messenger', 'X Corp (Twitter)', 'Snapchat', 'ShareChat / Moj', 'Truecaller', 'Microsoft', 'Amazon Web Services', 'GoDaddy', 'Cloudflare']],
+    pay: ['Payment / e-commerce company', ['NPCI', 'PhonePe', 'Google Pay', 'Paytm', 'Amazon Pay', 'MobiKwik', 'Razorpay', 'Cashfree', 'PayU', 'Amazon', 'Flipkart', 'WazirX', 'CoinDCX', 'Binance']],
+    person: ['Person (accused / witness)', []]
+  },
+  kindOf(key) {
+    const k = String(key || '');
+    if (/^(bank_|atm_|lift_lien|unfreeze)/.test(k)) return 'bank';
+    if (/^tel/.test(k)) return 'tel';
+    if (/^(upi|pg|ecom|crypto)$/.test(k)) return 'pay';
+    if (/^(intermediary|takedown|email|domain|preserve)$/.test(k)) return 'plat';
+    if (/^(n353|n179|n94)$/.test(k)) return 'person';
+    return 'other';
+  },
+  caseBanks() { try { return uniq(Analysis.accountRows().filter(a => a.layer > 0 && !isSynthetic(a.acc)).map(a => (a.bank || '').split(' / ')[0]).filter(Boolean)).sort(); } catch (e) { return []; } },
+  casePlats() { return uniq((S.data.social || []).map(s => s.platform).filter(Boolean)).sort(); },
+  // fill a "To / Bank / Platform" select: blank, values from this case, a saved list, and "✏ Edit"
+  recipients(sel, kind, caseOpts, keep) {
+    if (!sel) return;
+    const k = this.REC[kind] ? kind : 'person', [title, defs] = this.REC[k], key = 'rcp-' + k;
+    const saved = EditList.items(key, defs), v = keep !== undefined ? keep : sel.value;
+    const caseVals = new Set(caseOpts.map(o => o[1]));
+    sel.innerHTML = '<option value="">— choose —</option>'
+      + (caseOpts.length ? `<optgroup label="In this case">${caseOpts.map(([val, lab]) => `<option value="${esc(val)}">${esc(lab)}</option>`).join('')}</optgroup>` : '')
+      + `<optgroup label="${esc(title)} list">${saved.filter(s => !caseVals.has(s)).map(s => `<option value="s:${esc(s)}">${esc(s)}</option>`).join('') || '<option disabled>(empty – use ✏ to add)</option>'}</optgroup>`
+      + `<option value="__edit">✏ Edit / reorder ${esc(title.toLowerCase())} list…</option>`;
+    sel.value = [...sel.options].some(o => o.value === v) ? v : '';
+    sel.dataset.last = sel.value; sel.dataset.kind = k;
+    if (!sel._nk) { sel._nk = 1; sel.addEventListener('change', e => {
+      if (sel.value !== '__edit') { sel.dataset.last = sel.value; return; }
+      e.stopImmediatePropagation(); const last = sel.dataset.last || ''; sel.value = last; const kk = sel.dataset.kind;
+      EditList.edit('rcp-' + kk, this.REC[kk][1], this.REC[kk][0] + ' list', () => this.recipients(sel, kk, sel._caseOpts || [], last));
+    }, true); }
+    sel._caseOpts = caseOpts;
+  },
+  // value from recipients() → plain name
+  nameOf(v) { return String(v || '').replace(/^[a-z]:/, ''); },
+
+  /* ---------- format ---------- */
+  bold(l) { const s = l.trim(); if (!s) return false; if (/^\*\*.+\*\*$/.test(s)) return true;
+    return /^(subject|sub\.?|विषय|re)\s*[:\-–]/i.test(s) || (s.length > 3 && s.length < 140 && /[A-Z]{3}/.test(s) && s === s.toUpperCase() && !/^[\d(]/.test(s) && !/\d{6,}/.test(s)); },
+  lines(text) { // [{t, b, c}] – c = centre (headline at the top)
+    let top = true; return String(text || '').replace(/\r/g, '').split('\n').map(l => { const s = l.trim(), b = this.bold(l), t = l.replace(/^\s*\*\*(.+)\*\*\s*$/, '$1');
+      const c = top && b && !/^(subject|sub\.?|विषय|re)\s*[:\-–]/i.test(s); if (s && !c) top = false; return { t, b, c }; });
+  },
+  html(text) { return this.lines(text).map(x => `<div style="${x.b ? 'font-weight:bold;' : ''}${x.c ? 'text-align:center;' : ''}min-height:1.2em;white-space:pre-wrap">${esc(x.t)}</div>`).join(''); },
+  page(text, title) { return `<html><head><meta charset="utf-8"><title>${esc(title || 'Notice')}</title><style>@page{size:A4;margin:2cm}body{font-family:${this.FONT};font-size:11pt;line-height:1.35;color:#000}</style></head><body>${this.html(text)}</body></html>`; },
+  print(text) { const w = window.open('', '_blank'); if (!w) return UI.toast('Pop-up blocked. Allow pop-ups for this page.');
+    w.document.write(this.page(text).replace('<body>', '<body><div class="np" style="font:13px Arial;margin-bottom:12px"><button onclick="print()">🖨 Print / Save as PDF</button></div><style>@media print{.np{display:none}}</style>')); w.document.close(); },
+  doc(name, text) { UI.download(name, this.page(text, name), 'application/msword'); },
+  docx(name, text) { Docx.save(name, Docx.letter(text, name)); },
+  // headline for drafts that do not have one
+  head(text, title) {
+    const L = this.lines(text); if (L.some(x => x.c)) return text;
+    const c = activeCase(), ps = String(c.ps || '________').replace(/\s*\bP\.?S\.?$/i, '').trim(), d = c.district || 'Ghaziabad';
+    return `OFFICE OF THE STATION HOUSE OFFICER\nPOLICE STATION ${ps.toUpperCase()}, DISTRICT ${d.toUpperCase()}${title ? '\n' + title.toUpperCase() : ''}\n\n` + text;
+  },
+
+  /* ---------- import a draft ---------- */
+  async readDocx(buf) {
+    const files = await GReply.unzip(buf), f = files.find(x => /document\.xml$|content\.xml$/.test(x.name)); if (!f) return '';
+    const x = await f.text();
+    return x.replace(/<w:tab\/>|<text:tab\/>/g, '\t').replace(/<w:br[^>]*\/>|<text:line-break\/>/g, '\n').replace(/<\/w:p>|<\/text:p>|<\/text:h>/g, '\n').replace(/<[^>]+>/g, '')
+      .replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/&amp;/g, '&').replace(/\n{3,}/g, '\n\n').trim();
+  },
+  async readAny(f) {
+    const ext = f.name.split('.').pop().toLowerCase();
+    if (ext === 'docx' || ext === 'odt') return this.readDocx(await f.arrayBuffer());
+    if (ext === 'doc') { const b = new Uint8Array(await f.arrayBuffer()); if (b[0] === 0x50 && b[1] === 0x4b) return this.readDocx(b.buffer);
+      const t = new TextDecoder().decode(b); if (/<html|<body/i.test(t)) return GReply.html2text(t);
+      const u = new TextDecoder('utf-16le').decode(b.slice(0, b.length - b.length % 2)); const runs = u.match(/[\x20-\x7Eऀ-ॿ₹\r\n\t]{12,}/g) || [];
+      return runs.join('\n').replace(/\r/g, '\n').replace(/\n{3,}/g, '\n\n').trim(); }
+    if (ext === 'rtf') { const t = await f.text(); return t.replace(/\\par[d]?/g, '\n').replace(/\{\\\*[^}]*\}|\\[a-z]+-?\d* ?|[{}]/g, '').replace(/\n{3,}/g, '\n\n').trim(); }
+    return (await GReply.read(f)).text || '';
+  },
+  fillVars(text, o = {}) { let v = {}; try { v = Notices.vars(o.bank || '', o.platform || '', o.ref || '', o.company || ''); } catch (e) { } return String(text).replace(/\{\{(\w+)\}\}/g, (m, k) => v[k] ?? m); },
+  importDraft(ta, o = {}) {
+    const inp = document.createElement('input'); inp.type = 'file'; inp.accept = '.docx,.doc,.odt,.rtf,.txt,.htm,.html,.pdf';
+    inp.onchange = async () => { const f = inp.files[0]; if (!f) return; let t = '';
+      try { t = await this.readAny(f); } catch (e) { }
+      if (!t.trim()) return UI.toast('Could not read text from ' + f.name + '. Save it as .docx or .txt and try again.', 6000);
+      if (ta.value.trim() && !UI.confirm('Replace the text in the editor with "' + f.name + '"?')) return;
+      ta.value = this.fillVars(t, o.vars ? o.vars() : {}); ta.dispatchEvent(new Event('input', { bubbles: true }));
+      if (UI.confirm('Draft loaded. Also keep it as ⭐ My template so it can be used in every case?\n\nTip: write {{fir}}, {{ps}}, {{section}}, {{accounts}}, {{mobiles}} in your file where case details should go.')) {
+        (S.settings.myTpl || (S.settings.myTpl = [])).push({ id: 'my_' + uid(), name: f.name.replace(/\.[^.]+$/, ''), text: t }); saveMeta(); UI.toast('Saved in ⭐ My templates'); if (o.after) o.after(); }
+      else UI.toast('Draft loaded from ' + f.name);
+    };
+    inp.click();
+  },
+
+  /* ---------- email via NIC / Gov mail ---------- */
+  email(text, o = {}) {
+    if (!String(text).trim()) return UI.toast('Nothing to send yet');
+    const subj = (String(text).match(/^\s*(?:subject|sub\.?|विषय)\s*[:\-–]\s*(.+)$/im) || [])[1] || o.subject || 'Notice';
+    const copy = () => navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject();
+    copy().catch(() => { const t = document.createElement('textarea'); t.value = text; document.body.appendChild(t); t.select(); try { document.execCommand('copy'); } catch (e) { } t.remove(); });
+    const b = UI.modal('✉ Email this notice', `<div class="nk-mail"><p>The full notice is <b>copied</b>. In the mail, click <b>Compose</b> and press <b>Ctrl + V</b> in the message box.</p>
+      <label class="small muted">Subject (copy into the mail)</label><div class="row" style="gap:6px"><input id="nkSub" value="${esc(subj)}" style="flex:1"><button class="btn sm" id="nkSubCp">Copy</button></div>
+      <p class="small muted" style="margin-top:10px">To attach it as a file, use <b>⬇ Word</b> first, then attach the downloaded file in the mail.</p>
+      <div class="row" style="gap:8px;margin-top:10px;flex-wrap:wrap"><a class="btn primary" href="${this.MAIL}" target="_blank" rel="noopener">🏛 Open NIC / Gov mail (mail.gov.in)</a><button class="btn" id="nkCp">📋 Copy notice again</button><a class="btn" id="nkTo" href="#">✉ Other mail app</a></div></div>`,
+      [{ label: 'Close', onClick: UI.closeModal }]);
+    $('#nkSubCp', b).onclick = () => { navigator.clipboard && navigator.clipboard.writeText($('#nkSub', b).value); UI.toast('Subject copied'); };
+    $('#nkCp', b).onclick = () => { copy(); UI.toast('Notice copied'); };
+    $('#nkTo', b).href = 'mailto:?subject=' + encodeURIComponent(subj) + '&body=' + encodeURIComponent(String(text).slice(0, 1800));
+    window.open(this.MAIL, '_blank', 'noopener');
+  },
+
+  /* ---------- add the buttons to a drafter ---------- */
+  tools(row, ta, o = {}) {
+    if (!row || !ta || row.querySelector('.nk-imp')) return;
+    ta.classList.add('nk-ta');
+    const pv = document.createElement('div'); pv.className = 'nk-pv hidden'; ta.after(pv);
+    row.insertAdjacentHTML('afterbegin', `<button class="btn nk-imp" title="Load your own notice draft (Word / text / PDF)">📥 Import Notice Draft</button><button class="btn nk-mail-b" title="Copy the notice and open NIC / Gov e-mail">✉ Email</button><button class="btn nk-pv-b" title="See it as it will print">👁 Formatted view</button>`);
+    row.querySelector('.nk-imp').onclick = () => this.importDraft(ta, o);
+    row.querySelector('.nk-mail-b').onclick = () => this.email(ta.value, o);
+    const pb = row.querySelector('.nk-pv-b'); pb.onclick = () => { const on = pv.classList.toggle('hidden'); ta.classList.toggle('hidden', !on); pb.textContent = on ? '👁 Formatted view' : '✏ Edit text'; if (!on) pv.innerHTML = this.html(ta.value); };
+  }
+};
+
+/* every notice uses the office format */
+Reports.printText = t => NoticeKit.print(t);
+Docx.letter = function (text, title) {
+  return this.build(NoticeKit.lines(text).map(x => this.p(this.r(x.t, { b: x.b }), { after: 0, align: x.c ? 'center' : undefined })).join(''), { font: 'Arial Narrow', size: 11, title });
+};
+(() => { // headline on generated drafts
+  const of = Notices.fill; Notices.fill = function (key) { const t = of.apply(this, arguments); return (S.settings.myTpl || []).some(m => m.id === key) || !t ? t : NoticeKit.head(t); };
+})();
+
+</script>
+<script>
 /* cctns.js – Investigation › CCTNS
    1. Case Diary: all cases at a glance, pick one, read its FIR and case-diary parts, see work done and what is still
       pending (and from whom to demand it), and draft BNSS notices (94, 106, 35(3), 179) in one click.
@@ -11211,11 +11358,11 @@ const CCTNS = {
     const c = activeCase(), base = Notices.T[type], mine = this.T[type];
     const items = (extra.items || []).map((x, i) => `${i + 1}. ${[x.what, x.name].filter(Boolean).join(' – ')}`).join('\n');
     let text;
-    if (base) { text = Notices.fill(type, extra.bank || (item && /bank/i.test(item.who) ? item.who : ''), extra.platform || '', '');
+    if (base) { text = Notices.fill(type, extra.bank || (item && /bank/i.test(item.who) ? item.who : ''), extra.platform || '', '', extra.company || '');
       if (items && type === 'telecom') text = text.replace(/1\. _{6,}[^\n]*|(\d+\. \d{10}\n?)+/m, items + '\n'); }
     else { const v = { ps: c.ps || '________', fir: c.fir ? 'FIR No. ' + c.fir : 'Case No. ________', section: c.section || '________', district: c.district || 'Ghaziabad', place: 'Police Station ' + (c.ps || '________') + (c.district ? ', ' + c.district : ''), items: items || '1. ____________' };
       const f = s => s.replace(/\{\{(\w+)\}\}/g, (_, k) => v[k] ?? '');
-      text = `Date: ${new Date().toLocaleDateString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric' })}\n\nTo,\n${extra.to || '____________'}\n${extra.addr || ''}${extra.mobile ? '\nMobile: ' + extra.mobile : ''}\n\nSubject: ${f(mine.subject)}\n\n${f(mine.body)}\n\n\n(${c.io || 'Investigating Officer'})\nInvestigating Officer\nPolice Station ${c.ps || '________'}${c.district ? ', ' + c.district : ''}`; }
+      text = `Date: ${new Date().toLocaleDateString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric' })}\n\nTo,\n${extra.to || '____________'}\n${extra.addr || ''}${extra.mobile ? '\nMobile: ' + extra.mobile : ''}\n\nSubject: ${f(mine.subject)}\n\n${f(mine.body)}\n\n\n(${c.io || 'Investigating Officer'})\nInvestigating Officer\nPolice Station ${c.ps || '________'}${c.district ? ', ' + c.district : ''}`; text = NoticeKit.head(text, f(mine.subject).split(' – ')[0]); }
     return text;
   },
   openNotice(type, row) {
@@ -11224,19 +11371,27 @@ const CCTNS = {
     const whoList = uniq(items.map(x => x.who).filter(Boolean));
     const body = UI.drawer('Draft notice', `<div class="note warn">Draft to save typing – check sections, dates and wording against current law and your office format before signing.</div>
       <div class="row" style="flex-wrap:wrap;gap:8px"><label>Notice</label><select id="ccT">${Object.entries(all).map(([k, n]) => `<option value="${k}" ${k === type ? 'selected' : ''}>${esc(n)}</option>`).join('')}</select>
-      <label>To</label><select id="ccW"><option value="">— choose —</option>${[...whoList.map(w => ['w:' + w, w]), ...acc.map((a, i) => ['a:' + i, a.name + (a.mobile ? ' · ' + a.mobile : '')])].map(([v, l]) => `<option value="${esc(v)}">${esc(l)}</option>`).join('')}</select><button class="btn primary" id="ccGo">Make draft</button></div>
-      <textarea id="ccOut" style="min-height:430px;margin-top:10px;font-family:Georgia,serif;font-size:14px"></textarea>
-      <div class="row" style="margin-top:8px;gap:8px"><button class="btn" id="ccPr">🖨 Print</button><button class="btn" id="ccWd">⬇ Word (.doc)</button><button class="btn" id="ccCp">Copy</button><span class="spacer"></span><button class="btn primary" id="ccSave">✔ Save as sent + follow-up task</button></div>`);
+      <label>To</label><select id="ccTo"></select><button class="btn primary" id="ccGo">Make draft</button></div>
+      <textarea id="ccOut" style="min-height:430px;margin-top:10px"></textarea>
+      <div class="row" style="margin-top:8px;gap:8px"><button class="btn" id="ccPr">🖨 Print</button><button class="btn" id="ccWd">⬇ Word (.docx)</button><button class="btn" id="ccCp">Copy</button><span class="spacer"></span><button class="btn primary" id="ccSave">✔ Save as sent + follow-up task</button></div>`);
     $('#drawer').classList.add('dx-wide');
-    const make = () => { const t = $('#ccT', body).value, w = $('#ccW', body).value; let ex = { items };
-      if (w.startsWith('w:')) { const who = w.slice(2); ex = { items: items.filter(x => x.who === who), bank: who, platform: who, to: who }; }
+    const banks = NoticeKit.caseBanks(), plats = NoticeKit.casePlats();
+    const toList = () => { const t = $('#ccT', body).value, k = NoticeKit.kindOf(t), sel = $('#ccTo', body);
+      const opts = [...whoList.map(w => ['w:' + w, w])];
+      if (k === 'bank') banks.filter(b => !whoList.includes(b)).forEach(b => opts.push(['w:' + b, b]));
+      if (k === 'plat') plats.filter(b => !whoList.includes(b)).forEach(b => opts.push(['w:' + b, b]));
+      if (k === 'person' || k === 'other') acc.forEach((a, i) => opts.push(['a:' + i, a.name + (a.mobile ? ' · ' + a.mobile : '')]));
+      NoticeKit.recipients(sel, k === 'other' ? 'person' : k, opts, ''); };
+    const make = () => { const t = $('#ccT', body).value, w = $('#ccTo', body).value; let ex = { items };
+      if (w.startsWith('w:') || w.startsWith('s:')) { const who = w.slice(2), mine = items.filter(x => x.who === who); ex = { items: mine.length ? mine : items, bank: who, platform: who, company: who, to: who }; }
       if (w.startsWith('a:')) { const a = acc[+w.slice(2)]; ex = { to: a.name, addr: a.addr, mobile: a.mobile, items: [{ what: a.acc ? 'A/c ' + a.acc : '', name: a.bank }] }; }
       $('#ccOut', body).value = this.notice(t, row, ex); };
-    $('#ccGo', body).onclick = make; $('#ccT', body).onchange = make; $('#ccW', body).onchange = make; make();
+    toList(); $('#ccGo', body).onclick = make; $('#ccT', body).onchange = () => { toList(); make(); }; $('#ccTo', body).onchange = make; make();
+    NoticeKit.tools($('#ccPr', body).parentNode, $('#ccOut', body), { vars: () => { const w = NoticeKit.nameOf($('#ccTo', body).value); return { bank: w, platform: w, company: w }; } });
     $('#ccPr', body).onclick = () => Reports.printText($('#ccOut', body).value);
     $('#ccCp', body).onclick = () => { navigator.clipboard && navigator.clipboard.writeText($('#ccOut', body).value); UI.toast('Copied'); };
-    $("#ccWd", body).onclick = () => UI.download('notice_' + $('#ccT', body).value + '.doc', `<html><head><meta charset="utf-8"></head><body style="font-family:Times New Roman;font-size:12pt;white-space:pre-wrap">${esc($('#ccOut', body).value)}</body></html>`, 'application/msword');
-    $('#ccSave', body).onclick = () => { const t = $('#ccT', body).value, w = $('#ccW', body), to = w.value ? w.options[w.selectedIndex].text.split(' · ')[0] : '';
+    $("#ccWd", body).onclick = () => NoticeKit.docx('notice_' + $('#ccT', body).value + '.docx', $('#ccOut', body).value);
+    $('#ccSave', body).onclick = () => { const t = $('#ccT', body).value, w = $('#ccTo', body), to = w.value ? w.options[w.selectedIndex].text.split(' · ')[0] : '';
       this.st().notices.push({ id: uid(), type: t, name: all[t], to, when: new Date().toISOString(), text: $('#ccOut', body).value });
       S.data.tasks.push({ id: uid(), text: 'Follow up: ' + all[t] + (to ? ' – ' + to : ''), due: new Date(Date.now() + 7 * 864e5).toISOString().slice(0, 10), done: false });
       saveCase(); UI.toast('Notice saved in the case, follow-up task added'); UI.closeDrawer(); render(); };
