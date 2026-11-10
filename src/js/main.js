@@ -162,7 +162,7 @@ const CaseBox = {
   read(box) { const o = {}; $$('[data-cb]', box).forEach(i => o[i.dataset.cb] = i.value === '__new' ? '' : i.value.trim()); return o; },
   check(o) { if (o.year && !/^(19|20)\d\d$/.test(o.year)) return 'Year should be 4 digits, e.g. 2026'; if (o.io_mobile && !/^(\+?91)?[6-9]\d{9}$/.test(o.io_mobile.replace(/[\s-]/g, ''))) return 'IO mobile should be a 10-digit mobile number'; return ''; },
   // modal: Select case (or new) → fill details → Save / Close
-  open(id) {
+  open(id, opt = {}) { this._opt = opt;
     let sel = id === 'new' ? 'new' : (id || S.caseId);
     const draw = () => { const c = sel === 'new' ? { year: String(new Date().getFullYear()), ps: activeCase().ps || '', district: activeCase().district || '', state: activeCase().state || 'UP – Uttar Pradesh' } : S.cases.find(x => x.id === sel) || {};
       const m = UI.modal(sel === 'new' ? '➕ New case' : '📁 Case details', `<div class="ip-case cbm"><div class="ip-hd cbm-hd"><span class="ip-ic">${sel === 'new' ? '➕' : '📁'}</span><b>${sel === 'new' ? 'Create new case' : 'Case details'}</b><span class="ip-st">${sel === 'new' ? 'Fill the details and press <b>Save</b>' : esc(c.name || '')}</span></div><div class="cbm-in"><div class="cb-sel"><label>Select case<select id="cbSel"><option value="new" ${sel === 'new' ? 'selected' : ''}>➕ New case</option>${S.cases.map(x => `<option value="${x.id}" ${x.id === sel ? 'selected' : ''}>${esc(x.name)}${x.fir ? ' · ' + esc(x.fir) : ''}</option>`).join('')}</select></label></div>
@@ -173,16 +173,47 @@ const CaseBox = {
   },
   async save(sel, box) { const o = this.read(box), err = this.check(o); if (err) { $('#cbErr', box).textContent = err; return; }
     o.name = o.name || this.autoName(o);
-    if (sel === 'new') { const c = { id: uid(), created: new Date().toISOString(), status: 'Under investigation', ...o }; S.cases.push(c); await DB.set('case:' + c.id, emptyCase()); UI.closeModal(); await switchCase(c.id); UI.toast('Case saved – now import its data'); return; }
+    if (sel === 'new') { const c = { id: uid(), created: new Date().toISOString(), status: 'Under investigation', ...o }; S.cases.push(c); await DB.set('case:' + c.id, emptyCase()); UI.closeModal(); await switchCase(c.id); UI.toast('Case saved – now import its data'); this.refresh(); return; }
     const c = S.cases.find(x => x.id === sel); if (!c) return; Object.assign(c, o); UI.closeModal();
-    if (sel !== S.caseId) await switchCase(sel); else { await saveMeta(); fillCaseSel(); render(); } UI.toast('Case details saved');
+    if (sel !== S.caseId && !(this._opt || {}).stay) await switchCase(sel); else { await saveMeta(); fillCaseSel(); render(); } UI.toast('Case details saved'); this.refresh();
   },
   // strip on the Dashboard: shows the details, ✏ edit in place, ➕ new, ➖ delete
+  refresh() { if ($('#cmW') && this._mDraw) this._mDraw(); },
+  /* All cases – side panel, one line per case: search, filter, sort, edit, add, remove */
+  _ms: { q: '', t: '', st: '', y: '', sort: 'created', dir: -1 },
+  manager() {
+    const st = this._ms, V = (c, k) => k === 'year' ? this.yearOf(c) : k === 'status' ? (c.status || 'Under investigation') : (c[k] || '');
+    const COLS = [['ctype', 'Case Type'], ['fir', 'FIR No.'], ['year', 'Year'], ['ps', 'Police Station'], ['district', 'District / Commissionerate'], ['state', 'State'], ['io', 'IO Name'], ['io_mobile', 'IO Mobile'], ['io_posting', 'IO Posting'], ['section', 'Sections'], ['status', 'Status']];
+    const done = c => typeof CaseStat !== 'undefined' ? CaseStat.done(c) : /complet/i.test(c.status || '');
+    const body = UI.drawer('📁 All cases', '<div id="cmW"></div>'); $('#drawer').classList.add('dx-wide');
+    const draw = () => { const A = S.cases, q = st.q.toLowerCase();
+      const L = A.filter(c => (!st.t || V(c, 'ctype') === st.t) && (!st.y || V(c, 'year') === st.y) && (!st.st || (st.st === 'done') === done(c)) && (!q || [c.name, ...COLS.map(([k]) => V(c, k))].join(' ').toLowerCase().includes(q)));
+      L.sort((a, b) => { const x = st.sort === 'created' ? String(a.created || '') : String(V(a, st.sort) || a.name || ''), y = st.sort === 'created' ? String(b.created || '') : String(V(b, st.sort) || b.name || ''); return x.localeCompare(y, 'en', { numeric: true }) * st.dir; });
+      const cnt = (k) => { const m = {}; A.forEach(c => { const v = V(c, k) || '—'; m[v] = (m[v] || 0) + 1; }); return Object.entries(m).sort((a, b) => b[1] - a[1]); };
+      const miss = A.filter(c => this.F.some(([k]) => !V(c, k))).length, pend = A.filter(c => !done(c)).length;
+      $('#cmW', body).innerHTML = `<div class="cm-top"><div class="cm-k"><b>${A.length}</b><span>All cases</span></div><div class="cm-k p" data-fs="pend"><b>${pend}</b><span>Pending</span></div><div class="cm-k d" data-fs="done"><b>${A.length - pend}</b><span>Completed</span></div><div class="cm-k m"><b>${miss}</b><span>Details missing</span></div>
+          <div class="cm-chips"><span class="small muted">Case type:</span>${cnt('ctype').map(([v, n]) => `<button class="cm-chip ${st.t === v ? 'on' : ''}" data-ft="${esc(v === '—' ? '' : v)}">${esc(v === '—' ? 'Not set' : v)} <b>${n}</b></button>`).join('')}</div></div>
+        <div class="row cm-bar"><button class="btn primary sm" id="cmAdd">➕ Add case</button><input id="cmQ" placeholder="🔍 Search FIR, IO, police station, district…" value="${esc(st.q)}"><select id="cmT"><option value="">All case types</option>${uniq(A.map(c => V(c, 'ctype')).filter(Boolean)).map(v => `<option ${v === st.t ? 'selected' : ''}>${esc(v)}</option>`).join('')}</select><select id="cmY"><option value="">All years</option>${uniq(A.map(c => V(c, 'year')).filter(Boolean)).sort().reverse().map(v => `<option ${v === st.y ? 'selected' : ''}>${v}</option>`).join('')}</select><select id="cmS"><option value="">Pending + completed</option><option value="pend" ${st.st === 'pend' ? 'selected' : ''}>Pending</option><option value="done" ${st.st === 'done' ? 'selected' : ''}>Completed</option></select><button class="btn sm" id="cmCsv">⬇ Excel (CSV)</button><span class="small muted">${L.length} of ${A.length}</span></div>
+        <div class="tbl-wrap cm-wrap"><table class="tbl cm-t"><thead><tr><th>#</th><th></th><th data-so="name">Case</th>${COLS.map(([k, l]) => `<th data-so="${k}">${l}${st.sort === k ? (st.dir > 0 ? ' ▲' : ' ▼') : ''}</th>`).join('')}</tr></thead><tbody>${L.map((c, i) => `<tr class="${c.id === S.caseId ? 'cm-on' : ''}"><td class="muted">${i + 1}</td><td class="fu-acts"><button class="btn sm" data-co="${c.id}">Open</button><button class="btn sm" data-ce="${c.id}">✏ Edit</button><button class="btn sm danger" data-cd="${c.id}" title="Remove this case">➖</button></td><td><b>${esc(c.name)}</b>${c.id === S.caseId ? ' <span class="badge info">open</span>' : ''}</td>${COLS.map(([k]) => { const v = V(c, k); return k === 'status' ? `<td><span class="cs-st ${done(c) ? 'd' : 'p'}">${esc(v)}</span></td>` : `<td class="${v ? '' : 'cm-e'}">${esc(v || '—')}</td>`; }).join('')}</tr>`).join('') || `<tr><td colspan="${COLS.length + 3}" class="muted">No case matches.</td></tr>`}</tbody></table></div>`;
+      const W = $('#cmW', body);
+      $('#cmQ', W).oninput = e => { st.q = e.target.value; const p = e.target.selectionStart; draw(); const n = $('#cmQ', W); n.focus(); n.setSelectionRange(p, p); };
+      $('#cmT', W).onchange = e => { st.t = e.target.value; draw(); }; $('#cmY', W).onchange = e => { st.y = e.target.value; draw(); }; $('#cmS', W).onchange = e => { st.st = e.target.value; draw(); };
+      $$('[data-ft]', W).forEach(b => b.onclick = () => { st.t = st.t === b.dataset.ft ? '' : b.dataset.ft; draw(); });
+      $$('[data-fs]', W).forEach(b => b.onclick = () => { st.st = st.st === b.dataset.fs ? '' : b.dataset.fs; draw(); });
+      $$('[data-so]', W).forEach(h => h.onclick = () => { const k = h.dataset.so; st.dir = st.sort === k ? -st.dir : 1; st.sort = k; draw(); });
+      $('#cmAdd', W).onclick = () => this.open('new');
+      $('#cmCsv', W).onclick = () => { const q = v => '"' + String(v ?? '').replace(/"/g, '""') + '"'; UI.download('all_cases.csv', '﻿' + [['Case', ...COLS.map(x => x[1])], ...L.map(c => [c.name, ...COLS.map(([k]) => V(c, k))])].map(r => r.map(q).join(',')).join('\r\n'), 'text/csv'); };
+      $$('[data-co]', W).forEach(b => b.onclick = async () => { UI.closeDrawer(); if (b.dataset.co !== S.caseId) await switchCase(b.dataset.co); go('dashboard'); });
+      $$('[data-ce]', W).forEach(b => b.onclick = () => this.open(b.dataset.ce, { stay: true, after: draw }));
+      $$('[data-cd]', W).forEach(b => b.onclick = async () => { await deleteCase(b.dataset.cd); if ($('#cmW')) draw(); });
+    };
+    this._mDraw = draw; draw();
+  },
   strip(el) { const c = activeCase(), V = k => k === 'year' ? this.yearOf(c) : c[k];
     const filled = this.F.filter(([k]) => V(k)).length;
-    el.innerHTML = `<div class="cb-strip"><div class="cb-hd"><span class="cb-ic">📁</span><b>Case details</b><span class="cb-sub">${esc(c.name || '')}</span><span class="grow"></span><button class="btn sm cb-b" id="cbEd">✏ Edit</button><button class="btn sm cb-b" id="cbNew" title="New case">➕</button><button class="btn sm cb-b cb-x" id="cbDel" title="Delete this case">➖</button><span class="cb-big">${filled}/${this.F.length}<small>fields filled</small></span></div>
+    el.innerHTML = `<div class="cb-strip"><div class="cb-hd"><span class="cb-ic">📁</span><b>Case details</b><span class="cb-sub">${esc(c.name || '')}</span><span class="grow"></span><button class="btn sm cb-b" id="cbAll" title="See and edit all cases line by line">📋 All cases (${S.cases.length})</button><button class="btn sm cb-b" id="cbEd">✏ Edit</button><button class="btn sm cb-b" id="cbNew" title="New case">➕</button><button class="btn sm cb-b cb-x" id="cbDel" title="Delete this case">➖</button><span class="cb-big">${filled}/${this.F.length}<small>fields filled</small></span></div>
       <div class="cb-chips">${this.F.map(([k, l]) => `<div class="cb-chip ${V(k) ? '' : 'empty'}"><span>${l}</span><b>${esc(V(k) || '—')}</b></div>`).join('')}</div></div>`;
-    $('#cbNew', el).onclick = () => this.open('new'); $('#cbDel', el).onclick = () => deleteCase(c.id);
+    $('#cbNew', el).onclick = () => this.open('new'); $('#cbAll', el).onclick = () => this.manager(); $('#cbDel', el).onclick = () => deleteCase(c.id);
     $('#cbEd', el).onclick = () => { $('.cb-chips', el).outerHTML = `<div class="map-grid cb-grid cb-inl">${this.F.map(([k, l, t]) => this.field(k, l, t, V(k))).join('')}</div><div class="row" style="gap:6px;margin-top:8px;align-items:center"><button class="btn primary sm" id="cbSv">💾 Save</button><button class="btn sm" id="cbCx">Cancel</button><span class="small" id="cbErr" style="color:var(--bad)"></span></div>`;
       $('#cbEd', el).style.display = 'none'; this.wire(el);
       $('#cbCx', el).onclick = () => this.strip(el);

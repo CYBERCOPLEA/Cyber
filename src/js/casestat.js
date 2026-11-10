@@ -45,6 +45,7 @@ const CaseStat = {
     $$('[data-cs]', main).forEach(b => typeof DashX !== 'undefined' ? DashX.bind(b, CaseStat.def(b.dataset.cs)) : (b.onclick = () => CaseStat.list(b.dataset.cs)));
     $('#csCS', main).onclick = () => CCTNS.finEdit('CS'); $('#csPPI', main).onclick = () => CCTNS.finEdit('PPI'); $('#csFR', main).onclick = () => CCTNS.finEdit('FR');
     $('#csFlip', main).onclick = () => CaseStat.flip(S.caseId);
+    const ab = $('[data-cs="all"]', main); if (ab && typeof CaseBox !== 'undefined') { ab.onclick = () => CaseBox.manager(); ab.onkeydown = e => { if (e.key === 'Enter') CaseBox.manager(); }; ab.title = 'Click to see, edit, add or remove all cases'; }
     return r;
   };
 })();
