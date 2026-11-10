@@ -154,17 +154,40 @@ const TYPE_INFO = {
 
 function openImport(allowed, onDone, presetFiles) {
   const body = UI.modal('Import data', `
-    <div class="note">Supported: <b>CSV, XLSX, XLS, ODS, HTML-Excel, TXT</b> and <b>digital PDF</b> (bank statements; password-protected PDFs supported). Scanned PDFs need OCR first. Files are read only inside this browser.</div>
-    <div class="row" style="margin-bottom:10px"><label>Data type</label><select id="impType">${allowed.map(t => `<option value="${t}">${esc(TYPE_INFO[t].label)}</option>`).join('')}</select></div>
-    <div class="drop" id="impDrop"><b>Click to choose file(s)</b> or drag &amp; drop here</div>
+    <div class="ip-case"><div class="ip-hd"><span class="ip-ic">📥</span><b>Import into case</b><span class="ip-st" id="ipSt"></span></div>
+      <div class="map-grid cb-grid ip-grid"><label>Data Type<select id="impType">${allowed.map(t => `<option value="${t}">${esc(TYPE_INFO[t].label)}</option>`).join('')}</select></label><label>Existing FIR / Complaint No.<select id="ipCase"></select></label><div id="ipF" style="display:contents"></div></div>
+      <div class="row ip-btns"><button class="btn primary sm" id="ipOk">✔ OK</button><button class="btn sm" id="ipEd">✏ Edit</button><button class="btn sm" id="ipAdd">➕ Add</button><button class="btn sm danger" id="ipDel">➖ Remove</button><span class="small" id="ipErr" style="color:var(--bad)"></span></div></div>
+    <div class="drop ip-drop" id="impDrop"><div class="ip-dic">⬆</div><b>Click to choose file(s)</b> or drag &amp; drop here<div class="small muted" style="margin-top:6px">CSV, XLSX, XLS, ODS, HTML-Excel, TXT and digital PDF (password-protected PDFs work; scanned PDFs need OCR first). Files are read only inside this browser.</div></div>
     <div id="impStage" class="hidden" style="margin-top:14px"></div>`, [{ label: 'Close', onClick: UI.closeModal }]);
   const drop = $('#impDrop', body);
   const queue = [];
   const pick = () => { const fp = $('#filePick'); fp.value = ''; fp.onchange = () => { queue.push(...fp.files); next(); }; fp.click(); };
-  drop.onclick = pick;
+  /* case chosen at the top – files always go into that case */
+  const IF = [['ctype', 'Case Type', 'ct'], ['fir', 'FIR / Complaint No.'], ['year', 'Year'], ['ps', 'Police Station'], ['district', 'District / Commissionerate'], ['io', 'IO Name'], ['io_mobile', 'IO Mobile'], ['io_posting', 'IO Posting']];
+  const box = $('.ip-case', body); let sel = S.caseId, editing = false;
+  const fillSel = () => { $('#ipCase', body).innerHTML = S.cases.map(x => `<option value="${x.id}" ${x.id === sel ? 'selected' : ''}>${esc(x.fir ? x.fir + ' – ' + x.name : x.name)}</option>`).join('') + `<option value="new" ${sel === 'new' ? 'selected' : ''}>➕ New case (type FIR / Complaint No. below)</option>`; };
+  const drawF = () => { const c = sel === 'new' ? { year: String(new Date().getFullYear()), ps: activeCase().ps || '', district: activeCase().district || '' } : S.cases.find(x => x.id === sel) || {}, open = editing || sel === 'new';
+    $('#ipF', body).innerHTML = IF.map(([k, l, t]) => CaseBox.field(k, l, t, k === 'year' ? CaseBox.yearOf(c) : c[k])).join(''); CaseBox.wire(box);
+    $$('#ipF [data-cb]', body).forEach(i => i.disabled = !open); box.classList.toggle('ip-open', open);
+    $('#ipEd', body).textContent = editing ? '✖ Cancel edit' : '✏ Edit'; $('#ipEd', body).disabled = sel === 'new'; $('#ipDel', body).disabled = sel === 'new';
+    $('#ipSt', body).innerHTML = sel === 'new' ? 'New case – fill the details and press <b>OK</b>' : `Files go into: <b>${esc(c.name || '')}</b>${sel === S.caseId ? ' (open now)' : ' – press OK to open it'}`; $('#ipErr', body).textContent = ''; };
+  const ok = async () => { const o = CaseBox.read($('#ipF', body)), err = (sel === 'new' || editing) ? CaseBox.check(o) : ''; if (err) { $('#ipErr', body).textContent = err; return false; }
+    if (sel === 'new') { if (!o.fir && !o.ctype) { $('#ipErr', body).textContent = 'Type the FIR / Complaint No. (or choose a Case Type) for the new case'; return false; }
+      const c = { id: uid(), created: new Date().toISOString(), status: 'Under investigation', ...o }; c.name = CaseBox.autoName(c); S.cases.push(c); await DB.set('case:' + c.id, emptyCase()); sel = c.id; editing = false; await switchCase(c.id); UI.toast('New case saved: ' + c.name); }
+    else { const c = S.cases.find(x => x.id === sel); if (!c) return false; if (editing) { const auto = !c.name || c.name === CaseBox.autoName(c) || /^Case \d+$/.test(c.name); Object.assign(c, o); if (auto) c.name = CaseBox.autoName(c); editing = false; await saveMeta(); fillCaseSel(); UI.toast('Case details saved'); }
+      if (sel !== S.caseId) { await switchCase(sel); UI.toast('Opened ' + c.name); } else render(); }
+    fillSel(); drawF(); return true; };
+  const ensure = async () => (sel === 'new' || editing || sel !== S.caseId) ? ok() : true;
+  fillSel(); drawF();
+  $('#ipCase', body).onchange = e => { sel = e.target.value; editing = false; drawF(); };
+  $('#ipOk', body).onclick = () => ok();
+  $('#ipEd', body).onclick = () => { editing = !editing; drawF(); };
+  $('#ipAdd', body).onclick = () => { sel = 'new'; editing = false; fillSel(); drawF(); $('[data-cb="fir"]', body).focus(); };
+  $('#ipDel', body).onclick = async () => { const n = S.cases.length; await deleteCase(sel); if (S.cases.length < n || !S.cases.some(x => x.id === sel)) { sel = S.caseId; editing = false; fillSel(); drawF(); } };
+  drop.onclick = async () => { if (await ensure()) pick(); };
   drop.ondragover = e => { e.preventDefault(); drop.classList.add('over'); };
   drop.ondragleave = () => drop.classList.remove('over');
-  drop.ondrop = e => { e.preventDefault(); drop.classList.remove('over'); queue.push(...e.dataTransfer.files); next(); };
+  drop.ondrop = async e => { e.preventDefault(); drop.classList.remove('over'); const fs = [...e.dataTransfer.files]; if (!(await ensure())) return; queue.push(...fs); next(); };
   let busy = false;
   async function next() {
     if (busy || !queue.length) return; busy = true;
@@ -210,7 +233,7 @@ function openImport(allowed, onDone, presetFiles) {
         total += recs.length; done.push(`${esc(parsed.sheets[i].name)}: ${recs.length} ${esc(TYPE_INFO[c.type].label.split('(')[0].trim())}`);
       }
       saveCase(); UI.toast(`Imported ${total} records from ${parsed.name}`);
-      $('#impType', body).closest('.row').classList.remove('hidden');
+      $('#impType', body).closest('.ip-case').classList.remove('hidden');
       busy = false; stage.innerHTML = `<div class="note">✔ Imported <b>${total}</b> records from ${esc(parsed.name)}${multi ? '<br>' + done.join('<br>') : ''}<br>Choose another file or close.</div>`;
       if (onDone) onDone();
       next();
@@ -218,7 +241,7 @@ function openImport(allowed, onDone, presetFiles) {
     const typeOpts = sel => allowed.map(t => `<option value="${t}" ${t === sel ? 'selected' : ''}>${esc(TYPE_INFO[t].label.split('(')[0].trim())}</option>`).join('');
 
     function drawAll() {
-      $('#impType', body).closest('.row').classList.add('hidden');
+      $('#impType', body).closest('.ip-case').classList.add('hidden');
       const n = cfg.filter(c => c.include).length;
       stage.innerHTML = `<div class="card" style="margin:0">
         <div class="row"><b>${esc(parsed.name)}</b><span class="badge">${parsed.sheets.length} sheets</span><span class="muted small">Every sheet is read. Each sheet's data type and columns are detected on its own – change the type or click "Columns" to check the mapping.</span></div>
@@ -236,7 +259,7 @@ function openImport(allowed, onDone, presetFiles) {
       $$('[data-hd]', stage).forEach(x => x.onchange = () => { const i = +x.dataset.hd, c = cfg[i]; c.hIdx = Math.max(0, +x.value - 1); c.map = Parsers.autoMap(parsed.sheets[i].rows[c.hIdx] || [], c.type); drawAll(); });
       $$('[data-acc]', stage).forEach(x => x.oninput = () => { cfg[+x.dataset.acc].holder.acc = x.value.trim(); });
       $$('[data-ed]', stage).forEach(x => x.onclick = () => drawOne(+x.dataset.ed));
-      $('#impSkip', stage).onclick = () => { busy = false; stage.innerHTML = ''; $('#impType', body).closest('.row').classList.remove('hidden'); next(); };
+      $('#impSkip', stage).onclick = () => { busy = false; stage.innerHTML = ''; $('#impType', body).closest('.ip-case').classList.remove('hidden'); next(); };
       $('#impAll', stage).onclick = () => importSheets(cfg.map((c, i) => c.include ? i : -1).filter(i => i >= 0));
     }
 
