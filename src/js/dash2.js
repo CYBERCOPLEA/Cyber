@@ -6,6 +6,7 @@
    Everything is worked out on this computer. */
 'use strict';
 const Dash2 = {
+  PAL: { fin: ['#f97316', '#8b5cf6', '#10b981', '#ef4444', '#3b82f6', '#eab308'], soc: ['#25D366', '#229ED9', '#1877F2', '#E1306C', '#EA4335', '#94a3b8'], tel: ['#3b82f6', '#06b6d4', '#f97316', '#84cc16', '#ec4899', '#a855f7'], case: ['#eab308', '#14b8a6', '#f43f5e', '#6366f1', '#22c55e', '#0ea5e9'] },
   SEC: { Financial: ['#10b981', '🏦'], NCRP: ['#f97316', '📋'], 'Social Media': ['#ec4899', '💬'], Telecom: ['#06b6d4', '📞'], CAF: ['#84cc16', '🪪'], Others: ['#94a3b8', '🧩'] },
   TYPE: { mobile: ['📱', 'Mobile'], account: ['🏦', 'Account'], upi: ['💸', 'UPI ID'], email: ['✉️', 'Email'], ip: ['🌐', 'IP address'], imei: ['📲', 'IMEI'], pan: ['🪪', 'PAN'], aadhaar: ['🆔', 'Aadhaar'], url: ['🔗', 'URL'], username: ['👤', 'Username'] },
   sec(s) { s = String(s || ''); return /^social/i.test(s) ? 'Social Media' : this.SEC[s] ? s : s === 'Telecom' ? s : 'Others'; },
@@ -126,7 +127,7 @@ const Dash2 = {
     soc.whatsapp += n(d.whatsapp); soc.telegram += n(d.telegram); soc.google += n(d.google);
     for (const r of d.meta || []) if (soc[r.platform] != null) soc[r.platform]++;
     const cafN = (typeof CAF !== 'undefined' ? CAF.list() : d.caf || []).length;
-    const tile = (k, ic, title, col, big, bigL, links) => `<div class="d2-tile" style="--tc:${col}"><div class="d2-th"><span class="d2-ic">${ic}</span><b>${title}</b><span class="d2-big">${big}<small>${bigL}</small></span></div><div class="d2-links">${links.map(([l, v, act, sub]) => `<button class="d2-lk ${v ? '' : 'z'}" data-act="${act}" data-sub="${sub || ''}"><span>${l}</span><b>${v}</b></button>`).join('')}</div></div>`;
+    const tile = (k, ic, title, col, big, bigL, links) => `<div class="d2-tile d2-t-${k}" style="--tc:${col}"><div class="d2-th"><span class="d2-ic">${ic}</span><b>${title}</b><span class="d2-big">${big}<small>${bigL}</small></span></div><div class="d2-links">${links.map(([l, v, act, sub], i) => `<button class="d2-lk ${v && v !== '0' && v !== '₹0' ? '' : 'z'}" style="--rc:${(this.PAL[k] || [])[i] || col}" data-act="${act}" data-sub="${sub || ''}"><span>${l}</span><b>${v}</b></button>`).join('')}</div></div>`;
     return `<div class="card d2-glance"><div class="d2-hd"><h3>Case at a glance</h3><span class="sub">Every section and its tabs – click any line to open it.</span></div><div class="d2-tiles">
       ${tile('fin', '🏦', 'Financial Trail', '#10b981', f(comps.length), 'complaints', [['Complaints (NCRP)', f(comps.length || n(d.ncrp)), 'ncrp'], ['Money Trail – transactions', f(n(d.txns)), 'trail'], ['Accounts in trail', f(acc.length), 'financial', 'suspects'], ['High-risk / mule accounts', f(acc.filter(a => a.score >= 60).length), 'financial', 'suspects'], ['KYC records', f(n(d.kyc)), 'financial'], ['Amount on hold', fmtINR(sum(acc, a => a.hold) || sum(d.ncrp, r => r.hold_amount)), 'financial', 'suspects']])}
       ${tile('soc', '💬', 'Social Media', '#ec4899', f(Object.values(soc).reduce((a, b) => a + b, 0)), 'records', [...Analysis.SOC_PLAT.map(([id, l]) => [l, f(soc[id] || 0), 'soc:' + id]), ['Other social records', f(d.social.filter(r => !Analysis.platOf(r)).length), 'soc:']])}
@@ -184,7 +185,7 @@ const Dash2 = {
   },
 
   html() {
-    return `<div class="card d2-track"><div class="d2-tk"><span class="d2-tki">🔎</span><div class="grow"><b>Track a suspect</b><div class="small muted">Mobile, account, UPI, email, IP, IMEI, PAN or a name – searched in every section of this case and in all your other cases.</div></div>
+    return `<div class="card d2-track"><div class="d2-tk"><span class="d2-tki">🔎</span><div class="grow"><b class="d2-tt">Track a suspect</b><div class="d2-tsub">Mobile, account, UPI, email, IP, IMEI, PAN or a name – searched in every section of this case and in all your other cases.</div></div>
       <input id="d2Q" placeholder="e.g. 98xxxxxxxx, account no., name@upi, 103.x.x.x" autocomplete="off"><button class="btn primary" id="d2Go">Track</button></div></div>
       ${this.glance()}<div class="d2-two">${this.suspectsHtml()}${this.commonHtml()}</div>`;
   }

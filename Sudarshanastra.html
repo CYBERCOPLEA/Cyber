@@ -1351,6 +1351,43 @@ svg.c2.dn .dn-c2{font-size:24px}
 .ln-go{margin-left:6px;padding:0 7px;border-radius:6px;font-weight:800;opacity:.45;border:1px solid transparent}
 .ln-go:hover{opacity:1;border-color:var(--tc);background:color-mix(in srgb,var(--tc) 25%,transparent)}
 
+/* ---- dashboard v2 look: every box its own colour and style ---- */
+.d2-track{padding:20px 24px;border:2px solid #facc15;background:radial-gradient(120% 160% at 0% 0%,rgba(250,204,21,.22),transparent 55%),linear-gradient(100deg,#1c1606,var(--surface-1) 70%);box-shadow:0 0 0 1px rgba(250,204,21,.25),0 10px 30px rgba(250,204,21,.12)}
+.d2-tki{font-size:40px;filter:drop-shadow(0 0 8px rgba(250,204,21,.6))}
+.d2-tt{display:block;font-size:26px;font-weight:900;letter-spacing:.3px;color:#facc15;text-shadow:0 0 14px rgba(250,204,21,.35)}
+.d2-tsub{font-size:13.5px;color:#fde68a;opacity:.85;margin-top:2px}
+.d2-tk input{font-size:19.5px;font-weight:700;padding:15px 18px;border:2px solid #facc15;border-radius:12px;background:#0b0a05;color:#fef9c3;flex:1 1 420px}
+.d2-tk input::placeholder{color:#a1862a;font-weight:500}
+.d2-tk input:focus{outline:none;box-shadow:0 0 0 4px rgba(250,204,21,.3)}
+.d2-tk .btn{padding:15px 30px;font-size:18px;font-weight:900;border:0;border-radius:12px;color:#1a1300;background:linear-gradient(180deg,#fde047,#eab308);box-shadow:0 6px 18px rgba(234,179,8,.35)}
+.d2-tk .btn:hover{filter:brightness(1.08)}
+.d2-glance{background:linear-gradient(180deg,color-mix(in srgb,#14b8a6 7%,var(--surface-1)),var(--surface-1));border-top:3px solid #14b8a6}
+.d2-tile{padding:0;overflow:hidden;border-width:2px;box-shadow:0 8px 22px rgba(0,0,0,.25)}
+.d2-th{margin:0;padding:12px 14px;color:#fff}
+.d2-th b{font-size:16px;color:#fff}.d2-big{color:#fff}.d2-big small{color:rgba(255,255,255,.8)}
+.d2-links{padding:10px;gap:5px}
+.d2-t-fin{border-radius:16px 4px 16px 4px}
+.d2-t-fin .d2-th{background:linear-gradient(120deg,#047857,#10b981)}
+.d2-t-soc{border-radius:18px}
+.d2-t-soc .d2-th{background:linear-gradient(120deg,#9d174d,#ec4899 60%,#a855f7)}
+.d2-t-tel{border-radius:4px 16px 4px 16px}
+.d2-t-tel .d2-th{background:linear-gradient(120deg,#1e3a8a,#0891b2)}
+.d2-t-case{border-radius:12px;border-style:dashed}
+.d2-t-case .d2-th{background:linear-gradient(120deg,#92400e,#eab308)}
+.d2-lk{border-left:4px solid var(--rc);background:color-mix(in srgb,var(--rc) 10%,transparent);border-radius:8px}
+.d2-lk b{display:inline-block;min-width:34px;text-align:center;padding:1px 8px;border-radius:999px;background:color-mix(in srgb,var(--rc) 30%,transparent);color:#fff}
+.d2-lk:hover{border-color:var(--rc);background:color-mix(in srgb,var(--rc) 24%,transparent)}
+.d2-lk.z b{background:transparent;color:var(--text-muted)}
+.d2-t-soc .d2-lk{border-radius:999px;border-left-width:6px}
+.d2-t-tel .d2-lk{border-radius:3px}
+.d2-sus{border:2px solid #a855f7;background:linear-gradient(180deg,rgba(168,85,247,.10),var(--surface-1) 40%)}
+.d2-sus h3{color:#d8b4fe}
+.d2-cc{border:2px solid #f97316;background:linear-gradient(180deg,rgba(249,115,22,.10),var(--surface-1) 40%)}
+.d2-cc h3{color:#fdba74}
+.d2-glance h3{color:#5eead4}
+.d2-track #d2Go{color:#1a1300!important;background:linear-gradient(180deg,#fde047,#eab308)!important;border:0!important;box-shadow:0 6px 18px rgba(234,179,8,.4)!important;font-size:18px!important;font-weight:900!important;padding:15px 32px!important}
+.card.d2-track{border:2px solid #facc15!important}.card.d2-track::before,.card.d2-track::after{background:#facc15!important}
+
 </style>
 </head>
 <body>
@@ -1398,7 +1435,7 @@ svg.c2.dn .dn-c2{font-size:24px}
         <div class="hp-feat" style="--fc:#06b6d4"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><div><b>Analytics</b><p>The same mobile, account, IP or e-mail across complaints, banks and platforms.</p></div></div>
         <div class="hp-feat" style="--fc:#eab308"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h5"/></svg></span><div><b>Case File &amp; Notices</b><p>Case reports, notices to banks and platforms, and CSV / PDF exports.</p></div></div>
     </section>
-    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-10 10:09 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
+    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-10 10:13 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
   </div>
 
   <div class="lg-wrap" id="lgWrap" aria-hidden="true">
@@ -10614,6 +10651,7 @@ const NavCustom = {
    Everything is worked out on this computer. */
 'use strict';
 const Dash2 = {
+  PAL: { fin: ['#f97316', '#8b5cf6', '#10b981', '#ef4444', '#3b82f6', '#eab308'], soc: ['#25D366', '#229ED9', '#1877F2', '#E1306C', '#EA4335', '#94a3b8'], tel: ['#3b82f6', '#06b6d4', '#f97316', '#84cc16', '#ec4899', '#a855f7'], case: ['#eab308', '#14b8a6', '#f43f5e', '#6366f1', '#22c55e', '#0ea5e9'] },
   SEC: { Financial: ['#10b981', '🏦'], NCRP: ['#f97316', '📋'], 'Social Media': ['#ec4899', '💬'], Telecom: ['#06b6d4', '📞'], CAF: ['#84cc16', '🪪'], Others: ['#94a3b8', '🧩'] },
   TYPE: { mobile: ['📱', 'Mobile'], account: ['🏦', 'Account'], upi: ['💸', 'UPI ID'], email: ['✉️', 'Email'], ip: ['🌐', 'IP address'], imei: ['📲', 'IMEI'], pan: ['🪪', 'PAN'], aadhaar: ['🆔', 'Aadhaar'], url: ['🔗', 'URL'], username: ['👤', 'Username'] },
   sec(s) { s = String(s || ''); return /^social/i.test(s) ? 'Social Media' : this.SEC[s] ? s : s === 'Telecom' ? s : 'Others'; },
@@ -10734,7 +10772,7 @@ const Dash2 = {
     soc.whatsapp += n(d.whatsapp); soc.telegram += n(d.telegram); soc.google += n(d.google);
     for (const r of d.meta || []) if (soc[r.platform] != null) soc[r.platform]++;
     const cafN = (typeof CAF !== 'undefined' ? CAF.list() : d.caf || []).length;
-    const tile = (k, ic, title, col, big, bigL, links) => `<div class="d2-tile" style="--tc:${col}"><div class="d2-th"><span class="d2-ic">${ic}</span><b>${title}</b><span class="d2-big">${big}<small>${bigL}</small></span></div><div class="d2-links">${links.map(([l, v, act, sub]) => `<button class="d2-lk ${v ? '' : 'z'}" data-act="${act}" data-sub="${sub || ''}"><span>${l}</span><b>${v}</b></button>`).join('')}</div></div>`;
+    const tile = (k, ic, title, col, big, bigL, links) => `<div class="d2-tile d2-t-${k}" style="--tc:${col}"><div class="d2-th"><span class="d2-ic">${ic}</span><b>${title}</b><span class="d2-big">${big}<small>${bigL}</small></span></div><div class="d2-links">${links.map(([l, v, act, sub], i) => `<button class="d2-lk ${v && v !== '0' && v !== '₹0' ? '' : 'z'}" style="--rc:${(this.PAL[k] || [])[i] || col}" data-act="${act}" data-sub="${sub || ''}"><span>${l}</span><b>${v}</b></button>`).join('')}</div></div>`;
     return `<div class="card d2-glance"><div class="d2-hd"><h3>Case at a glance</h3><span class="sub">Every section and its tabs – click any line to open it.</span></div><div class="d2-tiles">
       ${tile('fin', '🏦', 'Financial Trail', '#10b981', f(comps.length), 'complaints', [['Complaints (NCRP)', f(comps.length || n(d.ncrp)), 'ncrp'], ['Money Trail – transactions', f(n(d.txns)), 'trail'], ['Accounts in trail', f(acc.length), 'financial', 'suspects'], ['High-risk / mule accounts', f(acc.filter(a => a.score >= 60).length), 'financial', 'suspects'], ['KYC records', f(n(d.kyc)), 'financial'], ['Amount on hold', fmtINR(sum(acc, a => a.hold) || sum(d.ncrp, r => r.hold_amount)), 'financial', 'suspects']])}
       ${tile('soc', '💬', 'Social Media', '#ec4899', f(Object.values(soc).reduce((a, b) => a + b, 0)), 'records', [...Analysis.SOC_PLAT.map(([id, l]) => [l, f(soc[id] || 0), 'soc:' + id]), ['Other social records', f(d.social.filter(r => !Analysis.platOf(r)).length), 'soc:']])}
@@ -10792,7 +10830,7 @@ const Dash2 = {
   },
 
   html() {
-    return `<div class="card d2-track"><div class="d2-tk"><span class="d2-tki">🔎</span><div class="grow"><b>Track a suspect</b><div class="small muted">Mobile, account, UPI, email, IP, IMEI, PAN or a name – searched in every section of this case and in all your other cases.</div></div>
+    return `<div class="card d2-track"><div class="d2-tk"><span class="d2-tki">🔎</span><div class="grow"><b class="d2-tt">Track a suspect</b><div class="d2-tsub">Mobile, account, UPI, email, IP, IMEI, PAN or a name – searched in every section of this case and in all your other cases.</div></div>
       <input id="d2Q" placeholder="e.g. 98xxxxxxxx, account no., name@upi, 103.x.x.x" autocomplete="off"><button class="btn primary" id="d2Go">Track</button></div></div>
       ${this.glance()}<div class="d2-two">${this.suspectsHtml()}${this.commonHtml()}</div>`;
   }
