@@ -135,7 +135,7 @@ const CCTNS = {
       const cc = d.cctns || {}, pend = W.filter(w => w.status === 'Pending');
       out.push({ id: c.id, name: c.name, fir: c.fir || '', ps: c.ps || '', io: c.io || '', section: c.section || '', status: c.status || 'Pending', complaints: (d.ncrp || []).length, txns: (d.txns || []).length,
         amount: sum(d.ncrp || [], r => +r.amount || 0), cd: (cc.cd || []).length, lastCd: (cc.cd || []).map(x => x.date || x.when.slice(0, 10)).sort().slice(-1)[0] || '', firUp: cc.fir ? 'Yes' : 'No',
-        done: W.filter(w => w.status === 'Done').length, pending: pend.length, pendList: pend.map(w => w.title).join('; '), notices: (cc.notices || []).length, cur: c.id === S.caseId });
+        done: W.filter(w => w.status === 'Done').length, pending: pend.length, pendList: pend.map(w => w.title).join('; '), notices: (cc.notices || []).length, cur: c.id === S.caseId, fin: (c.final || {}).type || '', finNo: (c.final || {}).no || '', finDate: (c.final || {}).date || '', finInfo: c.final ? this.finTxt(c.final) : '', docs: (cc.files || []).length });
       await new Promise(r => setTimeout(r, 0));
     }
     return out;
@@ -146,8 +146,8 @@ const CCTNS = {
     const st = this.st(), c = activeCase(), W = this.work(), F = st.fir ? this.facts(st.fir.text) : null;
     const pend = W.filter(w => w.status === 'Pending'), done = W.filter(w => w.status === 'Done');
     el.innerHTML = `<div class="card cc-all"><div class="d2-hd"><h3>📚 All cases</h3><span class="sub">Search any case, see its work done and pending. Click a row to open that case here.</span></div><div class="kpis kpis-sm" id="ccK"></div><div id="ccAll" class="muted small">Reading your cases…</div></div>
-      <div class="cc-case card"><div class="cc-head"><div><div class="small muted">THIS CASE</div><h3 style="margin:2px 0">${esc(c.name || '')}</h3><div class="small">${[c.fir && 'FIR ' + c.fir, c.ps && 'PS ' + c.ps, c.section, c.io && 'IO ' + c.io].filter(Boolean).map(esc).join(' · ') || '<span class="muted">Add FIR, PS, sections in Case File & Notices › Case Details – or upload the FIR, they are read from it.</span>'}</div></div>
-        <div class="cc-btns"><button class="btn primary" id="ccFir">📄 Upload FIR</button><button class="btn" id="ccCd">📒 Add case diary part</button><button class="btn" id="ccNew">✍ Type a CD entry</button><button class="btn srch" id="ccNt">⚖ Draft BNSS notice</button></div></div>
+      <div class="cc-case card"><div class="cc-head"><div><div class="small muted">THIS CASE</div><h3 style="margin:2px 0">${esc(c.name || '')}${c.final ? ` <span class="cc-fin ${c.final.type === 'CS' ? 'cs' : 'fr'}" title="${esc(this.finTxt(c.final))}">${c.final.type === 'CS' ? '📗 Charge Sheet' : '📕 Final Report'}${c.final.no ? ' No. ' + esc(c.final.no) : ''}${c.final.date ? ' · ' + esc(this.dmy(c.final.date)) : ''}</span>` : ''}</h3><div class="small">${[c.fir && 'FIR ' + c.fir, c.ps && 'PS ' + c.ps, c.section, c.io && 'IO ' + c.io].filter(Boolean).map(esc).join(' · ') || '<span class="muted">Add FIR, PS, sections in Case File & Notices › Case Details – or upload the FIR, they are read from it.</span>'}</div></div>
+        <div class="cc-btns"><button class="btn primary" id="ccFir">📄 Upload FIR</button><button class="btn" id="ccCd">📒 Add case diary part</button><button class="btn" id="ccUp" title="Any document of this case: bank / telecom replies, statements, memos, court orders, photos…">📎 Upload Case related Documents</button><button class="btn cc-cs ${c.final && c.final.type === 'CS' ? 'on' : ''}" id="ccCS" title="Record the Charge Sheet (CS) of this case">📗 CS</button><button class="btn cc-fr ${c.final && c.final.type === 'FR' ? 'on' : ''}" id="ccFR" title="Record the Final Report (FR) of this case">📕 FR</button><button class="btn" id="ccNew">✍ Type a CD entry</button><button class="btn srch" id="ccNt">⚖ Draft BNSS notice</button></div></div>
         <div class="cc-prog"><div class="cc-bar"><i style="width:${Math.round(done.length / Math.max(1, done.length + pend.length) * 100)}%"></i></div><span><b>${done.length}</b> done · <b class="bad-t">${pend.length}</b> pending</span></div></div>
       <div class="grid g2 cc-g">
         <div class="card cc-work"><h3>✅ Work done & ⏳ pending</h3><div class="sub">Worked out from this case's data. Pending items show from whom to demand – click <b>Draft notice</b>.</div><div id="ccW"></div></div>
@@ -156,6 +156,7 @@ const CCTNS = {
           <div id="ccTxt" class="cc-txt">${st.fir || st.cd.length || st.docs.length ? '' : '<div class="muted">Upload the FIR and case-diary parts (PDF, Word, text). Their text shows here, and every mobile, account, UPI, email and IP in them joins the case for cross-linking.</div>'}</div></div>
       </div>
       <div class="card"><h3>📨 Notices in this case</h3><div id="ccN"></div></div>
+      <div class="card cc-docs"><div class="row" style="gap:8px"><h3 class="grow" style="margin:0">📎 Case related documents <span class="badge">${(st.files || []).length}</span></h3><button class="btn sm primary" id="ccUp2">📎 Upload</button></div><div id="ccDocs" style="margin-top:8px"></div></div>
       <input type="file" id="ccPick" class="hidden" multiple accept=".pdf,.txt,.doc,.docx,.htm,.html,.rtf,.odt">`;
     // work table
     const col = s => s === 'Done' ? 'good' : s === 'Pending' ? 'bad' : '';
@@ -183,6 +184,9 @@ const CCTNS = {
     $('#ccNew', el).onclick = () => { const b = UI.modal('Case diary entry', `<div class="row"><label>CD No.</label><input id="cdN" style="width:80px" value="${st.cd.length + 1}"><label>Date</label><input id="cdD" type="date" value="${new Date().toISOString().slice(0, 10)}"><label>Category</label><select id="cdC">${this.CAT.map(c => `<option>${c}</option>`).join('')}</select></div><textarea id="cdT" style="min-height:260px;margin-top:8px" placeholder="Write the proceedings of the day…"></textarea>`,
       [{ label: 'Cancel', onClick: UI.closeModal }, { label: 'Save', cls: 'primary', onClick: () => { const t = $('#cdT', b).value.trim(); if (!t) return UI.toast('Write something first'); st.cd.push({ id: uid(), no: $('#cdN', b).value, date: $('#cdD', b).value.split('-').reverse().join('-'), cat: $('#cdC', b).value, file: 'Typed entry', text: t, when: new Date().toISOString() }); this.saveIds(t, 'Case diary · CD ' + $('#cdN', b).value); Analysis.invalidate(); saveCase(); UI.closeModal(); render(); } }]); EditList.attach($('#cdC', b), 'cd-cat', this.CAT, 'Case diary categories'); };
     $('#ccNt', el).onclick = () => this.openNotice('n353', null);
+    $('#ccUp', el).onclick = $('#ccUp2', el).onclick = () => this.docUpload();
+    $('#ccCS', el).onclick = () => this.finEdit('CS'); $('#ccFR', el).onclick = () => this.finEdit('FR');
+    this.docList($('#ccDocs', el));
     // notices list
     if (st.notices.length) Table($('#ccN', el), { rows: st.notices.slice().reverse(), pageSize: 10, exportName: 'notices', columns: [{ key: 'when', label: 'When', render: r => esc(r.when.slice(0, 16).replace('T', ' ')) }, { key: 'name', label: 'Notice' }, { key: 'to', label: 'To' }], onRow: r => { const b = UI.drawer(r.name, `<textarea style="min-height:520px;font-family:Georgia,serif;font-size:14px">${esc(r.text)}</textarea><div class="row" style="margin-top:8px"><button class="btn" id="nP">🖨 Print</button></div>`); $('#nP', b).onclick = () => Reports.printText(r.text); } });
     else $('#ccN', el).innerHTML = '<div class="muted small">No notice saved yet. Use <b>Draft notice</b> on a pending item, or <b>Draft BNSS notice</b> above.</div>';
@@ -190,15 +194,60 @@ const CCTNS = {
     this.allCases().then(R => {
       if (!document.body.contains(el) || !$('#ccAll', el)) return;
       const tot = (k) => sum(R, r => r[k]);
-      $('#ccK', el).innerHTML = UI.kpis([['Cases', fmtNum(R.length), '', 'c2'], ['Pending cases', fmtNum(R.filter(r => !/complet|closed|disposed|charge/i.test(r.status)).length), '', 'c5'], ['Case-diary parts', fmtNum(tot('cd')), '', 'c3'], ['Pending demands', fmtNum(tot('pending')), 'across all cases', 'c4'], ['Notices drafted', fmtNum(tot('notices')), '', 'c6']]).replace(/^<div class="kpis">|<\/div>$/g, '');
-      const defs = [R, R.filter(r => !/complet|closed|disposed|charge/i.test(r.status)), R.filter(r => r.cd), R.filter(r => r.pending), R.filter(r => r.notices)];
-      $$('#ccK .kpi', el).forEach((k, i) => DashX.bind(k, { title: $('.label', k).textContent, rows: () => defs[i], cols: [{ key: 'name', label: 'Case' }, { key: 'fir', label: 'FIR' }, { key: 'status', label: 'Status' }, { key: 'pending', label: 'Pending', num: true }, { key: 'pendList', label: 'Pending work' }], sort: 'pending', pv: r => [r.name, r.pending + ' pending'], onRow: r => { UI.closeDrawer(); if (!r.cur) switchCase(r.id); } }));
+      $('#ccK', el).innerHTML = UI.kpis([['Cases', fmtNum(R.length), '', 'c2'], ['Pending cases', fmtNum(R.filter(r => !/complet|closed|disposed|charge|final/i.test(r.status)).length), '', 'c5'], ['Case-diary parts', fmtNum(tot('cd')), '', 'c3'], ['Pending demands', fmtNum(tot('pending')), 'across all cases', 'c4'], ['Notices drafted', fmtNum(tot('notices')), '', 'c6'], ['CS', fmtNum(R.filter(r => r.fin === 'CS').length), 'Charge Sheet', 'c1 cc-kcs'], ['FR', fmtNum(R.filter(r => r.fin === 'FR').length), 'Final Report', 'c5 cc-kfr']]).replace(/^<div class="kpis">|<\/div>$/g, '');
+      const defs = [R, R.filter(r => !/complet|closed|disposed|charge|final/i.test(r.status)), R.filter(r => r.cd), R.filter(r => r.pending), R.filter(r => r.notices), R.filter(r => r.fin === 'CS'), R.filter(r => r.fin === 'FR')];
+      const fcols = [{ key: 'name', label: 'Case' }, { key: 'fir', label: 'FIR' }, { key: 'finNo', label: 'CS / FR No.' }, { key: 'finDate', label: 'Date', render: r => esc(this.dmy(r.finDate)) }, { key: 'finInfo', label: 'Details' }, { key: 'io', label: 'IO' }];
+      $$('#ccK .kpi', el).forEach((k, i) => DashX.bind(k, { title: i === 5 ? 'CS – Charge Sheet' : i === 6 ? 'FR – Final Report' : $('.label', k).textContent, rows: () => defs[i], cols: i >= 5 ? fcols : [{ key: 'name', label: 'Case' }, { key: 'fir', label: 'FIR' }, { key: 'status', label: 'Status' }, { key: 'pending', label: 'Pending', num: true }, { key: 'pendList', label: 'Pending work' }], sort: i >= 5 ? 'finDate' : 'pending', pv: r => i >= 5 ? [r.name, [r.finNo && 'No. ' + r.finNo, this.dmy(r.finDate)].filter(Boolean).join(' · ')] : [r.name, r.pending + ' pending'], onRow: r => { UI.closeDrawer(); if (!r.cur) switchCase(r.id); } }));
       $('#ccAll', el).classList.remove('muted', 'small');
       Table($('#ccAll', el), { rows: R, pageSize: 10, sortKey: 'pending', sortDir: -1, exportName: 'all_cases_cctns', onRow: r => { if (!r.cur) switchCase(r.id); },
         columns: [{ key: 'name', label: 'Case', render: r => `<b>${esc(r.name)}</b>${r.cur ? ' <span class="badge info">open</span>' : ''}<div class="small muted">${esc([r.fir && 'FIR ' + r.fir, r.ps, r.section].filter(Boolean).join(' · '))}</div>` },
-          { key: 'status', label: 'Status' }, { key: 'complaints', label: 'Complaints', num: true }, { key: 'amount', label: 'Amount', num: true, render: r => r.amount ? fmtINR(r.amount) : '' }, { key: 'firUp', label: 'FIR read' }, { key: 'cd', label: 'CD parts', num: true }, { key: 'lastCd', label: 'Last CD' },
+          { key: 'status', label: 'Status', render: r => r.fin ? `<span class="cc-fin ${r.fin === 'CS' ? 'cs' : 'fr'}">${r.fin}${r.finNo ? ' ' + esc(r.finNo) : ''}</span>` : esc(r.status) }, { key: 'complaints', label: 'Complaints', num: true }, { key: 'amount', label: 'Amount', num: true, render: r => r.amount ? fmtINR(r.amount) : '' }, { key: 'firUp', label: 'FIR read' }, { key: 'cd', label: 'CD parts', num: true }, { key: 'lastCd', label: 'Last CD' },
           { key: 'done', label: 'Done', num: true }, { key: 'pending', label: 'Pending', num: true, render: r => r.pending ? `<b class="bad-t" title="${esc(r.pendList)}">${r.pending}</b>` : '0' }, { key: 'notices', label: 'Notices', num: true }] });
     });
+  },
+
+  /* ---------- CS / FR and case documents ---------- */
+  dmy(d) { return d && /^\d{4}-\d\d-\d\d/.test(d) ? d.slice(0, 10).split('-').reverse().join('-') : (d || ''); },
+  FRT: ['Untraced (accused not found)', 'Mistake of fact', 'Mistake of law', 'False case', 'Civil nature', 'No offence made out', 'Insufficient evidence', 'Other'],
+  finTxt(f) { return f.type === 'CS' ? ['Charge Sheet', f.court && 'Court: ' + f.court, f.sections && 'Sections: ' + f.sections, f.accused && 'Accused: ' + f.accused, f.note].filter(Boolean).join(' · ') : ['Final Report', f.frType, f.court && 'Court: ' + f.court, f.note].filter(Boolean).join(' · '); },
+  finEdit(type) {
+    const c = activeCase(); if (!c) return; const f = c.final && c.final.type === type ? c.final : { type, date: new Date().toISOString().slice(0, 10), sections: c.section || '' }, cs = type === 'CS';
+    const b = UI.modal(cs ? '📗 CS – Charge Sheet' : '📕 FR – Final Report', `<p class="small muted">Case <b>${esc(c.name || '')}</b>${c.fir ? ' · FIR ' + esc(c.fir) : ''}. Saving marks the case as ${cs ? 'charge-sheeted' : 'closed with a final report'} (it moves out of Pending cases).${c.final && c.final.type !== type ? ` <b class="bad-t">This replaces the ${c.final.type} already recorded.</b>` : ''}</p>
+      <div class="map-grid"><label>${type} No.<input id="fnNo" value="${esc(f.no || '')}" placeholder="e.g. ${cs ? '12/2026' : 'FR 03/2026'}"></label><label>Date<input id="fnD" type="date" value="${esc(f.date || '')}"></label>
+      <label>Court<input id="fnCt" value="${esc(f.court || '')}" placeholder="e.g. CJM Ghaziabad"></label>${cs ? `<label>Sections<input id="fnSec" value="${esc(f.sections || '')}"></label><label>Accused charge-sheeted<input id="fnAc" value="${esc(f.accused || '')}" placeholder="names / count"></label>` : `<label>FR type<select id="fnT">${this.FRT.map(t => `<option ${t === f.frType ? 'selected' : ''}>${t}</option>`).join('')}</select></label>`}
+      <label style="grid-column:1/-1">Note<input id="fnNote" value="${esc(f.note || '')}"></label></div>`,
+      [...(c.final && c.final.type === type ? [{ label: 'Remove ' + type, cls: 'danger', onClick: async () => { if (!UI.confirm(`Remove the ${type} record? The case goes back to Under investigation.`)) return; delete c.final; c.status = 'Under investigation'; await saveMeta(); UI.closeModal(); render(); } }] : []),
+       { label: 'Cancel', onClick: UI.closeModal }, { label: 'Save ' + type, cls: 'primary', onClick: async () => {
+        const v = i => { const e = $(i, b); return e ? e.value.trim() : ''; };
+        c.final = { type, no: v('#fnNo'), date: v('#fnD'), court: v('#fnCt'), sections: v('#fnSec'), accused: v('#fnAc'), frType: v('#fnT'), note: v('#fnNote'), at: new Date().toISOString() };
+        c.status = cs ? 'Charge-sheet filed' : 'Final report filed'; await saveMeta(); typeof fillCaseSel === 'function' && fillCaseSel(); UI.closeModal(); UI.toast(`${type} recorded – case marked ${c.status}`); render(); } }]);
+  },
+  docUpload() {
+    const types = EditList.items('case-doc-type', this.DOCT); const st = this.st();
+    const b = UI.modal('📎 Upload Case related Documents', `<p class="small muted">Any file: PDF, Word, Excel, photos, audio, video. The file is kept with this case on this computer. Text in PDF / Word / Excel is read, so its mobiles, accounts, UPI, emails and IPs join the case for cross-linking.</p>
+      <div class="map-grid"><label>Document type<select id="dcT"></select></label><label>Note (optional)<input id="dcN" placeholder="e.g. reply of SBI dated 05-11-2026"></label></div>
+      <div class="of-drop" id="dcDrop" style="margin-top:10px">📂 Click to choose files, or drop them here</div><input type="file" id="dcF" multiple class="hidden">`, [{ label: 'Close', onClick: UI.closeModal }]);
+    EditList.attach($('#dcT', b), 'case-doc-type', this.DOCT, 'Document types');
+    const inp = $('#dcF', b), go2 = async files => { if (!files.length) return; const kind = $('#dcT', b).value === '__edit' ? 'Other' : $('#dcT', b).value, note = $('#dcN', b).value.trim(); st.files = st.files || []; let ids = 0;
+      $('#dcDrop', b).textContent = '⏳ Reading ' + files.length + ' file(s)…';
+      for (const f of files) { const id = uid() + ''; await DB.set('ccf:' + id, f); let t = '';
+        if (/\.(pdf|docx?|odt|rtf|txt|csv|xlsx?|ods|html?)$/i.test(f.name)) { try { t = /\.(docx?|odt|rtf)$/i.test(f.name) && typeof NoticeKit !== 'undefined' ? await NoticeKit.readAny(f) : await this.text(f); } catch (e) { } }
+        if (t.trim()) { st.docs.push({ id, file: f.name, kind, text: t.slice(0, 2e6), when: new Date().toISOString() }); ids += this.saveIds(t, kind + ' · ' + f.name) || 0; }
+        st.files.push({ id, name: f.name, size: f.size, type: f.type, kind, note, text: !!t.trim(), when: new Date().toISOString() }); }
+      Analysis.invalidate(); await saveCase(); UI.closeModal(); UI.toast(`${files.length} document(s) kept with this case${ids ? ' · ' + ids + ' identifiers added' : ''}`); render(); };
+    $('#dcDrop', b).onclick = () => inp.click(); inp.onchange = () => go2([...inp.files]);
+    $('#dcDrop', b).ondragover = e => { e.preventDefault(); }; $('#dcDrop', b).ondrop = e => { e.preventDefault(); go2([...e.dataTransfer.files]); };
+  },
+  DOCT: ['Bank reply', 'Telecom reply (CDR / CAF)', 'Social media / platform reply', 'Statement (victim / witness)', 'Seizure memo', 'Arrest memo', 'Notice served', 'Court order / warrant', 'Medical / FSL report', 'Photo / video', 'Others'],
+  docList(box) {
+    const st = this.st(), L = (st.files || []).slice().reverse();
+    if (!L.length) { box.innerHTML = '<div class="muted small">No documents yet. Press <b>📎 Upload</b> to keep bank replies, statements, memos, court orders, photos – anything of this case.</div>'; return; }
+    Table(box, { rows: L, pageSize: 10, exportName: 'case_documents', columns: [{ key: 'name', label: 'Document', render: r => `<b>${esc(r.name)}</b>${r.note ? `<div class="small muted">${esc(r.note)}</div>` : ''}` }, { key: 'kind', label: 'Type' }, { key: 'when', label: 'Added', render: r => esc(this.dmy(r.when)) }, { key: 'size', label: 'Size', num: true, render: r => SOP.size ? SOP.size(r.size) : r.size }, { key: 'text', label: 'Text read', render: r => r.text ? '✔' : '–' },
+      { key: 'id', label: '', render: r => `<button class="btn sm" data-dco="${r.id}">👁 Open</button> <button class="btn sm" data-dcs="${r.id}">⬇ Save</button> <button class="btn sm danger" data-dcx="${r.id}">✕</button>` }],
+      after: () => {
+        $$('[data-dco]', box).forEach(x => x.onclick = async e => { e.stopPropagation(); const f = await DB.get('ccf:' + x.dataset.dco); if (!f) return UI.toast('File not found'); window.open(URL.createObjectURL(f), '_blank'); });
+        $$('[data-dcs]', box).forEach(x => x.onclick = async e => { e.stopPropagation(); const r = L.find(y => y.id === x.dataset.dcs), f = await DB.get('ccf:' + r.id); if (!f) return UI.toast('File not found'); UI.download(r.name, f); });
+        $$('[data-dcx]', box).forEach(x => x.onclick = async e => { e.stopPropagation(); const r = L.find(y => y.id === x.dataset.dcx); if (!UI.confirm('Remove "' + r.name + '" from this case?')) return; st.files = st.files.filter(y => y.id !== r.id); st.docs = st.docs.filter(y => y.id !== r.id); await DB.del('ccf:' + r.id); await saveCase(); render(); }); } });
   },
 
   /* ---------- Upload File + ---------- */

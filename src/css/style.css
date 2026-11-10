@@ -1523,3 +1523,11 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
 .cd-bar>.btn{padding:6px 9px;font-size:12.5px;white-space:nowrap;gap:5px}
 .cd-bar>h3{flex-basis:100%}
 @media (min-width:1500px){.cd-bar>.btn{flex:1 1 auto;justify-content:center}}
+/* CS / FR + case documents */
+.cc-btns{flex-wrap:wrap;justify-content:flex-end}
+.btn.cc-cs{--bc:#22c55e !important;font-weight:700}.btn.cc-fr{--bc:#ef4444 !important;font-weight:700}
+.btn.cc-cs.on{background:linear-gradient(135deg,#16a34a,#15803d) !important;color:#fff !important;border-color:#16a34a !important}.btn.cc-fr.on{background:linear-gradient(135deg,#dc2626,#b91c1c) !important;color:#fff !important;border-color:#dc2626 !important}
+.cc-fin{display:inline-block;font-size:12px;font-weight:700;padding:2px 9px;border-radius:999px;vertical-align:middle;margin-left:6px}
+.cc-fin.cs{background:rgba(22,163,74,.18);color:#22c55e;border:1px solid #16a34a}.cc-fin.fr{background:rgba(220,38,38,.16);color:#f87171;border:1px solid #dc2626}
+.kpi.cc-kcs{--kc:#16a34a !important}.kpi.cc-kfr{--kc:#ef4444 !important}
+@media (min-width:1300px){#ccK.kpis-sm{grid-template-columns:repeat(7,minmax(0,1fr))}}
