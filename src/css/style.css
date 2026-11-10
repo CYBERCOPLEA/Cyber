@@ -1288,6 +1288,10 @@ svg.c2.dn .dn-c2{font-size:24px}
 .lea-sub .lea-ext{margin-left:auto;opacity:.55;font-size:11px}
 .lea-sub:hover .lea-ext{opacity:1}
 .lea-ed{max-height:52vh;overflow-y:auto;display:grid;gap:6px;padding-right:4px}
-.lea-row{display:grid;grid-template-columns:260px 1fr;gap:8px;align-items:center;font-size:13px}
+.lea-row{display:grid;grid-template-columns:22px 250px 1fr auto;gap:8px;align-items:center;font-size:13px;border-radius:8px;padding:1px 2px}
+.lea-drag{cursor:grab;opacity:.6;font-size:16px;text-align:center;user-select:none}.lea-drag:hover{opacity:1}
+.lea-mv{display:flex;gap:3px}.lea-mv .btn{padding:3px 7px;font-size:10px;line-height:1}
+.lea-dragging{opacity:.45;outline:2px dashed var(--border)}
+@keyframes leaMv{from{background:color-mix(in srgb,#0ea5e9 35%,transparent)}to{background:transparent}}.lea-moved{animation:leaMv .8s ease}
 .lea-row input,.lea-add input{padding:6px 8px;border-radius:7px;border:1px solid var(--border);background:var(--bg);color:var(--text-primary)}
-.lea-add{display:grid;grid-template-columns:260px 1fr auto;gap:8px;margin-top:10px}
+.lea-add{display:grid;grid-template-columns:280px 1fr auto;gap:8px;margin-top:10px}

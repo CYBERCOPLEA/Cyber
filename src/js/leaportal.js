@@ -48,8 +48,8 @@ const LEA = {
   KEY: 'sud-lea-links',
   saved() { try { return JSON.parse(localStorage.getItem(this.KEY) || '{}'); } catch (e) { return {}; } },
   all() {
-    const s = this.saved(), ov = s.urls || {};
-    return [...this.LIST.filter(x => !(s.hidden || []).includes(x[0])).map(([id, ic, name, url]) => [id, ic, name, ov[id] != null ? ov[id] : url]), ...(s.extra || []).map(x => [x.id, x.ic || '🔗', x.name, x.url])];
+    const s = this.saved(), ov = s.urls || {}, ord = s.order || [], pos = id => { const i = ord.indexOf(id); return i < 0 ? 1e6 : i; };
+    return [...this.LIST.filter(x => !(s.hidden || []).includes(x[0])).map(([id, ic, name, url]) => [id, ic, name, ov[id] != null ? ov[id] : url]), ...(s.extra || []).map(x => [x.id, x.ic || '🔗', x.name, x.url])].map((x, i) => [x, i]).sort((a, b) => pos(a[0][0]) - pos(b[0][0]) || a[1] - b[1]).map(x => x[0]);
   },
   store(s) { localStorage.setItem(this.KEY, JSON.stringify(s)); },
   open(id) {
@@ -60,13 +60,24 @@ const LEA = {
   edit(focus) {
     const s = this.saved(); s.urls = s.urls || {}; s.extra = s.extra || [];
     const rows = this.all(), take = () => $$('[data-lid]', body).forEach(i => { const id = i.dataset.lid, v = i.value.trim(), ex = s.extra.find(x => x.id === id), def = this.LIST.find(x => x[0] === id);
-      if (ex) ex.url = v; else if (def && v !== def[3]) s.urls[id] = v; else delete s.urls[id]; });
-    const body = UI.modal('All LEA Portal – links', `<div class="sub" style="margin-bottom:8px">Change any link or add a new portal. Saved in this browser only.</div>
-      <div class="lea-ed">${rows.map(([id, ic, name, url]) => `<label class="lea-row"><span>${ic} ${esc(name)}</span><input data-lid="${esc(id)}" value="${esc(url)}" placeholder="https://…"></label>`).join('')}</div>
+      if (ex) ex.url = v; else if (def && v !== def[3]) s.urls[id] = v; else delete s.urls[id]; s.order = $$('[data-lid]', body).map(x => x.dataset.lid); });
+    const body = UI.modal('All LEA Portal – links', `<div class="sub" style="margin-bottom:8px">Change any link or add a new portal. To change the order, drag <b>⠿</b> or use <b>▲ ▼</b>. Saved in this browser only.</div>
+      <div class="lea-ed">${rows.map(([id, ic, name, url]) => `<div class="lea-row" data-row><span class="lea-drag" title="Drag to move">⠿</span><span>${ic} ${esc(name)}</span><input data-lid="${esc(id)}" value="${esc(url)}" placeholder="https://…"><span class="lea-mv"><button class="btn sm" data-up title="Move up">▲</button><button class="btn sm" data-dn title="Move down">▼</button></span></div>`).join('')}</div>
       <div class="lea-add"><input id="leaN" placeholder="New portal name"><input id="leaU" placeholder="https://…"><button class="btn sm" id="leaA">➕ Add</button></div>`,
       [{ label: 'Reset to default', onClick: () => { if (UI.confirm('Reset all LEA portal links to the default list?')) { localStorage.removeItem(this.KEY); UI.closeModal(); this.side(); } } },
        { label: 'Save', cls: 'primary', onClick: () => {
           take(); this.store(s); UI.closeModal(); this.side(); UI.toast('LEA portal links saved'); } }]);
+    const ed = $('.lea-ed', body); let drag = null;
+    const flash = r => { r.classList.remove('lea-moved'); void r.offsetWidth; r.classList.add('lea-moved'); };
+    ed.addEventListener('click', e => { const b = e.target.closest('[data-up],[data-dn]'); if (!b) return; e.preventDefault(); const r = b.closest('[data-row]');
+      if (b.hasAttribute('data-up') && r.previousElementSibling) ed.insertBefore(r, r.previousElementSibling);
+      else if (b.hasAttribute('data-dn') && r.nextElementSibling) ed.insertBefore(r.nextElementSibling, r);
+      flash(r); r.scrollIntoView({ block: 'nearest' }); });
+    ed.addEventListener('mousedown', e => { const h = e.target.closest('.lea-drag'); if (h) h.parentElement.draggable = true; });
+    ed.addEventListener('dragstart', e => { drag = e.target.closest('[data-row]'); if (!drag) return; drag.classList.add('lea-dragging'); e.dataTransfer.effectAllowed = 'move'; try { e.dataTransfer.setData('text/plain', ''); } catch (x) { } });
+    ed.addEventListener('dragover', e => { if (!drag) return; e.preventDefault(); const r = e.target.closest('[data-row]'); if (!r || r === drag) return; const b = r.getBoundingClientRect(); ed.insertBefore(drag, e.clientY > b.top + b.height / 2 ? r.nextElementSibling : r); });
+    ed.addEventListener('drop', e => e.preventDefault());
+    ed.addEventListener('dragend', () => { if (!drag) return; drag.classList.remove('lea-dragging'); drag.draggable = false; flash(drag); drag = null; });
     $('#leaA', body).onclick = () => { const n = $('#leaN', body).value.trim(), u = $('#leaU', body).value.trim(); if (!n || !/^https?:\/\//i.test(u)) return UI.toast('Give a name and a link starting with https://'); take(); s.extra.push({ id: 'x' + Date.now(), ic: '🔗', name: n, url: u }); this.store(s); UI.closeModal(); this.side(); this.edit(); };
     const f = focus && $(`[data-lid="${focus}"]`, body); if (f) { f.focus(); f.scrollIntoView({ block: 'center' }); }
   },
