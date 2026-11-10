@@ -43,6 +43,28 @@ const LocalSearch = (() => {
   const tick = () => new Promise(r => setTimeout(r, 0));
   const wantFile = name => FT.some(([k, , re]) => types.has(k) && re.test(name));
 
+  /* ---------- speed: quick "can this file match?" check, and a memory of already-read files ---------- */
+  const fold = v => String(v || '').toLowerCase().replace(/[\s\-.()+,_\/:|'"\\]/g, '');
+  const ent = t => t.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&apos;/g, "'");
+  function prefilter(ms) {
+    if (!ms) return null; const keys = ms.map(m => m.key || ''); if (keys.some(k => k.length < 3)) return null;
+    const numeric = ms.some(m => /^\d+$/.test(m.key));
+    return text => { const f = fold(text); return keys.some(k => f.includes(k)) || (numeric && /\d\.\d+e\+?\d+/i.test(text)); };
+  }
+  /* text inside an .xlsx / .docx / .ods (they are zip files) without building the whole table */
+  async function zipText(f) {
+    try { const z = XLSX.CFB.read(new Uint8Array(await f.arrayBuffer()), { type: 'array' }); let t = '';
+      for (let i = 0; i < z.FileIndex.length; i++) { const e = z.FileIndex[i], n = z.FullPaths[i] || e.name || ''; if (!e.content || !/(sharedStrings|sheet\d*|document|content|header\d*|footer\d*)\.xml$/i.test(n)) continue; t += ent(new TextDecoder().decode(e.content).replace(/<[^>]+>/g, '')) + '\n'; }
+      return t; } catch (e) { return null; }
+  }
+  const Mem = {
+    db: null, on: true,
+    open() { if (this.db || !window.indexedDB) return Promise.resolve(this.db); return new Promise(res => { const r = indexedDB.open('sud-lsc', 1); r.onupgradeneeded = () => r.result.createObjectStore('u'); r.onsuccess = () => res(this.db = r.result); r.onerror = () => res(null); }); },
+    async get(k) { if (!this.on) return null; const db = await this.open(); if (!db) return null; return new Promise(res => { try { const q = db.transaction('u').objectStore('u').get(k); q.onsuccess = () => res(q.result || null); q.onerror = () => res(null); } catch (e) { res(null); } }); },
+    async put(k, u) { if (!this.on) return; const db = await this.open(); if (!db) return; let n = 0; for (const x of u) n += x[1].length; if (n > 30e6) return; try { db.transaction('u', 'readwrite').objectStore('u').put(u, k); } catch (e) { } },
+    async clear() { const db = await this.open(); if (db) try { db.transaction('u', 'readwrite').objectStore('u').clear(); } catch (e) { } }
+  };
+
   /* ---------- reading one file into [where, text] pieces ---------- */
   async function units(f) {
     const n = f.name;
@@ -64,7 +86,7 @@ const LocalSearch = (() => {
       const out = [];
       for (let p = 1; p <= pdf.numPages; p++) {
         const tc = await (await pdf.getPage(p)).getTextContent(); const rows = [];
-        for (const it of tc.items) { if (!it.str || !it.str.trim()) continue; const y = it.transform[5]; let r = rows.find(r => Math.abs(r.y - y) < 3); if (!r) rows.push(r = { y, it: [] }); r.it.push(it); }
+        const byY = new Map(); for (const it of tc.items) { if (!it.str || !it.str.trim()) continue; const y = it.transform[5], k = Math.round(y / 3); let r = byY.get(k) || byY.get(k - 1) || byY.get(k + 1); if (!r) { byY.set(k, r = { y, it: [] }); rows.push(r); } r.it.push(it); }
         rows.sort((a, b) => b.y - a.y).forEach(r => out.push(['Page ' + p, r.it.sort((a, b) => a.transform[4] - b.transform[4]).map(i => i.str).join(' ')]));
       }
       try { pdf.destroy(); } catch (e) { }
@@ -98,7 +120,7 @@ const LocalSearch = (() => {
     let w = document.getElementById('lsWrap'); if (w) return w;
     w = document.createElement('div'); w.id = 'lsWrap'; w.className = 'ls-wrap';
     w.innerHTML = `<div class="ls-box" role="dialog" aria-label="Search in Local Drive">
-      <header class="ls-head"><span class="ls-hico">🔎</span><div><h2>Search in Local Drive</h2><div class="ls-sub">Search inside the files on this computer. Files are read in this browser only – nothing is uploaded or saved.</div></div><button class="lg-x" data-x title="Close (Esc)">✕</button></header>
+      <header class="ls-head"><span class="ls-hico">🔎</span><div><h2>Search in Local Drive</h2><div class="ls-sub">Search inside the files on this computer. Files are read in this browser only – nothing is uploaded.</div></div><button class="lg-x" data-x title="Close (Esc)">✕</button></header>
       <div class="ls-body">
         <section class="ls-step"><div class="ls-num">1</div><div class="ls-sec">
           <div class="ls-t">Where to search</div>
@@ -116,6 +138,7 @@ const LocalSearch = (() => {
           <details class="ls-help"><summary>How to add a drive</summary>
             <div>Click <i>Add drive / folder</i> → <b>This PC</b> → pick the drive (e.g. <b>OFFICE (D:)</b>) → <b>Select folder</b>. Windows does not let a browser open the whole C: drive: add <b>Desktop, Documents, Downloads</b> instead. Press <b>Stop</b> any time to see what was found so far.</div></details>
           <div class="ls-opts"><label><input type="checkbox" data-skipsys checked> Skip system & program folders (Windows, Program Files, AppData…)</label>
+            <label title="The text of PDF, Excel and Word files is kept in this browser on this computer, so the next search skips re-reading them. Changed files are read again."><input type="checkbox" data-mem checked> ⚡ Fast repeat search (remember file text on this computer)</label> <a href="#" data-memclr class="small">Clear memory</a>
             <label>Skip files bigger than <select data-max><option value="10">10 MB</option><option value="50">50 MB</option><option value="100" selected>100 MB</option><option value="500">500 MB</option></select></label></div>
         </div></section>
         <section class="ls-step"><div class="ls-num">2</div><div class="ls-sec">
@@ -202,6 +225,7 @@ const LocalSearch = (() => {
     w.querySelectorAll('[data-mode]').forEach(b => b.onclick = () => { mode = b.dataset.mode; w.querySelectorAll('[data-mode]').forEach(x => x.classList.toggle('on', x === b)); q('[data-pfind]').classList.toggle('hidden', mode !== 'find'); q('[data-pcommon]').classList.toggle('hidden', mode !== 'common'); });
     const HELP = { any: 'Finds the text anywhere. Numbers are matched even with spaces or dashes.', mobile: 'Matches +91 98765-43210, 098765 43210 …', account: 'Digits only; leading zeros ignored.', ifsc: 'e.g. SBIN0001234', ip: 'IPv4 or IPv6, exact address', imei: '15 digits, spaces allowed', mac: 'AA:BB:CC:DD:EE:FF, AA-BB-…, aabb.ccdd.eeff', email: 'Exact e-mail address', upi: 'e.g. name@ybl', pan: 'e.g. ABCDE1234F', name: 'All words in this order, any spacing or case' };
     const qt = q('[data-qtype]'); qt.onchange = () => q('[data-qhelp]').textContent = HELP[qt.value] || ''; qt.onchange();
+    q('[data-memclr]').onclick = async e => { e.preventDefault(); await Mem.clear(); note('Search memory cleared.', false); };
     q('[data-go]').onclick = async () => { if (!sources.length && q('[data-pc]').checked) await wholePc(); run(); };
     q('[data-stop]').onclick = () => { stop = true; };
     q('[data-q]').onkeydown = e => { if (e.key === 'Enter' && e.ctrlKey) { e.preventDefault(); run(); } };
@@ -231,13 +255,13 @@ const LocalSearch = (() => {
     return vals.map(t => {
       if (qtype !== 'any' && qtype !== 'name') {
         const want = T[qtype].norm(t.trim()) || t;
-        return { term: t, find: line => { const hit = extract(line, [qtype]).find(x => x.value === want); return hit ? [hit.i, hit.n] : null; } };
+        return { term: t, key: fold(want), find: line => { const hit = extract(line, [qtype]).find(x => x.value === want); return hit ? [hit.i, hit.n] : null; } };
       }
-      if (qtype === 'name') { const re = new RegExp(t.split(/\s+/).map(w => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('[\\s.,_-]+'), 'i'); return { term: t, find: line => { const m = re.exec(line); return m ? [m.index, m[0].length] : null; } }; }
+      if (qtype === 'name') { const re = new RegExp(t.split(/\s+/).map(w => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('[\\s.,_-]+'), 'i'); return { term: t, key: fold(t), find: line => { const m = re.exec(line); return m ? [m.index, m[0].length] : null; } }; }
       const d = t.replace(/\D/g, ''), numeric = /^[\d\s\-+().\/]+$/.test(t) && d.length >= 4;
-      if (numeric) { let dd = d; if (dd.length === 12 && dd.startsWith('91')) dd = dd.slice(2); const re = new RegExp('(?<!\\d)' + dd.split('').join('[\\s\\-().\\/]*') + '(?!\\d)'); return { term: t, find: line => { const m = re.exec(line); return m ? [m.index, m[0].length] : null; } }; }
+      if (numeric) { let dd = d; if (dd.length === 12 && dd.startsWith('91')) dd = dd.slice(2); const re = new RegExp('(?<!\\d)' + dd.split('').join('[\\s\\-().\\/]*') + '(?!\\d)'); return { term: t, key: dd, num: 1, find: line => { const m = re.exec(line); return m ? [m.index, m[0].length] : null; } }; }
       const low = cs ? t : t.toLowerCase();
-      return { term: t, find: line => { const i = (cs ? line : line.toLowerCase()).indexOf(low); return i < 0 ? null : [i, t.length]; } };
+      return { term: t, key: fold(t), find: line => { const i = (cs ? line : line.toLowerCase()).indexOf(low); return i < 0 ? null : [i, t.length]; } };
     });
   }
   function snip(line, i, n) {
@@ -257,7 +281,7 @@ const LocalSearch = (() => {
     note('', false);
     busy = true; stop = false;
     const maxB = +q('[data-max]').value * 1024 * 1024, skipSys = q('[data-skipsys]').checked;
-    const ctr = { seen: 0, folders: 0, skipDirs: 0, denied: [], read: 0, skipped: [], bytes: 0 };
+    const ctr = { seen: 0, folders: 0, skipDirs: 0, denied: [], read: 0, skipped: [], bytes: 0, mem: 0, quick: 0 };
     const hits = [], V = new Map(), t0 = Date.now();
     q('[data-go]').classList.add('hidden'); q('[data-stop]').classList.remove('hidden'); q('[data-prog]').classList.remove('hidden');
     q('[data-res]').innerHTML = ''; q('[data-det]').innerHTML = ''; q('[data-sum]').innerHTML = '';
@@ -265,28 +289,46 @@ const LocalSearch = (() => {
     const paint = (cur, force) => { const now = Date.now(); if (!force && now - lastPaint < 150) return; lastPaint = now;
       q('[data-ptxt]').innerHTML = `<b>${num(ctr.read)}</b> files searched · ${num(ctr.seen)} files looked at · ${num(ctr.folders)} folders · ${mode === 'find' ? `<b>${num(hits.length)}</b> matches` : `<b>${num(V.size)}</b> values found`} · ${((now - t0) / 1000).toFixed(0)} s`;
       q('[data-pcur]').textContent = cur || ''; q('[data-bar]').style.width = (Math.min(98, 8 + Math.log10(1 + ctr.read) * 25)) + '%'; };
+    const pre = prefilter(ms), HEAVY = /\.(pdf|docx|xlsx|xlsm|xls|xlsb|ods)$/i, ZIP = /\.(xlsx|xlsm|docx|ods)$/i;
+    Mem.on = q('[data-mem]').checked;
+    const scan = (it, u) => {
+      for (const [where, line] of u) {
+        if (!line) continue;
+        if (ms) { for (const m of ms) { const r = m.find(line); if (r) hits.push({ term: m.term, file: it.path, where, text: String(line).replace(/\s+/g, ' ').trim(), snip: snip(line, r[0], r[1]) }); } }
+        else for (const x of extract(line, ctypes)) {
+          const k = x.type + '|' + x.value; let g = V.get(k); if (!g) V.set(k, g = { type: x.type, value: x.value, n: 0, files: new Set(), occ: [] });
+          g.n++; g.files.add(it.path); if (g.occ.length < 60) g.occ.push({ file: it.path, where, snip: snip(line, x.i, x.n) });
+        }
+        if ((ms && hits.length > 50000) || V.size > 300000) { ctr.skipped.push(['…', 'stopped early: too many results – make the search narrower']); stop = true; return; }
+      }
+    };
+    const one = async it => {
+      let f; try { f = await it.file(); } catch (e) { ctr.skipped.push([it.path, 'cannot open']); return; }
+      if (f.size > maxB) { ctr.skipped.push([it.path, 'bigger than ' + size(maxB)]); return; }
+      const n = it.name, key = it.path + '|' + f.size + '|' + f.lastModified, done = () => { ctr.read++; ctr.bytes += f.size; };
+      let u = HEAVY.test(n) ? await Mem.get(key) : null;
+      if (u) { ctr.mem++; if (pre && !pre(u.map(x => x[1]).join('\n'))) return done(); }
+      else {
+        if (pre && ZIP.test(n)) { const t = await zipText(f); if (t != null && !pre(t)) { ctr.quick++; return done(); } }
+        if (pre && TEXTLIKE.test(n)) { const t = await f.text(); if (!pre(t)) { ctr.quick++; return done(); } }
+        try { u = await units(f); } catch (e) { ctr.skipped.push([it.path, e.message || 'could not read']); return; }
+        if (!u) return;
+        if (HEAVY.test(n)) Mem.put(key, u);
+      }
+      done(); scan(it, u);
+    };
+    const live = new Set(); let yieldAt = Date.now();
     outer: for (const src of sources) {
       for await (const it of walk(src, ctr, skipSys)) {
         if (stop) break outer;
         if (!wantFile(it.name)) continue;
         paint(it.path);
-        let f; try { f = await it.file(); } catch (e) { ctr.skipped.push([it.path, 'cannot open']); continue; }
-        if (f.size > maxB) { ctr.skipped.push([it.path, 'bigger than ' + size(maxB)]); continue; }
-        let u; try { u = await units(f); } catch (e) { ctr.skipped.push([it.path, e.message || 'could not read']); continue; }
-        if (!u) continue;
-        ctr.read++; ctr.bytes += f.size;
-        for (const [where, line] of u) {
-          if (!line) continue;
-          if (ms) { for (const m of ms) { const r = m.find(line); if (r) hits.push({ term: m.term, file: it.path, where, text: String(line).replace(/\s+/g, ' ').trim(), snip: snip(line, r[0], r[1]) }); } }
-          else for (const x of extract(line, ctypes)) {
-            const k = x.type + '|' + x.value; let g = V.get(k); if (!g) V.set(k, g = { type: x.type, value: x.value, n: 0, files: new Set(), occ: [] });
-            g.n++; g.files.add(it.path); if (g.occ.length < 60) g.occ.push({ file: it.path, where, snip: snip(line, x.i, x.n) });
-          }
-          if ((ms && hits.length > 50000) || V.size > 300000) { ctr.skipped.push(['…', 'stopped early: too many results – make the search narrower']); stop = true; break; }
-        }
-        await tick();
+        const pr = one(it).catch(() => { }).finally(() => live.delete(pr)); live.add(pr);
+        if (live.size >= 6) await Promise.race(live);
+        if (Date.now() - yieldAt > 60) { await tick(); yieldAt = Date.now(); }
       }
     }
+    await Promise.all(live);
     paint('', true);
     busy = false; q('[data-go]').classList.remove('hidden'); q('[data-stop]').classList.add('hidden');
     q('[data-bar]').style.width = '100%'; q('[data-pcur]').textContent = stop ? 'Stopped. Results so far are shown below.' : 'Finished.';
@@ -300,7 +342,7 @@ const LocalSearch = (() => {
   }
   function show() {
     const w = el(), q = s => w.querySelector(s), L = last, c = L.ctr;
-    const extra = `${num(c.read)} files searched (${size(c.bytes)}) in ${L.secs.toFixed(1)} s${stop ? ' · stopped' : ''}${c.skipDirs ? ` · ${num(c.skipDirs)} system folders skipped` : ''}${c.skipped.length ? ` · <a href="#" data-sk>${num(c.skipped.length)} files not read</a>` : ''}${c.denied.length ? ` · <a href="#" data-dn>${num(c.denied.length)} folders not allowed</a>` : ''}`;
+    const extra = `${num(c.read)} files searched (${size(c.bytes)}) in ${L.secs.toFixed(1)} s${c.mem ? ` · ⚡ ${num(c.mem)} from memory` : ''}${c.quick ? ` · ${num(c.quick)} ruled out by a quick check` : ''}${stop ? ' · stopped' : ''}${c.skipDirs ? ` · ${num(c.skipDirs)} system folders skipped` : ''}${c.skipped.length ? ` · <a href="#" data-sk>${num(c.skipped.length)} files not read</a>` : ''}${c.denied.length ? ` · <a href="#" data-dn>${num(c.denied.length)} folders not allowed</a>` : ''}`;
     const skl = `<div class="ls-skip hidden" data-skl>${c.skipped.slice(0, 2000).map(([p, r]) => `<div><span class="mono">${h(p)}</span> – ${h(r)}</div>`).join('')}</div><div class="ls-skip hidden" data-dnl>${c.denied.slice(0, 500).map(p => `<div class="mono">${h(p)}</div>`).join('')}</div>`;
     if (L.mode === 'find') {
       const per = L.ms.map(m => { const r = L.hits.filter(x => x.term === m.term); return `<span class="ls-pill ${r.length ? 'hit' : ''}"><b>${h(m.term)}</b> ${r.length ? `${num(r.length)} matches · ${num(new Set(r.map(x => x.file)).size)} files` : 'not found'}</span>`; }).join('');
