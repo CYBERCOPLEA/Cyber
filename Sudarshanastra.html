@@ -1429,6 +1429,16 @@ mark.cc-q{background:#f97316;color:#000;border-radius:3px}
 .cc-drop.over{background:rgba(34,197,94,.18)}
 .cc-facts>div>span{color:var(--text-muted);margin-right:6px;font-size:11.5px;text-transform:uppercase;letter-spacing:.3px}
 
+/* ---- editable drop-down lists ---- */
+.el-ov{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center}
+.el-box{width:min(560px,94vw);max-height:86vh;overflow:auto;background:var(--surface-1);border:2px solid #a855f7;border-radius:14px;padding:16px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.el-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.el-hd b{font-size:16px;color:#d8b4fe}
+.el-rows{margin-top:8px}
+.el-row{display:grid;grid-template-columns:22px 1fr auto auto auto;gap:6px;align-items:center;padding:5px 6px;margin:4px 0;border-radius:8px;border-left:4px solid #a855f7;background:rgba(168,85,247,.08)}
+.el-row.drag{opacity:.5}
+.el-dr{cursor:grab;color:var(--text-muted);text-align:center}
+
 </style>
 </head>
 <body>
@@ -1476,7 +1486,7 @@ mark.cc-q{background:#f97316;color:#000;border-radius:3px}
         <div class="hp-feat" style="--fc:#06b6d4"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><div><b>Analytics</b><p>The same mobile, account, IP or e-mail across complaints, banks and platforms.</p></div></div>
         <div class="hp-feat" style="--fc:#eab308"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h5"/></svg></span><div><b>Case File &amp; Notices</b><p>Case reports, notices to banks and platforms, and CSV / PDF exports.</p></div></div>
     </section>
-    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-10 10:58 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
+    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-10 11:06 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
   </div>
 
   <div class="lg-wrap" id="lgWrap" aria-hidden="true">
@@ -11053,6 +11063,66 @@ const LiveNum = {
 
 </script>
 <script>
+/* editlist.js - make any fixed drop-down (<select>) editable: reorder, rename, delete, add, reset.
+   EditList.items(key, defaults) -> current list. EditList.attach(select, key, defaults) adds "✏ Edit / reorder this list…" at the end. */
+const EditList = {
+  KEY: 'sud-edit-lists',
+  all() { try { return JSON.parse(localStorage.getItem(this.KEY) || '{}'); } catch (e) { return {}; } },
+  items(key, defs) { const a = this.all()[key]; return Array.isArray(a) && a.length ? a : defs.slice(); },
+  save(key, list) { const a = this.all(); if (list) a[key] = list; else delete a[key]; localStorage.setItem(this.KEY, JSON.stringify(a)); },
+  fill(sel, key, defs, keep) {
+    const v = keep !== undefined ? keep : sel.value, L = this.items(key, defs);
+    sel.innerHTML = L.map(x => `<option>${esc(x)}</option>`).join('') + '<option value="__edit">✏ Edit / reorder this list…</option>';
+    sel.value = L.includes(v) ? v : (L[0] || ''); sel.dataset.last = sel.value;
+  },
+  attach(sel, key, defs, title) {
+    if (!sel) return; this.fill(sel, key, defs);
+    sel.addEventListener('focus', () => { sel.dataset.last = sel.value; });
+    sel.addEventListener('change', () => {
+      if (sel.value !== '__edit') { sel.dataset.last = sel.value; return; }
+      const last = sel.dataset.last || ''; sel.value = last;
+      this.edit(key, defs, title || 'Edit list', () => this.fill(sel, key, defs, last));
+    });
+  },
+  // own overlay so it can open on top of another dialog without closing it
+  edit(key, defs, title, done) {
+    let L = this.items(key, defs);
+    const ov = document.createElement('div'); ov.className = 'el-ov';
+    ov.innerHTML = `<div class="el-box"><div class="el-hd"><b>✏ ${esc(title)}</b><button class="btn sm" data-x>✕</button></div>
+      <div class="small muted">Drag ⠿ or use ▲ ▼ to reorder · type to rename · 🗑 to delete</div><div class="el-rows"></div>
+      <div class="row" style="gap:6px;margin-top:8px"><input class="el-new" placeholder="New item…" style="flex:1"><button class="btn" data-add>➕ Add</button></div>
+      <div class="row" style="gap:6px;margin-top:12px"><button class="btn sm" data-reset>↺ Reset to default</button><span class="spacer" style="flex:1"></span><button class="btn" data-x>Cancel</button><button class="btn primary" data-save>Save</button></div></div>`;
+    document.body.appendChild(ov);
+    const rows = ov.querySelector('.el-rows');
+    const take = () => { L = [...rows.querySelectorAll('input')].map(i => i.value.trim()).filter(Boolean); };
+    const draw = () => {
+      rows.innerHTML = L.map((x, i) => `<div class="el-row" draggable="true" data-i="${i}"><span class="el-dr" title="Drag">⠿</span><input value="${esc(x)}"><button class="btn sm" data-up="${i}" ${i ? '' : 'disabled'}>▲</button><button class="btn sm" data-dn="${i}" ${i < L.length - 1 ? '' : 'disabled'}>▼</button><button class="btn sm danger" data-del="${i}" title="Delete">🗑</button></div>`).join('') || '<div class="muted small">Empty – add an item below.</div>';
+      let from = -1;
+      rows.querySelectorAll('.el-row').forEach(r => {
+        r.ondragstart = () => { take(); from = +r.dataset.i; r.classList.add('drag'); };
+        r.ondragover = e => e.preventDefault();
+        r.ondrop = e => { e.preventDefault(); const to = +r.dataset.i; if (from < 0 || from === to) return; const [m] = L.splice(from, 1); L.splice(to, 0, m); draw(); };
+      });
+    };
+    const mv = (i, d) => { take(); const j = i + d; if (j < 0 || j >= L.length) return; [L[i], L[j]] = [L[j], L[i]]; draw(); };
+    ov.addEventListener('click', e => {
+      const t = e.target.closest('button'); if (!t) { if (e.target === ov) close(); return; }
+      if (t.dataset.up !== undefined) mv(+t.dataset.up, -1);
+      else if (t.dataset.dn !== undefined) mv(+t.dataset.dn, 1);
+      else if (t.dataset.del !== undefined) { take(); const i = +t.dataset.del; if (confirm(`Delete "${L[i]}" from this list?`)) { L.splice(i, 1); draw(); } }
+      else if (t.hasAttribute('data-add')) { take(); const n = ov.querySelector('.el-new'), v = n.value.trim(); if (!v) return n.focus(); if (!L.includes(v)) L.push(v); n.value = ''; this.save(key, L); draw(); }
+      else if (t.hasAttribute('data-reset')) { if (confirm('Go back to the original list?')) { L = defs.slice(); draw(); } }
+      else if (t.hasAttribute('data-save')) { take(); this.save(key, L.length ? L : null); close(); UI.toast('List saved'); }
+      else if (t.hasAttribute('data-x')) close();
+    });
+    ov.querySelector('.el-new').onkeydown = e => { if (e.key === 'Enter') ov.querySelector('[data-add]').click(); };
+    const close = () => { ov.remove(); done && done(); };
+    draw();
+  }
+};
+
+</script>
+<script>
 /* cctns.js – Investigation › CCTNS
    1. Case Diary: all cases at a glance, pick one, read its FIR and case-diary parts, see work done and what is still
       pending (and from whom to demand it), and draft BNSS notices (94, 106, 35(3), 179) in one click.
@@ -11228,7 +11298,7 @@ const CCTNS = {
     $('#ccCd', el).onclick = () => { mode = 'cd'; pick.multiple = true; pick.value = ''; pick.click(); };
     pick.onchange = async () => { let n = 0; for (const f of pick.files) n += mode === 'fir' ? await this.addFir(f) : await this.addCd(f); Analysis.invalidate(); saveCase(); if (n) UI.toast(`${n} file(s) read · identifiers added to the case`); render(); };
     $('#ccNew', el).onclick = () => { const b = UI.modal('Case diary entry', `<div class="row"><label>CD No.</label><input id="cdN" style="width:80px" value="${st.cd.length + 1}"><label>Date</label><input id="cdD" type="date" value="${new Date().toISOString().slice(0, 10)}"><label>Category</label><select id="cdC">${this.CAT.map(c => `<option>${c}</option>`).join('')}</select></div><textarea id="cdT" style="min-height:260px;margin-top:8px" placeholder="Write the proceedings of the day…"></textarea>`,
-      [{ label: 'Cancel', onClick: UI.closeModal }, { label: 'Save', cls: 'primary', onClick: () => { const t = $('#cdT', b).value.trim(); if (!t) return UI.toast('Write something first'); st.cd.push({ id: uid(), no: $('#cdN', b).value, date: $('#cdD', b).value.split('-').reverse().join('-'), cat: $('#cdC', b).value, file: 'Typed entry', text: t, when: new Date().toISOString() }); this.saveIds(t, 'Case diary · CD ' + $('#cdN', b).value); Analysis.invalidate(); saveCase(); UI.closeModal(); render(); } }]); };
+      [{ label: 'Cancel', onClick: UI.closeModal }, { label: 'Save', cls: 'primary', onClick: () => { const t = $('#cdT', b).value.trim(); if (!t) return UI.toast('Write something first'); st.cd.push({ id: uid(), no: $('#cdN', b).value, date: $('#cdD', b).value.split('-').reverse().join('-'), cat: $('#cdC', b).value, file: 'Typed entry', text: t, when: new Date().toISOString() }); this.saveIds(t, 'Case diary · CD ' + $('#cdN', b).value); Analysis.invalidate(); saveCase(); UI.closeModal(); render(); } }]); EditList.attach($('#cdC', b), 'cd-cat', this.CAT, 'Case diary categories'); };
     $('#ccNt', el).onclick = () => this.openNotice('n353', null);
     // notices list
     if (st.notices.length) Table($('#ccN', el), { rows: st.notices.slice().reverse(), pageSize: 10, exportName: 'notices', columns: [{ key: 'when', label: 'When', render: r => esc(r.when.slice(0, 16).replace('T', ' ')) }, { key: 'name', label: 'Notice' }, { key: 'to', label: 'To' }], onRow: r => { const b = UI.drawer(r.name, `<textarea style="min-height:520px;font-family:Georgia,serif;font-size:14px">${esc(r.text)}</textarea><div class="row" style="margin-top:8px"><button class="btn" id="nP">🖨 Print</button></div>`); $('#nP', b).onclick = () => Reports.printText(r.text); } });
