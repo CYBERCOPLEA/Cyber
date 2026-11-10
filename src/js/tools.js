@@ -146,9 +146,9 @@ XT.toolView = function (body, cur) {
   const st = (S.xtIn = S.xtIn || {}), val = st[cur] || '';
   const isHdr = cur === 'email';
   body.innerHTML = `<div class="card xt-head" style="--sc:${C[2]}"><div><h3>${esc(C[1])}</h3><div class="sub">${esc(C[3])}</div></div><button class="btn" id="xtAddHere">➕ Add web link to ${esc(C[1])}</button></div>
-    ${own ? '' : `<div class="card"><h3>${isHdr ? 'Paste the full e-mail header' : 'Check'}</h3><div class="sub">${isHdr ? 'Gmail: ⋮ → Show original. Outlook: File → Properties → Internet headers. Paste everything here.' : 'Type or paste one or more values (one per line, or separated by commas). Checked on this computer only.'}</div>
+    ${own ? '' : `<div class="card"><h3>${isHdr ? 'Paste the full e-mail header' : 'Check'}</h3><div class="sub">${isHdr ? 'Gmail: ⋮ → Show original. Outlook: File → Properties → Internet headers. Paste everything here.' : 'Type or paste one or more values (one per line, or separated by commas). Check runs on this computer only; 🌐 Fetch online brings details from free online databases and your lookup websites below.'}</div>
       <textarea id="xtIn" rows="${isHdr ? 9 : 3}" style="width:100%" placeholder="${esc({ ip: '49.36.12.10\n2401:4900:1c2a::1', mnp: '98xxxxxxxx  or  +1 415 xxx xxxx', imei: '35xxxxxxxxxxxxx', mac: 'A4:5E:60:xx:xx:xx', email: 'Received: from …\nFrom: …\nAuthentication-Results: …', whois: 'example.xyz  or  https://sbi-kyc-update.example/login' }[cur] || '')}">${esc(val)}</textarea>
-      <div class="row" style="margin-top:8px"><button class="btn primary" id="xtGo">Check</button>${cur === 'ip' ? '<button class="btn" id="xtNet" title="Sends the IP addresses to free IP-location services (ipwho.is, ipinfo.io, ipapi.co, db-ip.com)">🌐 Fetch location & ISP online</button>' : cur === 'mac' ? '<button class="btn" id="xtMac" title="Sends only the first half (vendor prefix) of each MAC to maclookup.app">🌐 Fetch vendor online</button>' : ''}<button class="btn" id="xtClr">Clear</button></div><div id="xtOut"></div><div id="xtNetOut"></div></div>`}
+      <div class="row" style="margin-top:8px"><button class="btn primary" id="xtGo">Check</button><button class="btn xt-fetch" id="xtFetch" title="${esc({ ip: 'Location, ISP and ASN from ipwho.is / ipinfo.io / ipapi.co / db-ip, then your lookup websites', mac: 'Maker from maclookup.app (only the first 6 digits are sent), then your lookup websites', email: 'Location and ISP of the sender IPs, registrar and age of the sender domains, then your lookup websites', whois: 'Registrar, creation date and age (RDAP), DNS and hosting IP with its ISP, then your lookup websites' }[cur] || 'Tries each lookup website below with the value and shows what it gives back')}">🌐 Fetch online</button><button class="btn" id="xtClr">Clear</button></div><div id="xtOut"></div><div id="xtNetOut"></div><div id="xtDomOut"></div><div id="xtWebOut"></div></div>`}
     <div class="card"><h3>Lookup websites</h3><div class="sub">${own ? 'Your saved buttons for this section.' : 'Opens in a new tab with the first value from the box. Sites that cannot take the value in the link (bulk lookups) get it copied, so just paste it there. Buttons with ✕ are the ones you added.'}</div><div class="xt-sites" id="xtSites"></div></div>`;
   const first = () => { if (isHdr) { const h = XT.header(st[cur] || ''); return h.origin || ''; } const v = XT.vals(st[cur], cur)[0] || ''; return cur === 'whois' ? (XT.whois(v)._q || v) : cur === 'mac' ? v.replace(/[^0-9a-f]/gi, '').replace(/(..)(?=.)/g, '$1:') : cur === 'mnp' ? v.replace(/\D/g, '').slice(-10) : v; };
   const sites = () => { $('#xtSites', body).innerHTML = XT.siteBtns(cur, first()) || '<div class="muted">No buttons yet. Use ➕ Add web link.</div>';
@@ -156,7 +156,7 @@ XT.toolView = function (body, cur) {
     $$('[data-del]', body).forEach(b => b.onclick = async () => { const l = XT.links.find(x => x.id === b.dataset.del); if (!UI.confirm(`Remove the "${l.name}" button?`)) return; XT.links = XT.links.filter(x => x.id !== l.id); if (own && !XT.links.some(x => x.cat === cur)) { XT.cats = XT.cats.filter(c => c.id !== cur); S.sub.tools = 'ip'; } await XT.save(); XT.side(); render(); }); };
   $('#xtAddHere', body).onclick = () => { S.xtCat = cur; S.sub.tools = 'addlink'; render(); };
   sites();
-  if (own) return;
+  if (own) return XT.ownFetch(body, cur);
   const run = () => {
     const out = $('#xtOut', body), text = st[cur] || '';
     if (!text.trim()) { out.innerHTML = ''; sites(); return; }
@@ -173,9 +173,10 @@ XT.toolView = function (body, cur) {
   $('#xtGo', body).onclick = () => { st[cur] = ta.value; run(); };
   $('#xtClr', body).onclick = () => { st[cur] = ''; ta.value = ''; run(); };
   if (val) run();
-  const nb = $('#xtNet', body); if (nb) nb.onclick = () => { st[cur] = ta.value; XT.fetchIPs(XT.vals(st[cur], cur).filter(v => XT.isIP(v)), $('#xtNetOut', body), nb); };
-  if (cur === 'ip' && XT.net) XT.netShow($('#xtNetOut', body));
-  const mb = $('#xtMac', body); if (mb) mb.onclick = () => { st[cur] = ta.value; XT.fetchMacs(XT.vals(st[cur], cur), $('#xtNetOut', body), mb); };
+  const fb = $('#xtFetch', body); fb.onclick = () => { st[cur] = ta.value; if (ta.value.trim()) run(); XT.fetchOnline(cur, st[cur], first(), body, fb); };
+  if (cur === 'whois' || cur === 'email') XT.domShow($('#xtDomOut', body));
+  if (XT.siteNet && XT.siteNet.cat === cur) XT.siteShow($('#xtWebOut', body));
+  if ((cur === 'ip' || cur === 'email' || cur === 'whois') && XT.net) XT.netShow($('#xtNetOut', body));
   if (cur === 'mac' && XT.macNet) XT.macShow($('#xtNetOut', body));
 };
 
@@ -359,4 +360,103 @@ XT.sitesEd = function (box, cat, btn) {
   });
   $('[data-sa]', box).onclick = async e => { e.preventDefault(); const n = $('[data-nn]', box).value.trim(), u = $('[data-nu]', box).value.trim(); if (!n || !u) return UI.toast('Give the website name and its link');
     XT.links.push({ id: uid(), cat, name: n, url: fix(u), added: new Date().toISOString() }); await save(); XT.sitesEd(box, cat, btn); UI.toast('Website added'); $('[data-nn]', box).focus(); };
+};
+
+/* 🌐 Fetch online – one button on every tool page. Runs only when the officer presses it and asks once before sending anything. */
+XT.get = async function (u, ms) {
+  const ctl = new AbortController(), tm = setTimeout(() => ctl.abort(), ms || 9000);
+  try { const r = await fetch(u, { signal: ctl.signal, referrerPolicy: 'no-referrer', credentials: 'omit' }); clearTimeout(tm); return r; } finally { clearTimeout(tm); }
+};
+XT.okSend = function (what) { if (XT.fOk) return true; if (!navigator.onLine) { UI.toast('This computer is offline'); return false; } if (!UI.confirm(`Fetch online sends ${what} to free lookup websites and public databases to bring the details here.\n\nNo other case data is sent. Continue?`)) return false; XT.fOk = XT.netOk = XT.macOk = true; return true; };
+
+/* domain: RDAP (registrar, dates, status) + Google public DNS (A, MX, NS, TXT) */
+XT.fetchDom = async function (doms, out, btn) {
+  doms = uniq(doms.map(d => String(d || '').toLowerCase().trim()).filter(d => /^[a-z0-9.-]+\.[a-z]{2,}$/.test(d))).slice(0, 20);
+  if (!doms.length) return [];
+  const R = XT.domNet = XT.domNet || new Map(), ips = [];
+  for (let i = 0; i < doms.length; i++) {
+    const d = doms[i]; if (btn) btn.textContent = `Domain ${i + 1} / ${doms.length}…`;
+    const x = { domain: d };
+    try { const r = await XT.get('https://rdap.org/domain/' + encodeURIComponent(d)); if (r.ok) { const j = await r.json();
+      const ev = a => ((j.events || []).find(e => e.eventAction === a) || {}).eventDate || '';
+      const ent = role => { const e = (j.entities || []).find(e => (e.roles || []).includes(role)); if (!e) return ''; const v = (e.vcardArray || [])[1] || []; const g = k => ((v.find(f => f[0] === k) || [])[3]) || ''; const ad = v.find(f => f[0] === 'adr'); return [g('fn'), g('org'), ad && ad[1] && ad[1].cc, ad && Array.isArray(ad[3]) ? ad[3].filter(Boolean).slice(-2).join(' ') : ''].filter(Boolean).join(', '); };
+      Object.assign(x, { registrar: ent('registrar'), created: ev('registration').slice(0, 10), expires: ev('expiration').slice(0, 10), updated: ev('last changed').slice(0, 10), status: (j.status || []).join(', '), ns: (j.nameservers || []).map(n => String(n.ldhName || '').toLowerCase()).join(', '), registrant: ent('registrant'), abuse: (((j.entities || []).flatMap(e => e.entities || []).find(e => (e.roles || []).includes('abuse')) || {}).vcardArray || [, []])[1].filter(f => f[0] === 'email' || f[0] === 'tel').map(f => f[3]).join(', ') });
+      if (x.created) x.age = Math.floor((Date.now() - Date.parse(x.created)) / 864e5); } else x.rdap = r.status === 404 ? 'Not registered / no RDAP' : 'RDAP error ' + r.status; } catch (e) { x.rdap = 'RDAP: no answer'; }
+    for (const t of ['A', 'MX', 'NS', 'TXT']) { try { const r = await XT.get(`https://dns.google/resolve?name=${encodeURIComponent(d)}&type=${t}`); if (r.ok) { const j = await r.json(); const a = (j.Answer || []).filter(z => z.type === { A: 1, MX: 15, NS: 2, TXT: 16 }[t]).map(z => String(z.data).replace(/^"|"$/g, '').replace(/\.$/, '')); x[t] = t === 'TXT' ? a.filter(s => /spf|verif/i.test(s)).slice(0, 3).join(' | ') : a.join(', '); if (t === 'A') ips.push(...a); } } catch (e) { } }
+    if (!x.ns && x.NS) x.ns = x.NS;
+    R.set(d, x); XT.domShow(out);
+  }
+  return uniq(ips);
+};
+XT.domShow = function (out) {
+  if (!out || !XT.domNet || !XT.domNet.size) return;
+  const R = [...XT.domNet.values()], f = (k, v) => v ? `<dt>${k}</dt><dd>${v}</dd>` : '';
+  out.innerHTML = `<h3 style="margin-top:16px">Domain details <span class="muted small">(RDAP registry + public DNS)</span></h3><div class="xt-res">${R.map(x => `<div class="xt-r"><dl class="kv">
+    <dt>Domain</dt><dd><b class="mono">${esc(x.domain)}</b> ${x.age != null ? `<span class="badge ${x.age < 180 ? 'bad' : 'good'}">${x.age < 180 ? '⚠ New domain – ' : ''}${x.age} days old</span>` : ''}</dd>
+    ${f('Registrar', esc(x.registrar || ''))}${f('Created', esc(x.created || ''))}${f('Expires', esc(x.expires || ''))}${f('Updated', esc(x.updated || ''))}${f('Registrant', esc(x.registrant || ''))}${f('Abuse contact', esc(x.abuse || ''))}
+    ${f('Hosting IP (A)', x.A ? `<span class="mono">${esc(x.A)}</span>` : '')}${f('Mail server (MX)', esc(x.MX || ''))}${f('Name servers', esc(x.ns || ''))}${f('SPF / verify', `<span class="small">${esc(x.TXT || '')}</span>`)}${f('Status', `<span class="small muted">${esc(x.status || '')}</span>`)}${f('Note', esc(x.rdap || ''))}</dl></div>`).join('')}</div>
+    <div class="row" style="margin-top:8px"><button class="btn" id="xtDomCsv">Download CSV</button><span class="muted small">Send the notice for registrant / payment details to the registrar, and for the server to the hosting company of the IP.</span></div>`;
+  $('#xtDomCsv', out).onclick = () => UI.download('domain_lookup_' + today() + '.csv', UI.toCSV(['domain', 'registrar', 'created', 'expires', 'updated', 'age', 'registrant', 'abuse', 'A', 'MX', 'ns', 'TXT', 'status', 'rdap'].map(k => ({ key: k, label: k })), R), 'text/csv');
+};
+
+/* listed websites: try each one with the value; show the text it gives back, or say plainly that the site does not allow it */
+XT.pageText = function (txt, type, q) {
+  if (/json/.test(type) || /^\s*[\[{]/.test(txt)) { try { const j = JSON.parse(txt), L = []; const walk = (o, p) => { if (L.length > 30) return; if (o && typeof o === 'object') Object.entries(o).forEach(([k, v]) => walk(v, p ? p + '.' + k : k)); else if (o !== null && o !== '') L.push(p + ': ' + o); }; walk(j, ''); return L.join('\n'); } catch (e) { } }
+  if (!/</.test(txt)) return txt.trim().slice(0, 600);
+  const d = new DOMParser().parseFromString(txt, 'text/html'); $$('script,style,noscript,svg,nav,header,footer,form,iframe', d).forEach(e => e.remove());
+  const lines = (d.body ? d.body.innerText || d.body.textContent : '').split(/\n+/).map(s => s.replace(/\s+/g, ' ').trim()).filter(s => s.length > 2 && s.length < 200);
+  const k = String(q || '').toLowerCase(), i = k ? lines.findIndex(l => l.toLowerCase().includes(k)) : -1;
+  return (i >= 0 ? lines.slice(i, i + 14) : lines.slice(0, 14)).join('\n');
+};
+XT.fetchSites = async function (cat, q, out, btn) {
+  const L = XT.siteList(cat), withQ = L.filter(s => String(s.url).includes('{q}')).slice(0, 15), noQ = L.filter(s => !String(s.url).includes('{q}'));
+  const R = XT.siteNet = { cat, q, rows: [] };
+  if (q) for (let i = 0; i < withQ.length; i++) {
+    const s = withQ[i], u = XT.url(s.url, q); if (btn) btn.textContent = `Website ${i + 1} / ${withQ.length}…`;
+    const row = { site: s.name, url: u };
+    try { const r = await XT.get(u, 8000); if (r.ok) { row.text = XT.pageText(await r.text(), r.headers.get('content-type') || '', q); row.ok = !!row.text; if (!row.text) row.err = 'Page opened but shows its details only in the browser – open ↗'; } else row.err = 'Site answered ' + r.status + ' – open ↗'; }
+    catch (e) { row.err = 'Site does not allow other apps to read it – open ↗ and see there'; }
+    R.rows.push(row); XT.siteShow(out);
+  }
+  if (noQ.length && q && navigator.clipboard) navigator.clipboard.writeText(q).catch(() => { });
+  noQ.forEach(s => R.rows.push({ site: s.name, url: XT.url(s.url, ''), err: 'Needs the value typed on the site – open ↗ (value copied)' }));
+  XT.siteShow(out);
+};
+XT.siteShow = function (out) {
+  const R = XT.siteNet; if (!out || !R) return;
+  const ok = R.rows.filter(r => r.ok);
+  out.innerHTML = `<h3 style="margin-top:16px">From your lookup websites <span class="muted small">(${ok.length} of ${R.rows.length} gave data${R.q ? ' for ' + esc(R.q) : ''})</span></h3>
+    ${R.rows.length ? `<div class="tbl-wrap"><table class="tbl xt-ft"><thead><tr><th>Website</th><th>What it says</th><th></th></tr></thead><tbody>
+    ${R.rows.map(r => `<tr><td><b>${esc(r.site)}</b></td><td>${r.ok ? `<pre class="xt-pre">${esc(r.text)}</pre>` : `<span class="muted small">${esc(r.err || '')}</span>`}</td><td><a class="btn sm" href="${esc(r.url)}" target="_blank" rel="noopener noreferrer">Open ↗</a></td></tr>`).join('')}</tbody></table></div>` : '<div class="muted">No website in this tool yet. Add some with ✏ edit list ▸ 🌐 Websites.</div>'}
+    ${ok.length ? '<div class="row" style="margin-top:8px"><button class="btn" id="xtSiteCopy">📋 Copy all</button><button class="btn" id="xtSiteCsv">Download CSV</button></div>' : ''}`;
+  const c = $('#xtSiteCopy', out); if (c) c.onclick = () => { const t = ok.map(r => `${r.site} (${r.url})\n${r.text}`).join('\n\n'); navigator.clipboard && navigator.clipboard.writeText(t).then(() => UI.toast('Copied')); };
+  const v = $('#xtSiteCsv', out); if (v) v.onclick = () => UI.download('lookup_' + R.cat + '_' + today() + '.csv', UI.toCSV(['site', 'url', 'text', 'err'].map(k => ({ key: k, label: k })), R.rows), 'text/csv');
+};
+
+/* the one button: picks the right free sources for each tool, then tries the tool's own websites */
+XT.fetchOnline = async function (cur, text, q, body, btn) {
+  const out = $('#xtNetOut', body), dom = $('#xtDomOut', body), web = $('#xtWebOut', body); btn._lbl = btn._lbl || btn.textContent;
+  const vals = cur === 'email' ? [] : XT.vals(text, cur), h = cur === 'email' ? XT.header(text) : null;
+  if (!q && !vals.length && !(h && h.n)) return UI.toast('Type or paste a value first');
+  const what = { ip: 'the IP addresses', mac: 'the vendor prefix (first 6 digits) of each MAC', email: 'the sender IPs and domains from the header (not the mail text)', whois: 'the domains', mnp: 'the mobile number', imei: 'the IMEI' }[cur] || 'the value';
+  if (!XT.okSend(what)) return;
+  btn.disabled = true;
+  try {
+    if (cur === 'ip') await XT.fetchIPs(vals.filter(v => XT.isIP(v)), out, btn);
+    else if (cur === 'mac') await XT.fetchMacs(vals, out, btn);
+    else if (cur === 'email') { const ips = uniq([h.origin, ...h.hops.map(x => x.ip)].filter(x => x && /public/.test(V.ipKind(x)))); if (ips.length) await XT.fetchIPs(ips, out, btn);
+      const ds = uniq([h.from, h.returnPath, h.replyTo].map(h.dom).filter(Boolean)); await XT.fetchDom(ds, dom, btn); }
+    else if (cur === 'whois') { const ds = vals.map(v => XT.whois(v)._q || v); const ips = await XT.fetchDom(ds, dom, btn); if (ips.length) await XT.fetchIPs(ips.filter(x => XT.isIP(x)), out, btn); }
+    await XT.fetchSites(cur, q, web, btn);
+  } finally { btn.disabled = false; btn.textContent = btn._lbl; }
+  UI.toast('Fetch online finished');
+};
+/* custom tools (e.g. Company): a small box to type the value and fetch from its websites */
+XT.ownFetch = function (body, cur) {
+  const c = $('#xtSites', body).closest('.card'); if (!c || $('#xtOwnIn', body)) return;
+  c.insertAdjacentHTML('beforebegin', `<div class="card"><h3>Fetch online</h3><div class="sub">Type the name / number / ID. 🌐 Fetch online tries each website below that has <b>{q}</b> in its link and shows what it gives back here.</div>
+    <div class="row" style="margin-top:8px"><input id="xtOwnIn" style="flex:1;min-width:220px" placeholder="e.g. company name, CIN, DIN, UPI ID…" value="${esc((S.xtIn || {})[cur] || '')}"><button class="btn primary" id="xtFetch">🌐 Fetch online</button></div><div id="xtWebOut"></div></div>`);
+  const i = $('#xtOwnIn', body); i.oninput = () => { (S.xtIn = S.xtIn || {})[cur] = i.value; };
+  $('#xtFetch', body).onclick = () => { const q = i.value.trim(); if (!q) return UI.toast('Type a value first'); if (navigator.clipboard) navigator.clipboard.writeText(q).catch(() => { }); if (!XT.okSend('the value you typed')) return; const b = $('#xtFetch', body); b._lbl = b.textContent; b.disabled = true; XT.fetchSites(cur, q, $('#xtWebOut', body), b).finally(() => { b.disabled = false; b.textContent = b._lbl; }); };
+  if (XT.siteNet && XT.siteNet.cat === cur) XT.siteShow($('#xtWebOut', body));
 };

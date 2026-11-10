@@ -1697,3 +1697,7 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
 .nc-s.nc-sa{grid-template-columns:24px minmax(140px,1fr) minmax(220px,2fr) auto;margin-top:8px}
 .nc-sn{color:var(--text-muted);font-size:12px;text-align:center}
 .nc-s input{width:100%;min-width:0}.nc-s{grid-template-columns:24px minmax(160px,1fr) minmax(260px,2.4fr) 60px auto auto!important}.nc-s.nc-sa{grid-template-columns:24px minmax(160px,1fr) minmax(260px,2.4fr) auto!important}
+
+/* Tools – Fetch online */
+.xt-fetch{background:linear-gradient(135deg,#0ea5e9,#6366f1);color:#fff;border-color:transparent}
+.xt-ft td{vertical-align:top}.xt-pre{margin:0;white-space:pre-wrap;font:12px/1.4 ui-monospace,Consolas,monospace;max-height:220px;overflow:auto}
