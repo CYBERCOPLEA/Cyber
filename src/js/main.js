@@ -151,7 +151,7 @@ async function newCase(name) {
 }
 /* ---------- Case box: one form to select / create a case and fill its main details (used on Dashboard and top bar) ---------- */
 const CaseBox = {
-  F: [['ctype', 'Case Type', 'ct'], ['fir', 'FIR No.'], ['year', 'Year'], ['ps', 'Police Station'], ['district', 'District / Comm.'], ['state', 'State', 'st'], ['io', 'IO Name'], ['io_mobile', 'IO Mobile'], ['io_posting', 'IO Posting'], ['section', 'Sections of law']],
+  F: [['ctype', 'Case Type', 'ct'], ['fir', 'FIR No.'], ['year', 'Year'], ['ps', 'Police Station'], ['district', 'District / Commissionerate'], ['state', 'State', 'st'], ['io', 'IO Name'], ['io_mobile', 'IO Mobile'], ['io_posting', 'IO Posting'], ['section', 'Sections of law']],
   states() { try { return Off.INST; } catch (e) { return []; } },
   types() { try { return Off.ctList(); } catch (e) { return ['Investment Fraud', 'Mobile Hacking (APK)', 'Social Media']; } },
   yearOf(c) { return c.year || ((String(c.fir || '').match(/\/\s*(20\d\d)\b/) || [])[1]) || ''; },
@@ -180,7 +180,7 @@ const CaseBox = {
   // strip on the Dashboard: shows the details, ✏ edit in place, ➕ new, ➖ delete
   strip(el) { const c = activeCase(), V = k => k === 'year' ? this.yearOf(c) : c[k];
     const filled = this.F.filter(([k]) => V(k)).length;
-    el.innerHTML = `<div class="cb-strip"><div class="cb-hd"><b>📁 Case details</b><span class="small muted">${filled}/${this.F.length} filled</span><span class="grow"></span><button class="btn sm" id="cbEd">✏ Edit</button><button class="btn sm" id="cbNew" title="New case">➕</button><button class="btn sm danger" id="cbDel" title="Delete this case">➖</button></div>
+    el.innerHTML = `<div class="cb-strip"><div class="cb-hd"><span class="cb-ic">📁</span><b>Case details</b><span class="cb-sub">${esc(c.name || '')}</span><span class="grow"></span><button class="btn sm cb-b" id="cbEd">✏ Edit</button><button class="btn sm cb-b" id="cbNew" title="New case">➕</button><button class="btn sm cb-b cb-x" id="cbDel" title="Delete this case">➖</button><span class="cb-big">${filled}/${this.F.length}<small>fields filled</small></span></div>
       <div class="cb-chips">${this.F.map(([k, l]) => `<div class="cb-chip ${V(k) ? '' : 'empty'}"><span>${l}</span><b>${esc(V(k) || '—')}</b></div>`).join('')}</div></div>`;
     $('#cbNew', el).onclick = () => this.open('new'); $('#cbDel', el).onclick = () => deleteCase(c.id);
     $('#cbEd', el).onclick = () => { $('.cb-chips', el).outerHTML = `<div class="map-grid cb-grid cb-inl">${this.F.map(([k, l, t]) => this.field(k, l, t, V(k))).join('')}</div><div class="row" style="gap:6px;margin-top:8px;align-items:center"><button class="btn primary sm" id="cbSv">💾 Save</button><button class="btn sm" id="cbCx">Cancel</button><span class="small" id="cbErr" style="color:var(--bad)"></span></div>`;
