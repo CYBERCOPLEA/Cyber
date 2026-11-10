@@ -97,7 +97,7 @@ let LayoutSoc = null;
   }
   // top bar icons
   const lockB = $('#btnLock'), thB = $('#btnTheme');
-  lockB.innerHTML = '🚪 Logout'; lockB.title = 'Logout – back to the login page'; thB.innerHTML = ico('theme', 16); thB.title = 'Light / dark theme';
+  lockB.innerHTML = '<span class="lo-i"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4"/><path d="M15 16l4-4-4-4"/><path d="M19 12H9"/></svg></span><span class="lo-t">Logout</span>'; lockB.title = 'Logout – back to the login page'; thB.innerHTML = ico('theme', 16); thB.title = 'Light / dark theme';
   const gs = $('#gsearch'); const wrap = document.createElement('div'); wrap.className = 'gsearch'; gs.parentNode.insertBefore(wrap, gs); wrap.innerHTML = ico('search', 16); wrap.appendChild(gs);
   gs.placeholder = 'Search account, mobile, email, UTR, IP…  (Enter)';
   // status bar

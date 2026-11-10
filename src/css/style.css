@@ -1567,3 +1567,10 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
 .gl-r .gl-n{width:24px;height:24px;border-radius:50%;background:#ef4444;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px}
 .gl-r .gl-k{font-size:12px;color:var(--text-muted)}.gl-r .gl-w{color:#f59e0b;font-weight:600;font-size:13px}.gl-r .gl-x{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 @media (max-width:900px){.gl-r{grid-template-columns:24px 1fr auto}.gl-r .gl-k,.gl-r .gl-x{display:none}}
+
+/* Logout button */
+#btnLock{display:inline-flex;align-items:center;gap:8px;height:34px;padding:0 13px 0 6px;border-color:rgba(239,68,68,.45)}
+#btnLock .lo-i{width:23px;height:23px;border-radius:7px;flex:none;display:inline-flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#ef4444,#f97316);box-shadow:0 1px 5px rgba(239,68,68,.45)}
+#btnLock .lo-t{font-size:1.1em;font-weight:700;letter-spacing:.2px;line-height:1}
+#btnLock:hover{background:rgba(239,68,68,.14);border-color:#ef4444}
+#btnTheme{height:34px}

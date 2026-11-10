@@ -1576,6 +1576,13 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
 .gl-r .gl-k{font-size:12px;color:var(--text-muted)}.gl-r .gl-w{color:#f59e0b;font-weight:600;font-size:13px}.gl-r .gl-x{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 @media (max-width:900px){.gl-r{grid-template-columns:24px 1fr auto}.gl-r .gl-k,.gl-r .gl-x{display:none}}
 
+/* Logout button */
+#btnLock{display:inline-flex;align-items:center;gap:8px;height:34px;padding:0 13px 0 6px;border-color:rgba(239,68,68,.45)}
+#btnLock .lo-i{width:23px;height:23px;border-radius:7px;flex:none;display:inline-flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#ef4444,#f97316);box-shadow:0 1px 5px rgba(239,68,68,.45)}
+#btnLock .lo-t{font-size:1.1em;font-weight:700;letter-spacing:.2px;line-height:1}
+#btnLock:hover{background:rgba(239,68,68,.14);border-color:#ef4444}
+#btnTheme{height:34px}
+
 </style>
 </head>
 <body>
@@ -1623,7 +1630,7 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
         <div class="hp-feat" style="--fc:#06b6d4"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><div><b>Analytics</b><p>The same mobile, account, IP or e-mail across complaints, banks and platforms.</p></div></div>
         <div class="hp-feat" style="--fc:#eab308"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h5"/></svg></span><div><b>Case File &amp; Notices</b><p>Case reports, notices to banks and platforms, and CSV / PDF exports.</p></div></div>
     </section>
-    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-10 21:09 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
+    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-10 21:27 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
   </div>
 
   <div class="lg-wrap" id="lgWrap" aria-hidden="true">
@@ -6710,7 +6717,7 @@ let LayoutSoc = null;
   }
   // top bar icons
   const lockB = $('#btnLock'), thB = $('#btnTheme');
-  lockB.innerHTML = '🚪 Logout'; lockB.title = 'Logout – back to the login page'; thB.innerHTML = ico('theme', 16); thB.title = 'Light / dark theme';
+  lockB.innerHTML = '<span class="lo-i"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4"/><path d="M15 16l4-4-4-4"/><path d="M19 12H9"/></svg></span><span class="lo-t">Logout</span>'; lockB.title = 'Logout – back to the login page'; thB.innerHTML = ico('theme', 16); thB.title = 'Light / dark theme';
   const gs = $('#gsearch'); const wrap = document.createElement('div'); wrap.className = 'gsearch'; gs.parentNode.insertBefore(wrap, gs); wrap.innerHTML = ico('search', 16); wrap.appendChild(gs);
   gs.placeholder = 'Search account, mobile, email, UTR, IP…  (Enter)';
   // status bar
