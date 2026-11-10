@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex, nofollow"><meta name="referrer" content="no-referrer">
+<title>Live Data Form by Police</title>
+<style>body{font:15px/1.4 Arial,sans-serif;margin:0;background:#f1f5f9;color:#0f172a}#ld{max-width:600px;margin:40px auto;padding:16px;background:#fff;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.08);text-align:center}#ld.er{background:#fee2e2;border:1px solid #dc2626}</style>
+</head><body><div id="ld">⏳ Loading your form…</div>
+<script>
+/* SudarshanAshtra – Live Data Form by Police (staff page).
+   The page itself holds no data. The link carries the officer's Google script address and the staff member's personal code
+   after "#", so they are never sent to this website. Entries go only to the officer's own Google Sheet. */
+(function () {
+  var h = new URLSearchParams(location.hash.slice(1)), U = h.get('u') || '', K = h.get('k') || '', ld = document.getElementById('ld');
+  function bad(t) { ld.className = 'er'; ld.textContent = t; }
+  if (!/^https:\/\/script\.google\.com\/(a\/[\w.-]+\/)?macros\/s\/[\w-]+\/exec$/.test(U) || !/^\w{10,40}$/.test(K)) return bad('This link is not complete. Please ask the officer for your personal link again.');
+  function call(fn, args) {
+    return fetch(U, { method: 'POST', redirect: 'follow', body: JSON.stringify({ fn: fn, args: args }) }).then(function (r) { return r.json(); })
+      .then(function (j) { if (!j.ok) throw new Error(j.err || 'Error'); return j.r; });
+  }
+  function mk(s, f) { return new Proxy({}, { get: function (_, k) { return k === 'withSuccessHandler' ? function (x) { return mk(x, f); } : k === 'withFailureHandler' ? function (x) { return mk(s, x); } : function () { var a = [].slice.call(arguments); call(k, a).then(function (r) { s && s(r); }, function (e) { f && f(e); }); }; } }); }
+  window.google = { script: { run: mk() } };
+  fetch(U + '?sapi=page&k=' + encodeURIComponent(K), { redirect: 'follow' }).then(function (r) { return r.json(); }).then(function (j) {
+    if (!j.ok) return bad(j.err || 'Could not load the form.');
+    document.title = j.title || document.title;
+    var d = document.createElement('div'); d.innerHTML = j.html; var sc = [].slice.call(d.querySelectorAll('script')); sc.forEach(function (s) { s.parentNode.removeChild(s); });
+    document.body.innerHTML = ''; while (d.firstChild) document.body.appendChild(d.firstChild);
+    sc.forEach(function (s) { var n = document.createElement('script'); n.textContent = s.textContent; document.body.appendChild(n); });
+  }).catch(function () { bad('Could not reach the officer\'s Google Sheet. Check your internet and open the link again. If it still fails, ask the officer.'); });
+})();
+</script></body></html>
