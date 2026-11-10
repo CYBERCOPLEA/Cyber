@@ -149,6 +149,46 @@ async function newCase(name) {
   const c = { id: uid(), name, created: new Date().toISOString(), status: 'Under investigation' };
   S.cases.push(c); await DB.set('case:' + c.id, emptyCase()); await switchCase(c.id); UI.toast('Case created');
 }
+/* ---------- Case box: one form to select / create a case and fill its main details (used on Dashboard and top bar) ---------- */
+const CaseBox = {
+  F: [['ctype', 'Case Type', 'ct'], ['fir', 'FIR No.'], ['year', 'Year'], ['ps', 'Police Station'], ['district', 'District / Comm.'], ['state', 'State', 'st'], ['io', 'IO Name'], ['io_mobile', 'IO Mobile'], ['io_posting', 'IO Posting'], ['section', 'Sections of law']],
+  states() { try { return Off.INST; } catch (e) { return []; } },
+  types() { try { return Off.ctList(); } catch (e) { return ['Investment Fraud', 'Mobile Hacking (APK)', 'Social Media']; } },
+  yearOf(c) { return c.year || ((String(c.fir || '').match(/\/\s*(20\d\d)\b/) || [])[1]) || ''; },
+  autoName(o) { const f = String(o.fir || '').replace(/^\s*FIR\s*(No\.?)?\s*/i, ''); return [o.ctype || 'Case', f ? 'FIR ' + f + (o.year && !f.includes(o.year) ? '/' + o.year : '') : ''].filter(Boolean).join(' · '); },
+  field(k, l, t, v) { const opts = (L, add) => `<option value="">— select —</option>${[...L, ...(v && !L.includes(v) ? [v] : [])].map(s => `<option ${s === v ? 'selected' : ''}>${esc(s)}</option>`).join('')}${add ? '<option value="__new">➕ Add new…</option>' : ''}`;
+    return `<label>${l}${t === 'ct' ? `<select data-cb="${k}">${opts(this.types(), true)}</select>` : t === 'st' ? `<select data-cb="${k}">${opts(this.states())}</select>` : `<input data-cb="${k}" value="${esc(v || '')}"${k === 'year' ? ' inputmode="numeric" maxlength="4"' : k === 'io_mobile' ? ' inputmode="tel" maxlength="14"' : ''}>`}</label>`; },
+  wire(box) { const ct = $('[data-cb="ctype"]', box); if (ct) ct.onchange = () => { if (ct.value !== '__new') return; const n = (prompt('New case type:') || '').trim(); if (!n) { ct.value = ''; return; } try { const L = Off.ctList(); if (!L.includes(n)) { L.push(n); EditList.save('cd-ctype', L); } } catch (e) { } ct.insertAdjacentHTML('afterbegin', `<option>${esc(n)}</option>`); ct.value = n; }; },
+  read(box) { const o = {}; $$('[data-cb]', box).forEach(i => o[i.dataset.cb] = i.value === '__new' ? '' : i.value.trim()); return o; },
+  check(o) { if (o.year && !/^(19|20)\d\d$/.test(o.year)) return 'Year should be 4 digits, e.g. 2026'; if (o.io_mobile && !/^(\+?91)?[6-9]\d{9}$/.test(o.io_mobile.replace(/[\s-]/g, ''))) return 'IO mobile should be a 10-digit mobile number'; return ''; },
+  // modal: Select case (or new) → fill details → Save / Close
+  open(id) {
+    let sel = id === 'new' ? 'new' : (id || S.caseId);
+    const draw = () => { const c = sel === 'new' ? { year: String(new Date().getFullYear()), ps: activeCase().ps || '', district: activeCase().district || '', state: activeCase().state || 'UP – Uttar Pradesh' } : S.cases.find(x => x.id === sel) || {};
+      const m = UI.modal(sel === 'new' ? '➕ New case' : '📁 Case details', `<div class="cb-sel"><label>Select case<select id="cbSel"><option value="new" ${sel === 'new' ? 'selected' : ''}>➕ New case</option>${S.cases.map(x => `<option value="${x.id}" ${x.id === sel ? 'selected' : ''}>${esc(x.name)}${x.fir ? ' · ' + esc(x.fir) : ''}</option>`).join('')}</select></label></div>
+        <div class="map-grid cb-grid">${this.F.map(([k, l, t]) => this.field(k, l, t, k === 'year' ? this.yearOf(c) : c[k])).join('')}<label style="grid-column:1/-1">Case name <span class="small muted">(blank = made from Case Type and FIR)</span><input data-cb="name" value="${esc(sel === 'new' ? '' : c.name || '')}" placeholder="${esc(this.autoName(c))}"></label></div><div class="small" id="cbErr" style="color:var(--bad);min-height:1.2em"></div>`,
+        [{ label: 'Close', onClick: UI.closeModal }, { label: sel === 'new' ? '💾 Save new case' : '💾 Save', cls: 'primary', onClick: () => this.save(sel, m) }]);
+      this.wire(m); $('#cbSel', m).onchange = e => { sel = e.target.value; draw(); }; };
+    draw();
+  },
+  async save(sel, box) { const o = this.read(box), err = this.check(o); if (err) { $('#cbErr', box).textContent = err; return; }
+    o.name = o.name || this.autoName(o);
+    if (sel === 'new') { const c = { id: uid(), created: new Date().toISOString(), status: 'Under investigation', ...o }; S.cases.push(c); await DB.set('case:' + c.id, emptyCase()); UI.closeModal(); await switchCase(c.id); UI.toast('Case saved – now import its data'); return; }
+    const c = S.cases.find(x => x.id === sel); if (!c) return; Object.assign(c, o); UI.closeModal();
+    if (sel !== S.caseId) await switchCase(sel); else { await saveMeta(); fillCaseSel(); render(); } UI.toast('Case details saved');
+  },
+  // strip on the Dashboard: shows the details, ✏ edit in place, ➕ new, ➖ delete
+  strip(el) { const c = activeCase(), V = k => k === 'year' ? this.yearOf(c) : c[k];
+    const filled = this.F.filter(([k]) => V(k)).length;
+    el.innerHTML = `<div class="cb-strip"><div class="cb-hd"><b>📁 Case details</b><span class="small muted">${filled}/${this.F.length} filled</span><span class="grow"></span><button class="btn sm" id="cbEd">✏ Edit</button><button class="btn sm" id="cbNew" title="New case">➕</button><button class="btn sm danger" id="cbDel" title="Delete this case">➖</button></div>
+      <div class="cb-chips">${this.F.map(([k, l]) => `<div class="cb-chip ${V(k) ? '' : 'empty'}"><span>${l}</span><b>${esc(V(k) || '—')}</b></div>`).join('')}</div></div>`;
+    $('#cbNew', el).onclick = () => this.open('new'); $('#cbDel', el).onclick = () => deleteCase(c.id);
+    $('#cbEd', el).onclick = () => { $('.cb-chips', el).outerHTML = `<div class="map-grid cb-grid cb-inl">${this.F.map(([k, l, t]) => this.field(k, l, t, V(k))).join('')}</div><div class="row" style="gap:6px;margin-top:8px;align-items:center"><button class="btn primary sm" id="cbSv">💾 Save</button><button class="btn sm" id="cbCx">Cancel</button><span class="small" id="cbErr" style="color:var(--bad)"></span></div>`;
+      $('#cbEd', el).style.display = 'none'; this.wire(el);
+      $('#cbCx', el).onclick = () => this.strip(el);
+      $('#cbSv', el).onclick = async () => { const o = this.read(el), err = this.check(o); if (err) return $('#cbErr', el).textContent = err; const auto = !c.name || c.name === this.autoName(c) || /^Case \d+$/.test(c.name); Object.assign(c, o); if (auto) c.name = this.autoName(c); await saveMeta(); fillCaseSel(); render(); UI.toast('Case details saved'); }; };
+  }
+};
 async function deleteCase(id) {
   const c = S.cases.find(x => x.id === id); if (!c || !UI.confirm(`Delete case "${c.name}" and ALL its data? Download a backup first if unsure.`)) return;
   await DB.del('case:' + id); S.cases = S.cases.filter(x => x.id !== id);
@@ -209,7 +249,7 @@ async function start() {
   await saveMeta(); fillCaseSel();
   $$('.nav-item').forEach(n => n.onclick = () => go(n.dataset.page));
   $('#caseSel').onchange = e => switchCase(e.target.value);
-  $('#btnNewCase').onclick = () => newCase();
+  $('#btnNewCase').onclick = () => CaseBox.open('new');
   $('#btnLock').onclick = lock;
   $('#btnTheme').onclick = async () => { S.settings.theme = S.settings.theme === 'light' ? 'dark' : 'light'; applyTheme(); await saveMeta(); render(); };
   $('#drClose').onclick = UI.closeDrawer; $('#mdClose').onclick = UI.closeModal;

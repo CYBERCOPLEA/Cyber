@@ -1623,6 +1623,21 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
 .ofh-g input[type=range]{width:100%}
 .ofh-g label.row{flex-direction:row;justify-content:flex-start}
 
+/* Dashboard case box */
+.db-acts{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.cb-strip{background:var(--surface-1);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:var(--radius);padding:12px 14px;margin:0 0 16px}
+.cb-hd{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.cb-hd .btn.sm{min-width:34px}
+.cb-chips{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.cb-chip{background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:6px 10px;display:flex;flex-direction:column;min-width:0}
+.cb-chip span{font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);font-weight:600}
+.cb-chip b{font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cb-chip.empty b{color:var(--text-muted);font-weight:400}
+.cb-grid{grid-template-columns:repeat(auto-fill,minmax(200px,1fr))!important}
+.cb-grid label{display:flex;flex-direction:column;gap:4px}
+.cb-sel{margin-bottom:10px}.cb-sel select{width:100%}
+.dash-hero{flex-wrap:wrap}.db-cbw{flex-basis:100%;min-width:0}.db-cbw .cb-strip{margin:4px 0 0;background:color-mix(in srgb,var(--surface-2) 70%,transparent)}
+
 </style>
 </head>
 <body>
@@ -1670,7 +1685,7 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
         <div class="hp-feat" style="--fc:#06b6d4"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><div><b>Analytics</b><p>The same mobile, account, IP or e-mail across complaints, banks and platforms.</p></div></div>
         <div class="hp-feat" style="--fc:#eab308"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h5"/></svg></span><div><b>Case File &amp; Notices</b><p>Case reports, notices to banks and platforms, and CSV / PDF exports.</p></div></div>
     </section>
-    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-10 21:58 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
+    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-10 22:08 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
   </div>
 
   <div class="lg-wrap" id="lgWrap" aria-hidden="true">
@@ -3443,8 +3458,8 @@ Pages.dashboard = main => {
   const banksN = uniq(acc.filter(a => a.layer > 0 && !isSynthetic(a.acc)).map(a => a.bank.split(' / ')[0]).filter(Boolean)).length;
   const hasData = d.txns.length || d.ncrp.length || d.social.length;
   const step = (n, done, next, title, text, page, sub) => `<div class="step ${done ? 'done' : next ? 'next' : ''}" data-go="${page}" data-sub="${sub || ''}"><div class="n">${done ? '✓' : n}</div><div><b>${title}</b><span>${text}</span></div></div>`;
-  main.innerHTML = `<div class="hero-card dash-hero"><div class="dash-brand"><span class="ck-wrap db-mark"><i class="ck" aria-hidden="true"></i><span class="emblem emblem-sm" aria-hidden="true"></span></span><div class="db-txt"><div class="db-hi" lang="hi">सुदर्शनास्त्र</div><div class="db-en">SudarshanAshtra</div><div class="db-tag">Cyber Crime Analysis &amp; Tracking</div></div></div><div class="db-sep" aria-hidden="true"></div><div class="grow db-case"><div class="db-lbl">Current case</div><h2>${esc(c.name || 'Case')}</h2><div class="sub2">${[c.fir && 'FIR ' + esc(c.fir), c.section && esc(c.section), c.ps && 'PS ' + esc(c.ps), c.io && 'IO ' + esc(c.io)].filter(Boolean).join(' · ') || 'Add FIR, sections and IO in Others → Cases'}</div></div>
-      <button class="btn primary" id="dImport">📥 Import data</button><button class="btn" id="dReport">🖨 Case report</button></div>
+  main.innerHTML = `<div class="hero-card dash-hero"><div class="dash-brand"><span class="ck-wrap db-mark"><i class="ck" aria-hidden="true"></i><span class="emblem emblem-sm" aria-hidden="true"></span></span><div class="db-txt"><div class="db-hi" lang="hi">सुदर्शनास्त्र</div><div class="db-en">SudarshanAshtra</div><div class="db-tag">Cyber Crime Analysis &amp; Tracking</div></div></div><div class="db-sep" aria-hidden="true"></div><div class="grow db-case"><div class="db-lbl">Current case</div><h2>${esc(c.name || 'Case')}</h2><div class="sub2">${[c.fir && 'FIR ' + esc(c.fir), c.section && esc(c.section), c.ps && 'PS ' + esc(c.ps), c.io && 'IO ' + esc(c.io)].filter(Boolean).join(' · ') || 'Add FIR, year, police station and IO with ✏ Edit below'}</div></div>
+      <div class="db-acts"><button class="btn primary" id="dNew">➕ New case</button><button class="btn primary" id="dImport">📥 Import data</button><button class="btn" id="dReport">🖨 Case report</button></div><div id="dCase" class="db-cbw"></div></div>
     <div class="steps">
       ${step(1, hasData, !hasData, 'Import data', hasData ? `${d.imports.length} files · ${fmtNum(d.txns.length)} transactions` : 'Trail / bank action sheet, statements, KYC', 'financial', 'data')}
       ${step(2, comps.length && !noTrail, hasData, 'Follow the money trail', comps.length ? `${comps.length} complaints${noTrail ? ' · ' + noTrail + ' without trail' : ''}` : 'Victim → Layer 1 → Layer 2 …', 'trail')}
@@ -3469,6 +3484,7 @@ Pages.dashboard = main => {
       <div class="card"><div class="row" style="flex-wrap:wrap;gap:8px"><h3 class="grow" style="margin:0">Beneficiary States / Districts</h3><span class="pill-tabs" id="stSw"><button data-sd="state" class="${(S.dashSD || 'state') === 'state' ? 'on' : ''}" style="--tc:#3b82f6">🗺 States</button><button data-sd="district" class="${S.dashSD === 'district' ? 'on' : ''}" style="--tc:#10b981">📍 Districts</button></span></div><div class="sub">From KYC, trail and NCRP records, and the bank branch of each IFSC</div><div id="chState"></div></div>
     </div>
     <div class="card"><h3>Top suspect accounts</h3><div class="sub">Ranked by risk score. Click a row for full details.</div><div id="dTop"></div></div>`;
+  $('#dNew').onclick = () => CaseBox.open('new'); CaseBox.strip($('#dCase'));
   $('#dImport').onclick = () => openImport(['txn', 'stmt', 'kyc', 'ncrp', 'social'], render);
   $('#dReport').onclick = () => Reports.caseReport();
   main.querySelectorAll('.step').forEach(x => x.onclick = () => go(x.dataset.go, x.dataset.sub || undefined));
@@ -3999,7 +4015,7 @@ Pages.others = main => {
 };
 const OthTabs = {
   cases(el) {
-    el.innerHTML = `<div class="card"><h3>Case details</h3><div class="sub">Shown on reports and notices.</div><div class="map-grid" id="cd">${[['name', 'Case name'], ['fir', 'FIR / Case No'], ['section', 'Sections of law'], ['ps', 'Police Station'], ['io', 'Investigating Officer'], ['io_rank', 'IO rank / designation'], ['io_mobile', 'IO mobile'], ['io_email', 'IO official email'], ['district', 'Police Commissionerate'], ['ack', 'Main NCRP Ack No'], ['status', 'Status']].map(([k, l]) => `<div class="f"><label>${l}</label><input data-k="${k}" value="${esc(activeCase()[k] || '')}"></div>`).join('')}</div>
+    el.innerHTML = `<div class="card"><h3>Case details</h3><div class="sub">Shown on reports and notices.</div><div class="map-grid" id="cd">${[['name', 'Case name'], ['ctype', 'Case type'], ['fir', 'FIR / Case No'], ['year', 'Year'], ['section', 'Sections of law'], ['ps', 'Police Station'], ['io', 'Investigating Officer'], ['io_rank', 'IO rank / designation'], ['io_mobile', 'IO mobile'], ['io_posting', 'IO posting'], ['io_email', 'IO official email'], ['district', 'Police Commissionerate'], ['state', 'State'], ['ack', 'Main NCRP Ack No'], ['status', 'Status']].map(([k, l]) => `<div class="f"><label>${l}</label><input data-k="${k}" value="${esc(activeCase()[k] || '')}"></div>`).join('')}</div>
       <div class="f" style="margin-top:10px"><label>Brief facts</label><textarea data-k="desc" style="font-family:inherit">${esc(activeCase().desc || '')}</textarea></div>
       <div class="row" style="margin-top:10px"><button class="btn primary" id="cdSave">Save details</button></div></div>
       <div class="card"><h3>All cases</h3><div id="cl"></div></div>`;
@@ -4470,6 +4486,46 @@ async function newCase(name) {
   const c = { id: uid(), name, created: new Date().toISOString(), status: 'Under investigation' };
   S.cases.push(c); await DB.set('case:' + c.id, emptyCase()); await switchCase(c.id); UI.toast('Case created');
 }
+/* ---------- Case box: one form to select / create a case and fill its main details (used on Dashboard and top bar) ---------- */
+const CaseBox = {
+  F: [['ctype', 'Case Type', 'ct'], ['fir', 'FIR No.'], ['year', 'Year'], ['ps', 'Police Station'], ['district', 'District / Comm.'], ['state', 'State', 'st'], ['io', 'IO Name'], ['io_mobile', 'IO Mobile'], ['io_posting', 'IO Posting'], ['section', 'Sections of law']],
+  states() { try { return Off.INST; } catch (e) { return []; } },
+  types() { try { return Off.ctList(); } catch (e) { return ['Investment Fraud', 'Mobile Hacking (APK)', 'Social Media']; } },
+  yearOf(c) { return c.year || ((String(c.fir || '').match(/\/\s*(20\d\d)\b/) || [])[1]) || ''; },
+  autoName(o) { const f = String(o.fir || '').replace(/^\s*FIR\s*(No\.?)?\s*/i, ''); return [o.ctype || 'Case', f ? 'FIR ' + f + (o.year && !f.includes(o.year) ? '/' + o.year : '') : ''].filter(Boolean).join(' · '); },
+  field(k, l, t, v) { const opts = (L, add) => `<option value="">— select —</option>${[...L, ...(v && !L.includes(v) ? [v] : [])].map(s => `<option ${s === v ? 'selected' : ''}>${esc(s)}</option>`).join('')}${add ? '<option value="__new">➕ Add new…</option>' : ''}`;
+    return `<label>${l}${t === 'ct' ? `<select data-cb="${k}">${opts(this.types(), true)}</select>` : t === 'st' ? `<select data-cb="${k}">${opts(this.states())}</select>` : `<input data-cb="${k}" value="${esc(v || '')}"${k === 'year' ? ' inputmode="numeric" maxlength="4"' : k === 'io_mobile' ? ' inputmode="tel" maxlength="14"' : ''}>`}</label>`; },
+  wire(box) { const ct = $('[data-cb="ctype"]', box); if (ct) ct.onchange = () => { if (ct.value !== '__new') return; const n = (prompt('New case type:') || '').trim(); if (!n) { ct.value = ''; return; } try { const L = Off.ctList(); if (!L.includes(n)) { L.push(n); EditList.save('cd-ctype', L); } } catch (e) { } ct.insertAdjacentHTML('afterbegin', `<option>${esc(n)}</option>`); ct.value = n; }; },
+  read(box) { const o = {}; $$('[data-cb]', box).forEach(i => o[i.dataset.cb] = i.value === '__new' ? '' : i.value.trim()); return o; },
+  check(o) { if (o.year && !/^(19|20)\d\d$/.test(o.year)) return 'Year should be 4 digits, e.g. 2026'; if (o.io_mobile && !/^(\+?91)?[6-9]\d{9}$/.test(o.io_mobile.replace(/[\s-]/g, ''))) return 'IO mobile should be a 10-digit mobile number'; return ''; },
+  // modal: Select case (or new) → fill details → Save / Close
+  open(id) {
+    let sel = id === 'new' ? 'new' : (id || S.caseId);
+    const draw = () => { const c = sel === 'new' ? { year: String(new Date().getFullYear()), ps: activeCase().ps || '', district: activeCase().district || '', state: activeCase().state || 'UP – Uttar Pradesh' } : S.cases.find(x => x.id === sel) || {};
+      const m = UI.modal(sel === 'new' ? '➕ New case' : '📁 Case details', `<div class="cb-sel"><label>Select case<select id="cbSel"><option value="new" ${sel === 'new' ? 'selected' : ''}>➕ New case</option>${S.cases.map(x => `<option value="${x.id}" ${x.id === sel ? 'selected' : ''}>${esc(x.name)}${x.fir ? ' · ' + esc(x.fir) : ''}</option>`).join('')}</select></label></div>
+        <div class="map-grid cb-grid">${this.F.map(([k, l, t]) => this.field(k, l, t, k === 'year' ? this.yearOf(c) : c[k])).join('')}<label style="grid-column:1/-1">Case name <span class="small muted">(blank = made from Case Type and FIR)</span><input data-cb="name" value="${esc(sel === 'new' ? '' : c.name || '')}" placeholder="${esc(this.autoName(c))}"></label></div><div class="small" id="cbErr" style="color:var(--bad);min-height:1.2em"></div>`,
+        [{ label: 'Close', onClick: UI.closeModal }, { label: sel === 'new' ? '💾 Save new case' : '💾 Save', cls: 'primary', onClick: () => this.save(sel, m) }]);
+      this.wire(m); $('#cbSel', m).onchange = e => { sel = e.target.value; draw(); }; };
+    draw();
+  },
+  async save(sel, box) { const o = this.read(box), err = this.check(o); if (err) { $('#cbErr', box).textContent = err; return; }
+    o.name = o.name || this.autoName(o);
+    if (sel === 'new') { const c = { id: uid(), created: new Date().toISOString(), status: 'Under investigation', ...o }; S.cases.push(c); await DB.set('case:' + c.id, emptyCase()); UI.closeModal(); await switchCase(c.id); UI.toast('Case saved – now import its data'); return; }
+    const c = S.cases.find(x => x.id === sel); if (!c) return; Object.assign(c, o); UI.closeModal();
+    if (sel !== S.caseId) await switchCase(sel); else { await saveMeta(); fillCaseSel(); render(); } UI.toast('Case details saved');
+  },
+  // strip on the Dashboard: shows the details, ✏ edit in place, ➕ new, ➖ delete
+  strip(el) { const c = activeCase(), V = k => k === 'year' ? this.yearOf(c) : c[k];
+    const filled = this.F.filter(([k]) => V(k)).length;
+    el.innerHTML = `<div class="cb-strip"><div class="cb-hd"><b>📁 Case details</b><span class="small muted">${filled}/${this.F.length} filled</span><span class="grow"></span><button class="btn sm" id="cbEd">✏ Edit</button><button class="btn sm" id="cbNew" title="New case">➕</button><button class="btn sm danger" id="cbDel" title="Delete this case">➖</button></div>
+      <div class="cb-chips">${this.F.map(([k, l]) => `<div class="cb-chip ${V(k) ? '' : 'empty'}"><span>${l}</span><b>${esc(V(k) || '—')}</b></div>`).join('')}</div></div>`;
+    $('#cbNew', el).onclick = () => this.open('new'); $('#cbDel', el).onclick = () => deleteCase(c.id);
+    $('#cbEd', el).onclick = () => { $('.cb-chips', el).outerHTML = `<div class="map-grid cb-grid cb-inl">${this.F.map(([k, l, t]) => this.field(k, l, t, V(k))).join('')}</div><div class="row" style="gap:6px;margin-top:8px;align-items:center"><button class="btn primary sm" id="cbSv">💾 Save</button><button class="btn sm" id="cbCx">Cancel</button><span class="small" id="cbErr" style="color:var(--bad)"></span></div>`;
+      $('#cbEd', el).style.display = 'none'; this.wire(el);
+      $('#cbCx', el).onclick = () => this.strip(el);
+      $('#cbSv', el).onclick = async () => { const o = this.read(el), err = this.check(o); if (err) return $('#cbErr', el).textContent = err; const auto = !c.name || c.name === this.autoName(c) || /^Case \d+$/.test(c.name); Object.assign(c, o); if (auto) c.name = this.autoName(c); await saveMeta(); fillCaseSel(); render(); UI.toast('Case details saved'); }; };
+  }
+};
 async function deleteCase(id) {
   const c = S.cases.find(x => x.id === id); if (!c || !UI.confirm(`Delete case "${c.name}" and ALL its data? Download a backup first if unsure.`)) return;
   await DB.del('case:' + id); S.cases = S.cases.filter(x => x.id !== id);
@@ -4530,7 +4586,7 @@ async function start() {
   await saveMeta(); fillCaseSel();
   $$('.nav-item').forEach(n => n.onclick = () => go(n.dataset.page));
   $('#caseSel').onchange = e => switchCase(e.target.value);
-  $('#btnNewCase').onclick = () => newCase();
+  $('#btnNewCase').onclick = () => CaseBox.open('new');
   $('#btnLock').onclick = lock;
   $('#btnTheme').onclick = async () => { S.settings.theme = S.settings.theme === 'light' ? 'dark' : 'light'; applyTheme(); await saveMeta(); render(); };
   $('#drClose').onclick = UI.closeDrawer; $('#mdClose').onclick = UI.closeModal;

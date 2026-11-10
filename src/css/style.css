@@ -1614,3 +1614,18 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
 .ofh-g input[type=color]{width:64px;height:30px;padding:2px}
 .ofh-g input[type=range]{width:100%}
 .ofh-g label.row{flex-direction:row;justify-content:flex-start}
+
+/* Dashboard case box */
+.db-acts{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.cb-strip{background:var(--surface-1);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:var(--radius);padding:12px 14px;margin:0 0 16px}
+.cb-hd{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.cb-hd .btn.sm{min-width:34px}
+.cb-chips{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.cb-chip{background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:6px 10px;display:flex;flex-direction:column;min-width:0}
+.cb-chip span{font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);font-weight:600}
+.cb-chip b{font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cb-chip.empty b{color:var(--text-muted);font-weight:400}
+.cb-grid{grid-template-columns:repeat(auto-fill,minmax(200px,1fr))!important}
+.cb-grid label{display:flex;flex-direction:column;gap:4px}
+.cb-sel{margin-bottom:10px}.cb-sel select{width:100%}
+.dash-hero{flex-wrap:wrap}.db-cbw{flex-basis:100%;min-width:0}.db-cbw .cb-strip{margin:4px 0 0;background:color-mix(in srgb,var(--surface-2) 70%,transparent)}
