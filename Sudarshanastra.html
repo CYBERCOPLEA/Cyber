@@ -1539,6 +1539,16 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
 .cc-fin.cs{background:rgba(22,163,74,.18);color:#22c55e;border:1px solid #16a34a}.cc-fin.fr{background:rgba(220,38,38,.16);color:#f87171;border:1px solid #dc2626}
 .kpi.cc-kcs{--kc:#16a34a !important}.kpi.cc-kfr{--kc:#ef4444 !important}
 @media (min-width:1300px){#ccK.kpis-sm{grid-template-columns:repeat(7,minmax(0,1fr))}}
+/* dashboard: All cases / CS / FR / Pending with % */
+.cs-row.cs-row5{grid-template-columns:repeat(4,minmax(0,1fr)) minmax(240px,1.15fr)}
+@media (max-width:1300px){.cs-row.cs-row5{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.cs-box.cs-cs{--c:#16a34a}.cs-box.cs-fr{--c:#dc2626}.cs-box.cs-pend{--c:#f97316}.cs-box.cs-all{--c:#3b82f6}
+.cs-pc{font-style:normal;font-size:13px;font-weight:700;margin-left:8px;padding:1px 7px;border-radius:999px;background:color-mix(in srgb,var(--c) 22%,transparent);color:color-mix(in srgb,var(--c) 70%,#fff);vertical-align:middle}
+.cs-pb,.cs-stack{position:absolute;left:14px;right:14px;bottom:8px;height:6px;border-radius:99px;background:rgba(148,163,184,.18);overflow:hidden;display:flex}
+.cs-pb b{display:block;height:100%;background:var(--c);border-radius:99px}
+.cs-stack b{display:block;height:100%}.cs-stack .s-cs{background:#22c55e}.cs-stack .s-fr{background:#ef4444}.cs-stack .s-ot{background:#a3a3a3}.cs-stack .s-pd{background:#f97316}
+.cs-box .cs-go{bottom:16px}
+.cs-acts{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
 
 </style>
 </head>
@@ -1587,7 +1597,7 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
         <div class="hp-feat" style="--fc:#06b6d4"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><div><b>Analytics</b><p>The same mobile, account, IP or e-mail across complaints, banks and platforms.</p></div></div>
         <div class="hp-feat" style="--fc:#eab308"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h5"/></svg></span><div><b>Case File &amp; Notices</b><p>Case reports, notices to banks and platforms, and CSV / PDF exports.</p></div></div>
     </section>
-    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-10 14:20 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
+    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-10 14:23 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
   </div>
 
   <div class="lg-wrap" id="lgWrap" aria-hidden="true">
@@ -1621,7 +1631,7 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
     <div class="spacer"></div>
     <input id="gsearch" placeholder="Search any account, mobile, email, UTR, IP…">
     <button class="btn sm" id="btnTheme" title="Switch light / dark">☀ / ☾</button>
-    <button class="btn sm" id="btnLock" title="Lock now">🔒 Lock</button>
+    <button class="btn sm" id="btnLock" title="Logout">🚪 Logout</button>
   </header>
   <nav id="sidebar">
     <div class="nav-item" data-page="dashboard"><span class="num">⌂</span>Dashboard</div>
@@ -6662,7 +6672,7 @@ let LayoutSoc = null;
   }
   // top bar icons
   const lockB = $('#btnLock'), thB = $('#btnTheme');
-  lockB.innerHTML = ico('lock', 16) + 'Lock'; thB.innerHTML = ico('theme', 16); thB.title = 'Light / dark theme';
+  lockB.innerHTML = '🚪 Logout'; lockB.title = 'Logout – back to the login page'; thB.innerHTML = ico('theme', 16); thB.title = 'Light / dark theme';
   const gs = $('#gsearch'); const wrap = document.createElement('div'); wrap.className = 'gsearch'; gs.parentNode.insertBefore(wrap, gs); wrap.innerHTML = ico('search', 16); wrap.appendChild(gs);
   gs.placeholder = 'Search account, mobile, email, UTR, IP…  (Enter)';
   // status bar
@@ -7394,6 +7404,14 @@ CafTabs.check = (el, L) => {
 'use strict';
 const CaseStat = {
   done: c => /complet|closed|charge\s*-?sheet|final report|disposed|solved|\bdone\b/i.test((c && c.status) || ''),
+  fin: c => (c && c.final && c.final.type) || (/charge\s*-?sheet/i.test((c && c.status) || '') ? 'CS' : /final report/i.test((c && c.status) || '') ? 'FR' : ''),
+  pick(kind) { return S.cases.filter(c => kind === 'all' || (kind === 'cs' ? this.fin(c) === 'CS' : kind === 'fr' ? this.fin(c) === 'FR' : (kind === 'done') === this.done(c))); },
+  def(kind) {
+    const T = { all: '📁 All cases', cs: '📗 CS – Charge Sheet', fr: '📕 FR – Final Report', pend: '⏳ Pending cases', done: '✅ Completed cases' }[kind];
+    return { title: T, rows: () => this.pick(kind).map(c => ({ id: c.id, name: c.name || '', fir: c.fir || '', ps: c.ps || '', io: c.io || '', status: c.status || 'Under investigation', fin: this.fin(c), no: (c.final || {}).no || '', date: (c.final || {}).date ? c.final.date.split('-').reverse().join('-') : '', court: (c.final || {}).court || '', created: String(c.created || '').slice(0, 10) })),
+      cols: [{ key: 'name', label: 'Case' }, { key: 'fir', label: 'FIR' }, { key: 'io', label: 'IO' }, { key: 'status', label: 'Status' }, ...(kind === 'pend' ? [{ key: 'created', label: 'Created' }] : [{ key: 'no', label: 'CS / FR No.' }, { key: 'date', label: 'Date' }, { key: 'court', label: 'Court' }])],
+      sort: 'name', pv: r => [r.name, [r.fin, r.no, r.date].filter(Boolean).join(' · ') || r.status], onRow: async r => { UI.closeDrawer(); if (r.id !== S.caseId) await switchCase(r.id); go('dashboard'); } };
+  },
   list(kind) {
     const L = S.cases.filter(c => kind === 'all' || (kind === 'done') === this.done(c));
     const T = { all: '📁 All cases', done: '✅ Completed cases', pend: '⏳ Pending cases' }[kind];
@@ -7412,9 +7430,12 @@ const CaseStat = {
   },
   html() {
     const all = S.cases.length, done = S.cases.filter(c => this.done(c)).length, pend = all - done, cur = activeCase() || {}, pct = all ? Math.round(done / all * 100) : 0;
-    const box = (k, ic, n, l, sub) => `<button class="cs-box cs-${k}" data-cs="${k}"><span class="cs-ic">${ic}</span><span class="cs-t"><b>${fmtNum(n)}</b><span>${l}</span><small>${sub}</small></span><span class="cs-go">View list ›</span></button>`;
-    return `<div class="cs-row">${box('all', '📁', all, 'Total cases', 'all cases on this computer')}${box('done', '✅', done, 'Completed', pct + '% of all cases')}${box('pend', '⏳', pend, 'Pending', 'still under investigation')}
-      <div class="cs-now"><div class="small muted">This case</div><b>${esc(cur.name || '')}</b><span class="cs-st ${this.done(cur) ? 'd' : 'p'}">${esc(cur.status || 'Pending')}</span><button class="btn sm ${this.done(cur) ? 'rst' : 'srch'}" id="csFlip">${this.done(cur) ? '↺ Mark pending' : '✔ Mark completed'}</button></div></div>`;
+    const cs = S.cases.filter(c => this.fin(c) === 'CS').length, fr = S.cases.filter(c => this.fin(c) === 'FR').length, oth = done - cs - fr, P = n => all ? Math.round(n / all * 100) : 0;
+    const box = (k, ic, n, l, sub, bar) => `<button class="cs-box cs-${k}" data-cs="${k}"><span class="cs-ic">${ic}</span><span class="cs-t"><b>${fmtNum(n)}${k !== 'all' ? `<em class="cs-pc">${P(n)}%</em>` : ''}</b><span>${l}</span><small>${sub}</small></span><span class="cs-go">View list ›</span>${bar}</button>`;
+    const pb = n => `<i class="cs-pb"><b style="width:${P(n)}%"></b></i>`;
+    const stack = `<i class="cs-stack" title="CS ${cs} · FR ${fr}${oth ? ' · other closed ' + oth : ''} · pending ${pend}"><b class="s-cs" style="width:${P(cs)}%"></b><b class="s-fr" style="width:${P(fr)}%"></b><b class="s-ot" style="width:${P(oth)}%"></b><b class="s-pd" style="width:${P(pend)}%"></b></i>`;
+    return `<div class="cs-row cs-row5">${box('all', '📁', all, 'All cases', `CS ${P(cs)}% · FR ${P(fr)}% · Pending ${P(pend)}%`, stack)}${box('cs', '📗', cs, 'CS – Charge Sheet', P(cs) + '% of all cases', pb(cs))}${box('fr', '📕', fr, 'FR – Final Report', P(fr) + '% of all cases', pb(fr))}${box('pend', '⏳', pend, 'Pending', P(pend) + '% · under investigation', pb(pend))}
+      <div class="cs-now"><div class="small muted">This case</div><b>${esc(cur.name || '')}</b><span class="cs-st ${this.done(cur) ? 'd' : 'p'}">${esc(cur.status || 'Pending')}</span><div class="cs-acts"><button class="btn sm cc-cs ${this.fin(cur) === 'CS' ? 'on' : ''}" id="csCS" title="Record Charge Sheet">📗 CS</button><button class="btn sm cc-fr ${this.fin(cur) === 'FR' ? 'on' : ''}" id="csFR" title="Record Final Report">📕 FR</button><button class="btn sm ${this.done(cur) ? 'rst' : 'srch'}" id="csFlip">${this.done(cur) ? '↺ Mark pending' : '✔ Completed'}</button></div></div></div>`;
   }
 };
 (() => {
@@ -7423,7 +7444,8 @@ const CaseStat = {
     const r = og.apply(this, arguments);
     const h = main.querySelector('.hero-card'); if (!h) return r;
     h.insertAdjacentHTML('afterend', CaseStat.html());
-    $$('[data-cs]', main).forEach(b => b.onclick = () => CaseStat.list(b.dataset.cs));
+    $$('[data-cs]', main).forEach(b => typeof DashX !== 'undefined' ? DashX.bind(b, CaseStat.def(b.dataset.cs)) : (b.onclick = () => CaseStat.list(b.dataset.cs)));
+    $('#csCS', main).onclick = () => CCTNS.finEdit('CS'); $('#csFR', main).onclick = () => CCTNS.finEdit('FR');
     $('#csFlip', main).onclick = () => CaseStat.flip(S.caseId);
     return r;
   };
@@ -11561,7 +11583,7 @@ const CCTNS = {
     this.allCases().then(R => {
       if (!document.body.contains(el) || !$('#ccAll', el)) return;
       const tot = (k) => sum(R, r => r[k]);
-      $('#ccK', el).innerHTML = UI.kpis([['Cases', fmtNum(R.length), '', 'c2'], ['Pending cases', fmtNum(R.filter(r => !/complet|closed|disposed|charge|final/i.test(r.status)).length), '', 'c5'], ['Case-diary parts', fmtNum(tot('cd')), '', 'c3'], ['Pending demands', fmtNum(tot('pending')), 'across all cases', 'c4'], ['Notices drafted', fmtNum(tot('notices')), '', 'c6'], ['CS', fmtNum(R.filter(r => r.fin === 'CS').length), 'Charge Sheet', 'c1 cc-kcs'], ['FR', fmtNum(R.filter(r => r.fin === 'FR').length), 'Final Report', 'c5 cc-kfr']]).replace(/^<div class="kpis">|<\/div>$/g, '');
+      $('#ccK', el).innerHTML = UI.kpis([['Cases', fmtNum(R.length), '', 'c2'], ['Pending cases', fmtNum(R.filter(r => !/complet|closed|disposed|charge|final/i.test(r.status)).length), (R.length ? Math.round(R.filter(r => !/complet|closed|disposed|charge|final/i.test(r.status)).length / R.length * 100) : 0) + '% of all cases', 'c5'], ['Case-diary parts', fmtNum(tot('cd')), '', 'c3'], ['Pending demands', fmtNum(tot('pending')), 'across all cases', 'c4'], ['Notices drafted', fmtNum(tot('notices')), '', 'c6'], ['CS', fmtNum(R.filter(r => r.fin === 'CS').length), 'Charge Sheet · ' + (R.length ? Math.round(R.filter(r => r.fin === 'CS').length / R.length * 100) : 0) + '% of all cases', 'c1 cc-kcs'], ['FR', fmtNum(R.filter(r => r.fin === 'FR').length), 'Final Report · ' + (R.length ? Math.round(R.filter(r => r.fin === 'FR').length / R.length * 100) : 0) + '% of all cases', 'c5 cc-kfr']]).replace(/^<div class="kpis">|<\/div>$/g, '');
       const defs = [R, R.filter(r => !/complet|closed|disposed|charge|final/i.test(r.status)), R.filter(r => r.cd), R.filter(r => r.pending), R.filter(r => r.notices), R.filter(r => r.fin === 'CS'), R.filter(r => r.fin === 'FR')];
       const fcols = [{ key: 'name', label: 'Case' }, { key: 'fir', label: 'FIR' }, { key: 'finNo', label: 'CS / FR No.' }, { key: 'finDate', label: 'Date', render: r => esc(this.dmy(r.finDate)) }, { key: 'finInfo', label: 'Details' }, { key: 'io', label: 'IO' }];
       $$('#ccK .kpi', el).forEach((k, i) => DashX.bind(k, { title: i === 5 ? 'CS – Charge Sheet' : i === 6 ? 'FR – Final Report' : $('.label', k).textContent, rows: () => defs[i], cols: i >= 5 ? fcols : [{ key: 'name', label: 'Case' }, { key: 'fir', label: 'FIR' }, { key: 'status', label: 'Status' }, { key: 'pending', label: 'Pending', num: true }, { key: 'pendList', label: 'Pending work' }], sort: i >= 5 ? 'finDate' : 'pending', pv: r => i >= 5 ? [r.name, [r.finNo && 'No. ' + r.finNo, this.dmy(r.finDate)].filter(Boolean).join(' · ')] : [r.name, r.pending + ' pending'], onRow: r => { UI.closeDrawer(); if (!r.cur) switchCase(r.id); } }));

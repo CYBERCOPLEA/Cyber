@@ -97,7 +97,7 @@ let LayoutSoc = null;
   }
   // top bar icons
   const lockB = $('#btnLock'), thB = $('#btnTheme');
-  lockB.innerHTML = ico('lock', 16) + 'Lock'; thB.innerHTML = ico('theme', 16); thB.title = 'Light / dark theme';
+  lockB.innerHTML = '🚪 Logout'; lockB.title = 'Logout – back to the login page'; thB.innerHTML = ico('theme', 16); thB.title = 'Light / dark theme';
   const gs = $('#gsearch'); const wrap = document.createElement('div'); wrap.className = 'gsearch'; gs.parentNode.insertBefore(wrap, gs); wrap.innerHTML = ico('search', 16); wrap.appendChild(gs);
   gs.placeholder = 'Search account, mobile, email, UTR, IP…  (Enter)';
   // status bar

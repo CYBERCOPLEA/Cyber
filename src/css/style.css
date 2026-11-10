@@ -1531,3 +1531,13 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
 .cc-fin.cs{background:rgba(22,163,74,.18);color:#22c55e;border:1px solid #16a34a}.cc-fin.fr{background:rgba(220,38,38,.16);color:#f87171;border:1px solid #dc2626}
 .kpi.cc-kcs{--kc:#16a34a !important}.kpi.cc-kfr{--kc:#ef4444 !important}
 @media (min-width:1300px){#ccK.kpis-sm{grid-template-columns:repeat(7,minmax(0,1fr))}}
+/* dashboard: All cases / CS / FR / Pending with % */
+.cs-row.cs-row5{grid-template-columns:repeat(4,minmax(0,1fr)) minmax(240px,1.15fr)}
+@media (max-width:1300px){.cs-row.cs-row5{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.cs-box.cs-cs{--c:#16a34a}.cs-box.cs-fr{--c:#dc2626}.cs-box.cs-pend{--c:#f97316}.cs-box.cs-all{--c:#3b82f6}
+.cs-pc{font-style:normal;font-size:13px;font-weight:700;margin-left:8px;padding:1px 7px;border-radius:999px;background:color-mix(in srgb,var(--c) 22%,transparent);color:color-mix(in srgb,var(--c) 70%,#fff);vertical-align:middle}
+.cs-pb,.cs-stack{position:absolute;left:14px;right:14px;bottom:8px;height:6px;border-radius:99px;background:rgba(148,163,184,.18);overflow:hidden;display:flex}
+.cs-pb b{display:block;height:100%;background:var(--c);border-radius:99px}
+.cs-stack b{display:block;height:100%}.cs-stack .s-cs{background:#22c55e}.cs-stack .s-fr{background:#ef4444}.cs-stack .s-ot{background:#a3a3a3}.cs-stack .s-pd{background:#f97316}
+.cs-box .cs-go{bottom:16px}
+.cs-acts{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
