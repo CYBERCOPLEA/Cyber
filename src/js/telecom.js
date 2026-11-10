@@ -15,6 +15,10 @@ const TK = {
 const TelRead = {
   /* header → field; first match wins, so the order matters */
   RULES: [
+    /* IPDR analyser columns (destination owner, app, VPN flag, IMSI circle …) */
+    ['qip', /^ipdr$|^queriedip|^requestedip|^inputip|^searchip/], ['dorg', /^isporg$|^isp$|^destinationisp|^destisp|^org$/], ['ddom', /^domains?$/], ['vpn', /^vpnproxy|^vpn$/], ['app', /^apphost|^app$|^appname|^application$/],
+    ['pinfo', /^portinfo/], ['pcat', /^portcategory/], ['dcty', /^country$|^destinationcountry/], ['dlat', /^iplat/], ['dlon', /^iplong?$/], ['icircle', /^imsicircle/], ['iop', /^imsioperator/], ['usage', /^usage$/], ['pname', /^nameofperson/], ['pcontact', /^contactno/],
+    ['enddate', /(sessionend|^end|stop|close)\w*date/],
     ['tdate', h => /transaction/.test(h) && /date/.test(h)], ['ttime', h => /transaction/.test(h) && /time/.test(h)],
     ['enddate', h => /allocation/.test(h) && /end/.test(h) && /date/.test(h)], ['end', h => /allocation/.test(h) && /end/.test(h) && /time/.test(h)],
     ['date', h => /allocation/.test(h) && /date/.test(h)], ['time', h => /allocation/.test(h) && /time/.test(h)],
@@ -108,6 +112,7 @@ const TelRead = {
         if (ok && k.length > bs) { bs = k.length; best = i; map = m; }
       }
       if (best < 0 || bs < 3) continue;
+      { const pr = j => /tower|cell|site|bts/.test(N.hdr(rows[best][j])) ? 0 : 1; ['addr', 'cell'].forEach(f => map[f] && map[f].sort((a, b) => pr(a) - pr(b))); }
       const pre = rows.slice(0, best).map(r => r.join(' ')).join(' ');
       const meta = {}; rows.slice(0, best).forEach(r => { const c = r.map(x => String(x).trim()).filter(Boolean); const m = c.length === 2 ? [c[0], c[1]] : (c.length === 1 && c[0].match(/^([A-Za-z /]{4,40}?)\s*:-?\s*(.+)$/) || []).slice(1); if (m && m.length === 2 && m[1]) { const k = N.hdr(m[0]); const key = /subscribername|^name$|customername/.test(k) ? 'Name' : /father|husband/.test(k) ? 'Father / husband' : /address/.test(k) ? 'Address' : /circle/.test(k) ? 'Circle' : /connectiontype/.test(k) ? 'Connection' : /activation/.test(k) ? 'Activation date' : /^portin|^mnp/.test(k) ? 'Port in / out' : /alternate/.test(k) ? 'Alternate no' : ''; if (key) meta[key] = N.text(m[1]).replace(/^'+|'+$/g, '').replace(/\s*\d{6}\s*$/, m0 => m0); } });
       if (Object.keys(meta).length) { S.data.telMeta = S.data.telMeta || {}; S.data.telMeta[name] = meta; }
@@ -165,6 +170,8 @@ const TelRead = {
         if ('lat' in map) { rec.lat = parseFloat(g(r, 'lat')) || ''; rec.lon = parseFloat(g(r, 'lon')) || ''; }
         else if ('ll' in map) { const m = String(g(r, 'll')).match(/(-?\d{1,2}\.\d+)\s*[\/,; ]\s*(-?\d{1,3}\.\d+)/); if (m) { rec.lat = +m[1]; rec.lon = +m[2]; } }
         if ('bop' in map) rec.bop = N.text(g(r, 'bop'));
+        for (const k of ['qip', 'dorg', 'ddom', 'vpn', 'app', 'pinfo', 'pcat', 'dcty', 'icircle', 'iop', 'usage', 'pname', 'pcontact']) if (k in map) { const v = N.text(g(r, k)); if (v) rec[k] = v.slice(0, 120); }
+        if ('dlat' in map) { rec.dlat = parseFloat(g(r, 'dlat')) || ''; rec.dlon = parseFloat(g(r, 'dlon')) || ''; }
         if ('msg' in map) rec.msg = N.text(g(r, 'msg')).slice(0, 300);
         if (kind === 'IPDR') {
           const ip = v => Tel.ip6(N.ip(String(v).replace(/^"|"$/g, '')));
