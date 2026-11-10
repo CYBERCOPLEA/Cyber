@@ -1281,3 +1281,13 @@ svg.c2.dn .dn-c2{font-size:24px}
 .step.dx-live b{padding-right:30px;white-space:normal}
 .kpis .kpi.dx-live{padding-bottom:28px}
 .kpis .kpi.dx-live>.dx-more{position:absolute!important;right:14px!important;left:auto!important;bottom:9px!important;top:auto!important;margin:0!important;display:block}
+.lea-find{width:calc(100% - 12px);margin:4px 6px 6px;padding:6px 9px;border-radius:8px;border:1px solid var(--border);background:var(--surface-2,var(--bg));color:var(--text-primary);font-size:12px}
+.lea-subs.open{max-height:60vh;overflow-y:auto}
+.lea-sub{display:flex;align-items:center;gap:6px}
+.lea-sub .lea-ic{width:20px;text-align:center;flex:none}
+.lea-sub .lea-ext{margin-left:auto;opacity:.55;font-size:11px}
+.lea-sub:hover .lea-ext{opacity:1}
+.lea-ed{max-height:52vh;overflow-y:auto;display:grid;gap:6px;padding-right:4px}
+.lea-row{display:grid;grid-template-columns:260px 1fr;gap:8px;align-items:center;font-size:13px}
+.lea-row input,.lea-add input{padding:6px 8px;border-radius:7px;border:1px solid var(--border);background:var(--bg);color:var(--text-primary)}
+.lea-add{display:grid;grid-template-columns:260px 1fr auto;gap:8px;margin-top:10px}
