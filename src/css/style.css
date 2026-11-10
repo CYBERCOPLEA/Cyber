@@ -1498,3 +1498,8 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
 .dc-st{display:flex;gap:8px;align-items:center;padding:6px 8px;margin:3px 0;border-radius:8px;border-left:3px solid #22c55e;background:rgba(34,197,94,.07);cursor:pointer}
 .dc-st:hover{background:rgba(34,197,94,.18)}.dc-st b{flex:1}
 .dc-t td{background:#fff !important;color:#000}
+/* live form */
+.lv-btn.lv-on{border-color:#ef4444;box-shadow:0 0 0 1px #ef4444 inset}.lv-btn .badge{background:#ef4444;color:#fff}
+.lv-steps{margin:6px 0 10px 18px;padding:0;font-size:13px;line-height:1.55}.lv-steps li{margin-bottom:4px}
+.lv-st{padding:10px;border-radius:8px;border:1px solid #16a34a;background:rgba(22,163,74,.12);font-size:13px}.lv-st.bad{border-color:#dc2626;background:rgba(220,38,38,.12)}
+.bad-t{color:#ef4444}
