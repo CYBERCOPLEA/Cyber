@@ -1979,6 +1979,12 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
 
 #ccAll .tbl td:first-child{min-width:210px}
 
+.btn.cdx-deep{background:linear-gradient(135deg,#7c3aed,#2563eb);color:#fff;border-color:transparent}
+
+.cdx-menu{position:fixed;z-index:90;min-width:320px;background:#0f172a;border:1px solid rgba(124,58,237,.55);border-radius:12px;padding:6px;box-shadow:0 18px 40px rgba(0,0,0,.55),0 0 22px rgba(124,58,237,.25)}
+.cdx-menu button{display:flex;gap:10px;align-items:flex-start;width:100%;text-align:left;background:none;border:0;color:#e5e7eb;padding:8px 10px;border-radius:8px;cursor:pointer;font:inherit}
+.cdx-menu button:hover{background:rgba(124,58,237,.22)}.cdx-menu .ic{font-size:18px;line-height:1.2}.cdx-menu b{display:block;font-size:14px}.cdx-menu small{display:block;opacity:.7;font-size:12px}
+
 </style>
 </head>
 <body>
@@ -2026,7 +2032,7 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
         <div class="hp-feat" style="--fc:#06b6d4"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><div><b>Analytics</b><p>The same mobile, account, IP or e-mail across complaints, banks and platforms.</p></div></div>
         <div class="hp-feat" style="--fc:#eab308"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h5"/></svg></span><div><b>Case File &amp; Notices</b><p>Case reports, notices to banks and platforms, and CSV / PDF exports.</p></div></div>
     </section>
-    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-11 14:45 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
+    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-11 14:58 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
   </div>
 
   <div class="lg-wrap" id="lgWrap" aria-hidden="true">
@@ -13922,7 +13928,7 @@ const CDX = {
     const items = fir.items.map(it => {
       const v = it.type === 'url' ? it.value.replace(/^https?:\/\//, '').replace(/\/.*$/, '') : it.value; let got = null, ask = null, kyc = '', ip = '', bank = '';
       if (v && v.length >= 5) for (const l of later) { let p = -1; while ((p = l.b.indexOf(v, p + 1)) >= 0) { const w = l.b.slice(p, p + 260), pre = l.b.slice(Math.max(0, p - 160), p);
-        const h = w.slice(0, v.length + 70).match(/खाता\s*धारक\s*(?:का\s*नाम\s*)?[:\-]?\s*([A-Z][A-Z .\/&]{3,70}?)(?=\s*(?:W\/O|S\/O|D\/O|C\/O|R\/O|पता|पुत्र|निवासी|,|\d)|$)/), i = w.slice(v.length, v.length + 40).match(/^\s*(?:की|का|के)\s*आईपी\s*([\d.]{7,15}|[0-9a-f:]{8,})/i);
+        const h = w.slice(0, v.length + 110).match(/खाता\s*धारक\s*(?:का\s*नाम\s*)?[:\-]?\s*([A-Z][A-Za-z .\/&]{3,70}?)(?=\s*(?:W\/O|S\/O|D\/O|C\/O|R\/O|पता|पुत्र|निवासी|,|\d)|$)/), i = w.slice(v.length, v.length + 40).match(/^\s*(?:की|का|के)\s*आईपी\s*([\d.]{7,15}|[0-9a-f:]{8,})/i);
         if (h && !kyc) kyc = h[1].trim(); if (i && !ip) ip = i[1]; if (!bank) bank = this.ifscBanks(w.slice(0, 60))[0] || '';
         const sent = (pre.split(/[।|]/).pop() + w.split(/[।|]/)[0]);
         if (h || i || this.GOT.test(sent)) { if (!got) got = { cd: l.no, date: l.date, s: this.cut(sent, 220) }; } else if (this.ASK.test(sent) && !ask) ask = { cd: l.no, date: l.date, s: this.cut(sent, 220) };
@@ -14021,7 +14027,7 @@ const CDX = {
     const kp = [['FIR', [r.fir.no, r.fir.date].filter(Boolean).join(' · ')], ['Sections', r.fir.sections.join(', ')], ['Complainant', [r.fir.complainant, r.fir.mobile].filter(Boolean).join(' · ')], ['Incident', r.fir.incident], ['Amount', r.fir.amount ? fmtINR(r.fir.amount) : ''], ['Case Diary', r.L.length ? `${r.L.length} parts · Last CD ${r.cdc.last ? r.cdc.last.no : ''}${r.cdc.last && r.cdc.last.prep ? ' · ' + this.dmy(r.cdc.last.prep) : ''}` : ''], ['IO', c.io || r.io], ['Status', c.final ? (c.final.type === 'PPI' ? 'CS-PPI' : c.final.type) + (c.final.no ? ' No. ' + c.final.no : '') + (c.final.date ? ' · ' + this.dmy(c.final.date) : '') : (r.L.length ? 'Under Investigation' : '')]].filter(x => x[1]);
     const pendA = r.agencies.filter(a => a.status === 'Pending').length + r.items.filter(i => i.status !== 'Received').length, gotA = r.agencies.filter(a => a.status === 'Received').length + r.items.filter(i => i.status === 'Received').length;
     at.insertAdjacentHTML('afterend', `<div class="card cdx" id="cdxG"><div class="d2-hd"><h3>🧭 Case At A Glance</h3><span class="sub">Read from the FIR and every case-diary part of this case. What is required, what is received, what is pending and from whom – with suggestions for the IO.</span>
-      <div class="cdx-bt"><button class="btn primary" id="cdxImp">📦 Import CCTNS Case (Zip / Folder)</button>${has ? '<button class="btn srch" id="cdxRep">🖨 Hindi Case Report (A4)</button>' : ''}</div></div>
+      <div class="cdx-bt"><button class="btn primary" id="cdxImp">📦 Import CCTNS Case (Zip / Folder)</button>${has ? '<button class="btn cdx-deep" id="cdxExp" title="Hindi Short Report, Hindi Deep Brief Report, Word, Excel">⬇ Export Report ▾</button>' : ''}</div></div>
       ${has ? `<div class="cdx-kp">${kp.map(([k, v]) => `<div><span>${k}</span><b>${esc(v)}</b></div>`).join('')}</div>
       <div class="cdx-sum"><span class="good-t">✔ <b>${gotA}</b> Received</span><span class="bad-t">⏳ <b>${pendA}</b> Pending</span><span>💡 <b>${r.sugg.length}</b> Suggestions</span><span>⚖ <b>${r.secs.filter(s => s.state !== 'ok').length}</b> Section Points</span></div>
       <div class="cdx-g2"><div class="cdx-box"><h4>📄 FIR Content (Gist)</h4><div class="cdx-tx">${esc(this.cut(r.fir.tahrir || r.fir.brief || (st.fir && st.fir.text) || '', 1600)) || '<span class="muted">FIR text not found.</span>'}</div></div>
@@ -14035,7 +14041,7 @@ const CDX = {
     const g = $('#cdxG', el);
     $('#cdxImp', g).onclick = () => this.importUI();
     if (!has) return;
-    $('#cdxRep', g).onclick = () => this.report();
+    $('#cdxExp', g).onclick = e => this.exportMenu(e.currentTarget);
     Table($('#cdxI', g), { rows: r.items, pageSize: 10, exportName: 'fir_items_status', columns: [{ key: 'type', label: 'Type', render: x => esc(({ mobile: '📱 Mobile', account: '🏦 Account', url: '🌐 Web Link', upi: '💸 UPI', other: '• Other' })[x.type]) }, { key: 'value', label: 'Named In FIR', render: x => `<b class="mono">${esc(x.value)}</b>` }, { key: 'need', label: 'Required' }, { key: 'from', label: 'From Whom' },
       { key: 'status', label: 'Status', render: x => this.chip(x.status) + (x.age ? ` <small class="bad-t">${x.age} days</small>` : '') }, { key: 'kyc', label: 'Received Details', render: x => esc([x.kyc && 'Holder: ' + x.kyc, x.ip && 'IP: ' + x.ip].filter(Boolean).join(' · ') || (x.got ? x.got.s : x.ask ? 'Asked: ' + x.ask.s : '')) }, { key: 'cd', label: 'CD', render: x => x.got ? 'CD ' + x.got.cd : x.ask ? 'CD ' + x.ask.cd : '' },
       { key: 'act', label: '', render: (x, i) => x.status !== 'Received' && x.nt ? `<button class="btn sm srch" data-ni="${esc(x.value)}">Draft Notice</button>` : '' }], onRow: x => typeof Dash2 !== 'undefined' && Dash2.track(x.value) });
@@ -14062,7 +14068,7 @@ const CDX = {
     const fin = c.final ? ({ CS: 'आरोप पत्र', PPI: 'आरोप पत्र (अग्रिम विवेचना लंबित – PPI)', FR: 'अंतिम रिपोर्ट' })[c.final.type] + (c.final.no ? ' सं0 ' + c.final.no : '') + (c.final.date ? ' दिनांक ' + this.dmy(c.final.date) : '') : 'विवेचनाधीन';
     const li = (L, n) => L.length ? '<ol>' + L.slice(0, n).map(x => `<li>${esc(x)}</li>`).join('') + (L.length > n ? `<li class="m">… ${L.length - n} और</li>` : '') + '</ol>' : '<p class="m">—</p>';
     const sec = r.secs.filter(s => s.state !== 'ok');
-    const html = `<div class="pg"><div class="hd"><div class="t">प्रकरण सारांश आख्या</div><div class="s">थाना ${esc(c.ps || 'साइबर क्राइम')}${c.district ? ', ' + esc(c.district) : ''} · दिनांक ${new Date().toLocaleDateString('en-IN')}</div></div>
+    const html = `<div class="pg"><div class="hd"><div class="t">संक्षिप्त प्रकरण आख्या</div><div class="s">थाना ${esc(c.ps || 'साइबर क्राइम')}${c.district ? ', ' + esc(c.district) : ''} · दिनांक ${new Date().toLocaleDateString('en-IN')}</div></div>
       <table class="k"><tr><th>मु0अ0सं0</th><td>${esc(f.no)}${f.date ? ' दिनांक ' + esc(f.date) : ''}</td><th>धारा</th><td>${esc(f.sections.join(', ') || c.section || '')}</td></tr>
       <tr><th>वादी</th><td>${esc(f.complainant || '')}${f.mobile ? ' (मो0 ' + esc(f.mobile) + ')' : ''}</td><th>घटना दिनांक</th><td>${esc(f.incident || '')}</td></tr>
       <tr><th>ठगी की धनराशि</th><td>${f.amount ? '₹ ' + Number(f.amount).toLocaleString('en-IN') : '—'}</td><th>विवेचक</th><td>${esc(c.io || r.io || '')}</td></tr>
@@ -14076,7 +14082,7 @@ const CDX = {
       <div class="sg"><div>दिनांक: ${new Date().toLocaleDateString('en-IN')}</div><div>(${esc(c.io || r.io || 'विवेचक')})<br>विवेचक, थाना ${esc(c.ps || 'साइबर क्राइम')}</div></div>
       <div class="ft">यह सारांश SudarshanAshtra द्वारा इसी कम्प्यूटर पर पर्चों से तैयार किया गया है – प्रस्तुत करने से पूर्व विवेचक द्वारा जाँच लें। धारा सुझाव केवल परामर्श हेतु।</div></div>`;
     const w = window.open('', '_blank'); if (!w) { UI.toast('Pop-up blocked. Allow pop-ups for this page.'); return; }
-    w.document.write(`<!DOCTYPE html><html lang="hi"><head><meta charset="utf-8"><title>प्रकरण सारांश – ${esc(f.no)}</title><style>
+    w.document.write(`<!DOCTYPE html><html lang="hi"><head><meta charset="utf-8"><title>संक्षिप्त प्रकरण आख्या – ${esc(f.no)}</title><style>
       @page{size:A4;margin:10mm 11mm} *{box-sizing:border-box} body{margin:0;font:10.6px/1.42 "Nirmala UI","Mangal","Noto Sans Devanagari","Segoe UI",Arial,sans-serif;color:#111;background:#e5e7eb}
       .pg{width:210mm;min-height:297mm;margin:10px auto;background:#fff;padding:10mm 11mm;box-shadow:0 2px 12px rgba(0,0,0,.2)} .hd{text-align:center;border-bottom:2.5px solid #1e3a8a;padding-bottom:4px;margin-bottom:6px}
       .hd .t{font-size:17px;font-weight:800;color:#1e3a8a;letter-spacing:.3px} .hd .s{font-size:11px;color:#333}
@@ -14086,6 +14092,102 @@ const CDX = {
       .ft{margin-top:8px;font-size:9px;color:#666;border-top:1px dashed #bbb;padding-top:3px} .np{text-align:center;margin:8px} .np button{font-size:14px;padding:6px 16px}
       @media print{body{background:#fff}.pg{margin:0;box-shadow:none;width:auto;min-height:0;padding:0}.np{display:none}}</style></head><body><div class="np"><button onclick="print()">🖨 Print / Save As PDF (A4)</button></div>${html}</body></html>`);
     w.document.close();
+  },
+
+  /* ---------- deep brief report (Hindi, A4, several pages) ---------- */
+  HI: { Received: 'प्राप्त', Asked: 'माँगा गया', 'Not Asked': 'नहीं माँगा', Pending: 'लंबित' },
+  TH: { mobile: 'मोबाइल', account: 'बैंक खाता', url: 'वेब लिंक', upi: 'यूपीआई', other: 'अन्य' },
+  NH: { mobile: 'सीडीआर / सीएएफ / आईपीडीआर, व्हाट्सएप / टेलीग्राम आईपी लॉग', account: 'केवाईसी, स्टेटमेंट, लिंक्ड मोबाइल / आईपी, होल्ड / लियन', url: 'WHOIS, होस्टिंग, पेमेंट गेटवे, सर्वर आईपी', upi: 'यूपीआई केवाईसी व लिंक्ड खाता', other: 'विवरण' },
+  async deep(mode) {
+    const w = mode === 'doc' ? null : window.open('', '_blank'); if (!w && mode !== 'doc') { UI.toast('Pop-up blocked. Allow pop-ups for this page.'); return; }
+    if (w) w.document.write('<p style="font:16px sans-serif;padding:30px">विस्तृत आख्या तैयार हो रही है…</p>');
+    const c = activeCase(), r = this.analyse(), f = r.fir, E = esc, today = new Date().toLocaleDateString('en-IN');
+    const sc = s => `<span class="st ${s === 'Received' ? 'g' : s === 'Asked' ? 'w' : 'b'}">${this.HI[s] || s}</span>`;
+    const fin = c.final ? ({ CS: 'आरोप पत्र', PPI: 'आरोप पत्र – अग्रिम विवेचना लंबित (PPI)', FR: 'अंतिम रिपोर्ट' })[c.final.type] + (c.final.no ? ' सं0 ' + c.final.no : '') + (c.final.date ? ' दिनांक ' + this.dmy(c.final.date) : '') + (c.final.frType ? ' (' + c.final.frType + ')' : '') : 'विवेचनाधीन';
+    const nAcc = f.items.filter(i => i.type === 'account').length, nMob = f.items.filter(i => i.type === 'mobile').length, nWeb = f.items.filter(i => i.type === 'url').length;
+    const got = r.items.filter(i => i.status === 'Received'), ask = r.items.filter(i => i.status === 'Asked'), nas = r.items.filter(i => i.status === 'Not Asked' && i.nt), kyc = r.items.filter(i => i.kyc), ips = r.items.filter(i => i.ip);
+    const pA = r.agencies.filter(a => a.status === 'Pending');
+    // cross-case links
+    let cross = [];
+    try { if (S.cases.length > 1 && typeof Dash2 !== 'undefined') { await Dash2.others(() => { }); for (const g of Dash2.groups().values()) { const oc = Dash2.inOthers(g.key); if (oc.length) cross.push({ type: g.type, value: g.value, cases: oc.map(x => x.c.name) }); } } } catch (e) { }
+    cross = cross.sort((a, b) => b.cases.length - a.cases.length).slice(0, 25);
+    const sum = [
+      `यह अभियोग ${f.incident ? 'दिनांक ' + f.incident + ' के मध्य घटित ' : ''}${f.amount ? '₹ ' + Number(f.amount).toLocaleString('en-IN') + ' की ' : ''}साइबर ठगी से सम्बन्धित है, जो ${f.complainant ? 'वादी ' + f.complainant + ' की ' : ''}तहरीर पर धारा ${f.sections.join(', ') || c.section || '—'} में पंजीकृत है।`,
+      `एफआईआर में ${f.items.length} बिन्दु नामित हैं${f.items.length ? ` (${[nMob && nMob + ' मोबाइल', nAcc && nAcc + ' बैंक खाते', nWeb && nWeb + ' वेब लिंक'].filter(Boolean).join(', ')})` : ''}; इनमें से ${got.length} का विवरण प्राप्त, ${ask.length} माँगे गए (जवाब लंबित) तथा ${nas.length} अभी माँगे नहीं गए हैं।`,
+      kyc.length ? `केवाईसी से ${kyc.length} खाताधारक ज्ञात हुए: ${kyc.slice(0, 6).map(i => i.kyc).join(', ')}${kyc.length > 6 ? ' आदि' : ''}।` : '',
+      ips.length ? `${ips.length} मोबाइल नम्बरों के आईपी प्राप्त${r.foreign.length ? ', जो विदेश (' + r.foreign.slice(0, 3).join(', ') + ') के पाए गए' : ''}।` : '',
+      r.acc.cs.length ? `आरोप पत्रित अभियुक्त: ${r.acc.cs.join(', ')}${r.acc.not.length ? '; संदिग्ध (आरोप पत्रित नहीं): ' + r.acc.not.length : ''}।` : '',
+      `अब तक ${r.L.length} पर्चे काटे गए${r.cdc.last ? ', अन्तिम पर्चा ' + r.cdc.last.no + (r.cdc.last.prep ? ' दिनांक ' + this.dmy(r.cdc.last.prep) : '') : ''}। वर्तमान स्थिति: ${fin}।`,
+      pA.length ? `${pA.length} संस्थाओं से जवाब लंबित है (${pA.slice(0, 4).map(a => a.hi).join(', ')}${pA.length > 4 ? ' आदि' : ''})।` : '',
+      cross.length ? `इस प्रकरण के ${cross.length} पहचानकर्ता (मोबाइल / खाता / आईपी आदि) आपके अन्य प्रकरणों में भी मिले हैं – संयुक्त विवेचना हेतु देखें।` : ''
+    ].filter(Boolean);
+    const tbl = (head, rows, cls = '') => rows.length ? `<table class="t ${cls}"><thead><tr>${head.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.map(rw => `<tr>${rw.map(x => `<td>${x}</td>`).join('')}</tr>`).join('')}</tbody></table>` : '<p class="m">—</p>';
+    const H = [];
+    H.push(`<div class="hd"><div class="t">विस्तृत प्रकरण आख्या (डीप ब्रीफ)</div><div class="s">थाना ${E(c.ps || 'साइबर क्राइम')}${c.district ? ', ' + E(c.district) : ''} · मु0अ0सं0 ${E(f.no)} · दिनांक ${today}</div></div>`);
+    H.push(`<table class="k"><tr><th>मु0अ0सं0 / दिनांक</th><td>${E(f.no)}${f.date ? ' · ' + E(f.date) : ''}</td><th>धारा</th><td>${E(f.sections.join(', ') || c.section || '')}</td></tr>
+      <tr><th>वादी</th><td>${E(f.complainant || '')}${f.mobile ? ' (मो0 ' + E(f.mobile) + ')' : ''}</td><th>घटना / सूचना दिनांक</th><td>${E(f.incident || '—')}${f.info ? ' / ' + E(f.info) : ''}</td></tr>
+      <tr><th>ठगी की धनराशि</th><td>${f.amount ? '₹ ' + Number(f.amount).toLocaleString('en-IN') : '—'}</td><th>विवेचक</th><td>${E(c.io || r.io || '')}</td></tr>
+      <tr><th>पर्चे</th><td>${r.L.length} · अन्तिम ${r.cdc.last ? r.cdc.last.no + (r.cdc.last.prep ? ' (' + this.dmy(r.cdc.last.prep) + ')' : '') : '—'}${r.cdc.missing.length ? ' · <b class="r">अनुपलब्ध: ' + r.cdc.missing.join(', ') + '</b>' : ''}</td><th>स्थिति</th><td><b>${E(fin)}</b></td></tr></table>`);
+    H.push(`<div class="kp"><div><b>${f.items.length}</b>एफआईआर में नामित</div><div class="g"><b>${got.length}</b>विवरण प्राप्त</div><div class="w"><b>${ask.length}</b>जवाब लंबित</div><div class="b"><b>${nas.length}</b>अभी नहीं माँगे</div><div><b>${kyc.length}</b>खाताधारक ज्ञात</div><div><b>${r.sugg.length}</b>सुझाव</div></div>`);
+    H.push(`<h2>1. कार्यकारी सारांश</h2><ol>${sum.map(x => `<li>${E(x)}</li>`).join('')}</ol>`);
+    H.push(`<h2>2. एफआईआर का सार (नकल तहरीर)</h2><p class="j">${E(this.cut(f.tahrir || f.brief, 3200)) || '<span class="m">एफआईआर की नकल तहरीर उपलब्ध पर्चों में नहीं मिली।</span>'}</p>`);
+    H.push(`<h2>3. वादी का बयान${r.vic ? ` <small>(पर्चा ${r.vic.cd})</small>` : ''}</h2><p class="j">${r.vic ? E(this.cut(r.vic.text, 2200)) : '<span class="m">वादी का बयान उपलब्ध पर्चों में नहीं मिला।</span>'}</p>`);
+    H.push(`<h2>4. एफआईआर में नामित बिन्दु – आवश्यक / प्राप्त / लंबित</h2>` + tbl(['क्र0', 'प्रकार', 'विवरण', 'आवश्यक', 'किससे', 'स्थिति', 'प्राप्त विवरण', 'पर्चा'],
+      r.items.map((i, k) => [k + 1, this.TH[i.type] || i.type, `<b class="mo">${E(i.value)}</b>`, E(this.NH[i.type] || ''), E(i.fromHi || i.from), sc(i.status) + (i.age ? `<br><small class="r">${i.age} दिन</small>` : ''), E([i.kyc && 'खाताधारक: ' + i.kyc, i.ip && 'आईपी: ' + i.ip].filter(Boolean).join(' · ') || (i.got ? this.cut(i.got.s, 110) : i.ask ? 'माँगा: ' + this.cut(i.ask.s, 90) : '—')), i.got ? i.got.cd : i.ask ? i.ask.cd : '—']), 'sm'));
+    if (kyc.length) H.push(`<h2>5. मनी ट्रेल – ज्ञात खाताधारक</h2>` + tbl(['क्र0', 'खाता संख्या', 'बैंक', 'खाताधारक', 'पर्चा', 'आगामी कार्यवाही'], kyc.map((i, k) => [k + 1, `<b class="mo">${E(i.value)}</b>`, E(i.bank || '—'), `<b>${E(i.kyc)}</b>`, i.got ? i.got.cd : '', 'पते का सत्यापन, धारा 35(3) बीएनएसएस नोटिस / गिरफ्तारी, स्टेटमेंट से आगे की लेयर'])));
+    H.push(`<h2>${kyc.length ? 6 : 5}. संस्थावार पत्राचार (बैंक / टेलीकॉम / इंटरमीडियरी / I4C / अधीनस्थ)</h2>` + tbl(['संस्था / व्यक्ति', 'स्थिति', 'माँगा (पर्चा)', 'प्राप्त (पर्चा)', 'लंबित', 'अन्तिम प्रविष्टि'],
+      r.agencies.map(a => [`<b>${E(a.hi)}</b>`, sc(a.status), E(uniq(a.ask.map(e => e.cd)).join(', ') || '—'), E(uniq(a.got.map(e => e.cd)).join(', ') || '—'), a.age ? `<b class="r">${a.age} दिन</b>` : '—', E(a.last ? this.cut(a.last.s, 150) : '')]), 'sm'));
+    let n = kyc.length ? 7 : 6;
+    if (r.acc.cs.length || r.acc.not.length || r.stm.length) H.push(`<h2>${n++}. अभियुक्त व अंकित बयान</h2>${r.acc.cs.length ? `<p><b>आरोप पत्रित अभियुक्त:</b> ${r.acc.cs.map(E).join(', ')}</p>` : ''}${r.acc.not.length ? `<p><b>संदिग्ध (आरोप पत्रित नहीं):</b> ${r.acc.not.length} – ${r.acc.not.slice(0, 8).map(E).join('; ')}</p>` : ''}` + (r.stm.length ? tbl(['पर्चा', 'बयान', 'सार'], r.stm.map(x => [x.cd, E(x.who), E(this.cut(x.text, 220))]), 'sm') : ''));
+    H.push(`<h2>${n++}. पर्चावार कार्यवाही</h2>` + tbl(['पर्चा', 'दिनांक', 'की गई कार्यवाही'], r.L.map(l => [`<b>${l.no || '?'}</b>${l.fileNo && l.fileNo !== l.no ? `<br><small class="r">फाइल: ${l.fileNo}</small>` : ''}`, this.dmy(l.prep) || '—', E(this.cut(l.body, 420))]), 'sm cd'));
+    const cc = r.cdc; H.push(`<h2>${n++}. पर्चा क्रमांक जाँच</h2><p>${cc.max ? `पर्चा 1 से ${cc.max}: ${cc.missing.length ? `<b class="r">अनुपलब्ध – ${cc.missing.join(', ')}</b>` : '<b class="gt">कोई अन्तर नहीं</b>'}${cc.dup.length ? ` · दो बार – ${cc.dup.join(', ')}` : ''}${cc.mismatch.length ? ` · फाइल नाम व अन्दर का क्रमांक भिन्न – ${cc.mismatch.map(l => E(l.x.file) + ' (अन्दर ' + l.no + ')').join('; ')}` : ''}${cc.bad.length ? ` · दिनांक जाँचें – पर्चा ${cc.bad.map(l => l.no + ' (' + this.dmy(l.prep) + ')').join(', ')}` : ''}` : '—'}</p>`);
+    H.push(`<h2>${n++}. धारा समीक्षा <small>(परामर्श मात्र – अंतिम निर्णय विवेचक / अभियोजन का)</small></h2>` + tbl(['धारा', 'विवरण', 'स्थिति', 'आधार'], r.secs.map(x => [`<b>${E(x.sec)}</b>`, E(x.hi), x.state === 'ok' ? '<span class="st g">एफआईआर में दर्ज</span>' : x.state === 'review' ? '<span class="st w">पुनः जाँचें</span>' : '<span class="st b">बढ़ाने पर विचार</span>', E(x.why)]), 'sm'));
+    const pend = [...nas.map(i => `${i.value} (${this.TH[i.type]}) – अभी माँगा नहीं गया – ${i.fromHi || i.from}`), ...ask.map(i => `${i.value} – पर्चा ${i.ask.cd} में माँगा, ${i.age} दिन से लंबित – ${i.fromHi || i.from}`), ...pA.map(a => `${a.hi} – पर्चा ${a.last.cd} से जवाब लंबित (${a.age} दिन)`)];
+    H.push(`<h2>${n++}. लंबित बिन्दु</h2>${pend.length ? '<ol>' + pend.map(x => `<li>${E(x)}</li>`).join('') + '</ol>' : '<p class="gt">कोई बिन्दु लंबित नहीं।</p>'}`);
+    if (cross.length) H.push(`<h2>${n++}. अन्य प्रकरणों से सम्बन्ध (कॉमन संदिग्ध)</h2>` + tbl(['प्रकार', 'पहचानकर्ता', 'अन्य प्रकरण'], cross.map(x => [E(x.type), `<b class="mo">${E(x.value)}</b>`, E(x.cases.join(', '))]), 'sm'));
+    H.push(`<h2>${n++}. आगामी कार्यवाही हेतु सुझाव</h2>${r.sugg.length ? '<ol>' + r.sugg.map(x => `<li>${E(x.hi)}</li>`).join('') + '</ol>' : '<p class="m">—</p>'}`);
+    H.push(`<div class="sg"><div>दिनांक: ${today}</div><div>(${E(c.io || r.io || 'विवेचक')})<br>विवेचक, थाना ${E(c.ps || 'साइबर क्राइम')}</div></div><div class="ft">यह आख्या SudarshanAshtra द्वारा इसी कम्प्यूटर पर पर्चों, एफआईआर व आरोप पत्र / अंतिम रिपोर्ट से तैयार की गई है – प्रस्तुत करने से पूर्व विवेचक द्वारा जाँच लें। धारा सुझाव केवल परामर्श हेतु।</div>`);
+    const full = `<!DOCTYPE html><html lang="hi"><head><meta charset="utf-8"><title>विस्तृत प्रकरण आख्या – ${E(f.no)}</title><style>
+      @page{size:A4;margin:11mm 10mm 12mm} *{box-sizing:border-box} body{margin:0;font:10.8px/1.5 "Nirmala UI","Mangal","Noto Sans Devanagari","Segoe UI",Arial,sans-serif;color:#111;background:#e5e7eb}
+      .pg{width:210mm;margin:10px auto;background:#fff;padding:11mm 10mm;box-shadow:0 2px 12px rgba(0,0,0,.2)}
+      .hd{text-align:center;border-bottom:3px double #1e3a8a;padding-bottom:5px;margin-bottom:7px}.hd .t{font-size:18px;font-weight:800;color:#1e3a8a}.hd .s{font-size:11.5px;color:#333}
+      table{width:100%;border-collapse:collapse;margin:4px 0} th,td{border:1px solid #9ca3af;padding:3px 5px;text-align:left;vertical-align:top} .k th{background:#eef2ff;width:15%;white-space:nowrap}
+      .t th{background:#1e3a8a;color:#fff;font-weight:700;font-size:10.5px} .t tr:nth-child(even) td{background:#f8fafc} .sm td{font-size:10px} .cd td:first-child,.cd td:nth-child(2){white-space:nowrap}
+      thead{display:table-header-group} tr{break-inside:avoid} h2{font-size:12.5px;margin:11px 0 3px;color:#fff;background:#1e3a8a;padding:3px 8px;border-radius:3px;break-after:avoid} h2 small{font-weight:400;opacity:.85}
+      p{margin:3px 0} .j{text-align:justify;border-left:3px solid #c7d2fe;padding-left:7px} ol{margin:3px 0 3px 18px;padding:0} li{margin:2px 0}
+      .kp{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;margin:7px 0}.kp div{border:1px solid #c7d2fe;border-radius:6px;text-align:center;padding:4px;font-size:10px;background:#f5f7ff}.kp b{display:block;font-size:17px;color:#1e3a8a}
+      .kp .g b{color:#047857}.kp .w b{color:#b45309}.kp .b b{color:#b91c1c}
+      .st{display:inline-block;padding:0 6px;border-radius:9px;font-weight:700;font-size:9.5px;white-space:nowrap}.st.g{background:#d1fae5;color:#065f46}.st.w{background:#fef3c7;color:#92400e}.st.b{background:#fee2e2;color:#991b1b}
+      .r{color:#b91c1c}.gt{color:#047857}.m{color:#666}.mo{font-family:Consolas,monospace;word-break:break-all}
+      .sg{display:flex;justify-content:space-between;margin-top:22px;font-weight:700;break-inside:avoid}.sg div:last-child{text-align:center}.ft{margin-top:8px;font-size:9px;color:#666;border-top:1px dashed #bbb;padding-top:3px}
+      .np{text-align:center;margin:8px}.np button{font-size:14px;padding:6px 16px}
+      *{-webkit-print-color-adjust:exact;print-color-adjust:exact} @media print{body{background:#fff}.pg{margin:0;box-shadow:none;width:auto;padding:0}.np{display:none}}</style></head><body><div class="np"><button onclick="print()">🖨 Print / Save As PDF (A4)</button></div><div class="pg">${H.join('\n')}</div></body></html>`;
+    if (mode === 'doc') { this.save(full.replace(/<div class="np">[\s\S]*?<\/div>/, '').replace('.pg{width:210mm;', '.pg{'), 'application/msword', 'Deep_Brief_Report.doc'); return; }
+    w.document.open(); w.document.write(full); w.document.close();
+  },
+
+  fname(ext) { const c = activeCase(); return ('FIR_' + (this.analyse().fir.no || c.name || 'case')).replace(/[^\w\-]+/g, '_') + '_' + ext; },
+  save(data, type, ext) { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['\ufeff', data], { type })); a.download = this.fname(ext); document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1500); UI.toast('Saved ' + a.download); },
+  excel() {
+    if (typeof XLSX === 'undefined') return UI.toast('Excel library not loaded');
+    const c = activeCase(), r = this.analyse(), f = r.fir, wb = XLSX.utils.book_new(), add = (n, rows) => { if (rows.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(rows), n); };
+    add('Case Summary', [['FIR No.', f.no], ['FIR Date', f.date], ['Sections', f.sections.join(', ') || c.section || ''], ['Complainant', f.complainant], ['Complainant Mobile', f.mobile], ['Incident', f.incident], ['Amount', f.amount || ''], ['IO', c.io || r.io], ['Status', c.final ? (c.final.type === 'PPI' ? 'CS-PPI' : c.final.type) + ' ' + (c.final.no || '') + ' ' + this.dmy(c.final.date || '') : 'Under Investigation'], ['CD Parts', r.L.length], ['Last CD', r.cdc.last ? r.cdc.last.no : ''], ['Missing CD', r.cdc.missing.join(', ')], ['Accused Charge-Sheeted', r.acc.cs.join(', ')]].map(([Field, Value]) => ({ Field, Value })));
+    add('FIR Items', r.items.map((i, k) => ({ 'S.No.': k + 1, Type: i.type, 'Named In FIR': i.value, Required: i.need, 'From Whom': i.from, Status: i.status, 'Pending Days': i.age || '', 'Account Holder (KYC)': i.kyc, IP: i.ip, 'CD': i.got ? i.got.cd : i.ask ? i.ask.cd : '', Detail: i.got ? i.got.s : i.ask ? i.ask.s : '' })));
+    add('Agencies', r.agencies.map(a => ({ 'Agency / Person': a.en, Status: a.status, 'Asked In CD': uniq(a.ask.map(e => e.cd)).join(', '), 'Received In CD': uniq(a.got.map(e => e.cd)).join(', '), 'Pending Days': a.age || '', 'Latest Entry': a.last ? a.last.s : '' })));
+    add('Case Diary', r.L.map(l => ({ 'CD No.': l.no, 'File Says CD': l.fileNo || '', Date: this.dmy(l.prep), 'Work Done': this.cut(l.body, 3000), File: l.x.file })));
+    add('Section Check', r.secs.map(x => ({ Section: x.sec, Meaning: x.hi, Check: x.state === 'ok' ? 'In FIR' : x.state === 'review' ? 'Review' : 'Consider Adding', Reason: x.why })));
+    add('Suggestions', r.sugg.map((x, k) => ({ 'S.No.': k + 1, Suggestion: x.en, 'सुझाव': x.hi })));
+    add('Statements', r.stm.map(x => ({ CD: x.cd, Statement: x.who, Text: this.cut(x.text, 3000) })));
+    XLSX.writeFile(wb, this.fname('Case_Analysis.xlsx')); UI.toast('Excel saved');
+  },
+  exportMenu(btn) {
+    const old = $('.cdx-menu'); if (old) { old.remove(); return; }
+    const m = document.createElement('div'); m.className = 'cdx-menu';
+    m.innerHTML = [['short', '🖨', 'Hindi Case Short Report', 'One A4 page for senior officers'], ['deep', '🖨', 'Hindi Case Deep Brief Report', 'Full brief – every identifier, agency, CD and section'], ['doc', '📝', 'Deep Brief As Word (DOC)', 'Open and edit in MS Word'], ['xls', '📊', 'Case Analysis Excel (XLSX)', 'FIR items, agencies, CD-wise work, sections, suggestions']]
+      .map(([k, i, t, d]) => `<button data-ex="${k}"><span class="ic">${i}</span><span><b>${t}</b><small>${d}</small></span></button>`).join('');
+    document.body.appendChild(m); const b = btn.getBoundingClientRect(); m.style.top = (b.bottom + 6) + 'px'; m.style.left = Math.max(8, Math.min(b.right - m.offsetWidth, innerWidth - m.offsetWidth - 8)) + 'px';
+    const close = e => { if (!m.contains(e.target) && e.target !== btn) { m.remove(); document.removeEventListener('mousedown', close); } }; setTimeout(() => document.addEventListener('mousedown', close));
+    $$('[data-ex]', m).forEach(x => x.onclick = () => { m.remove(); document.removeEventListener('mousedown', close); const k = x.dataset.ex; if (k === 'short') this.report(); else if (k === 'deep') this.deep(); else if (k === 'doc') this.deep('doc'); else this.excel(); });
   },
 
   /* ---------- import ---------- */
