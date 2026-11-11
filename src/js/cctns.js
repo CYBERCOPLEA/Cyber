@@ -129,13 +129,14 @@ const CCTNS = {
   async allCases() {
     const out = [];
     for (const c of S.cases) {
-      let d = c.id === S.caseId ? S.data : Object.assign(emptyCase(), await DB.get('case:' + c.id) || {});
+      const mk1 = async () => { let d = c.id === S.caseId ? S.data : Object.assign(emptyCase(), await DB.get('case:' + c.id) || {});
       let W = [];
       if (c.id === S.caseId) W = this.work(); else { const cur = S.data; S.data = d; Analysis.invalidate(); try { W = this.work(d, c); } catch (e) { } finally { S.data = cur; Analysis.invalidate(); } }
       const cc = d.cctns || {}, pend = W.filter(w => w.status === 'Pending');
-      out.push({ id: c.id, name: c.name, fir: c.fir || '', ps: c.ps || '', io: c.io || '', section: c.section || '', status: c.status || 'Pending', complaints: (d.ncrp || []).length, txns: (d.txns || []).length,
+      return ({ id: c.id, name: c.name, fir: c.fir || '', ps: c.ps || '', io: c.io || '', section: c.section || '', status: c.status || 'Pending', complaints: (d.ncrp || []).length, txns: (d.txns || []).length,
         amount: sum(d.ncrp || [], r => +r.amount || 0), cd: (cc.cd || []).length, lastCd: CDX.lastDate(cc.cd), cdLast: CDX.lastNo(cc.cd), cdGap: CDX.gaps(cc.cd), firUp: cc.fir ? 'Yes' : 'No',
-        done: W.filter(w => w.status === 'Done').length, pending: pend.length, pendList: pend.map(w => w.title).join('; '), notices: (cc.notices || []).length, cur: c.id === S.caseId, fin: (c.final || {}).type || '', finNo: (c.final || {}).no || '', finDate: (c.final || {}).date || '', finInfo: c.final ? this.finTxt(c.final) : '', docs: (cc.files || []).length });
+        done: W.filter(w => w.status === 'Done').length, pending: pend.length, pendList: pend.map(w => w.title).join('; '), notices: (cc.notices || []).length, cur: c.id === S.caseId, fin: (c.final || {}).type || '', finNo: (c.final || {}).no || '', finDate: (c.final || {}).date || '', finInfo: c.final ? this.finTxt(c.final) : '', docs: (cc.files || []).length }); };
+      out.push(c.id === S.caseId ? await mk1() : await Vault.sum(c.id, 'cc', 'v1|' + JSON.stringify(c) + '|' + today(), mk1));
       await new Promise(r => setTimeout(r, 0));
     }
     return out;

@@ -49,13 +49,14 @@ const Dash2 = {
       for (let n = 0; n < list.length; n++) {
         const c = list[n]; if (this.X.has(c.id)) continue;
         onProgress && onProgress(n + 1, list.length, c.name);
+        const M = await Vault.sum(c.id, 'dx', 'v1', async () => { const M = new Map();
         let raw = null; try { raw = await DB.get('case:' + c.id); } catch (e) { }
-        const M = new Map();
         if (raw && S.data) {
           const cur = S.data; S.data = Object.assign(emptyCase(), raw); Analysis.invalidate();
           try { for (const i of Analysis.idents()) { const k = this.nk(i.type, i.value); if (!k) continue; const key = i.type + '|' + k; let e = M.get(key); if (!e) M.set(key, e = { secs: new Set(), refs: [] }); e.secs.add(this.sec(i.section)); if (e.refs.length < 4 && !e.refs.includes(i.ref)) e.refs.push(i.ref || i.section); } } catch (e) { }
           finally { S.data = cur; Analysis.invalidate(); }
         }
+        return M; });
         this.X.set(c.id, M);
         await new Promise(r => setTimeout(r, 0));
       }

@@ -30,7 +30,7 @@ const AllDash = {
     while (this.busy) { try { await this.busy; } catch (e) { } }
     const pr = (async () => {
       this.C.delete(S.caseId); const out = [], L = AllMode.on() ? AllMode.list() : S.cases;
-      for (let n = 0; n < L.length; n++) { const c = L[n]; let o = this.C.get(c.id); if (!o) { onP && onP(n + 1, L.length, c.name); o = await this.one(c); this.C.set(c.id, o); await new Promise(r => setTimeout(r, 0)); }
+      for (let n = 0; n < L.length; n++) { const c = L[n]; let o = this.C.get(c.id); if (!o) { onP && onP(n + 1, L.length, c.name); o = c.id === S.caseId ? await this.one(c) : await Vault.sum(c.id, 'ad', 'v1|' + JSON.stringify(c) + '|' + today(), () => this.one(c)); this.C.set(c.id, o); await new Promise(r => setTimeout(r, 0)); }
         Object.assign(o, { cat: AllMode.cat(c), name: c.name || '', fir: c.fir || '', ps: c.ps || '', io: c.io || '', fin: this.fin(c), finNo: (c.final || {}).no || '', status: c.status || '', pend: this.pend(c) }); out.push(o); }
       for (const id of [...this.C.keys()]) if (!S.cases.some(c => c.id === id)) this.C.delete(id);
       return out;

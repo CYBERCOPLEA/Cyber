@@ -234,7 +234,7 @@ const Off = {
   },
   async rescan(quiet) {
     const R = await this.get('crime', []); const keep = R.filter(r => !r.auto); let n = 0; const all = [];
-    for (const c of S.cases) { const d = c.id === S.caseId ? S.data : await DB.get('case:' + c.id); if (!d) continue; const h = this.harvest(d, c); n += h.length; all.push(...h); }
+    for (const c of S.cases) { const h = c.id === S.caseId ? this.harvest(S.data, c) : await Vault.sum(c.id, 'ofx', 'v1|' + JSON.stringify(c), async () => { const d = await DB.get('case:' + c.id); return d ? this.harvest(d, c) : []; }); n += h.length; all.push(...h); }
     const t = new Date().toISOString(); all.forEach(r => { r.id = 'a' + uid(); r.added = t; });
     this.D.crime = keep.concat(all); await this.put('crime'); if (!quiet) UI.toast(`${n} identifiers taken from ${S.cases.length} case(s)`); return n;
   },

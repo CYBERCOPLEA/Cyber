@@ -14,9 +14,10 @@ const CX = {
     this.busy = (async () => {
       try { if (typeof Dash2 !== 'undefined' && Dash2.others) await Dash2.others(); } catch (e) { }
       for (const c of todo) {
+        const s = new Set(await Vault.sum(c.id, 'cxt', 'v1', async () => { const s = new Set();
         let raw = null; try { raw = await DB.get('case:' + c.id); } catch (e) { }
-        const s = new Set();
         if (raw) for (const r of raw.tel || []) for (const v of [r.target, r.other, r.imei, r.imsi, r.mac, r.xip, r.cell]) if (v) s.add(String(v));
+        return s; }));
         try { const X = Dash2.X.get(c.id); if (X) for (const k of X.keys()) s.add(k.slice(k.indexOf('|') + 1)); } catch (e) { }
         this.M.set(c.id, s); await new Promise(r => setTimeout(r, 0));
       }
