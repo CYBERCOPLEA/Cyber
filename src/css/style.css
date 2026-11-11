@@ -1858,3 +1858,16 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
 .hp-pill{gap:10px}
 #statusbar .sb-safe{display:inline-flex;align-items:center;gap:6px}
 .ti-safe{display:inline-flex;align-items:center;gap:5px;color:#34d399}
+
+/* Without / With Nodal A/C */
+.nd-bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:10px}
+.nd-l{font-weight:700;color:var(--text-secondary);font-size:12.5px}
+.nd-b{cursor:pointer;border-radius:999px;padding:6px 13px;font-weight:700;font-size:12.5px;border:1px solid var(--border);background:var(--surface-3);color:var(--text-primary)}
+.nd-b b{margin-left:4px;padding:0 7px;border-radius:999px;background:rgba(255,255,255,.12)}
+.nd-b.wo{border-color:rgba(239,68,68,.5)} .nd-b.wi{border-color:rgba(234,179,8,.5)}
+.nd-b.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.nd-b.wo.on{background:#dc2626;border-color:#dc2626} .nd-b.wi.on{background:#ca8a04;border-color:#ca8a04}
+.nd-h{flex-basis:100%}
+.nd-tag{display:inline-block;padding:2px 8px;border-radius:7px;font-size:11.5px;font-weight:700;white-space:nowrap}
+.nd-tag.wo{background:rgba(239,68,68,.14);color:#f87171;border:1px solid rgba(239,68,68,.4)}
+.nd-tag.wi{background:rgba(234,179,8,.14);color:#facc15;border:1px solid rgba(234,179,8,.4)}

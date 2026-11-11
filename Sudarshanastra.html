@@ -1867,6 +1867,19 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
 #statusbar .sb-safe{display:inline-flex;align-items:center;gap:6px}
 .ti-safe{display:inline-flex;align-items:center;gap:5px;color:#34d399}
 
+/* Without / With Nodal A/C */
+.nd-bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:10px}
+.nd-l{font-weight:700;color:var(--text-secondary);font-size:12.5px}
+.nd-b{cursor:pointer;border-radius:999px;padding:6px 13px;font-weight:700;font-size:12.5px;border:1px solid var(--border);background:var(--surface-3);color:var(--text-primary)}
+.nd-b b{margin-left:4px;padding:0 7px;border-radius:999px;background:rgba(255,255,255,.12)}
+.nd-b.wo{border-color:rgba(239,68,68,.5)} .nd-b.wi{border-color:rgba(234,179,8,.5)}
+.nd-b.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.nd-b.wo.on{background:#dc2626;border-color:#dc2626} .nd-b.wi.on{background:#ca8a04;border-color:#ca8a04}
+.nd-h{flex-basis:100%}
+.nd-tag{display:inline-block;padding:2px 8px;border-radius:7px;font-size:11.5px;font-weight:700;white-space:nowrap}
+.nd-tag.wo{background:rgba(239,68,68,.14);color:#f87171;border:1px solid rgba(239,68,68,.4)}
+.nd-tag.wi{background:rgba(234,179,8,.14);color:#facc15;border:1px solid rgba(234,179,8,.4)}
+
 </style>
 </head>
 <body>
@@ -1914,7 +1927,7 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
         <div class="hp-feat" style="--fc:#06b6d4"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><div><b>Analytics</b><p>The same mobile, account, IP or e-mail across complaints, banks and platforms.</p></div></div>
         <div class="hp-feat" style="--fc:#eab308"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h5"/></svg></span><div><b>Case File &amp; Notices</b><p>Case reports, notices to banks and platforms, and CSV / PDF exports.</p></div></div>
     </section>
-    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-11 10:12 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
+    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-11 13:15 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
   </div>
 
   <div class="lg-wrap" id="lgWrap" aria-hidden="true">
@@ -3763,7 +3776,7 @@ function accountTable(el, rows, o = {}) {
     rows, pageSize: o.pageSize || 100, exportName: 'accounts', sortKey: o.sortKey || 'score', sortDir: -1,
     columns: [
       { key: 'label', label: 'Account / ID', render: r => accLink(r.acc) },
-      { key: 'name', label: 'Name' }, { key: 'bank', label: 'Bank' }, { key: 'ifsc', label: 'IFSC' },
+      { key: 'name', label: 'Name' }, Nodal.col(), { key: 'bank', label: 'Bank' }, { key: 'ifsc', label: 'IFSC' },
       { key: 'layer', label: 'Layer', num: true },
       { key: 'inAmt', label: 'Received', num: true, fmt: fmtINR }, { key: 'outAmt', label: 'Sent out', num: true, fmt: fmtINR },
       { key: 'senders', label: 'Senders', num: true }, { key: 'acks', label: 'Complaints', num: true },
@@ -5649,6 +5662,39 @@ NcrpTabs.summary = el => {
   else hb('#s6', by(tx, t => String(t.action || '').trim() || null, () => 1), v => fmtNum(v) + ' rows');
   if (S.data.ncrp.length) { const nc = S.data.ncrp.filter(n => list.some(c => c.ack === n.ack_no)); hb('#s7', by(nc, n => n.category, () => 1), v => v + ' complaints'); hb('#s8', by(nc, n => n.district, n => n.amount || 0)); }
 };
+
+</script>
+<script>
+/* nodal.js – Bank Account without Nodal A/C (own / mule accounts) vs Bank Account with Nodal A/C
+   (nodal / escrow / pool accounts of payment gateways, wallets, aggregators). Read from account name,
+   bank action and remarks in the trail and KYC. Everything stays on this computer. */
+'use strict';
+const Nodal = {
+  map() {
+    return Analysis.cached('nodal', () => {
+      const T = new Map(), M = new Map();
+      const add = (a, ...x) => { if (!a) return; const s = T.get(a) || ''; if (s.length < 4000) T.set(a, s + ' ' + x.filter(Boolean).join(' ')); };
+      for (const t of S.data.txns || []) add(t.to_acc, t.to_name, t.action, t.remarks, t.narration);
+      for (const k of S.data.kyc || []) add(k.acc, k.name, k.acc_type, k.type, k.remarks);
+      for (const [a, s] of T) { const u = s.toUpperCase(); for (const [t, rx] of ACC_TYPES.slice(0, 3)) if (rx.test(u)) { M.set(a, t); break; } }
+      return M;
+    });
+  },
+  of(acc) { try { return this.map().get(acc) || ''; } catch (e) { return ''; } },
+  badge(acc) { const t = this.of(acc); return t ? `<span class="nd-tag wi" title="Nodal / pool account – ask for the next beneficiary, not the fraudster's own account">🏛️ With Nodal · ${esc(t)}</span>` : `<span class="nd-tag wo" title="Own / mule account – freeze and act first">🎯 Without Nodal</span>`; },
+  text(acc) { const t = this.of(acc); return t ? 'With Nodal A/C (' + t + ')' : 'Without Nodal A/C'; },
+  col() { return { key: 'ntype', label: 'A/C Type', render: r => this.badge(r.acc), csv: r => this.text(r.acc), sortVal: r => this.of(r.acc) ? 1 : 0 }; }
+};
+/* every account list gets the choice: All / Without Nodal / With Nodal */
+{ const _at = accountTable;
+  accountTable = function (el, rows, o = {}) {
+    const wo = rows.filter(r => !Nodal.of(r.acc)), wi = rows.filter(r => Nodal.of(r.acc)), f = S.nodalF || 'all';
+    el.innerHTML = `<div class="nd-bar"><span class="nd-l">Show</span>${[['all', 'All Bank Accounts', rows.length], ['wo', '🎯 Bank A/C Without Nodal A/C', wo.length], ['wi', '🏛️ Bank A/C With Nodal A/C', wi.length]].map(([k, l, n]) => `<button class="nd-b no-tc ${k} ${k === f ? 'on' : ''}" data-nd="${k}">${l} <b>${fmtNum(n)}</b></button>`).join('')}
+      <div class="small muted nd-h"><b>Without Nodal</b> = own / mule account – freeze and act first. <b>With Nodal</b> = nodal / escrow / payment-gateway / wallet pool account – ask it for the next beneficiary.</div></div><div class="nd-t"></div>`;
+    $$('[data-nd]', el).forEach(b => b.onclick = () => { S.nodalF = b.dataset.nd; accountTable(el, rows, o); });
+    _at($('.nd-t', el), f === 'wo' ? wo : f === 'wi' ? wi : rows, o);
+  };
+}
 
 </script>
 <script>
@@ -12275,7 +12321,7 @@ const DashX = {
     const d = S.data, acc = Analysis.accountRows().filter(a => !isSynthetic(a.acc)), comps = Trail.complaints();
     const A = { key: 'label', label: 'Account', render: r => accLink(r.acc), csv: r => r.acc };
     const INR = (key, label) => ({ key, label, num: true, render: r => r[key] ? fmtINR(r[key]) : '', csv: r => r[key] || 0 });
-    const accCols = [A, { key: 'name', label: 'Holder' }, { key: 'bank', label: 'Bank' }, { key: 'layer', label: 'Layer', num: true }, INR('inAmt', 'Received'), INR('outAmt', 'Sent'), INR('hold', 'On hold'), { key: 'score', label: 'Risk', num: true, render: r => riskBadge(r.score) }, { key: 'acks', label: 'Complaints', num: true }];
+    const accCols = [A, { key: 'name', label: 'Holder' }, Nodal.col(), { key: 'bank', label: 'Bank' }, { key: 'layer', label: 'Layer', num: true }, INR('inAmt', 'Received'), INR('outAmt', 'Sent'), INR('hold', 'On hold'), { key: 'score', label: 'Risk', num: true, render: r => riskBadge(r.score) }, { key: 'acks', label: 'Complaints', num: true }];
     const accPv = r => [accLabel(r.acc) + (r.name ? ' · ' + r.name.split(' / ')[0] : ''), fmtINR(r.inAmt)];
     const cmpCols = [{ key: 'ack', label: 'Ack No', render: r => `<b class="mono">${esc(r.ack)}</b>` }, { key: 'victim', label: 'Victim' }, { key: 'district', label: 'District' }, { key: 'date', label: 'Date' }, INR('amount', 'Amount'), { key: 'layers', label: 'Layers', num: true }, { key: 'accounts', label: 'Accounts', num: true }, INR('hold', 'On hold')];
     const cmp = { title: 'Complaints (Ack Nos)', rows: () => comps, cols: cmpCols, sort: 'amount', pv: r => [r.ack + (r.victim ? ' · ' + r.victim : ''), fmtINR(r.amount)], onRow: r => { UI.closeDrawer(); S.trailAck = r.ack; go('trail'); }, page: ['trail'], total: r => r.amount };

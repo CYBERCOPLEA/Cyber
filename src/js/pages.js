@@ -81,7 +81,7 @@ function accountTable(el, rows, o = {}) {
     rows, pageSize: o.pageSize || 100, exportName: 'accounts', sortKey: o.sortKey || 'score', sortDir: -1,
     columns: [
       { key: 'label', label: 'Account / ID', render: r => accLink(r.acc) },
-      { key: 'name', label: 'Name' }, { key: 'bank', label: 'Bank' }, { key: 'ifsc', label: 'IFSC' },
+      { key: 'name', label: 'Name' }, Nodal.col(), { key: 'bank', label: 'Bank' }, { key: 'ifsc', label: 'IFSC' },
       { key: 'layer', label: 'Layer', num: true },
       { key: 'inAmt', label: 'Received', num: true, fmt: fmtINR }, { key: 'outAmt', label: 'Sent out', num: true, fmt: fmtINR },
       { key: 'senders', label: 'Senders', num: true }, { key: 'acks', label: 'Complaints', num: true },
