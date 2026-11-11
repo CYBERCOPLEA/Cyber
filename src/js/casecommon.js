@@ -82,7 +82,7 @@ const CaseCommon = {
     Table($('.cc-tbl', el), { rows: R, exportName: 'common_case_number_' + scope, sortKey: 'n', sortDir: -1, pageSize: 25,
       columns: [{ key: 'value', label: 'Value', render: r => `<b class="mono">${esc(r.value)}</b>` }, { key: 'label', label: 'Type', render: r => `<span class="cc-type">${esc(r.label)}</span>` }, { key: 'n', label: 'Complaints', num: true },
         { key: 'ackList', label: 'Complaint numbers (Ack No)', render: r => `<span class="cc-acks">${r.acks.slice(0, 12).map(a => `<code>${esc(a)}</code>`).join('')}${r.acks.length > 12 ? `<span class="muted small">+${r.acks.length - 12} more</span>` : ''}</span>` }, { key: 'loss', label: 'Reported loss', num: true, render: r => r.loss ? fmtINR(r.loss) : '' },
-        { key: 'districts', label: 'Districts', render: r => `<span class="small">${esc(r.districts)}</span>` }, { key: 'srcs', label: 'Found in', render: r => `<span class="small muted">${esc(r.srcs)}</span>` }],
+        { key: 'districts', label: 'Districts', render: r => `<span class="small">${esc(r.districts)}</span>` }, { key: 'srcs', label: 'Found in', render: r => CX.chips(String(r.srcs).split(/,\s*/).filter(Boolean).map(x => [x, 0, '#f97316'])) }, CX.col(r => r.value)],
       onRow: r => this.detail(r) });
   },
   detail(r) {

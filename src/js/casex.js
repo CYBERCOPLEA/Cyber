@@ -34,5 +34,17 @@ const CX = {
   fill() { $$('[data-cxv]').forEach(e => e.innerHTML = this.inner(e.dataset.cxv.split('|'))); },
   col(get) { return { key: 'casen', label: 'Case Number', sortVal: x => this.other(this.vals(get(x))).length, csv: x => [this.lbl(activeCase()), ...this.other(this.vals(get(x))).map(c => this.lbl(c))].join('; '), render: x => this.cell(get(x)) }; }
 };
+/* "Found in" chips with counts, the same look everywhere */
+CX.SC = { Financial: '#10b981', NCRP: '#f97316', 'Social Media': '#ec4899', Telecom: '#06b6d4', CAF: '#84cc16', Others: '#94a3b8' };
+CX.chips = function (L) { return `<span class="d2-srcs">${L.map(([nm, n, c, ico, tip]) => `<span class="d2-sec" style="--sc:${c || '#94a3b8'}"${tip ? ` title="${esc(tip)}"` : ''}>${ico ? ico + ' ' : ''}${esc(nm)}${n > 0 ? ` <b>×${n}</b>` : ''}</span>`).join('')}</span>`; };
+/* records of one value grouped by a label (kind, file …) */
+CX.kchips = function (recs, kf, c) { return this.chips([...groupBy(recs || [], kf)].filter(([k]) => k).sort((a, b) => b[1].length - a[1].length).map(([k, v]) => [k, v.length, c])); };
+CX.ktext = function (recs, kf) { return [...groupBy(recs || [], kf)].filter(([k]) => k).map(([k, v]) => k + ' ×' + v.length).join(', '); };
+/* identifier-index items → exact sources (Money Trail, Google (Gmail), CDR, CAF …) */
+CX.isrc = function (items) { const M = new Map(); for (const i of items || []) { const [sec, ico, nm] = Dash2.src(i); let e = M.get(nm); if (!e) M.set(nm, e = { sec, ico, nm, refs: new Set() }); e.refs.add(i.ref || i.section); } return [...M.values()].sort((a, b) => b.refs.size - a.refs.size); };
+CX.ichips = function (items) { return this.chips(this.isrc(items).map(e => [e.nm, e.refs.size, this.SC[e.sec], e.ico, [...e.refs].slice(0, 8).join('\n')])); };
+CX.itext = function (items) { return this.isrc(items).map(e => e.nm + ' ×' + e.refs.size).join(', '); };
+/* "Also in case" text list → chips */
+CX.also = function (s) { return s ? this.chips(String(s).split(/,\s*/).filter(Boolean).map(x => ['⚑ ' + x, 0, '#eab308'])) : ''; };
 /* when the case changes, the index of "other cases" is refreshed */
 { const _sw = switchCase; switchCase = async function (id) { const prev = S.caseId; const r = await _sw.apply(this, arguments); CX.M.delete(prev); CX.M.delete(S.caseId); CX.ready = false; return r; }; }
