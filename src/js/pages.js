@@ -668,7 +668,8 @@ const OthTabs = {
 Pages.settings = main => {
   main.innerHTML = `<div class="page-title"><h2>Settings</h2></div>
     <div class="grid g2"><div class="card"><h3>Change login ID / password</h3>
-      <div class="note warn">The login is a <b>convenience lock</b> to keep casual users out. Data is stored unencrypted in this browser's storage on this computer, so anyone with access to your Windows account and some technical skill could read it. Use a password-protected Windows account, lock the screen when away, and keep backups safe.</div>
+      ${Vault.on() ? `<div class="note">🔒 <b>Case data is locked with your password</b> (AES-256) in this browser's storage. It opens only after login, or with your recovery key. Files you save outside – exports, Case One File folder, backups – are normal files, so keep that folder safe and lock the screen when away.</div>`
+        : `<div class="note warn">Case data is <b>not locked yet</b>: it is stored unencrypted in this browser's storage, so anyone with access to your Windows account and some technical skill could read it. Use "🔒 Lock Case Data With Password" below, lock the screen when away, and keep backups safe.</div>`}
       <div class="map-grid"><div class="f"><label>Current password</label><input type="password" id="sCur"></div><div class="f"><label>New login ID</label><input id="sUser" value="${esc(S.settings.user)}"></div>
       <div class="f"><label>New password (min 6)</label><input type="password" id="sP1"></div><div class="f"><label>Repeat new password</label><input type="password" id="sP2"></div></div>
       <div class="row" style="margin-top:10px"><button class="btn primary" id="sSave">Save</button><span class="err" id="sErr"></span></div></div>

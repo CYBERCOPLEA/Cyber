@@ -2089,7 +2089,7 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
         <div class="hp-feat" style="--fc:#06b6d4"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><div><b>Analytics</b><p>The same mobile, account, IP or e-mail across complaints, banks and platforms.</p></div></div>
         <div class="hp-feat" style="--fc:#eab308"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h5"/></svg></span><div><b>Case File &amp; Notices</b><p>Case reports, notices to banks and platforms, and CSV / PDF exports.</p></div></div>
     </section>
-    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-11 18:26 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
+    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-11 19:00 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
   </div>
 
   <div class="lg-wrap" id="lgWrap" aria-hidden="true">
@@ -4704,7 +4704,8 @@ const OthTabs = {
 Pages.settings = main => {
   main.innerHTML = `<div class="page-title"><h2>Settings</h2></div>
     <div class="grid g2"><div class="card"><h3>Change login ID / password</h3>
-      <div class="note warn">The login is a <b>convenience lock</b> to keep casual users out. Data is stored unencrypted in this browser's storage on this computer, so anyone with access to your Windows account and some technical skill could read it. Use a password-protected Windows account, lock the screen when away, and keep backups safe.</div>
+      ${Vault.on() ? `<div class="note">🔒 <b>Case data is locked with your password</b> (AES-256) in this browser's storage. It opens only after login, or with your recovery key. Files you save outside – exports, Case One File folder, backups – are normal files, so keep that folder safe and lock the screen when away.</div>`
+        : `<div class="note warn">Case data is <b>not locked yet</b>: it is stored unencrypted in this browser's storage, so anyone with access to your Windows account and some technical skill could read it. Use "🔒 Lock Case Data With Password" below, lock the screen when away, and keep backups safe.</div>`}
       <div class="map-grid"><div class="f"><label>Current password</label><input type="password" id="sCur"></div><div class="f"><label>New login ID</label><input id="sUser" value="${esc(S.settings.user)}"></div>
       <div class="f"><label>New password (min 6)</label><input type="password" id="sP1"></div><div class="f"><label>Repeat new password</label><input type="password" id="sP2"></div></div>
       <div class="row" style="margin-top:10px"><button class="btn primary" id="sSave">Save</button><span class="err" id="sErr"></span></div></div>
