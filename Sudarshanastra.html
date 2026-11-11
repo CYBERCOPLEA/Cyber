@@ -1837,6 +1837,15 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
 .cx-cn.oth{background:rgba(239,68,68,.15);border-color:rgba(239,68,68,.5);color:#ef4444}
 .cx-cn.wait{opacity:.6;font-weight:400}
 
+/* tables with Case Number: no overlap */
+.tbl td .mono.small,.tbl td .small .mono{white-space:normal}
+.cx-fl{display:flex;flex-wrap:wrap;gap:2px 10px;min-width:190px;max-width:290px;font-size:12px}
+.cx-fl>.mono{white-space:nowrap}
+.tbl td:has(> .cx-cs){min-width:130px}
+.cx-cs{max-width:220px}
+.tbl:has(.cx-cs) td>.small{display:inline-block;min-width:110px}
+.tbl:has(.cx-cs) td:last-child,.tbl:has(.cx-cs) td:nth-last-child(2){min-width:108px;overflow-wrap:normal}
+
 </style>
 </head>
 <body>
@@ -1884,7 +1893,7 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
         <div class="hp-feat" style="--fc:#06b6d4"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><div><b>Analytics</b><p>The same mobile, account, IP or e-mail across complaints, banks and platforms.</p></div></div>
         <div class="hp-feat" style="--fc:#eab308"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h5"/></svg></span><div><b>Case File &amp; Notices</b><p>Case reports, notices to banks and platforms, and CSV / PDF exports.</p></div></div>
     </section>
-    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-11 09:28 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
+    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-11 09:32 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
   </div>
 
   <div class="lg-wrap" id="lgWrap" aria-hidden="true">
@@ -11343,7 +11352,7 @@ TelUI.cdr_com = function (el, d) {
   const X = [...groupBy(d.filter(r => r.other && T.has(r.other) && r.other !== r.target), r => [r.target, r.other].sort().join(' ↔ '))].map(([k, v]) => ({ k, n: v.length, calls: v.filter(r => r.dir === 'IN' || r.dir === 'OUT').length, sms: v.filter(r => /^SMS/.test(r.dir)).length, dur: sum(v, r => r.dur || 0), first: v.reduce((a, r) => !a || r.ts < a ? r.ts : a, ''), last: v.reduce((a, r) => r.ts > a ? r.ts : a, ''), recs: v })).sort((a, b) => b.n - a.n);
   el.insertAdjacentHTML('afterbegin', `<div class="card"><h3>CDR ↔ CDR – targets calling each other</h3><div class="sub">${T.size < 2 ? 'Load CDRs of two or more numbers to see direct contact between them.' : X.length ? 'Direct calls / SMS between the numbers whose CDRs are loaded.' : 'No direct contact between the loaded targets.'}</div><div id="cxX"></div></div>`);
   this.cdrCommon(el, d);
-  if (X.length) Table($('#cxX', el), { rows: X, sortKey: 'n', sortDir: -1, exportName: 'cdr_to_cdr', onRow: x => this.recDrawer(x.k, x.recs), columns: [{ key: 'k', label: 'Targets', render: x => `<b class="mono">${esc(x.k)}</b>` }, { key: 'n', label: 'Records', num: true }, { key: 'calls', label: 'Calls', num: true }, { key: 'sms', label: 'SMS', num: true }, { key: 'dur', label: 'Talk', num: true, render: x => Tel.hms(x.dur) }, { key: 'first', label: 'First', render: x => esc(Tel.dd(x.first)) }, { key: 'last', label: 'Last', render: x => esc(Tel.dd(x.last)) }] });
+  if (X.length) Table($('#cxX', el), { rows: X, sortKey: 'n', sortDir: -1, exportName: 'cdr_to_cdr', onRow: x => this.recDrawer(x.k, x.recs), columns: [{ key: 'k', label: 'Targets', render: x => `<b class="mono">${esc(x.k)}</b>` }, CX.col(x => x.k.split(' ↔ ')), { key: 'n', label: 'Records', num: true }, { key: 'calls', label: 'Calls', num: true }, { key: 'sms', label: 'SMS', num: true }, { key: 'dur', label: 'Talk', num: true, render: x => Tel.hms(x.dur) }, { key: 'first', label: 'First', render: x => esc(Tel.dd(x.first)) }, { key: 'last', label: 'Last', render: x => esc(Tel.dd(x.last)) }] });
 };
 
 /* watchlist: suspect numbers, IMEIs, IMSIs or cell IDs – saved with the case */
@@ -11413,7 +11422,7 @@ TelUI.cdrCommon = function (el, d) {
     { key: 'v', label: 'Common item', render: x => `<b class="mono">${esc(x.v)}</b>${x.type === 'b' || x.type === 'tgt' ? ' ' + Tel.alsoB('mobile', x.v) : x.type === 'imei' ? ' ' + Tel.alsoB('imei', x.v) : ''}${x.type === 'll' ? CDRX.map(...x.v.split(', ')) : ''}` },
     { key: 'info', label: 'Details', render: x => `<span class="small">${esc(x.info)}</span>` },
     { key: 'cN', label: 'CDRs', num: true, render: x => `<span class="badge ${x.cN > 2 ? 'bad' : 'warn'}">${x.cN}</span>` },
-    { key: 'cdrs', label: 'Found in CDR of (records)', sortVal: x => x.cN, csv: x => x.cdrs.map(t => t + ' (' + x.by.get(t) + ')').join('; '), render: x => `<span class="mono small">${x.cdrs.slice(0, 8).map(t => `${esc(t)} <span class="muted">(${x.by.get(t)})</span>`).join(', ')}${x.cdrs.length > 8 ? ' …' : ''}</span>` },
+    { key: 'cdrs', label: 'Found in CDR of (records)', sortVal: x => x.cN, csv: x => x.cdrs.map(t => t + ' (' + x.by.get(t) + ')').join('; '), render: x => `<span class="cx-fl">${x.cdrs.slice(0, 8).map(t => `<span class="mono">${esc(t)} <span class="muted">(${x.by.get(t)})</span></span>`).join('')}${x.cdrs.length > 8 ? `<span class="muted">+${x.cdrs.length - 8} more</span>` : ''}</span>` },
     CX.col(x => x.v), { key: 'n', label: 'Records', num: true }, { key: 'first', label: 'First', render: x => esc(Tel.dd(x.first)) }, { key: 'last', label: 'Last', render: x => esc(Tel.dd(x.last)) }] });
 };
 
