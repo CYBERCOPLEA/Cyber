@@ -84,7 +84,7 @@ SOP.listView = function (body, cur) {
   const C = SOP.cat(cur), q = (S.sopQ || '').toLowerCase();
   const rows = SOP.list.filter(x => (!C || x.cat === cur) && (!q || [x.title, x.name, x.ref, x.note].join(' ').toLowerCase().includes(q)))
     .sort((a, b) => (b.date || b.added).localeCompare(a.date || a.added));
-  const head = C ? `<div class="card sop-head" style="--sc:${C[2]}"><div><h3>${esc(C[1])}</h3><div class="sub">${esc(C[3])}</div></div><button class="btn" id="sopAddHere">⬆ Upload to ${esc(C[1])}</button></div>`
+  const head = C ? `<div class="card sop-head" style="--sc:${C[2]}"><div><h3>${esc(C[1])}</h3><div class="sub">${esc(C[3])}</div></div></div>`
     : `<div class="sop-cats">${SOP.CATS.map(c => `<div class="sop-cat" data-c="${c[0]}" style="--sc:${c[2]}"><b>${esc(c[1])}</b><span>${esc(c[3])}</span><i>${SOP.list.filter(x => x.cat === c[0]).length} files</i></div>`).join('')}</div>`;
   const item = x => { const c = SOP.cat(x.cat) || ['', '', '#64748b']; return `<div class="sop-item" style="--sc:${c[2]}"><span class="sop-kind">${esc(SOP.kind(x.name))}</span>
     <div class="sop-txt"><b>${esc(x.title)}</b><div class="muted small">${C ? '' : `<span class="sop-tag">${esc(c[1])}</span> `}${x.ref ? 'Ref ' + esc(x.ref) + ' · ' : ''}${x.date ? 'Dated ' + esc(x.date.split('-').reverse().join('-')) + ' · ' : ''}${esc(x.name)} · ${SOP.size(x.size)} · added ${esc(x.added.slice(0, 10).split('-').reverse().join('-'))}</div>${x.note ? `<div class="small">${esc(x.note)}</div>` : ''}</div>

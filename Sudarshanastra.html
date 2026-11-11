@@ -1990,6 +1990,19 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
 .cdx-fm{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px}.cdx-menu .cdx-fm button{width:auto;display:inline-block;padding:4px 11px;border:1px solid rgba(124,58,237,.6);border-radius:999px;background:rgba(124,58,237,.15);font-weight:700;font-size:12.5px}
 .cdx-menu .cdx-fm button:hover{background:#7c3aed;color:#fff}
 
+/* one Import / Upload window */
+#modal:has(.hub) .box{width:min(1080px,96vw);max-width:96vw}
+.hub .ti-seg.hub-seg{grid-template-columns:repeat(3,1fr)}@media(max-width:800px){.hub .ti-seg.hub-seg{grid-template-columns:1fr}}
+.hub .ti-seg button.on{border-color:var(--accent,#6366f1);box-shadow:0 0 0 3px rgba(99,102,241,.2)}
+.hub-old{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;margin-top:10px}.hub-old .ti-sel{flex:1 1 320px}
+.hub-cd{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:13px}
+.hub-f{margin-top:10px}
+.hub-drop{padding:18px}
+.hub-sum{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:6px}.hub-sum .btn{margin-left:auto}
+.hub-tb{max-height:300px;overflow:auto;border:1px solid var(--border,rgba(255,255,255,.1));border-radius:8px}.hub-tb select{max-width:300px}
+.hub-log{margin-top:8px;min-height:1.3em}.hub-safe{margin-top:6px;color:#a7f3d0;display:flex;gap:6px;align-items:center}.hub-safe b{color:#34d399}
+.btn.hub-top{background:linear-gradient(135deg,#16a34a,#0ea5e9);color:#fff;border-color:transparent;font-weight:800}
+
 </style>
 </head>
 <body>
@@ -2037,7 +2050,7 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
         <div class="hp-feat" style="--fc:#06b6d4"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><div><b>Analytics</b><p>The same mobile, account, IP or e-mail across complaints, banks and platforms.</p></div></div>
         <div class="hp-feat" style="--fc:#eab308"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h5"/></svg></span><div><b>Case File &amp; Notices</b><p>Case reports, notices to banks and platforms, and CSV / PDF exports.</p></div></div>
     </section>
-    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-11 15:01 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
+    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-11 15:37 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
   </div>
 
   <div class="lg-wrap" id="lgWrap" aria-hidden="true">
@@ -3907,7 +3920,7 @@ Pages.dashboard = main => {
   const hasData = d.txns.length || d.ncrp.length || d.social.length;
   const step = (n, done, next, title, text, page, sub) => `<div class="step ${done ? 'done' : next ? 'next' : ''}" data-go="${page}" data-sub="${sub || ''}"><div class="n">${done ? '✓' : n}</div><div><b>${title}</b><span>${text}</span></div></div>`;
   main.innerHTML = `<div class="hero-card dash-hero"><div class="dash-brand"><span class="ck-wrap db-mark"><i class="ck" aria-hidden="true"></i><span class="emblem emblem-sm" aria-hidden="true"></span></span><div class="db-txt"><div class="db-hi" lang="hi">सुदर्शनास्त्र</div><div class="db-en">SudarshanAshtra</div><div class="db-tag">Cyber Crime Analysis &amp; Tracking</div></div></div><div class="db-sep" aria-hidden="true"></div><div class="grow db-case"><div class="db-lbl">Current case</div><h2>${esc(c.name || 'Case')}</h2><div class="sub2">${[c.fir && 'FIR ' + esc(c.fir), c.section && esc(c.section), c.ps && 'PS ' + esc(c.ps), c.io && 'IO ' + esc(c.io)].filter(Boolean).join(' · ') || 'Add FIR, year, police station and IO – click All cases ▸ ✏ Edit'}</div></div>
-      <div class="db-acts"><button class="btn primary" id="dNew">➕ New case</button><button class="btn primary" id="dImport">📥 Import data</button><button class="btn" id="dReport">🖨 Case report</button></div></div>
+      <div class="db-acts"><button class="btn" id="dReport">🖨 Case report</button></div></div>
     <div class="steps">
       ${step(1, hasData, !hasData, 'Import data', hasData ? `${d.imports.length} files · ${fmtNum(d.txns.length)} transactions` : 'Trail / bank action sheet, statements, KYC', 'financial', 'data')}
       ${step(2, comps.length && !noTrail, hasData, 'Follow the money trail', comps.length ? `${comps.length} complaints${noTrail ? ' · ' + noTrail + ' without trail' : ''}` : 'Victim → Layer 1 → Layer 2 …', 'trail')}
@@ -3923,7 +3936,7 @@ Pages.dashboard = main => {
       ['High-risk accounts', fmtNum(high), 'score ≥ 60 (likely mules)', 'c5'],
       ['Cross-linked identifiers', fmtNum(xl), 'found in ≥ 2 sources', 'c4']
     ])}
-    ${!hasData ? `<div class="note">This case has no data yet. Click <b>Import data</b> above, or <a href="#" id="dDemo">load demo data</a> to explore with dummy records.</div>` : ''}
+    ${!hasData ? `<div class="note">This case has no data yet. Click <b>📥 Import / Upload</b> at the top, or <a href="#" id="dDemo">load demo data</a> to explore with dummy records.</div>` : ''}
     ${comps.length ? `<div class="card"><h3>Complaints</h3><div class="sub">Found from the Acknowledgement No. column of your sheets. Click a complaint to see its layer-wise money trail.</div><div id="dCmp"></div></div>` : ''}
     <div class="grid g2">
       <div class="card"><h3>Money by layer</h3><div class="sub">Total amount received by accounts at each layer</div><div id="chLayer"></div></div>
@@ -3932,10 +3945,8 @@ Pages.dashboard = main => {
       <div class="card"><div class="row" style="flex-wrap:wrap;gap:8px"><h3 class="grow" style="margin:0">Beneficiary States / Districts</h3><span class="pill-tabs" id="stSw"><button data-sd="state" class="${(S.dashSD || 'state') === 'state' ? 'on' : ''}" style="--tc:#3b82f6">🗺 States</button><button data-sd="district" class="${S.dashSD === 'district' ? 'on' : ''}" style="--tc:#10b981">📍 Districts</button></span></div><div class="sub">From KYC, trail and NCRP records, and the bank branch of each IFSC</div><div id="chState"></div></div>
     </div>
     <div class="card"><h3>Top suspect accounts</h3><div class="sub">Ranked by risk score. Click a row for full details.</div><div id="dTop"></div></div>`;
-  $('#dNew').onclick = () => CaseBox.open('new');
-  $('#dImport').onclick = () => openImport(['txn', 'stmt', 'kyc', 'ncrp', 'social'], render);
   $('#dReport').onclick = () => Reports.caseReport();
-  main.querySelectorAll('.step').forEach(x => x.onclick = () => go(x.dataset.go, x.dataset.sub || undefined));
+  main.querySelectorAll('.step').forEach((x, i) => x.onclick = () => i === 0 && !hasData ? Hub.open({}) : go(x.dataset.go, x.dataset.sub || undefined));
   if ($('#dCmp')) Table($('#dCmp'), { rows: comps, pageSize: 10, exportName: 'complaints', sortKey: 'amount', sortDir: -1, columns: [{ key: 'ack', label: 'Ack No', render: r => `<b class="mono">${esc(r.ack)}</b>` }, { key: 'victim', label: 'Victim' }, { key: 'district', label: 'District' }, { key: 'date', label: 'Date' }, { key: 'amount', label: 'Amount', num: true, fmt: fmtINR }, { key: 'layers', label: 'Layers', num: true }, { key: 'accounts', label: 'Accounts', num: true }, { key: 'hold', label: 'On hold', num: true, fmt: v => v ? fmtINR(v) : '' }], onRow: r => { S.trailAck = r.ack; go('trail'); } });
   const dm = $('#dDemo'); if (dm) dm.onclick = e => { e.preventDefault(); Demo.load(); };
   const byLayer = groupBy(acc.filter(a => a.layer > 0), a => a.layer);
@@ -10086,7 +10097,7 @@ SOP.listView = function (body, cur) {
   const C = SOP.cat(cur), q = (S.sopQ || '').toLowerCase();
   const rows = SOP.list.filter(x => (!C || x.cat === cur) && (!q || [x.title, x.name, x.ref, x.note].join(' ').toLowerCase().includes(q)))
     .sort((a, b) => (b.date || b.added).localeCompare(a.date || a.added));
-  const head = C ? `<div class="card sop-head" style="--sc:${C[2]}"><div><h3>${esc(C[1])}</h3><div class="sub">${esc(C[3])}</div></div><button class="btn" id="sopAddHere">⬆ Upload to ${esc(C[1])}</button></div>`
+  const head = C ? `<div class="card sop-head" style="--sc:${C[2]}"><div><h3>${esc(C[1])}</h3><div class="sub">${esc(C[3])}</div></div></div>`
     : `<div class="sop-cats">${SOP.CATS.map(c => `<div class="sop-cat" data-c="${c[0]}" style="--sc:${c[2]}"><b>${esc(c[1])}</b><span>${esc(c[3])}</span><i>${SOP.list.filter(x => x.cat === c[0]).length} files</i></div>`).join('')}</div>`;
   const item = x => { const c = SOP.cat(x.cat) || ['', '', '#64748b']; return `<div class="sop-item" style="--sc:${c[2]}"><span class="sop-kind">${esc(SOP.kind(x.name))}</span>
     <div class="sop-txt"><b>${esc(x.title)}</b><div class="muted small">${C ? '' : `<span class="sop-tag">${esc(c[1])}</span> `}${x.ref ? 'Ref ' + esc(x.ref) + ' · ' : ''}${x.date ? 'Dated ' + esc(x.date.split('-').reverse().join('-')) + ' · ' : ''}${esc(x.name)} · ${SOP.size(x.size)} · added ${esc(x.added.slice(0, 10).split('-').reverse().join('-'))}</div>${x.note ? `<div class="small">${esc(x.note)}</div>` : ''}</div>
@@ -13562,7 +13573,7 @@ const CCTNS = {
           <div id="ccTxt" class="cc-txt">${st.fir || st.cd.length || st.docs.length ? '' : '<div class="muted">Upload the FIR and case-diary parts (PDF, Word, text). Their text shows here, and every mobile, account, UPI, email and IP in them joins the case for cross-linking.</div>'}</div></div>
       </div>
       <div class="card"><h3>📨 Notices in this case</h3><div id="ccN"></div></div>
-      <div class="card cc-docs"><div class="row" style="gap:8px"><h3 class="grow" style="margin:0">📎 Case related documents <span class="badge">${(st.files || []).length}</span></h3><button class="btn sm primary" id="ccUp2">📎 Upload</button></div><div id="ccDocs" style="margin-top:8px"></div></div>
+      <div class="card cc-docs"><div class="row" style="gap:8px"><h3 class="grow" style="margin:0">📎 Case related documents <span class="badge">${(st.files || []).length}</span></h3></div><div id="ccDocs" style="margin-top:8px"></div></div>
       <input type="file" id="ccPick" class="hidden" multiple accept=".pdf,.txt,.doc,.docx,.htm,.html,.rtf,.odt">`;
     // work table
     const col = s => s === 'Done' ? 'good' : s === 'Pending' ? 'bad' : '';
@@ -13590,7 +13601,7 @@ const CCTNS = {
     $('#ccNew', el).onclick = () => { const b = UI.modal('Case diary entry', `<div class="row"><label>CD No.</label><input id="cdN" style="width:80px" value="${st.cd.length + 1}"><label>Date</label><input id="cdD" type="date" value="${new Date().toISOString().slice(0, 10)}"><label>Category</label><select id="cdC">${this.CAT.map(c => `<option>${c}</option>`).join('')}</select></div><textarea id="cdT" style="min-height:260px;margin-top:8px" placeholder="Write the proceedings of the day…"></textarea>`,
       [{ label: 'Cancel', onClick: UI.closeModal }, { label: 'Save', cls: 'primary', onClick: () => { const t = $('#cdT', b).value.trim(); if (!t) return UI.toast('Write something first'); st.cd.push({ id: uid(), no: $('#cdN', b).value, date: $('#cdD', b).value.split('-').reverse().join('-'), cat: $('#cdC', b).value, file: 'Typed entry', text: t, when: new Date().toISOString() }); this.saveIds(t, 'Case diary · CD ' + $('#cdN', b).value); Analysis.invalidate(); saveCase(); UI.closeModal(); render(); } }]); EditList.attach($('#cdC', b), 'cd-cat', this.CAT, 'Case diary categories'); };
     $('#ccNt', el).onclick = () => this.openNotice('n353', null);
-    $('#ccUp', el).onclick = $('#ccUp2', el).onclick = () => this.docUpload();
+    $('#ccUp', el).onclick = () => this.docUpload();
     $('#ccCS', el).onclick = () => this.finEdit('CS'); $('#ccPPI', el).onclick = () => this.finEdit('PPI'); $('#ccFR', el).onclick = () => this.finEdit('FR');
     this.docList($('#ccDocs', el));
     // notices list
@@ -14032,7 +14043,7 @@ const CDX = {
     const kp = [['FIR', [r.fir.no, r.fir.date].filter(Boolean).join(' · ')], ['Sections', r.fir.sections.join(', ')], ['Complainant', [r.fir.complainant, r.fir.mobile].filter(Boolean).join(' · ')], ['Incident', r.fir.incident], ['Amount', r.fir.amount ? fmtINR(r.fir.amount) : ''], ['Case Diary', r.L.length ? `${r.L.length} parts · Last CD ${r.cdc.last ? r.cdc.last.no : ''}${r.cdc.last && r.cdc.last.prep ? ' · ' + this.dmy(r.cdc.last.prep) : ''}` : ''], ['IO', c.io || r.io], ['Status', c.final ? (c.final.type === 'PPI' ? 'CS-PPI' : c.final.type) + (c.final.no ? ' No. ' + c.final.no : '') + (c.final.date ? ' · ' + this.dmy(c.final.date) : '') : (r.L.length ? 'Under Investigation' : '')]].filter(x => x[1]);
     const pendA = r.agencies.filter(a => a.status === 'Pending').length + r.items.filter(i => i.status !== 'Received').length, gotA = r.agencies.filter(a => a.status === 'Received').length + r.items.filter(i => i.status === 'Received').length;
     at.insertAdjacentHTML('afterend', `<div class="card cdx" id="cdxG"><div class="d2-hd"><h3>🧭 Case At A Glance</h3><span class="sub">Read from the FIR and every case-diary part of this case. What is required, what is received, what is pending and from whom – with suggestions for the IO.</span>
-      <div class="cdx-bt"><button class="btn primary" id="cdxImp">📦 Import CCTNS Case (Zip / Folder)</button>${has ? '<button class="btn cdx-deep" id="cdxExp" title="Hindi Short / Deep Brief Report as PDF, Word, HTML – and Excel">⬇ Export Report ▾</button>' : ''}</div></div>
+      <div class="cdx-bt">${has ? '<button class="btn cdx-deep" id="cdxExp" title="Hindi Short / Deep Brief Report as PDF, Word, HTML – and Excel">⬇ Export Report ▾</button>' : ''}</div></div>
       ${has ? `<div class="cdx-kp">${kp.map(([k, v]) => `<div><span>${k}</span><b>${esc(v)}</b></div>`).join('')}</div>
       <div class="cdx-sum"><span class="good-t">✔ <b>${gotA}</b> Received</span><span class="bad-t">⏳ <b>${pendA}</b> Pending</span><span>💡 <b>${r.sugg.length}</b> Suggestions</span><span>⚖ <b>${r.secs.filter(s => s.state !== 'ok').length}</b> Section Points</span></div>
       <div class="cdx-g2"><div class="cdx-box"><h4>📄 FIR Content (Gist)</h4><div class="cdx-tx">${esc(this.cut(r.fir.tahrir || r.fir.brief || (st.fir && st.fir.text) || '', 1600)) || '<span class="muted">FIR text not found.</span>'}</div></div>
@@ -14042,9 +14053,8 @@ const CDX = {
       <h4 class="cdx-h">🏢 From Whom – Asked & Received (Bank, Telecom, WhatsApp, Google, I4C, NIC Email, Subordinates…)</h4><div id="cdxA"></div>
       <div class="cdx-g2"><div class="cdx-box"><h4>💡 Suggestions To IO</h4><div id="cdxS"></div></div><div class="cdx-box"><h4>⚖ Section Check <small class="muted">(advisory – IO decides on law & facts)</small></h4><div id="cdxSec"></div></div></div>
       <h4 class="cdx-h">🔢 Case Diary Numbering & Work Done</h4><div class="cdx-nos">${this.nosHtml(r)}</div><div id="cdxT"></div>`
-      : `<div class="muted small" style="margin-top:6px">Import the CCTNS case zip / folder (FIR, all case-diary parts, CS / FR). Scanned PDFs are read on this computer (Hindi + English) – nothing is uploaded.</div>`}</div>`);
+      : `<div class="row" style="gap:10px;margin-top:8px;align-items:center"><span class="muted small">Click <b>📥 Import / Upload</b> above and add the CCTNS case zip / folder or the FIR, case-diary parts and CS / FR. Scanned PDFs are read on this computer (Hindi + English) – nothing is uploaded.</span></div>`}</div>`);
     const g = $('#cdxG', el);
-    $('#cdxImp', g).onclick = () => this.importUI();
     if (!has) return;
     $('#cdxExp', g).onclick = e => this.exportMenu(e.currentTarget);
     Table($('#cdxI', g), { rows: r.items, pageSize: 10, exportName: 'fir_items_status', columns: [{ key: 'type', label: 'Type', render: x => esc(({ mobile: '📱 Mobile', account: '🏦 Account', url: '🌐 Web Link', upi: '💸 UPI', other: '• Other' })[x.type]) }, { key: 'value', label: 'Named In FIR', render: x => `<b class="mono">${esc(x.value)}</b>` }, { key: 'need', label: 'Required' }, { key: 'from', label: 'From Whom' },
@@ -14235,8 +14245,8 @@ const CDX = {
     UI.closeModal(); UI.toast(`${done} file(s) read into ${res.length} case(s)${stop ? ' (stopped)' : ''}`, 6000);
     if (firstId && firstId !== S.caseId) await switchCase(firstId); else render();
   },
-  async apply(g, items) {
-    const m = g.m; let c = m ? S.cases.find(x => this.firKey(x.fir || x.name) === this.firKey(m.fir)) : activeCase();
+  async apply(g, items, caseId) {
+    const m = g.m; let c = caseId ? S.cases.find(x => x.id === caseId) : m ? S.cases.find(x => this.firKey(x.fir || x.name) === this.firKey(m.fir)) : activeCase();
     if (!c || !c.id) { c = { id: uid(), created: new Date().toISOString(), status: 'Under investigation', name: `FIR ${m.fir}${m.ps && m.ps.length <= 12 ? ' · PS ' + m.ps : /साइबर\s*क्राइम/.test(m.ps || '') ? ' · PS CCPS' : ''}${m.dist ? ' · ' + m.dist : ''}`, fir: m.fir, ps: m.ps, district: m.dist === 'GZB' ? 'Ghaziabad' : m.dist }; S.cases.push(c); await DB.set('case:' + c.id, emptyCase()); }
     const cur = c.id === S.caseId, d = cur ? S.data : Object.assign(emptyCase(), await DB.get('case:' + c.id) || {});
     const st = d.cctns = d.cctns || {}; st.cd = st.cd || []; st.docs = st.docs || []; st.notices = st.notices || []; st.flags = st.flags || {}; d.idents = d.idents || [];
@@ -14280,8 +14290,7 @@ const CDX = {
     const r = CDX.orig.diary.apply(this, arguments);
     try {
       CDX._m = null; CDX.glance(el);
-      const bt = $('.cc-btns', el); if (bt && !$('#ccImpX', bt)) { bt.insertAdjacentHTML('afterbegin', '<button class="btn primary" id="ccImpX" title="CCTNS case zip / folder: FIR, all CD parts, CS / FR">📦 Import CCTNS Case</button>'); $('#ccImpX', bt).onclick = () => CDX.importUI(); }
-      const hd = $('.cc-all .d2-hd', el); if (hd) { hd.insertAdjacentHTML('beforeend', '<button class="btn sm primary" id="ccImpA" style="margin-left:auto">📦 Import CCTNS Cases</button>'); $('#ccImpA', hd).onclick = () => CDX.importUI(); }
+      const bt = $('.cc-btns', el); if (bt && !$('#ccImpX', bt)) { ['#ccFir', '#ccCd', '#ccUp'].forEach(s => { const x = $(s, bt); if (x) x.remove(); }); bt.insertAdjacentHTML('afterbegin', '<button class="btn primary" id="ccImpX" title="One place for every file: CCTNS zip / folder, FIR, case-diary parts, CS / CS-PPI / FR, bank / telecom / NIC e-mail replies, statements, photos, money trail, CDR …">📥 Import / Upload</button>'); }
       if (typeof Dash2 !== 'undefined') {
         el.insertAdjacentHTML('beforeend', Dash2.commonHtml().replace('🔗 Common with your other cases', '🔗 Common Across Your Cases – FIR, NCRP, Money Trail, Bank, Telecom, Google, Email & Others').replace('Identifiers of this case that also appear in another case on this computer.', 'Every mobile, account, UPI, email, IP and link of this case (FIR, case diary, NCRP, money trail, bank / telecom / Google / NIC email replies, subordinates\' reports) that also appears in another of your cases – the common suspects.'));
         if (S.cases.length > 1) Dash2.others((i, t) => { const x = $('#d2Cc', el); if (x && x.classList.contains('muted')) x.textContent = `Checking your other cases… ${i} of ${t}`; }).then(() => { if (document.body.contains(el)) Dash2.drawCommon(el); }).catch(() => { });
@@ -14289,6 +14298,194 @@ const CDX = {
     } catch (e) { console.error(e); }
     return r;
   };
+})();
+
+</script>
+<script>
+/* hub.js – ONE Import / Upload window for the whole tool.
+   Step 1: which case – New Case (fill FIR, PS, IO…), Existing Case, or Auto By FIR (CCTNS zips of many FIRs).
+   Step 2: add files – files, a folder, zip / rar, drag & drop.
+   Step 3: every file is sorted (FIR, CD, CS / CS-PPI / FR, case documents, CDR / IPDR, CAF, NCRP / money trail,
+   bank sheets, WhatsApp / Facebook / Instagram / Telegram / Google replies) – check it, then Import All.
+   Scanned PDFs and photos are read with the built-in OCR. Everything stays on this computer. */
+'use strict';
+const Hub = {
+  K: {
+    fir: ['📄', 'FIR'], cd: ['📒', 'Case Diary (CD)'], cs: ['📗', 'Charge Sheet (CS)'], ppi: ['📘', 'CS-PPI'], fr: ['📕', 'Final Report (FR)'], doc: ['📎', 'Case Document (Letter / Reply / Statement / Photo)'],
+    ncrp: ['📋', 'NCRP / Money Trail / Bank Action Sheet'], fin: ['🏦', 'Bank Statement / KYC Sheet (Map Columns)'], social: ['🌐', 'Social Media Sheet (Map Columns)'], tele: ['📞', 'CDR / IPDR / TDR / SMS'], caf: ['🪪', 'CAF (SIM Form)'],
+    wa: ['💬', 'WhatsApp Reply'], meta: ['📘', 'Facebook / Instagram Reply'], tg: ['✈️', 'Telegram Reply'], google: ['🔍', 'Google Reply'], skip: ['⏭', 'Skip']
+  },
+  CCT: ['fir', 'cd', 'cs', 'ppi', 'fr', 'doc'],
+  st: null,
+  /* opt: { mode: 'new' | 'old' | 'auto', hint: kind, title, files } */
+  open(opt = {}) {
+    const keep = this.st && this.st.Q.length && !this.st.done && !opt.fresh;
+    if (!keep) this.st = { mode: opt.mode || 'old', sel: S.caseId, edit: false, Q: [], hint: opt.hint || '', title: opt.title || '', busy: false, done: false, log: '' };
+    else { if (opt.mode) this.st.mode = opt.mode; if (opt.hint) this.st.hint = opt.hint; }
+    this.draw(); if (opt.files) this.add(opt.files);
+  },
+  body() { const b = $('#mdBody'); return b && $('.hub', b) ? b : null; },
+  draw() {
+    const s = this.st, isNew = s.mode === 'new', isAuto = s.mode === 'auto', b0 = this.body();
+    if (b0 && $('.hub-f', b0)) s.form = CaseBox.read($('.hub-f', b0));
+    let c = isNew ? { year: String(new Date().getFullYear()), ps: activeCase().ps || '', district: activeCase().district || '', state: activeCase().state || 'UP – Uttar Pradesh', io: activeCase().io || '', io_mobile: activeCase().io_mobile || '', io_posting: activeCase().io_posting || '' } : S.cases.find(x => x.id === s.sel) || activeCase();
+    const F = CaseBox.F, open = isNew || s.edit; if (s.form) Object.assign(c = { ...c }, s.form);
+    const bits = [c.fir && 'FIR ' + String(c.fir).replace(/^\s*FIR\s*(No\.?)?\s*/i, ''), c.ps && 'PS ' + c.ps, c.district, c.section, c.io && 'IO ' + c.io].filter(Boolean);
+    const html = `<div class="hub ti">
+      <div class="ti-step"><b>1</b> Which case are these files for?</div>
+      <div class="ti-seg hub-seg"><button data-hm="new" class="${isNew ? 'on' : ''}">➕ New Case<small>Fill FIR, Police Station, IO details</small></button><button data-hm="old" class="${s.mode === 'old' ? 'on' : ''}">📁 Existing Case<small>Add the files to a case already made</small></button><button data-hm="auto" class="${isAuto ? 'on' : ''}">🧭 Auto By FIR<small>CCTNS zips / folders of many FIRs – each goes to its own case</small></button></div>
+      ${s.mode === 'old' ? `<div class="hub-old"><label class="ti-sel">Choose Case<select id="hbCase">${S.cases.map(x => `<option value="${x.id}"${x.id === s.sel ? ' selected' : ''}>${esc(x.name)}${x.fir && !String(x.name).includes(x.fir) ? ' · ' + esc(x.fir) : ''}</option>`).join('')}</select></label>
+        <div class="hub-cd">${bits.length ? '👮 ' + esc(bits.join(' · ')) : '<span class="bad-t">⚠ FIR / PS / IO details not filled</span>'} <button class="btn sm" id="hbEd">${s.edit ? '✖ Cancel Edit' : '✏ Edit Details'}</button></div></div>` : ''}
+      ${isAuto ? `<div class="note">The FIR number is read from each zip / folder name (e.g. <span class="mono">FIR-0123-2026-PS-CCPS-GZB-CS-PPI</span>) or from inside the case diary. A case is found by its FIR number, or made new. Other files go into the open case: <b>${esc(activeCase().name || '')}</b>.</div>` : ''}
+      ${open ? `<div class="map-grid cb-grid hub-f">${F.map(([f, l, t]) => CaseBox.field(f, l, t, f === 'year' ? CaseBox.yearOf(c) : c[f])).join('')}<label style="grid-column:1/-1">Case Name <span class="small muted">(blank = made from Case Type and FIR)</span><input data-cb="name" value="${esc(s.form ? s.form.name || '' : isNew ? '' : c.name || '')}"></label></div>` : ''}
+      <div class="ti-step"><b>2</b> Add the files</div>
+      <div class="g-drop hub-drop" id="hbDrop"><div class="g-dl">⬆</div><b>Drop files or a whole folder here</b><span>FIR · Case Diary (CD) · CS / CS-PPI / FR · CCTNS zip · bank / telecom / NIC e-mail replies · statements · NCRP / money trail / bank action sheets · statements & KYC · CDR / IPDR / TDR / SMS · CAF · WhatsApp / Facebook / Instagram / Telegram / Google replies · zip / rar · scanned PDFs & photos (read by OCR)</span>
+        <div class="row" style="gap:8px;justify-content:center;margin-top:10px"><button class="btn primary" id="hbF">📄 Choose Files</button><button class="btn" id="hbD">📁 Choose Folder</button></div></div>
+      <div class="ti-step"><b>3</b> Check where each file goes, then import ${s.Q.length ? `<span class="badge">${s.Q.length} file(s)</span>` : ''}</div>
+      <div id="hbQ">${this.list()}</div>
+      <div class="hub-log small" id="hbLog">${s.log}</div>
+      <div class="hub-safe small"><svg class="safe-ic" width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5z" fill="#10b981"/><rect x="8.5" y="11" width="7" height="5.5" rx="1" fill="#fff"/><path d="M10 11V9.5a2 2 0 0 1 4 0V11" fill="none" stroke="#fff" stroke-width="1.6"/></svg> <b>Offline</b> · read on this computer, never uploaded.</div>
+      <div class="small" id="hbErr" style="color:var(--bad);min-height:1.2em"></div></div>`;
+    const btns = [{ label: 'Close', onClick: () => { if (!s.busy) UI.closeModal(); } }];
+    if (open) btns.push({ label: isNew ? '💾 Save New Case Only' : '💾 Save Details', onClick: () => this.target(true).then(id => { if (id) { UI.toast('Case saved'); this.st.mode = 'old'; this.st.sel = id; this.st.edit = false; this.st.form = null; this.draw(); } }) });
+    btns.push({ label: s.done ? '✔ Done – Open Case Diary' : `▶ Import All${s.Q.length ? ' (' + s.Q.filter(q => q.kind !== 'skip').length + ')' : ''}`, cls: 'primary', onClick: () => s.done ? (UI.closeModal(), go('cctns', 'diary')) : this.run() });
+    const m = UI.modal('📥 Import / Upload' + (s.title ? ' – ' + s.title : ''), html, btns);
+    this.wire(m);
+  },
+  list() {
+    const s = this.st; if (!s.Q.length) return '<div class="muted small">No file added yet.</div>';
+    const cnt = groupBy(s.Q.filter(q => q.kind !== '…'), q => q.kind);
+    return `<div class="hub-sum">${[...cnt].map(([k, v]) => `<span class="tf-chip">${(this.K[k] || ['', k])[0]} ${esc((this.K[k] || ['', k])[1].split(' (')[0])} <b>${v.length}</b></span>`).join(' ')}<button class="btn sm" id="hbClr" ${s.busy ? 'disabled' : ''}>🗑 Clear</button></div>
+      <div class="hub-tb"><table class="tbl"><thead><tr><th>File</th><th>Size</th><th>Goes To</th><th>Result</th></tr></thead><tbody>${s.Q.map((q, i) => `<tr><td><b>${esc(q.f.name)}</b>${q.path && q.path !== q.f.name ? `<div class="small muted">${esc(q.path)}</div>` : ''}</td><td class="small">${SOP.size(q.f.size)}</td>
+      <td>${q.kind === '…' ? '<span class="muted">checking…</span>' : `<select data-hk="${i}" ${s.busy || q.ok ? 'disabled' : ''}>${Object.entries(this.K).map(([k, [ic, l]]) => `<option value="${k}" ${k === q.kind ? 'selected' : ''}>${ic} ${l}</option>`).join('')}</select>`}</td>
+      <td class="small">${q.res ? (/^(Error|⚠)/.test(q.res) ? `<b class="bad-t">${esc(q.res)}</b>` : `<span class="good-t">✔ ${esc(q.res)}</span>`) : ''}</td></tr>`).join('')}</tbody></table></div>`;
+  },
+  redraw() { const b = this.body(); if (!b) return; $('#hbQ', b).innerHTML = this.list(); $('#hbLog', b).innerHTML = this.st.log; this.wireList(b); },
+  wire(m) {
+    const s = this.st;
+    $$('[data-hm]', m).forEach(b => b.onclick = () => { if (s.busy) return; s.mode = b.dataset.hm === 'new' ? 'new' : b.dataset.hm; s.edit = false; s.form = null; this.draw(); });
+    const cs = $('#hbCase', m); if (cs) cs.onchange = () => { s.sel = cs.value; s.edit = false; s.form = null; this.draw(); };
+    const ed = $('#hbEd', m); if (ed) ed.onclick = () => { s.edit = !s.edit; s.form = null; this.draw(); };
+    CaseBox.wire(m); m.addEventListener('input', () => { const e = $('#hbErr', m); if (e) e.textContent = ''; });
+    const pick = dir => { const i = document.createElement('input'); i.type = 'file'; i.multiple = true; i.className = 'hidden'; if (dir) { i.webkitdirectory = true; i.setAttribute('directory', ''); } i.onchange = () => { const f = [...i.files]; i.remove(); this.add(f); }; document.body.appendChild(i); i.click(); };
+    $('#hbF', m).onclick = e => { e.stopPropagation(); pick(false); }; $('#hbD', m).onclick = e => { e.stopPropagation(); pick(true); };
+    const drop = $('#hbDrop', m);
+    drop.ondragover = e => { e.preventDefault(); drop.classList.add('over'); }; drop.ondragleave = () => drop.classList.remove('over');
+    drop.ondrop = async e => { e.preventDefault(); drop.classList.remove('over'); const fs = []; const walk = async (en, p) => { if (!en) return; if (en.isFile) { const f = await new Promise(r => en.file(r)); fs.push({ f, path: p + f.name }); } else if (en.isDirectory) { const rd = en.createReader(); let b; do { b = await new Promise(r => rd.readEntries(r)); for (const x of b) await walk(x, p + en.name + '/'); } while (b.length); } };
+      const items = [...(e.dataTransfer.items || [])].map(i => i.webkitGetAsEntry && i.webkitGetAsEntry()).filter(Boolean); if (items.length) { for (const it of items) await walk(it, ''); this.add(fs); } else this.add([...e.dataTransfer.files]); };
+    this.wireList(m);
+  },
+  wireList(m) {
+    const s = this.st;
+    $$('[data-hk]', m).forEach(x => x.onchange = () => { const q = s.Q[+x.dataset.hk]; q.kind = x.value; q.user = 1; this.redraw(); });
+    const c = $('#hbClr', m); if (c) c.onclick = () => { s.Q = []; s.log = ''; this.draw(); };
+  },
+  /* files (or {f, path}) → queue; zips opened with their folder path kept */
+  async add(files) {
+    const s = this.st, E = [];
+    for (const x of files) { const f = x.f || x, path = x.path || f.webkitRelativePath || f.name;
+      try {
+        if (/\.zip$/i.test(f.name)) E.push(...(await CDX.unzip(await f.arrayBuffer(), path.replace(/\.zip$/i, ''))));
+        else if (/\.rar$/i.test(f.name) && window.Unrar) E.push(...(await Unrar.extract(await f.arrayBuffer())).map(r => ({ path: path.replace(/\.rar$/i, '') + '/' + r.name, file: new File([r.data], r.name.split(/[\/\\]/).pop()) })));
+        else E.push({ path, file: f });
+      } catch (e) { UI.toast('Could not open ' + f.name + ': ' + e.message, 6000); } }
+    const have = new Set(s.Q.map(q => q.path + '|' + q.f.size));
+    for (const e of E) { if (have.has(e.path + '|' + e.file.size) || /(^|\/)(\.|__MACOSX|Thumbs\.db)/i.test(e.path)) continue; s.Q.push({ f: e.file, path: e.path, kind: '…' }); }
+    if (s.mode === 'old' && s.Q.some(q => CDX.meta(q.path)) && uniq(s.Q.map(q => (CDX.meta(q.path) || {}).fir).filter(Boolean)).length > 1) s.mode = 'auto';
+    this.draw();
+    for (const q of s.Q) if (q.kind === '…') { q.kind = await this.detect(q); this.redraw(); }
+    this.draw();
+  },
+  async detect(q) {
+    const n = q.f.name, m = CDX.meta(q.path);
+    if (/\.(mp4|mp3|wav|avi|mov|exe|dll|bin|iso)$/i.test(n)) return 'skip';
+    if (/\.sudcd$/i.test(n)) return 'skip';
+    const k = CDX.kind(n, '', m && m.fin);
+    if (k.k === 'cd') return 'cd'; if (k.k === 'fin') return k.type === 'FR' ? 'fr' : k.type === 'PPI' ? 'ppi' : 'cs'; if (k.k === 'fir') return 'fir';
+    if (/\.(jpe?g|png|webp|bmp|gif)$/i.test(n)) return 'doc';
+    let c = 'doc'; try { c = await CCTNS.classify(q.f); } catch (e) { }
+    if (c === 'skip') c = 'doc';
+    if (/\.(xlsx?|xlsb|ods|csv)$/i.test(n) && /social|profile|platform/i.test(n)) c = 'social';
+    if (c === 'doc' && /\.(xlsx?|xlsb|ods|csv)$/i.test(n)) c = this.st.hint && !this.CCT.includes(this.st.hint) ? this.st.hint : 'ncrp';
+    if (c === 'doc' && this.st.hint && !this.CCT.includes(this.st.hint) && !/\.(pdf|docx?|jpe?g|png|txt|rtf|odt)$/i.test(n)) c = this.st.hint;
+    return c;
+  },
+  /* make / update the chosen case; returns its id (and opens it) */
+  async target(saveOnly) {
+    const s = this.st, b = this.body(); if (s.mode === 'auto') return S.caseId;
+    if (s.mode === 'new' || s.edit) {
+      const o = CaseBox.read($('.hub-f', b)), err = CaseBox.check(o), E = $('#hbErr', b);
+      if (err) { E.textContent = err; return null; }
+      if (s.mode === 'new' && !o.fir && !o.name && !o.ctype) { E.textContent = 'Type the FIR / Complaint No. (or a case name) for the new case'; const f = $('[data-cb="fir"]', b); if (f) f.focus(); return null; }
+      if (s.mode === 'new') { o.name = o.name || CaseBox.autoName(o); const c = { id: uid(), created: new Date().toISOString(), status: 'Under investigation', ...o }; S.cases.push(c); await DB.set('case:' + c.id, emptyCase()); await switchCase(c.id); return c.id; }
+      const c = S.cases.find(x => x.id === s.sel); if (!c) return null; const auto = !c.name || c.name === CaseBox.autoName(c) || /^Case \d+$/.test(c.name); Object.assign(c, o); if (!o.name && auto) c.name = CaseBox.autoName(c); await saveMeta(); fillCaseSel();
+    }
+    if (s.sel !== S.caseId) await switchCase(s.sel); else if (saveOnly) render();
+    return s.sel;
+  },
+  async run() {
+    const s = this.st; if (s.busy) return;
+    if (!s.Q.length) { const e = $('#hbErr', this.body()); if (e) e.textContent = 'Add files first (step 2).'; return; }
+    if (s.Q.some(q => q.kind === '…')) return UI.toast('Still checking the files – one moment');
+    const tid = await this.target(); if (!tid) return;
+    s.form = null; s.busy = true; s.mode = s.mode === 'new' ? 'old' : s.mode; s.sel = S.caseId; s.edit = false; this.draw();
+    const log = t => { s.log = t; const b = this.body(); if (b) $('#hbLog', b).innerHTML = t; };
+    const todo = s.Q.filter(q => !q.ok && q.kind !== 'skip');
+    /* 1 · CCTNS: FIR, CD, CS / PPI / FR, case documents (OCR when scanned) */
+    const cc = todo.filter(q => this.CCT.includes(q.kind));
+    if (cc.length) {
+      const G = new Map(); let i = 0; const t0 = Date.now();
+      for (const q of cc) {
+        log(`⏳ Reading ${++i} of ${cc.length}: <b>${esc(q.f.name)}</b>${i > 1 ? ` · about ${Math.max(1, Math.round((Date.now() - t0) / (i - 1) * (cc.length - i + 1) / 60000))} min left` : ''}`);
+        let t = ''; try { t = await CDX.readFile(q.f, (a, n) => log(`⏳ Reading ${i} of ${cc.length}: <b>${esc(q.f.name)}</b> · page ${a} of ${n}`)); } catch (e) { q.res = 'Error: ' + e.message; }
+        let kind = q.kind; if (kind === 'doc' && !q.user && t) { const k2 = CDX.kind(q.f.name, t); kind = k2.k === 'cd' ? 'cd' : k2.k === 'fir' ? 'fir' : k2.k === 'fin' ? (k2.type === 'FR' ? 'fr' : k2.type === 'PPI' ? 'ppi' : 'cs') : 'doc'; q.kind = kind; }
+        const kd = kind === 'cd' ? { k: 'cd' } : kind === 'fir' ? { k: 'fir' } : kind === 'cs' ? { k: 'fin', type: 'CS' } : kind === 'ppi' ? { k: 'fin', type: 'PPI' } : kind === 'fr' ? { k: 'fin', type: 'FR' } : { k: 'doc' };
+        let m = s.mode === 'auto' ? (CDX.meta(q.path) || (t && CDX.firOf(t) ? (() => { const [no, year] = CDX.firOf(t).split('/'); return { no, year, fir: no + '/' + year, ps: '', dist: '', fin: '' }; })() : null)) : null;
+        const key = m ? m.fir : '_'; if (!G.has(key)) G.set(key, { m, items: [] }); const g = G.get(key);
+        if (m && !g.m) g.m = m; if (m && m.fin && g.m && !g.m.fin) g.m.fin = m.fin;
+        g.items.push({ e: { path: q.path, file: q.f }, t, kd, q });
+        q.res = q.res || (t.trim() ? (kind === 'cd' ? 'CD ' + (CDX.cdNo(t, q.f.name).no || '?') : (this.K[kind] || ['', kind])[1].split(' (')[0]) + ' read' : '⚠ no text found');
+        this.redraw();
+      }
+      for (const [k, g] of G) { if (!g.m && k !== '_') continue; const fins = g.items.filter(x => x.kd.k === 'fin'); if (g.m && !g.m.fin && fins.length) g.m.fin = fins[0].kd.type;
+        const id = await CDX.apply(g.m ? g : { m: null }, g.items, k === '_' ? S.caseId : null);
+        const c = S.cases.find(x => x.id === id); g.items.forEach(x => { if (!/^(Error|⚠)/.test(x.q.res)) x.q.res += ' → ' + (c ? c.name : 'case'); x.q.ok = 1; }); }
+      await saveMeta(); fillCaseSel(); CDX._m = null;
+    }
+    /* 2 · data files: telecom, social replies, CAF, NCRP / trail sheets – same importers as each section */
+    const rest = todo.filter(q => !this.CCT.includes(q.kind) && q.kind !== 'fin' && q.kind !== 'social');
+    if (rest.length) { log('⏳ Importing data files…'); const Q = rest.map(q => ({ f: q.f, kind: q.kind, q })); try { await CCTNS.run(Q, () => { Q.forEach(x => { if (x.res != null) { x.q.res = x.res; x.q.ok = 1; } }); this.redraw(); }); } catch (e) { rest.forEach(q => { q.res = 'Error: ' + e.message; }); } }
+    rest.filter(q => q.kind === 'ncrp' && /^0 rows/.test(q.res || '')).forEach(q => { q.res = '⚠ columns not recognised – choose "Bank Statement / KYC Sheet (Map Columns)" and import again'; q.ok = 0; });
+    Analysis.invalidate(); saveCase();
+    const fin = todo.filter(q => q.kind === 'fin' || q.kind === 'social');
+    s.busy = false; s.done = !fin.length && !s.Q.some(q => !q.ok && q.kind !== 'skip'); log(s.mode === 'auto' ? '✔ Imported – each FIR went into its own case (see the Goes To / Result column). Every section is updated.' : `✔ Imported into <b>${esc(activeCase().name || '')}</b>. Every section is updated.`);
+    if (fin.length) { fin.forEach(q => { q.res = 'opened in Map Columns'; q.ok = 1; }); s.done = true; openImport(['txn', 'stmt', 'kyc', 'ncrp', 'social'], () => { Analysis.invalidate(); render(); }, fin.map(q => q.f)); return; }
+    this.draw(); render();
+  }
+};
+
+/* ---------- every Import / Upload button of the tool opens this one window ---------- */
+(() => {
+  const MAP = { dImport: {}, btnImpTop: {}, fImp: { hint: 'fin', title: 'Financial' }, trImp: { hint: 'ncrp', title: 'Money Trail' }, trImp2: { hint: 'ncrp', title: 'Money Trail' }, nImp: { hint: 'ncrp', title: 'NCRP' }, anImp: { hint: 'ncrp', title: 'NCRP Data' },
+    sImp: { title: 'Social Media' }, wImp: { hint: 'wa', title: 'WhatsApp' }, mImp: { hint: 'meta', title: 'Facebook / Instagram' }, tImp: { hint: 'tg', title: 'Telegram' }, gImp: { hint: 'google', title: 'Google' }, cafImp: { hint: 'caf', title: 'CAF' },
+    ccImpX: { title: 'CCTNS' }, cdxImp: { title: 'CCTNS' }, ccUp2: { hint: 'doc', title: 'Case Documents' }, ccUp: { hint: 'doc', title: 'Case Documents' } };
+  const top = () => { const nb = $('#btnNewCase'); if (!nb) return; nb.onclick = e => { e.stopImmediatePropagation(); Hub.open({ mode: 'new', fresh: true }); }; nb.textContent = '📥 New Case / Import'; nb.classList.add('hub-top'); nb.title = 'One window: make a new case or choose an existing one, then add any file – FIR, CD, CS / FR, CCTNS zip, money trail, statements, CDR, replies'; };
+  const bind = () => { top(); for (const [id, o] of Object.entries(MAP)) $$('#' + id).forEach(b => { if (b.dataset.hub) return; b.dataset.hub = 1; b.onclick = e => { e.preventDefault(); e.stopImmediatePropagation(); Hub.open({ ...o, fresh: !!o.hint }); }; }); };
+  /* Crime Data: three import sources → one "📥 Import ▾" menu */
+  const crime = () => { const a = $('#cdScan'), f = $('#cdFile'), o = $('#cdFImp'); if (!a || !f || !o || $('#cdImpM')) return;
+    [a, f, o].forEach(x => x.classList.add('hidden')); a.insertAdjacentHTML('beforebegin', '<button class="btn primary" id="cdImpM" title="Import from all cases, an Excel / CSV / PDF / Word file, or a sealed offline form file">📥 Import ▾</button>');
+    $('#cdImpM').onclick = e => { const old = $('.cdx-menu'); if (old) { old.remove(); return; } const m = document.createElement('div'); m.className = 'cdx-menu';
+      m.innerHTML = [[a, '🔄', 'Import From All Cases', 'Read every case again – FIR, case diary, money trail, KYC, NCRP, replies'], [f, '📄', 'Import File', 'Excel / CSV / PDF / Word file'], [o, '🔒', 'Import Offline Form File', 'Sealed .sudcd file sent by a subordinate']].map(([x, i, t, d], k) => `<button data-cm="${k}"><span class="ic">${i}</span><span><b>${t}</b><small>${d}</small></span></button>`).join('');
+      document.body.appendChild(m); const r = e.currentTarget.getBoundingClientRect(); m.style.top = (r.bottom + 6) + 'px'; m.style.left = Math.max(8, Math.min(r.left, innerWidth - m.offsetWidth - 8)) + 'px';
+      $$('[data-cm]', m).forEach(x => x.onclick = () => { m.remove(); [a, f, o][+x.dataset.cm].click(); }); setTimeout(() => document.addEventListener('mousedown', function cl(ev) { if (!m.contains(ev.target)) { m.remove(); document.removeEventListener('mousedown', cl); } })); }; };
+  const or = render; render = function () { const r = or.apply(this, arguments); try { bind(); crime(); } catch (e) { } return r; };
+  new MutationObserver(() => { if (document.getElementById('cdScan') && !document.getElementById('cdImpM')) crime(); }).observe(document.body, { childList: true, subtree: true });
+  bind(); setTimeout(bind, 0); document.addEventListener('DOMContentLoaded', bind);
+  // CCTNS: one tab (Case Diary); the old "Upload File +" tab and its sidebar link now open this window
+  PAGE_META.cctns.order = ['diary']; PAGE_META.cctns.names = { diary: '📒 Case Diary' }; PAGE_META.cctns.desc = 'Case Diary for all cases – FIR and CD reader, work done and pending, BNSS notices. Import / Upload adds FIR, CD, CS / FR and any file.';
+  Pages.cctns = main => { if (S.sub.cctns === 'upload') { S.sub.cctns = 'diary'; setTimeout(() => Hub.open({}), 0); } const { body } = tabs(main, 'cctns', [['diary', '📒 Case Diary']], 'CCTNS'); CCTNS.diary(body); };
+  const up = $('.cctns-subs [data-cct="upload"]'); if (up) up.remove();
+  CCTNS.upload = el => { el.innerHTML = ''; Hub.open({}); };
 })();
 
 </script>

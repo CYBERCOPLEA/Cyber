@@ -156,7 +156,7 @@ const CCTNS = {
           <div id="ccTxt" class="cc-txt">${st.fir || st.cd.length || st.docs.length ? '' : '<div class="muted">Upload the FIR and case-diary parts (PDF, Word, text). Their text shows here, and every mobile, account, UPI, email and IP in them joins the case for cross-linking.</div>'}</div></div>
       </div>
       <div class="card"><h3>📨 Notices in this case</h3><div id="ccN"></div></div>
-      <div class="card cc-docs"><div class="row" style="gap:8px"><h3 class="grow" style="margin:0">📎 Case related documents <span class="badge">${(st.files || []).length}</span></h3><button class="btn sm primary" id="ccUp2">📎 Upload</button></div><div id="ccDocs" style="margin-top:8px"></div></div>
+      <div class="card cc-docs"><div class="row" style="gap:8px"><h3 class="grow" style="margin:0">📎 Case related documents <span class="badge">${(st.files || []).length}</span></h3></div><div id="ccDocs" style="margin-top:8px"></div></div>
       <input type="file" id="ccPick" class="hidden" multiple accept=".pdf,.txt,.doc,.docx,.htm,.html,.rtf,.odt">`;
     // work table
     const col = s => s === 'Done' ? 'good' : s === 'Pending' ? 'bad' : '';
@@ -184,7 +184,7 @@ const CCTNS = {
     $('#ccNew', el).onclick = () => { const b = UI.modal('Case diary entry', `<div class="row"><label>CD No.</label><input id="cdN" style="width:80px" value="${st.cd.length + 1}"><label>Date</label><input id="cdD" type="date" value="${new Date().toISOString().slice(0, 10)}"><label>Category</label><select id="cdC">${this.CAT.map(c => `<option>${c}</option>`).join('')}</select></div><textarea id="cdT" style="min-height:260px;margin-top:8px" placeholder="Write the proceedings of the day…"></textarea>`,
       [{ label: 'Cancel', onClick: UI.closeModal }, { label: 'Save', cls: 'primary', onClick: () => { const t = $('#cdT', b).value.trim(); if (!t) return UI.toast('Write something first'); st.cd.push({ id: uid(), no: $('#cdN', b).value, date: $('#cdD', b).value.split('-').reverse().join('-'), cat: $('#cdC', b).value, file: 'Typed entry', text: t, when: new Date().toISOString() }); this.saveIds(t, 'Case diary · CD ' + $('#cdN', b).value); Analysis.invalidate(); saveCase(); UI.closeModal(); render(); } }]); EditList.attach($('#cdC', b), 'cd-cat', this.CAT, 'Case diary categories'); };
     $('#ccNt', el).onclick = () => this.openNotice('n353', null);
-    $('#ccUp', el).onclick = $('#ccUp2', el).onclick = () => this.docUpload();
+    $('#ccUp', el).onclick = () => this.docUpload();
     $('#ccCS', el).onclick = () => this.finEdit('CS'); $('#ccPPI', el).onclick = () => this.finEdit('PPI'); $('#ccFR', el).onclick = () => this.finEdit('FR');
     this.docList($('#ccDocs', el));
     // notices list

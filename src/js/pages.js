@@ -29,7 +29,7 @@ Pages.dashboard = main => {
   const hasData = d.txns.length || d.ncrp.length || d.social.length;
   const step = (n, done, next, title, text, page, sub) => `<div class="step ${done ? 'done' : next ? 'next' : ''}" data-go="${page}" data-sub="${sub || ''}"><div class="n">${done ? '✓' : n}</div><div><b>${title}</b><span>${text}</span></div></div>`;
   main.innerHTML = `<div class="hero-card dash-hero"><div class="dash-brand"><span class="ck-wrap db-mark"><i class="ck" aria-hidden="true"></i><span class="emblem emblem-sm" aria-hidden="true"></span></span><div class="db-txt"><div class="db-hi" lang="hi">सुदर्शनास्त्र</div><div class="db-en">SudarshanAshtra</div><div class="db-tag">Cyber Crime Analysis &amp; Tracking</div></div></div><div class="db-sep" aria-hidden="true"></div><div class="grow db-case"><div class="db-lbl">Current case</div><h2>${esc(c.name || 'Case')}</h2><div class="sub2">${[c.fir && 'FIR ' + esc(c.fir), c.section && esc(c.section), c.ps && 'PS ' + esc(c.ps), c.io && 'IO ' + esc(c.io)].filter(Boolean).join(' · ') || 'Add FIR, year, police station and IO – click All cases ▸ ✏ Edit'}</div></div>
-      <div class="db-acts"><button class="btn primary" id="dNew">➕ New case</button><button class="btn primary" id="dImport">📥 Import data</button><button class="btn" id="dReport">🖨 Case report</button></div></div>
+      <div class="db-acts"><button class="btn" id="dReport">🖨 Case report</button></div></div>
     <div class="steps">
       ${step(1, hasData, !hasData, 'Import data', hasData ? `${d.imports.length} files · ${fmtNum(d.txns.length)} transactions` : 'Trail / bank action sheet, statements, KYC', 'financial', 'data')}
       ${step(2, comps.length && !noTrail, hasData, 'Follow the money trail', comps.length ? `${comps.length} complaints${noTrail ? ' · ' + noTrail + ' without trail' : ''}` : 'Victim → Layer 1 → Layer 2 …', 'trail')}
@@ -45,7 +45,7 @@ Pages.dashboard = main => {
       ['High-risk accounts', fmtNum(high), 'score ≥ 60 (likely mules)', 'c5'],
       ['Cross-linked identifiers', fmtNum(xl), 'found in ≥ 2 sources', 'c4']
     ])}
-    ${!hasData ? `<div class="note">This case has no data yet. Click <b>Import data</b> above, or <a href="#" id="dDemo">load demo data</a> to explore with dummy records.</div>` : ''}
+    ${!hasData ? `<div class="note">This case has no data yet. Click <b>📥 Import / Upload</b> at the top, or <a href="#" id="dDemo">load demo data</a> to explore with dummy records.</div>` : ''}
     ${comps.length ? `<div class="card"><h3>Complaints</h3><div class="sub">Found from the Acknowledgement No. column of your sheets. Click a complaint to see its layer-wise money trail.</div><div id="dCmp"></div></div>` : ''}
     <div class="grid g2">
       <div class="card"><h3>Money by layer</h3><div class="sub">Total amount received by accounts at each layer</div><div id="chLayer"></div></div>
@@ -54,10 +54,8 @@ Pages.dashboard = main => {
       <div class="card"><div class="row" style="flex-wrap:wrap;gap:8px"><h3 class="grow" style="margin:0">Beneficiary States / Districts</h3><span class="pill-tabs" id="stSw"><button data-sd="state" class="${(S.dashSD || 'state') === 'state' ? 'on' : ''}" style="--tc:#3b82f6">🗺 States</button><button data-sd="district" class="${S.dashSD === 'district' ? 'on' : ''}" style="--tc:#10b981">📍 Districts</button></span></div><div class="sub">From KYC, trail and NCRP records, and the bank branch of each IFSC</div><div id="chState"></div></div>
     </div>
     <div class="card"><h3>Top suspect accounts</h3><div class="sub">Ranked by risk score. Click a row for full details.</div><div id="dTop"></div></div>`;
-  $('#dNew').onclick = () => CaseBox.open('new');
-  $('#dImport').onclick = () => openImport(['txn', 'stmt', 'kyc', 'ncrp', 'social'], render);
   $('#dReport').onclick = () => Reports.caseReport();
-  main.querySelectorAll('.step').forEach(x => x.onclick = () => go(x.dataset.go, x.dataset.sub || undefined));
+  main.querySelectorAll('.step').forEach((x, i) => x.onclick = () => i === 0 && !hasData ? Hub.open({}) : go(x.dataset.go, x.dataset.sub || undefined));
   if ($('#dCmp')) Table($('#dCmp'), { rows: comps, pageSize: 10, exportName: 'complaints', sortKey: 'amount', sortDir: -1, columns: [{ key: 'ack', label: 'Ack No', render: r => `<b class="mono">${esc(r.ack)}</b>` }, { key: 'victim', label: 'Victim' }, { key: 'district', label: 'District' }, { key: 'date', label: 'Date' }, { key: 'amount', label: 'Amount', num: true, fmt: fmtINR }, { key: 'layers', label: 'Layers', num: true }, { key: 'accounts', label: 'Accounts', num: true }, { key: 'hold', label: 'On hold', num: true, fmt: v => v ? fmtINR(v) : '' }], onRow: r => { S.trailAck = r.ack; go('trail'); } });
   const dm = $('#dDemo'); if (dm) dm.onclick = e => { e.preventDefault(); Demo.load(); };
   const byLayer = groupBy(acc.filter(a => a.layer > 0), a => a.layer);

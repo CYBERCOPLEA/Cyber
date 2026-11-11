@@ -1981,3 +1981,16 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
 .cdx-mr .ic{font-size:18px}.cdx-mr b{display:block;font-size:14px;color:#e5e7eb}.cdx-mr small{display:block;opacity:.7;font-size:12px;color:#cbd5e1}
 .cdx-fm{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px}.cdx-menu .cdx-fm button{width:auto;display:inline-block;padding:4px 11px;border:1px solid rgba(124,58,237,.6);border-radius:999px;background:rgba(124,58,237,.15);font-weight:700;font-size:12.5px}
 .cdx-menu .cdx-fm button:hover{background:#7c3aed;color:#fff}
+
+/* one Import / Upload window */
+#modal:has(.hub) .box{width:min(1080px,96vw);max-width:96vw}
+.hub .ti-seg.hub-seg{grid-template-columns:repeat(3,1fr)}@media(max-width:800px){.hub .ti-seg.hub-seg{grid-template-columns:1fr}}
+.hub .ti-seg button.on{border-color:var(--accent,#6366f1);box-shadow:0 0 0 3px rgba(99,102,241,.2)}
+.hub-old{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;margin-top:10px}.hub-old .ti-sel{flex:1 1 320px}
+.hub-cd{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:13px}
+.hub-f{margin-top:10px}
+.hub-drop{padding:18px}
+.hub-sum{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:6px}.hub-sum .btn{margin-left:auto}
+.hub-tb{max-height:300px;overflow:auto;border:1px solid var(--border,rgba(255,255,255,.1));border-radius:8px}.hub-tb select{max-width:300px}
+.hub-log{margin-top:8px;min-height:1.3em}.hub-safe{margin-top:6px;color:#a7f3d0;display:flex;gap:6px;align-items:center}.hub-safe b{color:#34d399}
+.btn.hub-top{background:linear-gradient(135deg,#16a34a,#0ea5e9);color:#fff;border-color:transparent;font-weight:800}

@@ -289,7 +289,7 @@ const CDX = {
     const kp = [['FIR', [r.fir.no, r.fir.date].filter(Boolean).join(' · ')], ['Sections', r.fir.sections.join(', ')], ['Complainant', [r.fir.complainant, r.fir.mobile].filter(Boolean).join(' · ')], ['Incident', r.fir.incident], ['Amount', r.fir.amount ? fmtINR(r.fir.amount) : ''], ['Case Diary', r.L.length ? `${r.L.length} parts · Last CD ${r.cdc.last ? r.cdc.last.no : ''}${r.cdc.last && r.cdc.last.prep ? ' · ' + this.dmy(r.cdc.last.prep) : ''}` : ''], ['IO', c.io || r.io], ['Status', c.final ? (c.final.type === 'PPI' ? 'CS-PPI' : c.final.type) + (c.final.no ? ' No. ' + c.final.no : '') + (c.final.date ? ' · ' + this.dmy(c.final.date) : '') : (r.L.length ? 'Under Investigation' : '')]].filter(x => x[1]);
     const pendA = r.agencies.filter(a => a.status === 'Pending').length + r.items.filter(i => i.status !== 'Received').length, gotA = r.agencies.filter(a => a.status === 'Received').length + r.items.filter(i => i.status === 'Received').length;
     at.insertAdjacentHTML('afterend', `<div class="card cdx" id="cdxG"><div class="d2-hd"><h3>🧭 Case At A Glance</h3><span class="sub">Read from the FIR and every case-diary part of this case. What is required, what is received, what is pending and from whom – with suggestions for the IO.</span>
-      <div class="cdx-bt"><button class="btn primary" id="cdxImp">📦 Import CCTNS Case (Zip / Folder)</button>${has ? '<button class="btn cdx-deep" id="cdxExp" title="Hindi Short / Deep Brief Report as PDF, Word, HTML – and Excel">⬇ Export Report ▾</button>' : ''}</div></div>
+      <div class="cdx-bt">${has ? '<button class="btn cdx-deep" id="cdxExp" title="Hindi Short / Deep Brief Report as PDF, Word, HTML – and Excel">⬇ Export Report ▾</button>' : ''}</div></div>
       ${has ? `<div class="cdx-kp">${kp.map(([k, v]) => `<div><span>${k}</span><b>${esc(v)}</b></div>`).join('')}</div>
       <div class="cdx-sum"><span class="good-t">✔ <b>${gotA}</b> Received</span><span class="bad-t">⏳ <b>${pendA}</b> Pending</span><span>💡 <b>${r.sugg.length}</b> Suggestions</span><span>⚖ <b>${r.secs.filter(s => s.state !== 'ok').length}</b> Section Points</span></div>
       <div class="cdx-g2"><div class="cdx-box"><h4>📄 FIR Content (Gist)</h4><div class="cdx-tx">${esc(this.cut(r.fir.tahrir || r.fir.brief || (st.fir && st.fir.text) || '', 1600)) || '<span class="muted">FIR text not found.</span>'}</div></div>
@@ -299,9 +299,8 @@ const CDX = {
       <h4 class="cdx-h">🏢 From Whom – Asked & Received (Bank, Telecom, WhatsApp, Google, I4C, NIC Email, Subordinates…)</h4><div id="cdxA"></div>
       <div class="cdx-g2"><div class="cdx-box"><h4>💡 Suggestions To IO</h4><div id="cdxS"></div></div><div class="cdx-box"><h4>⚖ Section Check <small class="muted">(advisory – IO decides on law & facts)</small></h4><div id="cdxSec"></div></div></div>
       <h4 class="cdx-h">🔢 Case Diary Numbering & Work Done</h4><div class="cdx-nos">${this.nosHtml(r)}</div><div id="cdxT"></div>`
-      : `<div class="muted small" style="margin-top:6px">Import the CCTNS case zip / folder (FIR, all case-diary parts, CS / FR). Scanned PDFs are read on this computer (Hindi + English) – nothing is uploaded.</div>`}</div>`);
+      : `<div class="row" style="gap:10px;margin-top:8px;align-items:center"><span class="muted small">Click <b>📥 Import / Upload</b> above and add the CCTNS case zip / folder or the FIR, case-diary parts and CS / FR. Scanned PDFs are read on this computer (Hindi + English) – nothing is uploaded.</span></div>`}</div>`);
     const g = $('#cdxG', el);
-    $('#cdxImp', g).onclick = () => this.importUI();
     if (!has) return;
     $('#cdxExp', g).onclick = e => this.exportMenu(e.currentTarget);
     Table($('#cdxI', g), { rows: r.items, pageSize: 10, exportName: 'fir_items_status', columns: [{ key: 'type', label: 'Type', render: x => esc(({ mobile: '📱 Mobile', account: '🏦 Account', url: '🌐 Web Link', upi: '💸 UPI', other: '• Other' })[x.type]) }, { key: 'value', label: 'Named In FIR', render: x => `<b class="mono">${esc(x.value)}</b>` }, { key: 'need', label: 'Required' }, { key: 'from', label: 'From Whom' },
@@ -492,8 +491,8 @@ const CDX = {
     UI.closeModal(); UI.toast(`${done} file(s) read into ${res.length} case(s)${stop ? ' (stopped)' : ''}`, 6000);
     if (firstId && firstId !== S.caseId) await switchCase(firstId); else render();
   },
-  async apply(g, items) {
-    const m = g.m; let c = m ? S.cases.find(x => this.firKey(x.fir || x.name) === this.firKey(m.fir)) : activeCase();
+  async apply(g, items, caseId) {
+    const m = g.m; let c = caseId ? S.cases.find(x => x.id === caseId) : m ? S.cases.find(x => this.firKey(x.fir || x.name) === this.firKey(m.fir)) : activeCase();
     if (!c || !c.id) { c = { id: uid(), created: new Date().toISOString(), status: 'Under investigation', name: `FIR ${m.fir}${m.ps && m.ps.length <= 12 ? ' · PS ' + m.ps : /साइबर\s*क्राइम/.test(m.ps || '') ? ' · PS CCPS' : ''}${m.dist ? ' · ' + m.dist : ''}`, fir: m.fir, ps: m.ps, district: m.dist === 'GZB' ? 'Ghaziabad' : m.dist }; S.cases.push(c); await DB.set('case:' + c.id, emptyCase()); }
     const cur = c.id === S.caseId, d = cur ? S.data : Object.assign(emptyCase(), await DB.get('case:' + c.id) || {});
     const st = d.cctns = d.cctns || {}; st.cd = st.cd || []; st.docs = st.docs || []; st.notices = st.notices || []; st.flags = st.flags || {}; d.idents = d.idents || [];
@@ -537,8 +536,7 @@ const CDX = {
     const r = CDX.orig.diary.apply(this, arguments);
     try {
       CDX._m = null; CDX.glance(el);
-      const bt = $('.cc-btns', el); if (bt && !$('#ccImpX', bt)) { bt.insertAdjacentHTML('afterbegin', '<button class="btn primary" id="ccImpX" title="CCTNS case zip / folder: FIR, all CD parts, CS / FR">📦 Import CCTNS Case</button>'); $('#ccImpX', bt).onclick = () => CDX.importUI(); }
-      const hd = $('.cc-all .d2-hd', el); if (hd) { hd.insertAdjacentHTML('beforeend', '<button class="btn sm primary" id="ccImpA" style="margin-left:auto">📦 Import CCTNS Cases</button>'); $('#ccImpA', hd).onclick = () => CDX.importUI(); }
+      const bt = $('.cc-btns', el); if (bt && !$('#ccImpX', bt)) { ['#ccFir', '#ccCd', '#ccUp'].forEach(s => { const x = $(s, bt); if (x) x.remove(); }); bt.insertAdjacentHTML('afterbegin', '<button class="btn primary" id="ccImpX" title="One place for every file: CCTNS zip / folder, FIR, case-diary parts, CS / CS-PPI / FR, bank / telecom / NIC e-mail replies, statements, photos, money trail, CDR …">📥 Import / Upload</button>'); }
       if (typeof Dash2 !== 'undefined') {
         el.insertAdjacentHTML('beforeend', Dash2.commonHtml().replace('🔗 Common with your other cases', '🔗 Common Across Your Cases – FIR, NCRP, Money Trail, Bank, Telecom, Google, Email & Others').replace('Identifiers of this case that also appear in another case on this computer.', 'Every mobile, account, UPI, email, IP and link of this case (FIR, case diary, NCRP, money trail, bank / telecom / Google / NIC email replies, subordinates\' reports) that also appears in another of your cases – the common suspects.'));
         if (S.cases.length > 1) Dash2.others((i, t) => { const x = $('#d2Cc', el); if (x && x.classList.contains('muted')) x.textContent = `Checking your other cases… ${i} of ${t}`; }).then(() => { if (document.body.contains(el)) Dash2.drawCommon(el); }).catch(() => { });
