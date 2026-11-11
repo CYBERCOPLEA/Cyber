@@ -62,7 +62,7 @@ const XM = {
   info(o) {
     const op = n => TSC.op(n) ? `<span class="opb" style="--oc:${TSC.OPC[TSC.op(n)]}">${TSC.op(n)}</span>` : '';
     if (o.f === 'mob') return Tel.alsoB('mobile', o.v);
-    if (o.f === 'imei') return `<span class="small muted">TAC ${esc(o.v.slice(0, 8))}</span> ` + Tel.alsoB('imei', o.v);
+    if (o.f === 'imei') return `<span class="small">${TACDB.html(o.v)}</span> ` + Tel.alsoB('imei', o.v);
     if (o.f === 'imsi') { const m = TSC.mncOp(o.v); return m ? `<span class="opb" style="--oc:${TSC.OPC[m]}">${m}</span>` : `<span class="small muted">MCC-MNC ${esc(o.v.slice(0, 5))}</span>`; }
     if (o.f === 'll') return CDRX.map(...o.v.split(', '));
     if (o.f === 'xip' || o.f === 'pip') return Tel.alsoB('ip', o.v);

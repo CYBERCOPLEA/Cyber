@@ -641,7 +641,7 @@ const OthTabs = {
       if (V.ifsc(v)) out.push(['IFSC', `Valid format · <b>${esc(bankFromIfsc(v) || 'Bank code ' + v.slice(0, 4))}</b> · branch code ${esc(v.slice(5))}`]);
       if (/^[A-Z]{5}\d{4}[A-Z]$/i.test(v)) out.push(['PAN', `Valid format · holder type <b>${V.panType(v)}</b> · surname/name initial ${esc(v[4].toUpperCase())}`]);
       if (/^\d{4}\s?\d{4}\s?\d{4}$/.test(v)) out.push(['Aadhaar', V.aadhaar(v) ? '<span class="badge good">Checksum valid</span>' : '<span class="badge bad">Invalid checksum – wrong / fake</span>']);
-      if (/^\d{15}$/.test(v)) out.push(['IMEI', V.imei(v) ? `<span class="badge good">Valid (Luhn)</span> TAC ${v.slice(0, 8)} identifies model` : '<span class="badge bad">Invalid checksum</span>']);
+      if (/^\d{15}$/.test(v)) out.push(['IMEI', V.imei(v) ? `<span class="badge good">Valid (Luhn)</span> ${TACDB.html(v)}` : '<span class="badge bad">Invalid checksum</span>']);
       if (/^(\+?91|0)?[6-9]\d{9}$/.test(v.replace(/[\s\-]/g, ''))) out.push(['Mobile', `Indian mobile · ${N.mobile(v)}`]);
       if (/^[\w.\-]+@[a-z]+$/i.test(v)) out.push(['UPI ID', esc(UPI_HANDLES[v.split('@')[1].toLowerCase()] || 'Unknown handle – check NPCI list')]);
       if (V.email(v) && v.split('@')[1].includes('.')) out.push(['Email', 'Valid format · domain ' + esc(v.split('@')[1])]);

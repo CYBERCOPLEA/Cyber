@@ -69,10 +69,10 @@ const XT = {
     else if (d.length === 15) r.IMEI = `<b class="mono">${d}</b> ` + (V.luhn(d) ? '<span class="badge good">Valid (check digit OK)</span>' : '<span class="badge bad">Invalid check digit – may be fake / cloned or mistyped</span>');
     else if (d.length === 16) r.IMEI = `<b class="mono">${d}</b> <span class="badge warn">16 digits = IMEISV (software version ${d.slice(14)})</span> → IMEI body ${d.slice(0, 14)}`;
     else { r.IMEI = '<span class="badge bad">IMEI must be 14–16 digits</span>'; return r; }
-    r['TAC (model code)'] = `<span class="mono">${d.slice(0, 8)}</span> – same TAC = same make & model`;
+    r['Brand & Model'] = TACDB.html(d);
     r['Serial'] = `<span class="mono">${d.slice(8, 14)}</span>`;
     if (/^(\d)\1{13}/.test(d) || /^0{8}/.test(d)) r.Note = '<span class="badge bad">Dummy / null IMEI pattern</span>';
-    else r.Note = 'Dual-SIM phones have two IMEIs, usually with the same TAC. Send both to the operator for numbers used.';
+    else r.Note = 'Dual-SIM phones have two IMEIs, usually of the same Brand & Model. Send both to the operator for numbers used.';
     return r;
   },
   mac(v) {

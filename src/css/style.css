@@ -1837,3 +1837,6 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
 .cx-cs{max-width:220px}
 .tbl:has(.cx-cs) td>.small{display:inline-block;min-width:110px}
 .tbl:has(.cx-cs) td:last-child,.tbl:has(.cx-cs) td:nth-last-child(2){min-width:108px;overflow-wrap:normal}
+
+/* Brand & Model from IMEI */
+.tacm{white-space:normal}
