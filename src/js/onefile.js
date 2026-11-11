@@ -5,7 +5,7 @@
    you choose (FIR Cases / NCRP Without FIR sub-folders) – kept up to date automatically. Nothing goes online. */
 'use strict';
 const OneFile = {
-  CSS: `.of{font:14px/1.5 "Segoe UI","Noto Sans Devanagari","Nirmala UI",Arial,sans-serif;color:#0f172a;background:#fff;max-width:1100px;margin:0 auto;border-radius:14px;overflow:hidden;box-shadow:0 10px 30px -12px rgba(0,0,0,.4)}
+  CSS: `.of{font-family:var(--doc-font,"Segoe UI","Noto Sans Devanagari","Nirmala UI",Arial,sans-serif);font-size:var(--doc-size,11pt);line-height:var(--doc-lh,1.45);color:#0f172a;background:#fff;max-width:1100px;margin:0 auto;border-radius:14px;overflow:hidden;box-shadow:0 10px 30px -12px rgba(0,0,0,.4)}
 .of *{box-sizing:border-box}.of-hd{display:flex;gap:16px;align-items:center;padding:18px 22px;background:linear-gradient(120deg,#0b1f4b,#1e3a8a 60%,#7c2d12);color:#fff}
 .of-hd img{width:74px;height:74px;object-fit:contain;flex:none}.of-hd .t{font-size:12px;letter-spacing:.14em;opacity:.85}.of-hd h1{margin:2px 0 4px;font-size:22px;line-height:1.25}
 .of-hd .m{font-size:13px;opacity:.92}.of-hd .r{margin-left:auto;text-align:right;font-size:12px;opacity:.9}
@@ -16,8 +16,9 @@ const OneFile = {
 .of details.s>summary::-webkit-details-marker{display:none}.of details.s>summary:before{content:"▸";color:#64748b;transition:.15s}.of details.s[open]>summary:before{transform:rotate(90deg)}
 .of details.s>summary .n{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:8px;background:#1e3a8a;color:#fff;font-size:13px}
 .of details.s>summary .c{margin-left:auto;font-size:12px;font-weight:600;color:#64748b}.of .b{padding:10px 18px 16px}
-.of table{width:100%;border-collapse:collapse;margin:6px 0 10px;font-size:13px}.of th,.of td{border:1px solid #e2e8f0;padding:5px 8px;text-align:left;vertical-align:top}.of th{background:#eef2ff;color:#1e3a8a;font-weight:700}
-.of table.kv th{width:190px;background:#f8fafc;color:#334155}.of h4{margin:12px 0 4px;font-size:14px;color:#1e3a8a}.of .tx{white-space:pre-wrap;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:8px 10px;max-height:340px;overflow:auto;font-size:13px}
+.of table{width:100%;border-collapse:collapse;margin:6px 0 10px;font-size:.95em}.of th,.of td{border:1px solid #e2e8f0;padding:5px 8px;text-align:left;vertical-align:top}.of th{background:#eef2ff;color:#1e3a8a;font-weight:700}
+.of table.kv th{width:190px;background:#f8fafc;color:#334155}.of h4{margin:12px 0 4px;font-size:14px;color:#1e3a8a}.of .tx{white-space:pre-wrap;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:8px 10px;max-height:340px;overflow:auto;font-size:.95em}
+.of[contenteditable=true]{outline:3px dashed #f59e0b;outline-offset:4px}.of[contenteditable=true] .tx{max-height:none}
 .of .g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}.of .box{border:1px solid #e2e8f0;border-radius:10px;padding:8px 12px}.of .box.g{border-color:#86efac;background:#f0fdf4}.of .box.r{border-color:#fca5a5;background:#fef2f2}
 .of .st{display:inline-block;padding:1px 8px;border-radius:99px;font-size:11px;font-weight:700}.of .st.g{background:#dcfce7;color:#166534}.of .st.w{background:#fef3c7;color:#92400e}.of .st.b{background:#fee2e2;color:#991b1b}.of .st.i{background:#e0e7ff;color:#3730a3}
 .of .mono{font-family:Consolas,monospace}.of .mu{color:#64748b;font-size:12px}.of ul.ck{list-style:none;padding:0;margin:4px 0}.of ul.ck li{padding:4px 0;border-bottom:1px dashed #e2e8f0}
@@ -99,26 +100,79 @@ const OneFile = {
     const chips = [B.isN ? '🧾 NCRP – No FIR Yet' : '📁 FIR ' + (B.f.no || c.fir || ''), B.isN && B.acks.length ? 'Ack ' + B.acks[0] + (B.acks.length > 1 ? ' +' + (B.acks.length - 1) : '') : '', c.ps && 'PS ' + c.ps, c.district, c.io && 'IO ' + c.io, B.fin].filter(Boolean);
     return `<div class="of-hd">${this.logo() ? `<img src="${this.logo()}" alt="">` : ''}<div><div class="t">CASE ONE FILE · केस वन फाइल</div><h1>${esc(c.name || '')}</h1><div class="of-chips">${chips.map(x => `<span class="of-chip">${esc(x)}</span>`).join('')}</div></div><div class="r">SudarshanAshtra<br>Cyber Crime Analysis &amp; Tracking<br>Updated ${new Date().toLocaleString('en-IN')}</div></div>`;
   },
-  html(c) { const B = this.body(S.data, c); return `<div class="of no-tc">${this.head(c, B)}${B.h}<div class="ft">Made on this computer by SudarshanAshtra from the FIR, case diary and imported data. Restricted – for official use only.</div></div>`; },
-  full(inner, c) { return `<!DOCTYPE html><html lang="hi"><head><meta charset="utf-8"><title>Case One File – ${esc(c.name || '')}</title><style>body{margin:0;padding:16px;background:#e2e8f0}${this.CSS}</style></head><body><div class="np" style="max-width:1100px;margin:0 auto 10px;font:13px sans-serif"><button onclick="document.querySelectorAll('details').forEach(d=>d.open=true);print()">🖨 Print / Save As PDF</button> <button onclick="document.querySelectorAll('details').forEach(d=>d.open=true)">Open All</button> <button onclick="document.querySelectorAll('details').forEach(d=>d.open=false)">Close All</button></div>${inner}</body></html>`; },
+  html(c) { const E = (S.data || {}).oneFile; if (E && E.html) return `<div class="of no-tc">${E.html}</div>`; return this.gen(c); },
+  gen(c) { const B = this.body(S.data, c); return `<div class="of no-tc">${this.head(c, B)}${B.h}<div class="ft">Made on this computer by SudarshanAshtra from the FIR, case diary and imported data. Restricted – for official use only.</div></div>`; },
+  full(inner, c) { const F = typeof DocFont !== 'undefined' ? DocFont.get() : { s: 11, lh: 1.4 }; return `<!DOCTYPE html><html lang="hi"><head><meta charset="utf-8"><title>Case One File – ${esc(c.name || '')}</title><style>body{margin:0;padding:16px;background:#e2e8f0}:root{--doc-font:${typeof DocFont !== 'undefined' ? DocFont.css(F.f) : 'Arial'};--doc-size:${F.s}pt;--doc-lh:${F.lh}}${this.CSS}</style></head><body><div class="np" style="max-width:1100px;margin:0 auto 10px;font:13px sans-serif"><button onclick="document.querySelectorAll('details').forEach(d=>d.open=true);print()">🖨 Print / Save As PDF</button> <button onclick="document.querySelectorAll('details').forEach(d=>d.open=true)">Open All</button> <button onclick="document.querySelectorAll('details').forEach(d=>d.open=false)">Close All</button></div>${inner}</body></html>`; },
   fname(c) { const id = c.fir ? 'FIR_' + c.fir : 'NCRP_' + (String(c.ack || '').split(/[,;\s]+/)[0] || ''); const k = String(c.fir || c.ack || '').split(/[,;\s]+/)[0]; return ('Case_One_File_' + id + (k && String(c.name || '').includes(k) ? '' : '_' + (c.name || ''))).replace(/[^\w\-]+/g, '_').replace(/_+/g, '_').slice(0, 90); },
   async docFor(c) { return this.withCase(c, () => this.full(this.html(c).replace('<details class="s"', '<details class="s"'), c)); },
   /* ---------- in the app ---------- */
   view(el) {
     if (this.dir === null && !this._ld) { this._ld = 1; DB.get('ofDir').then(h => { this.dir = h || null; }).catch(() => { }); }
     if (!$('#ofCss')) document.head.insertAdjacentHTML('beforeend', `<style id="ofCss">${this.CSS}</style>`);
-    const c = activeCase();
-    el.innerHTML = `<div class="of-bar"><button class="btn primary" id="ofExp">⬇ Export Report ▾</button><button class="btn" id="ofAll">⤢ Open All</button><button class="btn" id="ofNone">⤡ Close All</button><span class="spacer"></span><button class="btn" id="ofDir" title="Save the Case One File of every case into a folder on this computer – FIR Cases and NCRP Without FIR sub-folders. Kept up to date automatically.">📁 ${this.dir ? 'Save All Cases Now' : 'Save All Cases To A Folder'}</button><span class="small muted" id="ofSt">${esc(this._last)}</span></div><div id="ofDoc">${this.html(c)}</div>`;
+    const c = activeCase(), E = S.data.oneFile;
+    el.innerHTML = `<div class="of-bar"><button class="btn primary" id="ofExp">⬇ Export Report ▾</button><button class="btn" id="ofEd" title="Edit the text, tables and formatting – then Save">✏ Edit</button><button class="btn" id="ofAll">⤢ Open All</button><button class="btn" id="ofNone">⤡ Close All</button><span class="spacer"></span><button class="btn" id="ofDir" title="Save the Case One File of every case into a folder on this computer – FIR Cases and NCRP Without FIR sub-folders. Kept up to date automatically.">📁 ${this.dir ? 'Save All Cases Now' : 'Save All Cases To A Folder'}</button><span class="small muted" id="ofSt">${esc(this._last)}</span></div>
+      <div id="ofFmt" class="of-fmt hidden"></div>
+      ${E && E.html ? `<div class="of-ed">✏ <b>Edited by IO</b> on ${esc(new Date(E.when).toLocaleString('en-IN'))} – this copy is used for export and the folder. New data imported later is not added to it. <button class="btn sm" id="ofRe">↺ Rebuild From Latest Data</button></div>` : ''}
+      <div id="ofDoc">${this.html(c)}</div>`;
     $('#ofAll', el).onclick = () => $$('#ofDoc details', el).forEach(d => d.open = true); $('#ofNone', el).onclick = () => $$('#ofDoc details', el).forEach(d => d.open = false);
     $('#ofDir', el).onclick = () => this.saveAll(true);
     $('#ofExp', el).onclick = e => this.menu(e.currentTarget, c);
+    $('#ofEd', el).onclick = () => this.edit(el, true);
+    const re = $('#ofRe', el); if (re) re.onclick = () => { if (!confirm('Rebuild the Case One File from the latest data? Your edits will be removed.')) return; delete S.data.oneFile; saveCase(); this.view(el); UI.toast('Case One File rebuilt from the latest data'); };
+  },
+  /* ---------- edit like a document: font, size, bold, colour, alignment, lists, table rows ---------- */
+  edit(el, on) {
+    const doc = $('#ofDoc .of', el), bar = $('#ofFmt', el), F = typeof DocFont !== 'undefined' ? DocFont.FONTS : [['', ['Arial', 'Times New Roman', 'Mangal']]];
+    if (!on) { doc.removeAttribute('contenteditable'); bar.classList.add('hidden'); $('#ofEd', el).classList.remove('hidden'); return; }
+    this._undo = doc.innerHTML; $$('details', doc).forEach(d => d.open = true);
+    doc.setAttribute('contenteditable', 'true'); $('#ofEd', el).classList.add('hidden'); bar.classList.remove('hidden');
+    const B = (k, t, tip) => `<button class="btn sm" data-fx="${k}" title="${tip}">${t}</button>`;
+    bar.innerHTML = `<select id="ofFn" title="Font of the selected text"><option value="">Font…</option>${F.map(([g, L]) => `<optgroup label="${esc(g)}">${L.map(f => `<option value="${esc(f)}" style="font-family:'${esc(f)}'">${esc(f)}</option>`).join('')}</optgroup>`).join('')}</select>
+      <select id="ofFs" title="Size of the selected text"><option value="">Size…</option>${[8, 9, 10, 11, 12, 13, 14, 16, 18, 20, 24, 28].map(n => `<option value="${n}">${n} pt</option>`).join('')}</select>
+      ${B('bold', '<b>B</b>', 'Bold')}${B('italic', '<i>I</i>', 'Italic')}${B('underline', '<u>U</u>', 'Underline')}${B('strikeThrough', '<s>S</s>', 'Strike')}
+      <label class="of-col" title="Text colour">A<input type="color" id="ofFc" value="#b91c1c"></label><label class="of-col" title="Highlight">🖍<input type="color" id="ofBc" value="#fde047"></label>
+      ${B('justifyLeft', '⯇', 'Align left')}${B('justifyCenter', '≡', 'Centre')}${B('justifyRight', '⯈', 'Align right')}${B('justifyFull', '☰', 'Justify')}
+      ${B('insertUnorderedList', '• List', 'Bullet list')}${B('insertOrderedList', '1. List', 'Numbered list')}${B('h4', 'Heading', 'Make a heading')}${B('row', '+ Row', 'Add a row below (click inside a table first)')}${B('delrow', '− Row', 'Delete this table row')}${B('removeFormat', '⌫ Clear', 'Clear formatting')}${B('undo', '↶', 'Undo')}${B('redo', '↷', 'Redo')}
+      <span class="spacer"></span><button class="btn primary sm" id="ofSv">💾 Save</button><button class="btn sm" id="ofCx">✖ Cancel</button>`;
+    let rng = null; const keep = () => { const s = getSelection(); if (s.rangeCount && doc.contains(s.anchorNode)) rng = s.getRangeAt(0).cloneRange(); };
+    doc.onkeyup = doc.onmouseup = keep; const back = () => { if (rng) { const s = getSelection(); s.removeAllRanges(); s.addRange(rng); } doc.focus(); };
+    try { document.execCommand('styleWithCSS', false, true); } catch (e) { }
+    const cellOf = () => { const s = getSelection(); let n = s.anchorNode; while (n && n !== doc && n.nodeName !== 'TR') n = n.parentNode; return n && n.nodeName === 'TR' ? n : null; };
+    $$('[data-fx]', bar).forEach(b => { b.onmousedown = e => e.preventDefault(); b.onclick = () => { back(); const k = b.dataset.fx;
+      if (k === 'h4') document.execCommand('formatBlock', false, 'h4');
+      else if (k === 'row' || k === 'delrow') { const tr = cellOf(); if (!tr) return UI.toast('Click inside a table row first'); if (k === 'delrow') tr.remove(); else { const n = tr.cloneNode(true); [...n.cells].forEach(td => td.innerHTML = '&nbsp;'); tr.after(n); } }
+      else document.execCommand(k, false, null); keep(); }; });
+    $('#ofFn', bar).onchange = e => { back(); if (e.target.value) document.execCommand('fontName', false, e.target.value); e.target.value = ''; keep(); };
+    $('#ofFs', bar).onchange = e => { const v = e.target.value; e.target.value = ''; if (!v) return; back(); document.execCommand('fontSize', false, 7);
+      $$('font[size="7"]', doc).forEach(x => { x.removeAttribute('size'); x.style.fontSize = v + 'pt'; }); $$('[style*="xxx-large"]', doc).forEach(x => x.style.fontSize = v + 'pt'); keep(); };
+    $('#ofFc', bar).oninput = e => { back(); document.execCommand('foreColor', false, e.target.value); keep(); };
+    $('#ofBc', bar).oninput = e => { back(); document.execCommand('hiliteColor', false, e.target.value); keep(); };
+    $('#ofSv', bar).onclick = () => { doc.removeAttribute('contenteditable'); S.data.oneFile = { html: doc.innerHTML, when: new Date().toISOString() }; saveCase(); UI.toast('Case One File saved – used for export and the folder'); this.view(el); };
+    $('#ofCx', bar).onclick = () => { doc.innerHTML = this._undo; this.edit(el, false); };
+  },
+  /* Excel: one sheet per section, every table and text block of the file (edits included) */
+  excel(c, html) {
+    if (typeof XLSX === 'undefined') return UI.toast('Excel library not loaded');
+    const box = document.createElement('div'); box.innerHTML = html; const wb = XLSX.utils.book_new(), T = x => (x.innerText || x.textContent || '').replace(/\s+\n/g, '\n').trim(), used = new Set();
+    const sum = [['CASE ONE FILE', c.name || ''], ...$$('.of-chip', box).map(x => ['', T(x)]), [], ...$$('.of-k div', box).map(x => [T($('span', x)), T($('b', x))])];
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(sum), 'Summary');
+    $$('details.s', box).forEach((d, i) => { const rows = [], sm = $('summary', d).cloneNode(true); $$('.n, .c', sm).forEach(x => x.parentNode.removeChild(x)); const t = T(sm).replace(/\s+/g, ' ').trim(), cn = $('summary .c', d);
+      rows.push([t, cn ? T(cn) : '']); rows.push([]);
+      $$('h4, table, .tx, .box > div:not(.g2), ul.ck > li, ol > li, details.cd > summary, .in > div', $('.b', d)).forEach(x => {
+        if (x.closest('table') && x.tagName !== 'TABLE') return;
+        if (x.tagName === 'TABLE') { $$('tr', x).forEach(tr => rows.push([...tr.cells].map(td => T(td)))); rows.push([]); }
+        else if (x.tagName === 'H4') rows.push([T(x).toUpperCase()]);
+        else rows.push([T(x).replace(/\s+/g, ' ').slice(0, 32000)]); });
+      let nm = (i + 1) + ' ' + t.replace(/[\\\/\?\*\[\]:]/g, ' ').replace(/[^\w\s\-&()]/g, '').replace(/\s+/g, ' ').trim(); nm = nm.slice(0, 31); while (used.has(nm)) nm = nm.slice(0, 29) + '_' + i; used.add(nm);
+      const ws = XLSX.utils.aoa_to_sheet(rows); ws['!cols'] = [{ wch: 28 }, { wch: 40 }, { wch: 30 }, { wch: 22 }, { wch: 18 }, { wch: 18 }, { wch: 14 }, { wch: 14 }]; XLSX.utils.book_append_sheet(wb, ws, nm); });
+    XLSX.writeFile(wb, this.fname(c) + '.xlsx');
   },
   menu(btn, c) {
     const old = $('.cdx-menu'); if (old) { old.remove(); return; }
     const m = document.createElement('div'); m.className = 'cdx-menu';
-    m.innerHTML = [['pdf', '🖨', 'PDF', 'Print box → Save as PDF'], ['doc', '📝', 'Word (DOC)', 'Opens in MS Word'], ['html', '🌐', 'HTML', 'One file – opens in any browser'], ['view', '👁', 'View In New Tab', '']].map(([k, i, t, s]) => `<button data-of="${k}"><span class="ic">${i}</span><span><b>Case One File – ${t}</b><small>${s}</small></span></button>`).join('');
+    m.innerHTML = [['pdf', '🖨', 'PDF', 'Print box → Save as PDF'], ['doc', '📝', 'Word (DOC)', 'Opens in MS Word'], ['html', '🌐', 'HTML', 'One file – opens in any browser'], ['xlsx', '📊', 'Excel (XLSX)', 'One sheet per section'], ['view', '👁', 'View In New Tab', '']].map(([k, i, t, s]) => `<button data-of="${k}"><span class="ic">${i}</span><span><b>Case One File – ${t}</b><small>${s}</small></span></button>`).join('');
     document.body.appendChild(m); const r = btn.getBoundingClientRect(); m.style.top = (r.bottom + 6) + 'px'; m.style.left = Math.max(8, Math.min(r.left, innerWidth - m.offsetWidth - 8)) + 'px';
-    $$('[data-of]', m).forEach(x => x.onclick = async () => { m.remove(); const k = x.dataset.of, full = (await this.docFor(c)).replace(/<details class="(s|cd)"/g, '<details open class="$1"'), nm = this.fname(c);
+    $$('[data-of]', m).forEach(x => x.onclick = async () => { m.remove(); const k = x.dataset.of; if (k === 'xlsx') return this.withCase(c, () => this.excel(c, this.html(c))); const full = (await this.docFor(c)).replace(/<details class="(s|cd)"/g, '<details open class="$1"'), nm = this.fname(c);
       if (k === 'doc') return this.save(full.replace(/<div class="np"[\s\S]*?<\/div>/, ''), 'application/msword', nm + '.doc'); if (k === 'html') return this.save(full, 'text/html', nm + '.html');
       const w = window.open('', '_blank'); if (!w) return UI.toast('Pop-up blocked. Allow pop-ups for this page.'); w.document.open(); w.document.write(full); w.document.close(); if (k === 'pdf') setTimeout(() => { try { w.focus(); w.print(); } catch (e) { } }, 700); });
     setTimeout(() => document.addEventListener('mousedown', function cl(ev) { if (!m.contains(ev.target)) { m.remove(); document.removeEventListener('mousedown', cl); } }));
