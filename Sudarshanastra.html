@@ -2054,6 +2054,9 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
 .ad-n{cursor:pointer;border-bottom:1px dashed currentColor;padding:0 2px;border-radius:4px}.ad-n:hover{background:color-mix(in srgb,var(--accent,#3b82f6) 22%,transparent)}
 .ad-stack b[data-st]{cursor:pointer}
 
+.ad-kv{width:100%;border-collapse:collapse}.ad-kv th{text-align:left;width:34%;padding:7px 10px;color:var(--text-secondary);font-weight:600;border-bottom:1px solid var(--border);vertical-align:top}.ad-kv td{padding:7px 10px;border-bottom:1px solid var(--border);word-break:break-word}
+.ad-dcase{font-weight:700;margin-bottom:8px}.ad-full{white-space:pre-wrap;max-height:50vh;overflow:auto;padding:12px 14px;border:1px solid var(--border);border-radius:10px;background:var(--surface-2);font-size:14px;line-height:1.55}
+
 </style>
 </head>
 <body>
@@ -2101,7 +2104,7 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
         <div class="hp-feat" style="--fc:#06b6d4"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><div><b>Analytics</b><p>The same mobile, account, IP or e-mail across complaints, banks and platforms.</p></div></div>
         <div class="hp-feat" style="--fc:#eab308"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h5"/></svg></span><div><b>Case File &amp; Notices</b><p>Case reports, notices to banks and platforms, and CSV / PDF exports.</p></div></div>
     </section>
-    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-11 22:29 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
+    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-11 22:46 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
   </div>
 
   <div class="lg-wrap" id="lgWrap" aria-hidden="true">
@@ -2740,6 +2743,7 @@ const Vault = (() => {
   /* per-case summaries saved for next time (common identifiers, work lists…): reused until that case changes,
      so big cases are not read again just to show the Dashboard */
   let VER = null; const ver = async () => VER || (VER = (await G('casever')) || {});
+  V.verKey = async () => JSON.stringify(await ver());
   V.sum = async (id, name, tag, fn) => {
     const v = (await ver())[id] || 0, K = 'sum:' + name + ':' + id; let r; try { r = await DB.get(K); } catch (e) { }
     if (r && r.v === v && r.t === tag) return r.d;
@@ -5137,9 +5141,10 @@ function applyTheme() { document.documentElement.dataset.theme = S.settings.them
 /* ---------- Cases ---------- */
 function fillCaseSel() { if (typeof AllMode !== 'undefined') { $('#caseSel').innerHTML = AllMode.options(); return; } $('#caseSel').innerHTML = S.cases.map(c => `<option value="${c.id}" ${c.id === S.caseId ? 'selected' : ''}>${esc(c.name)}${c.fir ? ' · ' + esc(c.fir) : ''}</option>`).join(''); }
 async function switchCase(id) {
-  if (S.caseId && S.data && !isScope(S.caseId)) { clearTimeout(saveTimer); await DB.set('case:' + S.caseId, S.data); }
+  if (S.caseId && S.data && !isScope(S.caseId)) { clearTimeout(saveTimer); DB.set('case:' + S.caseId, S.data).catch(e => console.warn('save', e)); }   // saved in the background – reads of that case wait for it
   if (S.caseId && !isScope(S.caseId)) S.prevCase = S.caseId;
-  S.caseId = id; S.data = isScope(id) ? await AllMode.merge(id) : Object.assign(emptyCase(), await DB.get('case:' + id) || {}); Analysis.invalidate(); S.graphOpt = null; S.filterBank = null; S.trailAck = '';
+  S.caseId = id; if (!isScope(id) && AllMode._mc) { clearTimeout(AllMode._drop); AllMode._drop = setTimeout(() => { if (!isScope(S.caseId)) AllMode._mc = null; }, 120000); }
+  S.data = isScope(id) ? await AllMode.lazy(id) : Object.assign(emptyCase(), await DB.get('case:' + id) || {}); Analysis.invalidate(); S.graphOpt = null; S.filterBank = null; S.trailAck = '';
   await saveMeta(); fillCaseSel(); render();
 }
 async function newCase(name) {
@@ -5287,7 +5292,7 @@ async function start() {
   if (!S.cases.length) { const c = { id: uid(), name: 'Case 1', created: new Date().toISOString(), status: 'Under investigation' }; S.cases.push(c); await DB.set('case:' + c.id, emptyCase()); S.caseId = c.id; }
   if (isScope(S.caseId) && !AllMode.list(S.caseId).length) S.caseId = S.cases[0].id;
   if (!isScope(S.caseId) && !S.cases.some(c => c.id === S.caseId)) S.caseId = S.cases[0].id;
-  S.data = isScope(S.caseId) ? await AllMode.merge(S.caseId) : Object.assign(emptyCase(), await DB.get('case:' + S.caseId) || {});
+  S.data = isScope(S.caseId) ? await AllMode.lazy(S.caseId) : Object.assign(emptyCase(), await DB.get('case:' + S.caseId) || {});
   await saveMeta(); fillCaseSel();
   $$('.nav-item').forEach(n => n.onclick = () => go(n.dataset.page));
   $('#caseSel').onchange = e => switchCase(e.target.value);
@@ -14862,7 +14867,23 @@ const AllDash = {
       ask: () => ({ title: ttl('Replies Pending'), rows: () => flat(o => o.askList), cols: [...cc, { key: 'what', label: 'Awaited' }, { key: 'kind', label: 'From / Kind' }, { key: 'age', label: 'Days Pending', num: true, render: x => x.age ? `<b class="${x.age > 30 ? 'bad-t' : ''}">${x.age}</b>` : '' }], sort: 'age', pv: x => [x.what, x.age ? x.age + ' days' : ''] }),
       cases: (t, L) => ({ title: t, rows: () => L, cols: [{ key: 'name', label: 'Case' }, { key: 'fir', label: 'FIR / Ack No', render: x => esc(x.fir || (x.acks || []).join(', ')) }, INR('amount', 'Amount'), { key: 'io', label: 'IO' }, { key: 'status', label: 'Status' }, { key: 'work', label: 'Pending Work', num: true }], sort: 'amount', pv: x => [cn(x), x.amount ? fmtINR(x.amount) : x.status], onRow: x => this.open(x.id) })
     };
-    const d = D[kind](); if (!d.onRow) d.onRow = openC; return d;
+    const d = D[kind](); d.onRow = x => this.detail(kind, x, d); return d;
+  },
+  /* a row in the side panel → its full details right here (no page change) */
+  async detail(kind, x, def) {
+    const cols = (def.cols || []).filter(c => c.key !== '_case'), id = x._id || x.id;
+    const kv = cols.map(c => [c.label, c.render ? c.render(x) : esc(String(x[c.key] == null ? '' : x[c.key]))]).filter(r => String(r[1]).replace(/<[^>]+>/g, '').trim());
+    let extra = '';
+    if (kind === 'cd' && id) { let d = null; try { d = id === S.caseId ? S.data : await DB.get('case:' + id); } catch (e) { }
+      const L = ((d && d.cctns && d.cctns.cd) || []), cd = L.find(c => String(c.no) === String(x.no) && (!x.date || c.date === x.date)) || L.find(c => String(c.no) === String(x.no));
+      extra = cd ? `<h4 style="margin:14px 0 6px">Full Case Diary Text${cd.file ? ` <span class="small muted">· ${esc(cd.file)}</span>` : ''}</h4><div class="ad-full">${esc(cd.text || '')}</div>` : ''; }
+    if (kind === 'work' || kind === 'ask') extra = '<div class="small muted" style="margin-top:10px">Prepare the demand / notice from Case File &amp; Notices of this case.</div>';
+    const val = x.acc || x.value || (kind === 'acks' || kind === 'comps' || kind === 'amount' || kind === 'hold' || kind === 'layers' ? x.ack : '');
+    const btns = [];
+    if (val) btns.push({ label: '🎯 Track This In All Data', onClick: async () => { UI.closeModal(); UI.closeDrawer(); if (S.data && S.data._loading) UI.toast('Joining the data of all cases…'); while (S.data && S.data._loading) await new Promise(r => setTimeout(r, 300)); Dash2.track(val); } });
+    if (id) btns.push({ label: '📂 Open This Case', onClick: () => { UI.closeModal(); this.open(id); } });
+    btns.push({ label: 'Close', cls: 'primary', onClick: UI.closeModal });
+    UI.modal(def.title.split(' – ')[0] + ' – Details', `${x._case ? `<div class="ad-dcase">📁 ${esc(x._case)}</div>` : ''}<table class="ad-kv">${kv.map(([k, v]) => `<tr><th>${esc(k)}</th><td>${v}</td></tr>`).join('')}</table>${extra}`, btns);
   },
   bindDx(root, com) {
     $$('[data-dx]', root).forEach(el => { if (el._dx) return; el._dx = 1; const r = el.dataset.id ? (this._R || []).find(x => x.id === el.dataset.id) : null;
@@ -14978,10 +14999,21 @@ const AllMode = {
     const grp = (l, L) => L.length ? (h ? `<optgroup label="${esc(l)}">` : '') + L.map(c => o(c.id, this.caseLabel(c))).join('') + (h ? '</optgroup>' : '') : '';
     return h + grp(`📄 One Case – FIR (${F.length})`, F) + grp(`📄 One Case – NCRP Without FIR (${N.length})`, N);
   },
+  /* All / FIR / NCRP open at once: the Dashboard works from saved summaries while the rows of every case
+     are joined in the background; the joined data is kept until a case changes */
+  async lazy(sc) {
+    const key = sc + '|' + await Vault.verKey() + '|' + S.cases.map(c => c.id + ':' + c.name).join(',');
+    clearTimeout(this._drop);
+    if (this._mc && this._mc.key === key) return this._mc.data;
+    const ph = Object.assign(emptyCase(), { _all: sc, _loading: true }), tok = this._tok = {};
+    (async () => { await new Promise(r => setTimeout(r, 200)); while (typeof AllDash !== 'undefined' && AllDash.busy) { try { await AllDash.busy; } catch (e) { } } return this.merge(sc); })().then(d => { if (this._tok !== tok) return; this._mc = { key, data: d }; if (S.caseId !== sc || !S.data || !S.data._loading) return;
+      S.data = d; Analysis.invalidate(); try { render(); } catch (e) { console.warn(e); } }).catch(e => console.warn('merge', e));
+    return ph;
+  },
   async merge(sc = '__all') {
     const out = emptyCase();
     for (const c of this.list(sc)) {
-      const d = await DB.get('case:' + c.id) || {};
+      const d = await DB.get('case:' + c.id) || {}; await new Promise(r => setTimeout(r, 0));
       for (const [k, v] of Object.entries(d)) {
         if (!Array.isArray(v) || !v.length) continue;
         const a = out[k] || (out[k] = []);
@@ -14991,6 +15023,7 @@ const AllMode = {
     out._all = sc; return out;
   },
   _w: 0,
+  wait(main) { const n = this.list(S.data._all).length; main.innerHTML = `<div class="card" style="padding:28px"><h3>⏳ Joining the data of ${n} case${n === 1 ? '' : 's'}…</h3><div class="sub">This page needs every row of every case. It opens by itself in a moment – the Dashboard is ready now.</div><div class="row" style="margin-top:12px"><button class="btn primary" id="amWaitD">📊 Open Dashboard</button></div></div>`; $('#amWaitD', main).onclick = () => go('dashboard'); },
   warn() { if (Date.now() - this._w < 20000) return; this._w = Date.now(); UI.toast('Combined view is for viewing only – choose one case in the Case box to add or change data', 5000); },
   one(main, what) {
     const L = this.list();
@@ -14998,7 +15031,7 @@ const AllMode = {
       <div class="am-list">${L.map(c => `<button class="am-c" data-am="${c.id}"><b>${esc(this.caseLabel(c))}</b><small>${esc([this.cat(c) === 'fir' ? 'FIR case' : 'NCRP – no FIR yet', c.ps, c.io && 'IO ' + c.io, c.final ? (c.final.type === 'PPI' ? 'CS-PPI' : c.final.type) : c.status].filter(Boolean).join(' · '))}</small></button>`).join('')}</div></div>`;
     $$('[data-am]', main).forEach(b => b.onclick = () => switchCase(b.dataset.am));
   },
-  async refresh() { if (!this.on()) return; if (!this.list().length) return switchCase(S.cases[0].id); S.data = await this.merge(S.caseId); Analysis.invalidate(); if (typeof AllDash !== 'undefined') AllDash.C.clear(); fillCaseSel(); render(); }
+  async refresh() { if (!this.on()) return; if (!this.list().length) return switchCase(S.cases[0].id); S.data = await this.lazy(S.caseId); Analysis.invalidate(); if (typeof AllDash !== 'undefined') AllDash.C.clear(); fillCaseSel(); render(); }
 };
 (() => {
   const ONE = { others: 'Case File & Notices (case details, notes, notice drafts, reports)' };
@@ -15010,6 +15043,17 @@ const AllMode = {
   const dc = window.deleteCase; if (typeof dc === 'function') deleteCase = async function () { const r = await dc.apply(this, arguments); await AllMode.refresh(); return r; };
   // case details saved (e.g. FIR No. added to an NCRP case) → drop-down groups update
   const sm = saveMeta; saveMeta = async function () { const r = await sm.apply(this, arguments); try { fillCaseSel(); } catch (e) { } return r; };
+})();
+
+/* while the rows are being joined, pages that need them show a short wait note */
+(() => {
+  const r0 = render;
+  render = function () {
+    if (S.data && S.data._loading && /^(financial|social|ncrp|analytics|trail|caf|tele|others|search)$/.test(S.page)) {
+      $$('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.page === S.page)); AllMode.wait($('#main')); return;
+    }
+    return r0.apply(this, arguments);
+  };
 })();
 
 </script>

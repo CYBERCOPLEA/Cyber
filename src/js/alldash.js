@@ -48,7 +48,23 @@ const AllDash = {
       ask: () => ({ title: ttl('Replies Pending'), rows: () => flat(o => o.askList), cols: [...cc, { key: 'what', label: 'Awaited' }, { key: 'kind', label: 'From / Kind' }, { key: 'age', label: 'Days Pending', num: true, render: x => x.age ? `<b class="${x.age > 30 ? 'bad-t' : ''}">${x.age}</b>` : '' }], sort: 'age', pv: x => [x.what, x.age ? x.age + ' days' : ''] }),
       cases: (t, L) => ({ title: t, rows: () => L, cols: [{ key: 'name', label: 'Case' }, { key: 'fir', label: 'FIR / Ack No', render: x => esc(x.fir || (x.acks || []).join(', ')) }, INR('amount', 'Amount'), { key: 'io', label: 'IO' }, { key: 'status', label: 'Status' }, { key: 'work', label: 'Pending Work', num: true }], sort: 'amount', pv: x => [cn(x), x.amount ? fmtINR(x.amount) : x.status], onRow: x => this.open(x.id) })
     };
-    const d = D[kind](); if (!d.onRow) d.onRow = openC; return d;
+    const d = D[kind](); d.onRow = x => this.detail(kind, x, d); return d;
+  },
+  /* a row in the side panel → its full details right here (no page change) */
+  async detail(kind, x, def) {
+    const cols = (def.cols || []).filter(c => c.key !== '_case'), id = x._id || x.id;
+    const kv = cols.map(c => [c.label, c.render ? c.render(x) : esc(String(x[c.key] == null ? '' : x[c.key]))]).filter(r => String(r[1]).replace(/<[^>]+>/g, '').trim());
+    let extra = '';
+    if (kind === 'cd' && id) { let d = null; try { d = id === S.caseId ? S.data : await DB.get('case:' + id); } catch (e) { }
+      const L = ((d && d.cctns && d.cctns.cd) || []), cd = L.find(c => String(c.no) === String(x.no) && (!x.date || c.date === x.date)) || L.find(c => String(c.no) === String(x.no));
+      extra = cd ? `<h4 style="margin:14px 0 6px">Full Case Diary Text${cd.file ? ` <span class="small muted">· ${esc(cd.file)}</span>` : ''}</h4><div class="ad-full">${esc(cd.text || '')}</div>` : ''; }
+    if (kind === 'work' || kind === 'ask') extra = '<div class="small muted" style="margin-top:10px">Prepare the demand / notice from Case File &amp; Notices of this case.</div>';
+    const val = x.acc || x.value || (kind === 'acks' || kind === 'comps' || kind === 'amount' || kind === 'hold' || kind === 'layers' ? x.ack : '');
+    const btns = [];
+    if (val) btns.push({ label: '🎯 Track This In All Data', onClick: async () => { UI.closeModal(); UI.closeDrawer(); if (S.data && S.data._loading) UI.toast('Joining the data of all cases…'); while (S.data && S.data._loading) await new Promise(r => setTimeout(r, 300)); Dash2.track(val); } });
+    if (id) btns.push({ label: '📂 Open This Case', onClick: () => { UI.closeModal(); this.open(id); } });
+    btns.push({ label: 'Close', cls: 'primary', onClick: UI.closeModal });
+    UI.modal(def.title.split(' – ')[0] + ' – Details', `${x._case ? `<div class="ad-dcase">📁 ${esc(x._case)}</div>` : ''}<table class="ad-kv">${kv.map(([k, v]) => `<tr><th>${esc(k)}</th><td>${v}</td></tr>`).join('')}</table>${extra}`, btns);
   },
   bindDx(root, com) {
     $$('[data-dx]', root).forEach(el => { if (el._dx) return; el._dx = 1; const r = el.dataset.id ? (this._R || []).find(x => x.id === el.dataset.id) : null;

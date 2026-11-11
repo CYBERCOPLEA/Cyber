@@ -140,9 +140,10 @@ function applyTheme() { document.documentElement.dataset.theme = S.settings.them
 /* ---------- Cases ---------- */
 function fillCaseSel() { if (typeof AllMode !== 'undefined') { $('#caseSel').innerHTML = AllMode.options(); return; } $('#caseSel').innerHTML = S.cases.map(c => `<option value="${c.id}" ${c.id === S.caseId ? 'selected' : ''}>${esc(c.name)}${c.fir ? ' · ' + esc(c.fir) : ''}</option>`).join(''); }
 async function switchCase(id) {
-  if (S.caseId && S.data && !isScope(S.caseId)) { clearTimeout(saveTimer); await DB.set('case:' + S.caseId, S.data); }
+  if (S.caseId && S.data && !isScope(S.caseId)) { clearTimeout(saveTimer); DB.set('case:' + S.caseId, S.data).catch(e => console.warn('save', e)); }   // saved in the background – reads of that case wait for it
   if (S.caseId && !isScope(S.caseId)) S.prevCase = S.caseId;
-  S.caseId = id; S.data = isScope(id) ? await AllMode.merge(id) : Object.assign(emptyCase(), await DB.get('case:' + id) || {}); Analysis.invalidate(); S.graphOpt = null; S.filterBank = null; S.trailAck = '';
+  S.caseId = id; if (!isScope(id) && AllMode._mc) { clearTimeout(AllMode._drop); AllMode._drop = setTimeout(() => { if (!isScope(S.caseId)) AllMode._mc = null; }, 120000); }
+  S.data = isScope(id) ? await AllMode.lazy(id) : Object.assign(emptyCase(), await DB.get('case:' + id) || {}); Analysis.invalidate(); S.graphOpt = null; S.filterBank = null; S.trailAck = '';
   await saveMeta(); fillCaseSel(); render();
 }
 async function newCase(name) {
@@ -290,7 +291,7 @@ async function start() {
   if (!S.cases.length) { const c = { id: uid(), name: 'Case 1', created: new Date().toISOString(), status: 'Under investigation' }; S.cases.push(c); await DB.set('case:' + c.id, emptyCase()); S.caseId = c.id; }
   if (isScope(S.caseId) && !AllMode.list(S.caseId).length) S.caseId = S.cases[0].id;
   if (!isScope(S.caseId) && !S.cases.some(c => c.id === S.caseId)) S.caseId = S.cases[0].id;
-  S.data = isScope(S.caseId) ? await AllMode.merge(S.caseId) : Object.assign(emptyCase(), await DB.get('case:' + S.caseId) || {});
+  S.data = isScope(S.caseId) ? await AllMode.lazy(S.caseId) : Object.assign(emptyCase(), await DB.get('case:' + S.caseId) || {});
   await saveMeta(); fillCaseSel();
   $$('.nav-item').forEach(n => n.onclick = () => go(n.dataset.page));
   $('#caseSel').onchange = e => switchCase(e.target.value);

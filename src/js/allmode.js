@@ -20,10 +20,21 @@ const AllMode = {
     const grp = (l, L) => L.length ? (h ? `<optgroup label="${esc(l)}">` : '') + L.map(c => o(c.id, this.caseLabel(c))).join('') + (h ? '</optgroup>' : '') : '';
     return h + grp(`📄 One Case – FIR (${F.length})`, F) + grp(`📄 One Case – NCRP Without FIR (${N.length})`, N);
   },
+  /* All / FIR / NCRP open at once: the Dashboard works from saved summaries while the rows of every case
+     are joined in the background; the joined data is kept until a case changes */
+  async lazy(sc) {
+    const key = sc + '|' + await Vault.verKey() + '|' + S.cases.map(c => c.id + ':' + c.name).join(',');
+    clearTimeout(this._drop);
+    if (this._mc && this._mc.key === key) return this._mc.data;
+    const ph = Object.assign(emptyCase(), { _all: sc, _loading: true }), tok = this._tok = {};
+    (async () => { await new Promise(r => setTimeout(r, 200)); while (typeof AllDash !== 'undefined' && AllDash.busy) { try { await AllDash.busy; } catch (e) { } } return this.merge(sc); })().then(d => { if (this._tok !== tok) return; this._mc = { key, data: d }; if (S.caseId !== sc || !S.data || !S.data._loading) return;
+      S.data = d; Analysis.invalidate(); try { render(); } catch (e) { console.warn(e); } }).catch(e => console.warn('merge', e));
+    return ph;
+  },
   async merge(sc = '__all') {
     const out = emptyCase();
     for (const c of this.list(sc)) {
-      const d = await DB.get('case:' + c.id) || {};
+      const d = await DB.get('case:' + c.id) || {}; await new Promise(r => setTimeout(r, 0));
       for (const [k, v] of Object.entries(d)) {
         if (!Array.isArray(v) || !v.length) continue;
         const a = out[k] || (out[k] = []);
@@ -33,6 +44,7 @@ const AllMode = {
     out._all = sc; return out;
   },
   _w: 0,
+  wait(main) { const n = this.list(S.data._all).length; main.innerHTML = `<div class="card" style="padding:28px"><h3>⏳ Joining the data of ${n} case${n === 1 ? '' : 's'}…</h3><div class="sub">This page needs every row of every case. It opens by itself in a moment – the Dashboard is ready now.</div><div class="row" style="margin-top:12px"><button class="btn primary" id="amWaitD">📊 Open Dashboard</button></div></div>`; $('#amWaitD', main).onclick = () => go('dashboard'); },
   warn() { if (Date.now() - this._w < 20000) return; this._w = Date.now(); UI.toast('Combined view is for viewing only – choose one case in the Case box to add or change data', 5000); },
   one(main, what) {
     const L = this.list();
@@ -40,7 +52,7 @@ const AllMode = {
       <div class="am-list">${L.map(c => `<button class="am-c" data-am="${c.id}"><b>${esc(this.caseLabel(c))}</b><small>${esc([this.cat(c) === 'fir' ? 'FIR case' : 'NCRP – no FIR yet', c.ps, c.io && 'IO ' + c.io, c.final ? (c.final.type === 'PPI' ? 'CS-PPI' : c.final.type) : c.status].filter(Boolean).join(' · '))}</small></button>`).join('')}</div></div>`;
     $$('[data-am]', main).forEach(b => b.onclick = () => switchCase(b.dataset.am));
   },
-  async refresh() { if (!this.on()) return; if (!this.list().length) return switchCase(S.cases[0].id); S.data = await this.merge(S.caseId); Analysis.invalidate(); if (typeof AllDash !== 'undefined') AllDash.C.clear(); fillCaseSel(); render(); }
+  async refresh() { if (!this.on()) return; if (!this.list().length) return switchCase(S.cases[0].id); S.data = await this.lazy(S.caseId); Analysis.invalidate(); if (typeof AllDash !== 'undefined') AllDash.C.clear(); fillCaseSel(); render(); }
 };
 (() => {
   const ONE = { others: 'Case File & Notices (case details, notes, notice drafts, reports)' };
@@ -52,4 +64,15 @@ const AllMode = {
   const dc = window.deleteCase; if (typeof dc === 'function') deleteCase = async function () { const r = await dc.apply(this, arguments); await AllMode.refresh(); return r; };
   // case details saved (e.g. FIR No. added to an NCRP case) → drop-down groups update
   const sm = saveMeta; saveMeta = async function () { const r = await sm.apply(this, arguments); try { fillCaseSel(); } catch (e) { } return r; };
+})();
+
+/* while the rows are being joined, pages that need them show a short wait note */
+(() => {
+  const r0 = render;
+  render = function () {
+    if (S.data && S.data._loading && /^(financial|social|ncrp|analytics|trail|caf|tele|others|search)$/.test(S.page)) {
+      $$('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.page === S.page)); AllMode.wait($('#main')); return;
+    }
+    return r0.apply(this, arguments);
+  };
 })();

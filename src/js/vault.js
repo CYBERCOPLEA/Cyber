@@ -77,6 +77,7 @@ const Vault = (() => {
   /* per-case summaries saved for next time (common identifiers, work lists…): reused until that case changes,
      so big cases are not read again just to show the Dashboard */
   let VER = null; const ver = async () => VER || (VER = (await G('casever')) || {});
+  V.verKey = async () => JSON.stringify(await ver());
   V.sum = async (id, name, tag, fn) => {
     const v = (await ver())[id] || 0, K = 'sum:' + name + ':' + id; let r; try { r = await DB.get(K); } catch (e) { }
     if (r && r.v === v && r.t === tag) return r.d;
