@@ -1935,3 +1935,12 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
 /* siren dot: real strobe blink (double flash like a police light) */
 .hp-kicker .sir.r{animation:hpStrobe 1.2s steps(1,end) infinite!important}
 @keyframes hpStrobe{0%{opacity:1;box-shadow:0 0 6px #fff,0 0 16px #fff,0 0 30px rgba(255,255,255,.9)}12%{opacity:.12;box-shadow:none}24%{opacity:1;box-shadow:0 0 6px #fff,0 0 16px #fff,0 0 30px rgba(255,255,255,.9)}36%{opacity:.12;box-shadow:none}100%{opacity:.12;box-shadow:none}}
+
+/* login popup: badge goes behind the blur; cleaner card */
+.hp-kicker{z-index:3}
+.hp-kicker:hover,.hp-kicker:focus-visible{z-index:40}
+.lg-wrap{background:rgba(3,7,18,.78);backdrop-filter:blur(9px)}
+.lg-wrap .login-card{width:420px;max-width:94vw;border-radius:16px;box-shadow:0 24px 60px rgba(0,0,0,.65),0 0 0 1px rgba(255,255,255,.06),0 0 30px rgba(245,158,11,.18)}
+.lg-safe{display:flex;gap:8px;align-items:flex-start;margin-top:14px;padding:9px 11px;border-radius:10px;font-size:12.5px;font-weight:600;line-height:1.4;color:#a7f3d0;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.4)}
+.lg-safe b{color:#34d399;font-weight:800}
+.lg-safe .safe-ic{margin-top:1px}

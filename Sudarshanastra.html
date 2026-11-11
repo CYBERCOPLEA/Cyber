@@ -1944,6 +1944,15 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
 .hp-kicker .sir.r{animation:hpStrobe 1.2s steps(1,end) infinite!important}
 @keyframes hpStrobe{0%{opacity:1;box-shadow:0 0 6px #fff,0 0 16px #fff,0 0 30px rgba(255,255,255,.9)}12%{opacity:.12;box-shadow:none}24%{opacity:1;box-shadow:0 0 6px #fff,0 0 16px #fff,0 0 30px rgba(255,255,255,.9)}36%{opacity:.12;box-shadow:none}100%{opacity:.12;box-shadow:none}}
 
+/* login popup: badge goes behind the blur; cleaner card */
+.hp-kicker{z-index:3}
+.hp-kicker:hover,.hp-kicker:focus-visible{z-index:40}
+.lg-wrap{background:rgba(3,7,18,.78);backdrop-filter:blur(9px)}
+.lg-wrap .login-card{width:420px;max-width:94vw;border-radius:16px;box-shadow:0 24px 60px rgba(0,0,0,.65),0 0 0 1px rgba(255,255,255,.06),0 0 30px rgba(245,158,11,.18)}
+.lg-safe{display:flex;gap:8px;align-items:flex-start;margin-top:14px;padding:9px 11px;border-radius:10px;font-size:12.5px;font-weight:600;line-height:1.4;color:#a7f3d0;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.4)}
+.lg-safe b{color:#34d399;font-weight:800}
+.lg-safe .safe-ic{margin-top:1px}
+
 </style>
 </head>
 <body>
@@ -1991,7 +2000,7 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
         <div class="hp-feat" style="--fc:#06b6d4"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><div><b>Analytics</b><p>The same mobile, account, IP or e-mail across complaints, banks and platforms.</p></div></div>
         <div class="hp-feat" style="--fc:#eab308"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h5"/></svg></span><div><b>Case File &amp; Notices</b><p>Case reports, notices to banks and platforms, and CSV / PDF exports.</p></div></div>
     </section>
-    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-11 13:42 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
+    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-11 13:47 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
   </div>
 
   <div class="lg-wrap" id="lgWrap" aria-hidden="true">
@@ -2007,7 +2016,7 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
       </form>
       <div style="text-align:right;margin-top:8px"><a href="#" id="lgForgot" class="small" style="color:var(--accent)">Forgot password?</a></div>
       <p class="small muted" id="lgFirst" style="margin-top:14px"></p>
-      <p class="small muted">All data stays inside this browser on this computer. Nothing is uploaded.</p>
+      <p class="lg-safe no-tc"><svg class="safe-ic" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5z" fill="#10b981"/><rect x="8.5" y="11" width="7" height="5.5" rx="1" fill="#fff"/><path d="M10 11V9.5a2 2 0 0 1 4 0V11" fill="none" stroke="#fff" stroke-width="1.6"/></svg><span><b>Offline</b> · Your case data stays on this computer, never uploaded to any server or online.</span></p>
     </div>
   </div>
 </div>
