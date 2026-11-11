@@ -284,6 +284,7 @@ async function boot() {
   };
 }
 async function start() {
+  $('#main').innerHTML = '<div class="muted" style="padding:40px;font-size:16px">⏳ Opening your cases…</div>'; $('#caseSel').innerHTML = '<option>Opening…</option>';
   S.cases = await DB.get('cases') || []; S.caseId = await DB.get('caseId');
   if (!S.cases.length) { const c = { id: uid(), name: 'Case 1', created: new Date().toISOString(), status: 'Under investigation' }; S.cases.push(c); await DB.set('case:' + c.id, emptyCase()); S.caseId = c.id; }
   if (isScope(S.caseId) && !AllMode.list(S.caseId).length) S.caseId = S.cases[0].id;

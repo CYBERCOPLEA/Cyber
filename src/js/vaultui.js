@@ -43,12 +43,22 @@ const VaultUI = {
     const E = S.settings.enc;
     card.innerHTML = `<h3>🔒 Lock Case Data With Password</h3>
       <div class="sub">Seals all cases, files and notes kept in this browser (AES-256, fully offline). They open only with your login password or your recovery key.</div>
-      ${E ? `<div class="row"><span class="badge good">Locked</span><span class="small muted">since ${esc(new Date(E.when).toLocaleDateString('en-IN'))} · opens with your password or recovery key</span></div>`
+      ${E ? `<div class="row"><span class="badge good">Locked</span><span class="small muted">since ${esc(new Date(E.when).toLocaleDateString('en-IN'))} · opens with your password or recovery key</span><span class="spacer"></span><input type="password" id="vlOffPw" placeholder="Your current password" style="max-width:220px"><button class="btn" id="vlOff">🔓 Remove Lock</button><span class="err" id="vlErr"></span></div>`
         : Vault.ok() ? `<div class="row"><span class="badge bad">Not locked</span><input type="password" id="vlPw" placeholder="Your current password" style="max-width:240px"><button class="btn primary" id="vlGo">🔒 Lock Now</button><span class="err" id="vlErr"></span></div>`
         : '<div class="note warn">This browser cannot lock data. Use Google Chrome or Microsoft Edge.</div>'}`;
     const grid = main.querySelector('.grid'); grid.parentNode.insertBefore(card, grid.nextSibling);
     const go = $('#vlGo', card);
     if (go) go.onclick = () => { const pw = $('#vlPw', card).value; if (hashPass(pw, S.settings.salt) !== S.settings.hash) { $('#vlErr', card).textContent = 'Password is wrong'; return; } VaultUI.offer(pw); };
+    const off = $('#vlOff', card);
+    if (off) off.onclick = async () => {
+      const pw = $('#vlOffPw', card).value; if (hashPass(pw, S.settings.salt) !== S.settings.hash) { $('#vlErr', card).textContent = 'Password is wrong'; return; }
+      if (!UI.confirm('Remove the lock? All case data in this browser will be stored without encryption again. You can lock it again any time.')) return;
+      const body = UI.modal('🔓 Removing Lock…', `<p>Opening every record and saving it as normal data. Please keep this page open.</p><div class="small muted" id="vlProg">Starting…</div>`, []);
+      try { if (S.caseId && S.data && !isScope(S.caseId)) { clearTimeout(saveTimer); await DB.set('case:' + S.caseId, S.data); }
+        const n = await Vault.disable(pw, (i, t) => { const e = $('#vlProg', body); if (e) e.textContent = `${i} of ${t} records…`; });
+        UI.closeModal(); UI.toast(`✔ Lock removed – ${n} records are normal data again`, 7000); S.settings.encAsk = today(); await DB.set('settings', S.settings); render();
+      } catch (e) { UI.closeModal(); UI.toast('Could not remove the lock: ' + e.message, 8000); }
+    };
     /* first password change: offer locking with the new password */
     const btn = $('#sSave'), save = btn.onclick;
     btn.onclick = async () => { const before = S.settings.hash, p1 = $('#sP1').value; await save(); if (S.settings.hash !== before && p1 && !Vault.on()) setTimeout(() => VaultUI.after(p1), 600); };

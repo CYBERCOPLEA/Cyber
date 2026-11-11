@@ -11,7 +11,7 @@ const Vault = (() => {
   let openGate, keyIn; const gate = new Promise(r => openGate = r), hasKey = new Promise(r => keyIn = r);
   const V = { key: null, SK: 'sud-vk', ok: () => !!(window.crypto && crypto.subtle) };
   const on = () => !!(S.settings && S.settings.enc);
-  const isSealed = r => !!(r && r.__sv === 1 && r.ct instanceof ArrayBuffer);
+  const isSealed = r => !!(r && (r.__sv === 1 || r.__sv === 2) && r.ct instanceof ArrayBuffer);
 
   /* ---- keys ---- */
   const kek = async (pw, salt, it) => crypto.subtle.deriveKey({ name: 'PBKDF2', salt, iterations: it, hash: 'SHA-256' },
@@ -23,25 +23,37 @@ const Vault = (() => {
   const use = async k => { V.key = k; try { sessionStorage.setItem(V.SK, b64(await crypto.subtle.exportKey('raw', k))); } catch (e) { } openGate(); keyIn(); };
 
   /* ---- records: JSON plus files / bytes / dates, packed into one buffer ---- */
+  // quick look for anything plain JSON cannot hold; most case data has none, so the fast native path is used
+  function special(v) {
+    const st = [v];
+    while (st.length) {
+      const o = st.pop(); if (!o || typeof o !== 'object') continue;
+      if (Array.isArray(o)) { for (let i = 0; i < o.length; i++) { const x = o[i]; if (x && typeof x === 'object') st.push(x); } continue; }
+      const p = Object.getPrototypeOf(o);
+      if (p !== Object.prototype && p !== null) { if (o instanceof Blob || o instanceof Date || o instanceof ArrayBuffer || ArrayBuffer.isView(o)) return true; throw new VaultPlain(); }
+      for (const k in o) { const x = o[k]; if (x && typeof x === 'object') st.push(x); }
+    }
+    return false;
+  }
   async function pack(v) {
-    const parts = [];
-    const json = JSON.stringify(v === undefined ? null : v, function (k, x) {
+    const parts = []; v = v === undefined ? null : v; const sp = special(v);
+    const json = !sp ? JSON.stringify(v) : JSON.stringify(v, function (k, x) {
       const o = this[k];
       if (o instanceof Blob) { parts.push(o); return { '\u0000b': parts.length - 1, n: o.name || '', t: o.type, m: o.lastModified || 0, f: o instanceof File ? 1 : 0 }; }
       if (o instanceof Date) return { '\u0000d': isNaN(o) ? null : o.toISOString() };
       if (o instanceof ArrayBuffer || ArrayBuffer.isView(o)) { const u = o instanceof ArrayBuffer ? new Uint8Array(o) : new Uint8Array(o.buffer, o.byteOffset, o.byteLength); parts.push(u); return { '\u0000u': parts.length - 1, c: o instanceof ArrayBuffer ? 'ArrayBuffer' : o.constructor.name }; }
-      if (o && typeof o === 'object') { const p = Object.getPrototypeOf(o); if (p !== Object.prototype && p !== Array.prototype && p !== null) throw new VaultPlain(); }
       return x;
     });
-    const jb = E8.encode(json), hd = new DataView(new ArrayBuffer(8 + 4 * parts.length));
-    hd.setUint32(0, jb.length); hd.setUint32(4, parts.length); parts.forEach((p, i) => hd.setUint32(8 + 4 * i, p.size !== undefined ? p.size : p.byteLength));
+    const jb = E8.encode(json), hd = new DataView(new ArrayBuffer(12 + 4 * parts.length));
+    hd.setUint32(0, jb.length); hd.setUint32(4, parts.length); hd.setUint32(8, sp ? 1 : 0); parts.forEach((p, i) => hd.setUint32(12 + 4 * i, p.size !== undefined ? p.size : p.byteLength));
     return new Blob([hd.buffer, jb, ...parts]).arrayBuffer();
   }
-  function unpack(buf) {
-    const dv = new DataView(buf), n = dv.getUint32(0), P = dv.getUint32(4); let off = 8 + 4 * P + n; const at = [];
-    for (let i = 0; i < P; i++) { const z = dv.getUint32(8 + 4 * i); at.push([off, z]); off += z; }
+  function unpack(buf, ver) {
+    const dv = new DataView(buf), n = dv.getUint32(0), P = dv.getUint32(4), H = ver === 1 ? 8 : 12, sp = ver === 1 ? 1 : dv.getUint32(8); let off = H + 4 * P + n; const at = [];
+    for (let i = 0; i < P; i++) { const z = dv.getUint32(H + 4 * i); at.push([off, z]); off += z; }
+    const txt = D8.decode(new Uint8Array(buf, H + 4 * P, n)); if (!sp) return JSON.parse(txt);
     const bytes = i => new Uint8Array(buf, at[i][0], at[i][1]).slice();
-    return JSON.parse(D8.decode(new Uint8Array(buf, 8 + 4 * P, n)), (k, x) => {
+    return JSON.parse(txt, (k, x) => {
       if (x && typeof x === 'object' && !Array.isArray(x)) {
         if ('\u0000b' in x) { const b = bytes(x['\u0000b']); return x.f ? new File([b], x.n, { type: x.t, lastModified: x.m }) : new Blob([b], { type: x.t }); }
         if ('\u0000u' in x) { const b = bytes(x['\u0000u']); return x.c === 'ArrayBuffer' ? b.buffer : new (window[x.c] || Uint8Array)(b.buffer); }
@@ -50,8 +62,8 @@ const Vault = (() => {
       return x;
     });
   }
-  V.seal = async v => { const iv = rnd(12); return { __sv: 1, iv, ct: await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, V.key, await pack(v)) }; };
-  V.unseal = async r => unpack(await crypto.subtle.decrypt({ name: 'AES-GCM', iv: r.iv }, V.key, r.ct));
+  V.seal = async v => { const iv = rnd(12); return { __sv: 2, iv, ct: await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, V.key, await pack(v)) }; };
+  V.unseal = async r => unpack(await crypto.subtle.decrypt({ name: 'AES-GCM', iv: r.iv }, V.key, r.ct), r.__sv);
 
   /* ---- the database layer: seal on write, open on read ---- */
   const G = DB.get.bind(DB), P = DB.set.bind(DB), D = DB.del.bind(DB), q = new Map();
@@ -69,7 +81,7 @@ const Vault = (() => {
   DB.set = (k, v) => chain(k, async () => {
     const K = mk(k); if (typeof k === 'string' && PLAIN.test(k)) return P(K, v);
     if (!V.key) await gate;
-    if (!V.key) return P(K, v);
+    if (!V.key || !on()) return P(K, v);
     let s; try { s = await V.seal(v); } catch (e) { if (e instanceof VaultPlain) { console.warn('vault: kept unsealed (not plain data)', k); return P(K, v); } throw e; }
     await P(K, s); if (K !== k) await D(k).catch(() => { });
   });
@@ -96,6 +108,17 @@ const Vault = (() => {
     const keys = (await DB.keys()).filter(x => typeof x === 'string' && !PLAIN.test(x) && !x.startsWith('ocrc#')); let n = 0, i = 0;
     for (const x of keys) { i++; const r = await G(x); if (r !== undefined && !isSealed(r)) { await DB.set(x, r); n++; } if (prog && i % 10 === 0) prog(i, keys.length); }
     return n;
+  };
+  /* remove the lock: every record is opened and written back as plain data */
+  V.disable = async (pw, prog) => {
+    if (!on()) return 0; const k = await unwrap(pw, S.settings.enc.p); if (!k) throw new Error('Password is wrong');
+    V.key = k; const keys = (await DB.keys()).filter(x => typeof x === 'string'); let n = 0, i = 0;
+    const open1 = async x => { const r = await G(x); if (isSealed(r)) { if (x.startsWith('ocrc#')) await D(x); else { await P(x, await V.unseal(r)); n++; } } };
+    for (const x of keys) { i++; await open1(x); if (prog && i % 10 === 0) prog(i, keys.length); }
+    const E = S.settings.enc; delete S.settings.enc;   // from here on new saves are plain
+    try { for (const x of (await DB.keys()).filter(x => typeof x === 'string')) await open1(x); await Promise.all([...q.values()].map(p => p.catch(() => { }))); for (const x of [...q.keys()]) await open1(x); }
+    catch (e) { S.settings.enc = E; throw e; }
+    await P('settings', S.settings); V.forget(); return n;
   };
   return V;
 })();
