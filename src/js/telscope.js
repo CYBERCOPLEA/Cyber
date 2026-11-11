@@ -263,7 +263,7 @@ Tel.night = r => TSC.inH(Tel.hour(r), TSC.tm().lf, TSC.tm().lt);
 { const _bar = TSC.bar; TSC.bar = function (main, k) {
   _bar.call(this, main, k); const b = $('.tsc', main); if (!b) return;
   const t = this.tm(), hs = id => `<select data-tt="${id}">${Array.from({ length: 24 }, (_, h) => `<option value="${h}"${h === t[id] ? ' selected' : ''}>${TSC.h12(h)}</option>`).join('')}</select>`, dated = t.from || t.to;
-  b.insertAdjacentHTML('beforeend', `<button class="tsc-tb${dated ? ' on' : ''}" id="tscTime" title="Edit the date range and the night / day hours used by every tab">🕐 ${dated ? esc((t.from ? Tel.dd(t.from) : 'start') + ' → ' + (t.to ? Tel.dd(t.to) : 'end')) : 'All dates'} · 🌙 ${this.win('n')} · ☀ ${this.win('d')} <b>✎</b></button>`);
+  b.insertAdjacentHTML('beforeend', `<button class="tsc-tb${dated ? ' on' : ''}" id="tscTime" title="Edit the date range and the night / day hours used by every tab">🕐 ${dated ? esc((t.from ? Tel.dd(t.from) : 'start') + ' → ' + (t.to ? Tel.dd(t.to) : 'end')) : 'All Dates'} · 🌙 ${this.win('n')} · ☀ ${this.win('d')} <b>✎</b></button>`);
   b.insertAdjacentHTML('afterend', `<div class="tsc-tp" id="tscTP"${S.telTP ? '' : ' hidden'}>
     <label>📅 From <input type="date" data-tt="from" value="${esc(t.from)}"></label><label>to <input type="date" data-tt="to" value="${esc(t.to)}"></label>
     <label>🌙 Night (home / night stay) ${hs('nf')} to ${hs('nt')}</label><label>☀ Day (work / day stay) ${hs('df')} to ${hs('dt')}</label><label>🌃 Late-night calls ${hs('lf')} to ${hs('lt')}</label>
