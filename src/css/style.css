@@ -1930,3 +1930,7 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
 .hp-hero,.hp-lead,.hp-hero>div{overflow:visible}
 .hp-kicker{z-index:60}
 .hp-kicker:hover,.hp-kicker:focus-visible{animation:none}
+/* siren dot: bright white */
+.hp-kicker .sir.r{width:14px;height:14px;background:#fff;border:2px solid rgba(255,255,255,.95);box-sizing:border-box;box-shadow:0 0 6px #fff,0 0 14px rgba(255,255,255,.95),0 0 26px rgba(255,255,255,.6);animation:hpBlinkW 1.6s infinite}
+@keyframes hpBlinkW{0%,45%{opacity:.7;transform:scale(.9)}55%,100%{opacity:1;transform:scale(1.1)}}
+@media (prefers-reduced-motion:reduce){.hp-kicker .sir.r{animation:none}}
