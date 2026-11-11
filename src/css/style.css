@@ -2027,3 +2027,5 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
 .hub-ask.need{box-shadow:0 0 0 3px #ef444488;border-color:#ef4444}
 .hub-ask-b{display:flex;flex-wrap:wrap;gap:8px}.hub-ask-b .btn{display:flex;flex-direction:column;align-items:flex-start;line-height:1.25}.hub-ask-b .btn small{font-weight:400;opacity:.8;font-size:11px}
 #adT td:nth-child(2){white-space:nowrap}
+.of-bar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center}.of-bar .spacer{flex:1}
+#ofDoc{padding:4px 0 20px}
