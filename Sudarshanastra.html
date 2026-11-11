@@ -1854,6 +1854,14 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
 .d2-srcs .d2-sec b{font-weight:800;margin-left:2px}
 .d2-fd{margin-top:3px;max-width:340px;white-space:normal}
 
+/* Offline reassurance */
+.hp-pill{font-size:13.5px;padding:8px 16px;color:#d1fae5;border-color:rgba(16,185,129,.55);background:rgba(16,185,129,.12);line-height:1.3}
+.hp-pill b{color:#34d399;font-weight:800;letter-spacing:.2px}
+.hp-pill .hp-pt{font-weight:600}
+.hp-pill small{display:block;font-size:11.5px;font-weight:700;color:#a7f3d0}
+#statusbar .sb-safe{color:#a7f3d0;font-weight:600}
+#statusbar .sb-safe b{color:#34d399;font-weight:800}
+
 </style>
 </head>
 <body>
@@ -1864,7 +1872,7 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
     <header class="hp-top">
       <div class="hp-brand"><span class="hp-mark"><i class="ck" aria-hidden="true"></i><span class="emblem emblem-sm hp-logo" role="img" aria-label="SudarshanAshtra emblem"></span></span><div><b>SudarshanAshtra <span class="hp-hi" lang="hi">सुदर्शनास्त्र</span></b><small>Cyber Crime Analysis &amp; Tracking</small><span class="hp-by">Vijay Tomar <i>@lea_tomar</i></span></div></div>
       <span class="hp-spacer"></span>
-      <span class="hp-pill"><i></i>Offline · data stays on this computer</span>
+      <span class="hp-pill no-tc" title="Case files, CDRs, statements and reports are saved only in this browser on this computer. Only an optional Fetch Online look-up sends the one value you search, and only when you click it."><i></i><span class="hp-pt"><b>🔒 Offline</b> · Your case data stays on this computer<br><small>Never uploaded to any server or online, so don't worry</small></span></span>
       <button class="hp-btn big" type="button" data-login><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Login to workspace</button>
     </header>
     <section class="hp-hero">
@@ -1901,7 +1909,7 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
         <div class="hp-feat" style="--fc:#06b6d4"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><div><b>Analytics</b><p>The same mobile, account, IP or e-mail across complaints, banks and platforms.</p></div></div>
         <div class="hp-feat" style="--fc:#eab308"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h5"/></svg></span><div><b>Case File &amp; Notices</b><p>Case reports, notices to banks and platforms, and CSV / PDF exports.</p></div></div>
     </section>
-    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-11 10:05 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
+    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-11 10:10 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
   </div>
 
   <div class="lg-wrap" id="lgWrap" aria-hidden="true">
@@ -7102,7 +7110,7 @@ let LayoutSoc = null;
     const c = typeof activeCase === 'function' ? activeCase() : {};
     const n = Trail.complaints().length;
     $('#sideInfo').innerHTML = `<div class="si-case">${esc(c.name || '')}</div><div class="si-row"><span>Complaints</span><b>${fmtNum(n)}</b></div><div class="si-row"><span>Transactions</span><b>${fmtNum(d.txns.length)}</b></div><div class="si-row"><span>KYC records</span><b>${fmtNum(d.kyc.length)}</b></div><div class="si-row"><span>Social records</span><b>${fmtNum(d.social.length)}</b></div>`;
-    $('#statusbar').innerHTML = `<span class="dot"></span><span>Offline · data stays on this computer</span><span class="sep">|</span><span>Case: <b>${esc(c.name || '')}</b>${c.status ? ' · ' + esc(c.status) : ''}</span><span class="sep">|</span><span>${fmtNum(n)} complaints · ${fmtNum(d.txns.length)} txns · ${fmtNum(d.kyc.length)} KYC · ${fmtNum(d.social.length)} social</span><span class="spacer"></span><span>Signed in as <b>${esc(S.settings.user)}</b></span><span class="sep">|</span><span>SudarshanAshtra v2.0</span>`;
+    $('#statusbar').innerHTML = `<span class="dot"></span><span class="sb-safe no-tc" title="Case files, CDRs, statements and reports are saved only in this browser on this computer. Only an optional Fetch Online look-up sends the one value you search, and only when you click it."><b>🔒 Offline</b> · Your case data stays on this computer, never uploaded to any server</span><span class="sep">|</span><span>Case: <b>${esc(c.name || '')}</b>${c.status ? ' · ' + esc(c.status) : ''}</span><span class="sep">|</span><span>${fmtNum(n)} complaints · ${fmtNum(d.txns.length)} txns · ${fmtNum(d.kyc.length)} KYC · ${fmtNum(d.social.length)} social</span><span class="spacer"></span><span>Signed in as <b>${esc(S.settings.user)}</b></span><span class="sep">|</span><span>SudarshanAshtra v2.0</span>`;
   };
 })();
 
@@ -12056,7 +12064,7 @@ const TelImp = {
       <div class="map-grid cb-grid">${F.map(([f, l, t]) => CaseBox.field(f, l, t, f === 'year' ? CaseBox.yearOf(c) : c[f])).join('')}<label style="grid-column:1/-1">Case name <span class="small muted">(blank = made from Case Type and FIR)</span><input data-cb="name" value="${esc(isNew ? '' : c.name || '')}" placeholder="${esc(CaseBox.autoName(c))}"></label></div>
       <div class="ti-step"><b>3</b> Add the ${K} data</div>
       <div class="ti-go"><button class="btn primary" data-pk="f">📄 Choose files<small>Excel, CSV, TXT, ZIP or RAR – many at once</small></button><button class="btn primary" data-pk="d">📁 Choose a folder<small>every file inside, sub-folders too</small></button></div>
-      <div class="small muted">CDR, IPDR, TDR and SMS files are sorted automatically. Everything stays on this computer.</div>
+      <div class="small muted">CDR, IPDR, TDR and SMS files are sorted automatically. <b>🔒 Everything stays on this computer, never uploaded online.</b></div>
       <div class="small" id="cbErr" style="color:var(--bad);min-height:1.2em"></div></div>`, [{ label: 'Close', onClick: UI.closeModal }, { label: '💾 Save details only', onClick: () => this.go(m, sel, null) }]);
     CaseBox.wire(m); m.addEventListener('input', () => { const e = $('#cbErr', m); if (e) e.textContent = ''; });
     $$('[data-ti]', m).forEach(b => b.onclick = () => this.open(b.dataset.ti === 'new' ? 'new' : (this._last && this._last !== 'new' ? this._last : S.caseId)));

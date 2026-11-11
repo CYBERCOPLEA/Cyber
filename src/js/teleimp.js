@@ -19,7 +19,7 @@ const TelImp = {
       <div class="map-grid cb-grid">${F.map(([f, l, t]) => CaseBox.field(f, l, t, f === 'year' ? CaseBox.yearOf(c) : c[f])).join('')}<label style="grid-column:1/-1">Case name <span class="small muted">(blank = made from Case Type and FIR)</span><input data-cb="name" value="${esc(isNew ? '' : c.name || '')}" placeholder="${esc(CaseBox.autoName(c))}"></label></div>
       <div class="ti-step"><b>3</b> Add the ${K} data</div>
       <div class="ti-go"><button class="btn primary" data-pk="f">📄 Choose files<small>Excel, CSV, TXT, ZIP or RAR – many at once</small></button><button class="btn primary" data-pk="d">📁 Choose a folder<small>every file inside, sub-folders too</small></button></div>
-      <div class="small muted">CDR, IPDR, TDR and SMS files are sorted automatically. Everything stays on this computer.</div>
+      <div class="small muted">CDR, IPDR, TDR and SMS files are sorted automatically. <b>🔒 Everything stays on this computer, never uploaded online.</b></div>
       <div class="small" id="cbErr" style="color:var(--bad);min-height:1.2em"></div></div>`, [{ label: 'Close', onClick: UI.closeModal }, { label: '💾 Save details only', onClick: () => this.go(m, sel, null) }]);
     CaseBox.wire(m); m.addEventListener('input', () => { const e = $('#cbErr', m); if (e) e.textContent = ''; });
     $$('[data-ti]', m).forEach(b => b.onclick = () => this.open(b.dataset.ti === 'new' ? 'new' : (this._last && this._last !== 'new' ? this._last : S.caseId)));
