@@ -164,7 +164,7 @@ function openImport(allowed, onDone, presetFiles) {
   const pick = () => { const fp = $('#filePick'); fp.value = ''; fp.onchange = () => { queue.push(...fp.files); next(); }; fp.click(); };
   /* case chosen at the top – files always go into that case */
   const IF = [['ctype', 'Case Type', 'ct'], ['fir', 'FIR / Complaint No.'], ['year', 'Year'], ['ps', 'Police Station'], ['district', 'District / Commissionerate'], ['io', 'IO Name'], ['io_mobile', 'IO Mobile'], ['io_posting', 'IO Posting']];
-  const box = $('.ip-case', body); let sel = S.caseId === '__all' ? (S.prevCase && S.cases.some(x => x.id === S.prevCase) ? S.prevCase : S.cases[0].id) : S.caseId, editing = false;
+  const box = $('.ip-case', body); let sel = isScope(S.caseId) ? (S.prevCase && S.cases.some(x => x.id === S.prevCase) ? S.prevCase : S.cases[0].id) : S.caseId, editing = false;
   const fillSel = () => { $('#ipCase', body).innerHTML = S.cases.map(x => `<option value="${x.id}" ${x.id === sel ? 'selected' : ''}>${esc(x.fir ? x.fir + ' – ' + x.name : x.name)}</option>`).join('') + `<option value="new" ${sel === 'new' ? 'selected' : ''}>➕ New case (type FIR / Complaint No. below)</option>`; };
   const drawF = () => { const c = sel === 'new' ? { year: String(new Date().getFullYear()), ps: activeCase().ps || '', district: activeCase().district || '' } : S.cases.find(x => x.id === sel) || {}, open = editing || sel === 'new';
     $('#ipF', body).innerHTML = IF.map(([k, l, t]) => CaseBox.field(k, l, t, k === 'year' ? CaseBox.yearOf(c) : c[k])).join(''); CaseBox.wire(box);

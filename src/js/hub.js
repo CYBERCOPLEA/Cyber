@@ -16,24 +16,25 @@ const Hub = {
   /* opt: { mode: 'new' | 'old' | 'auto', hint: kind, title, files } */
   open(opt = {}) {
     const keep = this.st && this.st.Q.length && !this.st.done && !opt.fresh;
-    if (!keep) this.st = { mode: opt.mode || 'old', sel: S.caseId === '__all' ? AllMode.pick() : S.caseId, edit: false, Q: [], hint: opt.hint || '', title: opt.title || '', busy: false, done: false, log: '' };
+    if (!keep) this.st = { mode: opt.mode || 'old', sel: isScope(S.caseId) ? AllMode.pick() : S.caseId, edit: false, Q: [], hint: opt.hint || '', title: opt.title || '', busy: false, done: false, log: '', picked: 0 };
     else { if (opt.mode) this.st.mode = opt.mode; if (opt.hint) this.st.hint = opt.hint; }
     this.draw(); if (opt.files) this.add(opt.files);
   },
   body() { const b = $('#mdBody'); return b && $('.hub', b) ? b : null; },
   draw() {
-    const s = this.st, isNew = s.mode === 'new', isAuto = s.mode === 'auto', b0 = this.body();
+    const s = this.st, isNew = s.mode === 'new' || s.mode === 'ncrp', isN = s.mode === 'ncrp', isAuto = s.mode === 'auto', b0 = this.body(), ACK = this.acks();
     if (b0 && $('.hub-f', b0)) s.form = CaseBox.read($('.hub-f', b0));
     let c = isNew ? { year: String(new Date().getFullYear()), ps: activeCase().ps || '', district: activeCase().district || '', state: activeCase().state || 'UP – Uttar Pradesh', io: activeCase().io || '', io_mobile: activeCase().io_mobile || '', io_posting: activeCase().io_posting || '' } : S.cases.find(x => x.id === s.sel) || activeCase();
     const F = CaseBox.F, open = isNew || s.edit; if (s.form) Object.assign(c = { ...c }, s.form);
     const bits = [c.fir && 'FIR ' + String(c.fir).replace(/^\s*FIR\s*(No\.?)?\s*/i, ''), c.ps && 'PS ' + c.ps, c.district, c.section, c.io && 'IO ' + c.io].filter(Boolean);
     const html = `<div class="hub ti">
       <div class="ti-step"><b>1</b> Which case are these files for?</div>
-      <div class="ti-seg hub-seg"><button data-hm="new" class="${isNew ? 'on' : ''}">➕ New Case<small>Fill FIR, Police Station, IO details</small></button><button data-hm="old" class="${s.mode === 'old' ? 'on' : ''}">📁 Existing Case<small>Add the files to a case already made</small></button><button data-hm="auto" class="${isAuto ? 'on' : ''}">🧭 Auto By FIR<small>CCTNS zips / folders of many FIRs – each goes to its own case</small></button></div>
+      ${this.ask(ACK)}<div class="ti-seg hub-seg hub-seg4"><button data-hm="new" class="${isNew && !isN ? 'on' : ''}">➕ New FIR Case<small>Fill FIR, Police Station, IO details</small></button><button data-hm="ncrp" class="${isN ? 'on' : ''}">🧾 New NCRP Case<small>No FIR yet – by Acknowledgement No.</small></button><button data-hm="old" class="${s.mode === 'old' ? 'on' : ''}">📁 Existing Case<small>Add the files to a case already made</small></button><button data-hm="auto" class="${isAuto ? 'on' : ''}">🧭 Auto By FIR<small>CCTNS zips / folders of many FIRs – each goes to its own case</small></button></div>
       ${s.mode === 'old' ? `<div class="hub-old"><label class="ti-sel">Choose Case<select id="hbCase">${S.cases.map(x => `<option value="${x.id}"${x.id === s.sel ? ' selected' : ''}>${esc(x.name)}${x.fir && !String(x.name).includes(x.fir) ? ' · ' + esc(x.fir) : ''}</option>`).join('')}</select></label>
         <div class="hub-cd">${bits.length ? '👮 ' + esc(bits.join(' · ')) : '<span class="bad-t">⚠ FIR / PS / IO details not filled</span>'} <button class="btn sm" id="hbEd">${s.edit ? '✖ Cancel Edit' : '✏ Edit Details'}</button></div></div>` : ''}
       ${isAuto ? `<div class="note">The FIR number is read from each zip / folder name (e.g. <span class="mono">FIR-0123-2026-PS-CCPS-GZB-CS-PPI</span>) or from inside the case diary. A case is found by its FIR number, or made new. Other files go into the open case: <b>${esc(activeCase().name || '')}</b>.</div>` : ''}
-      ${open ? `<div class="map-grid cb-grid hub-f">${F.map(([f, l, t]) => CaseBox.field(f, l, t, f === 'year' ? CaseBox.yearOf(c) : c[f])).join('')}<label style="grid-column:1/-1">Case Name <span class="small muted">(blank = made from Case Type and FIR)</span><input data-cb="name" value="${esc(s.form ? s.form.name || '' : isNew ? '' : c.name || '')}"></label></div>` : ''}
+      ${open && isN ? `<div class="map-grid cb-grid hub-f"><label style="grid-column:1/-1">Acknowledgement No(s). <span class="small muted">(NCRP / 1930 complaint – read from the file)</span><input data-cb="ack" class="mono" value="${esc(s.form && s.form.ack != null ? s.form.ack : ACK.join(', '))}" placeholder="e.g. 31511240012345"></label>${F.filter(([f]) => ['ps', 'district', 'state', 'io', 'io_mobile', 'io_posting'].includes(f)).map(([f, l, t]) => CaseBox.field(f, l, t, c[f])).join('')}<label style="grid-column:1/-1">Case Name <span class="small muted">(blank = "NCRP · Ack …")</span><input data-cb="name" value="${esc(s.form ? s.form.name || '' : '')}"></label><div class="small muted" style="grid-column:1/-1">When the FIR is registered, open the case and fill the FIR No. in Case Details – it moves to <b>FIR Cases</b> with all its data.</div></div>` : ''}
+      ${open && !isN ? `<div class="map-grid cb-grid hub-f">${F.map(([f, l, t]) => CaseBox.field(f, l, t, f === 'year' ? CaseBox.yearOf(c) : c[f])).join('')}<label style="grid-column:1/-1">Case Name <span class="small muted">(blank = made from Case Type and FIR)</span><input data-cb="name" value="${esc(s.form ? s.form.name || '' : isNew ? '' : c.name || '')}"></label></div>` : ''}
       <div class="ti-step"><b>2</b> Add the files</div>
       <div class="g-drop hub-drop" id="hbDrop"><div class="g-dl">⬆</div><b>Drop files or a whole folder here</b><span>FIR · Case Diary (CD) · CS / CS-PPI / FR · CCTNS zip · bank / telecom / NIC e-mail replies · statements · NCRP / money trail / bank action sheets · statements & KYC · CDR / IPDR / TDR / SMS · CAF · WhatsApp / Facebook / Instagram / Telegram / Google replies · zip / rar · scanned PDFs & photos (read by OCR)</span>
         <div class="row" style="gap:8px;justify-content:center;margin-top:10px"><button class="btn primary" id="hbF">📄 Choose Files</button><button class="btn" id="hbD">📁 Choose Folder</button></div></div>
@@ -48,6 +49,26 @@ const Hub = {
     const m = UI.modal('📥 Import / Upload' + (s.title ? ' – ' + s.title : ''), html, btns);
     this.wire(m);
   },
+  acks() { return uniq((this.st.Q || []).filter(q => q.kind === 'ncrp' && !q.ok).flatMap(q => q.acks || [])); },
+  ask(A) {
+    const s = this.st; if (!A.length || s.mode === 'auto' || s.done) return '';
+    const M = (s.match || []).filter(x => S.cases.some(c => c.id === x.id));
+    return `<div class="hub-ask${s.needPick && !s.picked ? ' need' : ''}"><div><b>🧾 Bank Action / NCRP file</b> – Acknowledgement No. <span class="mono">${esc(A.slice(0, 3).join(', '))}${A.length > 3 ? ' +' + (A.length - 3) : ''}</span>${s.firIn ? ` · FIR in file: <b>${esc(s.firIn)}</b>` : ' · no FIR / police station in the file'}.<br>${s.picked ? '<span class="good-t">✔ Chosen – press Import All.</span>' : `<b>Where should it go?</b> ${M.length ? 'Pick the matching case, or choose' : 'Choose'} below: <b>🧾 New NCRP Case</b> (no FIR yet), <b>➕ New FIR Case</b> or <b>📁 Existing Case</b>.`}</div>
+      ${M.length ? `<div class="hub-ask-b">` : ''}${M.map(x => `<button class="btn primary" data-hask="${x.id}">🎯 ${esc(AllMode.caseLabel(S.cases.find(c => c.id === x.id)))}<small>same Ack No. ${esc(x.ack)} already in this case</small></button>`).join('')}${M.length ? '</div>' : ''}</div>`;
+  },
+  async peek(q) {
+    try { const P = await Parsers.readFile(q.f, () => null), A = new Set(); let fir = '';
+      for (const sh of P.sheets) { const rows = sh.rows || []; for (let h = 0; h < Math.min(rows.length, 15); h++) { const r = rows[h] || [], i = r.findIndex(x => /acknowledg|ack\.?\s*no/i.test(String(x))), j = r.findIndex(x => /^\s*fir\b/i.test(String(x)));
+        if (i < 0) continue; for (const row of rows.slice(h + 1)) { const v = String(row[i] ?? '').replace(/\D/g, ''); if (v.length >= 10) A.add(v); if (j >= 0 && !fir && String(row[j] || '').trim()) fir = String(row[j]).trim(); } break; } }
+      q.acks = [...A]; if (fir) this.st.firIn = fir; } catch (e) { q.acks = []; }
+  },
+  async matchCases() {
+    const A = new Set(this.acks()), M = []; if (!A.size) { this.st.match = []; return; }
+    for (const c of S.cases) { let hit = AllMode.ackOf(c).find(a => A.has(a.replace(/\D/g, '')));
+      if (!hit) { const d = c.id === S.caseId && !isScope(S.caseId) ? S.data : await DB.get('case:' + c.id) || {}; for (const t of [...(d.txns || []), ...(d.ncrp || [])]) { const a = String(t.ack_no || '').replace(/\D/g, ''); if (A.has(a)) { hit = a; break; } } }
+      if (hit) M.push({ id: c.id, ack: hit }); }
+    this.st.match = M;
+  },
   list() {
     const s = this.st; if (!s.Q.length) return '<div class="muted small">No file added yet.</div>';
     const cnt = groupBy(s.Q.filter(q => q.kind !== '…'), q => q.kind);
@@ -59,8 +80,8 @@ const Hub = {
   redraw() { const b = this.body(); if (!b) return; $('#hbQ', b).innerHTML = this.list(); $('#hbLog', b).innerHTML = this.st.log; this.wireList(b); },
   wire(m) {
     const s = this.st;
-    $$('[data-hm]', m).forEach(b => b.onclick = () => { if (s.busy) return; s.mode = b.dataset.hm === 'new' ? 'new' : b.dataset.hm; s.edit = false; s.form = null; this.draw(); });
-    const cs = $('#hbCase', m); if (cs) cs.onchange = () => { s.sel = cs.value; s.edit = false; s.form = null; this.draw(); };
+    $$('[data-hm]', m).forEach(b => b.onclick = () => { if (s.busy) return; s.picked = 1; s.mode = b.dataset.hm; s.edit = false; s.form = null; this.draw(); });
+    const cs = $('#hbCase', m); if (cs) cs.onchange = () => { s.picked = 1; s.sel = cs.value; s.edit = false; s.form = null; this.draw(); };
     const ed = $('#hbEd', m); if (ed) ed.onclick = () => { s.edit = !s.edit; s.form = null; this.draw(); };
     CaseBox.wire(m); m.addEventListener('input', () => { const e = $('#hbErr', m); if (e) e.textContent = ''; });
     const pick = dir => { const i = document.createElement('input'); i.type = 'file'; i.multiple = true; i.className = 'hidden'; if (dir) { i.webkitdirectory = true; i.setAttribute('directory', ''); } i.onchange = () => { const f = [...i.files]; i.remove(); this.add(f); }; document.body.appendChild(i); i.click(); };
@@ -69,12 +90,13 @@ const Hub = {
     drop.ondragover = e => { e.preventDefault(); drop.classList.add('over'); }; drop.ondragleave = () => drop.classList.remove('over');
     drop.ondrop = async e => { e.preventDefault(); drop.classList.remove('over'); const fs = []; const walk = async (en, p) => { if (!en) return; if (en.isFile) { const f = await new Promise(r => en.file(r)); fs.push({ f, path: p + f.name }); } else if (en.isDirectory) { const rd = en.createReader(); let b; do { b = await new Promise(r => rd.readEntries(r)); for (const x of b) await walk(x, p + en.name + '/'); } while (b.length); } };
       const items = [...(e.dataTransfer.items || [])].map(i => i.webkitGetAsEntry && i.webkitGetAsEntry()).filter(Boolean); if (items.length) { for (const it of items) await walk(it, ''); this.add(fs); } else this.add([...e.dataTransfer.files]); };
+    $$('[data-hask]', m).forEach(b => b.onclick = () => { if (s.busy) return; s.picked = 1; const v = b.dataset.hask; if (v === 'new' || v === 'ncrp') s.mode = v; else { s.mode = 'old'; s.sel = v; } s.edit = false; s.form = null; this.draw(); });
     this.wireList(m);
   },
   wireList(m) {
     const s = this.st;
-    $$('[data-hk]', m).forEach(x => x.onchange = () => { const q = s.Q[+x.dataset.hk]; q.kind = x.value; q.user = 1; this.redraw(); });
-    const c = $('#hbClr', m); if (c) c.onclick = () => { s.Q = []; s.log = ''; this.draw(); };
+    $$('[data-hk]', m).forEach(x => x.onchange = async () => { const q = s.Q[+x.dataset.hk]; q.kind = x.value; q.user = 1; if (q.kind === 'ncrp' && !q.acks) { await this.peek(q); await this.matchCases(); this.draw(); } else this.redraw(); });
+    const c = $('#hbClr', m); if (c) c.onclick = () => { s.Q = []; s.log = ''; s.match = []; s.firIn = ''; s.picked = 0; s.needPick = 0; this.draw(); };
   },
   /* files (or {f, path}) → queue; zips opened with their folder path kept */
   async add(files) {
@@ -89,7 +111,8 @@ const Hub = {
     for (const e of E) { if (have.has(e.path + '|' + e.file.size) || /(^|\/)(\.|__MACOSX|Thumbs\.db)/i.test(e.path)) continue; s.Q.push({ f: e.file, path: e.path, kind: '…' }); }
     if (s.mode === 'old' && s.Q.some(q => CDX.meta(q.path)) && uniq(s.Q.map(q => (CDX.meta(q.path) || {}).fir).filter(Boolean)).length > 1) s.mode = 'auto';
     this.draw();
-    for (const q of s.Q) if (q.kind === '…') { q.kind = await this.detect(q); this.redraw(); }
+    for (const q of s.Q) if (q.kind === '…') { q.kind = await this.detect(q); if (q.kind === 'ncrp') await this.peek(q); this.redraw(); }
+    if (this.acks().length) await this.matchCases();
     this.draw();
   },
   async detect(q) {
@@ -109,9 +132,11 @@ const Hub = {
   /* make / update the chosen case; returns its id (and opens it) */
   async target(saveOnly) {
     const s = this.st, b = this.body(); if (s.mode === 'auto') return S.caseId;
-    if (s.mode === 'new' || s.edit) {
+    if (s.mode === 'new' || s.mode === 'ncrp' || s.edit) {
       const o = CaseBox.read($('.hub-f', b)), err = CaseBox.check(o), E = $('#hbErr', b);
       if (err) { E.textContent = err; return null; }
+      if (s.mode === 'ncrp') { const a = String(o.ack || '').split(/[,;\s]+/).filter(Boolean); if (!a.length && !o.name) { E.textContent = 'Type the Acknowledgement No. (or a case name) for the NCRP case'; const f = $('[data-cb="ack"]', b); if (f) f.focus(); return null; }
+        o.ack = a.join(', '); o.name = o.name || 'NCRP · Ack ' + a[0] + (a.length > 1 ? ' +' + (a.length - 1) : ''); const c = { id: uid(), created: new Date().toISOString(), status: 'Under investigation', reg: 'ncrp', ctype: 'NCRP Complaint', ...o }; S.cases.push(c); await DB.set('case:' + c.id, emptyCase()); await switchCase(c.id); s.picked = 1; return c.id; }
       if (s.mode === 'new' && !o.fir && !o.name && !o.ctype) { E.textContent = 'Type the FIR / Complaint No. (or a case name) for the new case'; const f = $('[data-cb="fir"]', b); if (f) f.focus(); return null; }
       if (s.mode === 'new') { o.name = o.name || CaseBox.autoName(o); const c = { id: uid(), created: new Date().toISOString(), status: 'Under investigation', ...o }; S.cases.push(c); await DB.set('case:' + c.id, emptyCase()); await switchCase(c.id); return c.id; }
       const c = S.cases.find(x => x.id === s.sel); if (!c) return null; const auto = !c.name || c.name === CaseBox.autoName(c) || /^Case \d+$/.test(c.name); Object.assign(c, o); if (!o.name && auto) c.name = CaseBox.autoName(c); await saveMeta(); fillCaseSel();
@@ -123,11 +148,13 @@ const Hub = {
     const s = this.st; if (s.busy) return;
     if (!s.Q.length) { const e = $('#hbErr', this.body()); if (e) e.textContent = 'Add files first (step 2).'; return; }
     if (s.Q.some(q => q.kind === '…')) return UI.toast('Still checking the files – one moment');
+    { const fv = $('.hub-f [data-cb="fir"]', this.body() || document); if ((s.mode === 'new' && fv && fv.value.trim()) || s.mode === 'ncrp') s.picked = 1; }
+    if (!s.picked && s.mode !== 'auto' && this.acks().length) { s.needPick = 1; this.draw(); const e = $('#hbErr', this.body()); if (e) e.textContent = '⬆ Choose where the bank action / NCRP file goes (box at the top), then press Import All.'; const a = $('.hub-ask', this.body()); if (a) a.scrollIntoView({ block: 'center' }); return; }
     const tid = await this.target(); if (!tid) return;
-    s.form = null; s.busy = true; s.mode = s.mode === 'new' ? 'old' : s.mode; s.sel = S.caseId; s.edit = false; this.draw();
+    s.form = null; s.busy = true; s.mode = s.mode === 'new' || s.mode === 'ncrp' ? 'old' : s.mode; s.sel = S.caseId; s.edit = false; this.draw();
     const log = t => { s.log = t; const b = this.body(); if (b) $('#hbLog', b).innerHTML = t; };
     const todo = s.Q.filter(q => !q.ok && q.kind !== 'skip');
-    if (S.caseId === '__all' && todo.some(q => !this.CCT.includes(q.kind))) { s.busy = false; s.mode = 'old'; s.sel = AllMode.pick(); this.draw(); const e = $('#hbErr', this.body()); if (e) e.textContent = 'Data files (bank, telecom, social, NCRP…) need one case. Choose the case above, then press Import All again.'; return; }
+    if (isScope(S.caseId) && todo.some(q => !this.CCT.includes(q.kind))) { s.busy = false; s.mode = 'old'; s.sel = AllMode.pick(); this.draw(); const e = $('#hbErr', this.body()); if (e) e.textContent = 'Data files (bank, telecom, social, NCRP…) need one case. Choose the case above, then press Import All again.'; return; }
     /* 1 · CCTNS: FIR, CD, CS / PPI / FR, case documents (OCR when scanned) */
     const cc = todo.filter(q => this.CCT.includes(q.kind));
     if (cc.length) {
@@ -145,7 +172,7 @@ const Hub = {
         this.redraw();
       }
       for (const [k, g] of G) { if (!g.m && k !== '_') continue; const fins = g.items.filter(x => x.kd.k === 'fin'); if (g.m && !g.m.fin && fins.length) g.m.fin = fins[0].kd.type;
-        if (k === '_' && S.caseId === '__all') { g.items.forEach(x => { x.q.res = '⚠ FIR No. not found – choose Existing Case and import again'; }); continue; }
+        if (k === '_' && isScope(S.caseId)) { g.items.forEach(x => { x.q.res = '⚠ FIR No. not found – choose Existing Case and import again'; }); continue; }
         const id = await CDX.apply(g.m ? g : { m: null }, g.items, k === '_' ? S.caseId : null);
         const c = S.cases.find(x => x.id === id); g.items.forEach(x => { if (!/^(Error|⚠)/.test(x.q.res)) x.q.res += ' → ' + (c ? c.name : 'case'); x.q.ok = 1; }); }
       await saveMeta(); fillCaseSel(); CDX._m = null;

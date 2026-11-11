@@ -2026,6 +2026,15 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
 .am-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
 .am-c{display:flex;flex-direction:column;gap:4px;text-align:left;padding:12px 14px;border-radius:12px;border:1px solid var(--border);background:var(--surface-2);color:var(--text-primary);font:inherit;cursor:pointer}
 .am-c:hover{border-color:var(--accent,#3b82f6)}.am-c small{color:var(--text-secondary)}
+.ad-bar i b.ad-hold{position:absolute;left:0;top:0;background:#10b981}
+.ad-cn.n{border-color:#f59e0b55}
+.ad-sw button:disabled{opacity:.4;cursor:not-allowed}
+.ad-sw{flex-wrap:wrap}
+.hub .ti-seg.hub-seg.hub-seg4{grid-template-columns:repeat(4,1fr)}
+.hub-ask{border:1px solid #f59e0b;background:color-mix(in srgb,#f59e0b 10%,transparent);border-radius:12px;padding:12px 14px;margin:6px 0 12px;display:flex;flex-direction:column;gap:10px}
+.hub-ask.need{box-shadow:0 0 0 3px #ef444488;border-color:#ef4444}
+.hub-ask-b{display:flex;flex-wrap:wrap;gap:8px}.hub-ask-b .btn{display:flex;flex-direction:column;align-items:flex-start;line-height:1.25}.hub-ask-b .btn small{font-weight:400;opacity:.8;font-size:11px}
+#adT td:nth-child(2){white-space:nowrap}
 
 </style>
 </head>
@@ -2074,7 +2083,7 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
         <div class="hp-feat" style="--fc:#06b6d4"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><div><b>Analytics</b><p>The same mobile, account, IP or e-mail across complaints, banks and platforms.</p></div></div>
         <div class="hp-feat" style="--fc:#eab308"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h5"/></svg></span><div><b>Case File &amp; Notices</b><p>Case reports, notices to banks and platforms, and CSV / PDF exports.</p></div></div>
     </section>
-    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-11 16:07 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
+    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-11 16:28 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
   </div>
 
   <div class="lg-wrap" id="lgWrap" aria-hidden="true">
@@ -2373,14 +2382,15 @@ const S = {
 };
 const emptyCase = () => ({ txns: [], kyc: [], social: [], ncrp: [], caf: [], notes: [], tasks: [], idents: [], imports: [], google: [] });
 let saveTimer = null;
+const isScope = id => /^__(all|fir|ncrp)$/.test(id || '');
 function saveCase() {
   clearTimeout(saveTimer);
-  if (S.caseId === '__all') { if (typeof AllMode !== 'undefined') AllMode.warn(); Analysis.invalidate(); return; }
-  saveTimer = setTimeout(async () => { if (S.caseId && S.caseId !== '__all') await DB.set('case:' + S.caseId, S.data); }, 300);
+  if (isScope(S.caseId)) { if (typeof AllMode !== 'undefined') AllMode.warn(); Analysis.invalidate(); return; }
+  saveTimer = setTimeout(async () => { if (S.caseId && !isScope(S.caseId)) await DB.set('case:' + S.caseId, S.data); }, 300);
   Analysis.invalidate();
 }
 async function saveMeta() { await DB.set('settings', S.settings); await DB.set('cases', S.cases); await DB.set('caseId', S.caseId); }
-const activeCase = () => S.caseId === '__all' ? { id: '__all', all: true, name: 'All Cases (' + S.cases.length + ')', status: '' } : (S.cases.find(c => c.id === S.caseId) || {});
+const activeCase = () => isScope(S.caseId) ? { id: S.caseId, all: true, name: AllMode.label(S.caseId), status: '' } : (S.cases.find(c => c.id === S.caseId) || {});
 
 /* ---------- Field definitions ---------- */
 // Each field: key, label, patterns (matched against normalised header text, in order)
@@ -3032,7 +3042,7 @@ function openImport(allowed, onDone, presetFiles) {
   const pick = () => { const fp = $('#filePick'); fp.value = ''; fp.onchange = () => { queue.push(...fp.files); next(); }; fp.click(); };
   /* case chosen at the top – files always go into that case */
   const IF = [['ctype', 'Case Type', 'ct'], ['fir', 'FIR / Complaint No.'], ['year', 'Year'], ['ps', 'Police Station'], ['district', 'District / Commissionerate'], ['io', 'IO Name'], ['io_mobile', 'IO Mobile'], ['io_posting', 'IO Posting']];
-  const box = $('.ip-case', body); let sel = S.caseId === '__all' ? (S.prevCase && S.cases.some(x => x.id === S.prevCase) ? S.prevCase : S.cases[0].id) : S.caseId, editing = false;
+  const box = $('.ip-case', body); let sel = isScope(S.caseId) ? (S.prevCase && S.cases.some(x => x.id === S.prevCase) ? S.prevCase : S.cases[0].id) : S.caseId, editing = false;
   const fillSel = () => { $('#ipCase', body).innerHTML = S.cases.map(x => `<option value="${x.id}" ${x.id === sel ? 'selected' : ''}>${esc(x.fir ? x.fir + ' – ' + x.name : x.name)}</option>`).join('') + `<option value="new" ${sel === 'new' ? 'selected' : ''}>➕ New case (type FIR / Complaint No. below)</option>`; };
   const drawF = () => { const c = sel === 'new' ? { year: String(new Date().getFullYear()), ps: activeCase().ps || '', district: activeCase().district || '' } : S.cases.find(x => x.id === sel) || {}, open = editing || sel === 'new';
     $('#ipF', body).innerHTML = IF.map(([k, l, t]) => CaseBox.field(k, l, t, k === 'year' ? CaseBox.yearOf(c) : c[k])).join(''); CaseBox.wire(box);
@@ -4931,7 +4941,7 @@ const Reports = {
     XLSX.writeFile(wb, (activeCase().name || 'case').replace(/[^\w\- ]/g, '_') + '_analysis.xlsx');
   },
   async backup() {
-    if (S.caseId && S.caseId !== '__all') await DB.set('case:' + S.caseId, S.data);
+    if (S.caseId && !isScope(S.caseId)) await DB.set('case:' + S.caseId, S.data);
     const data = {}; for (const c of S.cases) data[c.id] = await DB.get('case:' + c.id) || emptyCase();
     UI.download('sudarshanastra_backup_' + today() + '.json', JSON.stringify({ app: 'sudarshanastra', version: 1, exported: new Date().toISOString(), cases: S.cases, data }), 'application/json');
   },
@@ -4959,11 +4969,11 @@ function render() {
 function applyTheme() { document.documentElement.dataset.theme = S.settings.theme === 'light' ? 'light' : 'dark'; try { DocFont.apply(); } catch (e) { } }
 
 /* ---------- Cases ---------- */
-function fillCaseSel() { $('#caseSel').innerHTML = (S.cases.length > 1 ? `<option value="__all" ${S.caseId === '__all' ? 'selected' : ''}>🗂 All Cases (${S.cases.length}) – combined</option>` : '') + S.cases.map(c => `<option value="${c.id}" ${c.id === S.caseId ? 'selected' : ''}>${esc(c.name)}${c.fir ? ' · ' + esc(c.fir) : ''}</option>`).join(''); }
+function fillCaseSel() { if (typeof AllMode !== 'undefined') { $('#caseSel').innerHTML = AllMode.options(); return; } $('#caseSel').innerHTML = S.cases.map(c => `<option value="${c.id}" ${c.id === S.caseId ? 'selected' : ''}>${esc(c.name)}${c.fir ? ' · ' + esc(c.fir) : ''}</option>`).join(''); }
 async function switchCase(id) {
-  if (S.caseId && S.data && S.caseId !== '__all') { clearTimeout(saveTimer); await DB.set('case:' + S.caseId, S.data); }
-  if (S.caseId && S.caseId !== '__all') S.prevCase = S.caseId;
-  S.caseId = id; S.data = id === '__all' ? await AllMode.merge() : Object.assign(emptyCase(), await DB.get('case:' + id) || {}); Analysis.invalidate(); S.graphOpt = null; S.filterBank = null; S.trailAck = '';
+  if (S.caseId && S.data && !isScope(S.caseId)) { clearTimeout(saveTimer); await DB.set('case:' + S.caseId, S.data); }
+  if (S.caseId && !isScope(S.caseId)) S.prevCase = S.caseId;
+  S.caseId = id; S.data = isScope(id) ? await AllMode.merge(id) : Object.assign(emptyCase(), await DB.get('case:' + id) || {}); Analysis.invalidate(); S.graphOpt = null; S.filterBank = null; S.trailAck = '';
   await saveMeta(); fillCaseSel(); render();
 }
 async function newCase(name) {
@@ -5097,9 +5107,9 @@ async function boot() {
 async function start() {
   S.cases = await DB.get('cases') || []; S.caseId = await DB.get('caseId');
   if (!S.cases.length) { const c = { id: uid(), name: 'Case 1', created: new Date().toISOString(), status: 'Under investigation' }; S.cases.push(c); await DB.set('case:' + c.id, emptyCase()); S.caseId = c.id; }
-  if (S.caseId === '__all' && S.cases.length < 2) S.caseId = S.cases[0].id;
-  if (S.caseId !== '__all' && !S.cases.some(c => c.id === S.caseId)) S.caseId = S.cases[0].id;
-  S.data = S.caseId === '__all' ? await AllMode.merge() : Object.assign(emptyCase(), await DB.get('case:' + S.caseId) || {});
+  if (isScope(S.caseId) && !AllMode.list(S.caseId).length) S.caseId = S.cases[0].id;
+  if (!isScope(S.caseId) && !S.cases.some(c => c.id === S.caseId)) S.caseId = S.cases[0].id;
+  S.data = isScope(S.caseId) ? await AllMode.merge(S.caseId) : Object.assign(emptyCase(), await DB.get('case:' + S.caseId) || {});
   await saveMeta(); fillCaseSel();
   $$('.nav-item').forEach(n => n.onclick = () => go(n.dataset.page));
   $('#caseSel').onchange = e => switchCase(e.target.value);
@@ -5110,7 +5120,7 @@ async function start() {
   $('#gsearch').onkeydown = e => { if (e.key === 'Enter') { S.searchQ = e.target.value; go('search'); } };
   let tT = 0; ['mousemove', 'keydown', 'click', 'wheel'].forEach(ev => document.addEventListener(ev, () => { lastAct = Date.now(); if (Date.now() - tT > 20000 && !$('#app').classList.contains('hidden')) { tT = Date.now(); Sess.touch(); } }, { passive: true }));
   setInterval(() => { if (S.settings.lockMins > 0 && !$('#app').classList.contains('hidden') && Date.now() - lastAct > S.settings.lockMins * 60000) lock(); }, 15000);
-  window.addEventListener('beforeunload', () => { if (S.caseId && S.caseId !== '__all') DB.set('case:' + S.caseId, S.data); if (!$('#app').classList.contains('hidden')) Sess.touch(Date.now() - lastAct < 60000); });
+  window.addEventListener('beforeunload', () => { if (S.caseId && !isScope(S.caseId)) DB.set('case:' + S.caseId, S.data); if (!$('#app').classList.contains('hidden')) Sess.touch(Date.now() - lastAct < 60000); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') { UI.closeDrawer(); } });
   render();
 }
@@ -12323,7 +12333,7 @@ const TelImp = {
   KN: { cdr: 'CDR', ipdr: 'IPDR', tdr: 'TDR (tower dump)', sms: 'SMS' },
   open(sel) {
     const k = TK[S.telKind] ? S.telKind : 'cdr', K = this.KN[k], col = TK[k][1];
-    sel = sel || this._sel || S.caseId; if (sel !== 'new' && !S.cases.some(c => c.id === sel)) sel = S.caseId === '__all' ? AllMode.pick() : S.caseId; this._sel = sel;
+    sel = sel || this._sel || S.caseId; if (sel !== 'new' && !S.cases.some(c => c.id === sel)) sel = isScope(S.caseId) ? AllMode.pick() : S.caseId; this._sel = sel;
     const isNew = sel === 'new', c = isNew ? { year: String(new Date().getFullYear()), ps: activeCase().ps || '', district: activeCase().district || '', state: activeCase().state || 'UP – Uttar Pradesh', io: activeCase().io || '', io_mobile: activeCase().io_mobile || '', io_posting: activeCase().io_posting || '' } : S.cases.find(x => x.id === sel) || {};
     const here = !isNew && sel === S.caseId ? ['cdr', 'ipdr', 'tdr', 'sms'].map(x => [x.toUpperCase(), Tel.of(x).length, uniq(Tel.of(x).map(r => r._src)).length]) : null;
     const F = CaseBox.F.filter(f => ['ctype', 'fir', 'year', 'ps', 'district', 'state', 'io', 'io_mobile', 'io_posting', 'section'].includes(f[0]));
@@ -14347,24 +14357,25 @@ const Hub = {
   /* opt: { mode: 'new' | 'old' | 'auto', hint: kind, title, files } */
   open(opt = {}) {
     const keep = this.st && this.st.Q.length && !this.st.done && !opt.fresh;
-    if (!keep) this.st = { mode: opt.mode || 'old', sel: S.caseId === '__all' ? AllMode.pick() : S.caseId, edit: false, Q: [], hint: opt.hint || '', title: opt.title || '', busy: false, done: false, log: '' };
+    if (!keep) this.st = { mode: opt.mode || 'old', sel: isScope(S.caseId) ? AllMode.pick() : S.caseId, edit: false, Q: [], hint: opt.hint || '', title: opt.title || '', busy: false, done: false, log: '', picked: 0 };
     else { if (opt.mode) this.st.mode = opt.mode; if (opt.hint) this.st.hint = opt.hint; }
     this.draw(); if (opt.files) this.add(opt.files);
   },
   body() { const b = $('#mdBody'); return b && $('.hub', b) ? b : null; },
   draw() {
-    const s = this.st, isNew = s.mode === 'new', isAuto = s.mode === 'auto', b0 = this.body();
+    const s = this.st, isNew = s.mode === 'new' || s.mode === 'ncrp', isN = s.mode === 'ncrp', isAuto = s.mode === 'auto', b0 = this.body(), ACK = this.acks();
     if (b0 && $('.hub-f', b0)) s.form = CaseBox.read($('.hub-f', b0));
     let c = isNew ? { year: String(new Date().getFullYear()), ps: activeCase().ps || '', district: activeCase().district || '', state: activeCase().state || 'UP – Uttar Pradesh', io: activeCase().io || '', io_mobile: activeCase().io_mobile || '', io_posting: activeCase().io_posting || '' } : S.cases.find(x => x.id === s.sel) || activeCase();
     const F = CaseBox.F, open = isNew || s.edit; if (s.form) Object.assign(c = { ...c }, s.form);
     const bits = [c.fir && 'FIR ' + String(c.fir).replace(/^\s*FIR\s*(No\.?)?\s*/i, ''), c.ps && 'PS ' + c.ps, c.district, c.section, c.io && 'IO ' + c.io].filter(Boolean);
     const html = `<div class="hub ti">
       <div class="ti-step"><b>1</b> Which case are these files for?</div>
-      <div class="ti-seg hub-seg"><button data-hm="new" class="${isNew ? 'on' : ''}">➕ New Case<small>Fill FIR, Police Station, IO details</small></button><button data-hm="old" class="${s.mode === 'old' ? 'on' : ''}">📁 Existing Case<small>Add the files to a case already made</small></button><button data-hm="auto" class="${isAuto ? 'on' : ''}">🧭 Auto By FIR<small>CCTNS zips / folders of many FIRs – each goes to its own case</small></button></div>
+      ${this.ask(ACK)}<div class="ti-seg hub-seg hub-seg4"><button data-hm="new" class="${isNew && !isN ? 'on' : ''}">➕ New FIR Case<small>Fill FIR, Police Station, IO details</small></button><button data-hm="ncrp" class="${isN ? 'on' : ''}">🧾 New NCRP Case<small>No FIR yet – by Acknowledgement No.</small></button><button data-hm="old" class="${s.mode === 'old' ? 'on' : ''}">📁 Existing Case<small>Add the files to a case already made</small></button><button data-hm="auto" class="${isAuto ? 'on' : ''}">🧭 Auto By FIR<small>CCTNS zips / folders of many FIRs – each goes to its own case</small></button></div>
       ${s.mode === 'old' ? `<div class="hub-old"><label class="ti-sel">Choose Case<select id="hbCase">${S.cases.map(x => `<option value="${x.id}"${x.id === s.sel ? ' selected' : ''}>${esc(x.name)}${x.fir && !String(x.name).includes(x.fir) ? ' · ' + esc(x.fir) : ''}</option>`).join('')}</select></label>
         <div class="hub-cd">${bits.length ? '👮 ' + esc(bits.join(' · ')) : '<span class="bad-t">⚠ FIR / PS / IO details not filled</span>'} <button class="btn sm" id="hbEd">${s.edit ? '✖ Cancel Edit' : '✏ Edit Details'}</button></div></div>` : ''}
       ${isAuto ? `<div class="note">The FIR number is read from each zip / folder name (e.g. <span class="mono">FIR-0123-2026-PS-CCPS-GZB-CS-PPI</span>) or from inside the case diary. A case is found by its FIR number, or made new. Other files go into the open case: <b>${esc(activeCase().name || '')}</b>.</div>` : ''}
-      ${open ? `<div class="map-grid cb-grid hub-f">${F.map(([f, l, t]) => CaseBox.field(f, l, t, f === 'year' ? CaseBox.yearOf(c) : c[f])).join('')}<label style="grid-column:1/-1">Case Name <span class="small muted">(blank = made from Case Type and FIR)</span><input data-cb="name" value="${esc(s.form ? s.form.name || '' : isNew ? '' : c.name || '')}"></label></div>` : ''}
+      ${open && isN ? `<div class="map-grid cb-grid hub-f"><label style="grid-column:1/-1">Acknowledgement No(s). <span class="small muted">(NCRP / 1930 complaint – read from the file)</span><input data-cb="ack" class="mono" value="${esc(s.form && s.form.ack != null ? s.form.ack : ACK.join(', '))}" placeholder="e.g. 31511240012345"></label>${F.filter(([f]) => ['ps', 'district', 'state', 'io', 'io_mobile', 'io_posting'].includes(f)).map(([f, l, t]) => CaseBox.field(f, l, t, c[f])).join('')}<label style="grid-column:1/-1">Case Name <span class="small muted">(blank = "NCRP · Ack …")</span><input data-cb="name" value="${esc(s.form ? s.form.name || '' : '')}"></label><div class="small muted" style="grid-column:1/-1">When the FIR is registered, open the case and fill the FIR No. in Case Details – it moves to <b>FIR Cases</b> with all its data.</div></div>` : ''}
+      ${open && !isN ? `<div class="map-grid cb-grid hub-f">${F.map(([f, l, t]) => CaseBox.field(f, l, t, f === 'year' ? CaseBox.yearOf(c) : c[f])).join('')}<label style="grid-column:1/-1">Case Name <span class="small muted">(blank = made from Case Type and FIR)</span><input data-cb="name" value="${esc(s.form ? s.form.name || '' : isNew ? '' : c.name || '')}"></label></div>` : ''}
       <div class="ti-step"><b>2</b> Add the files</div>
       <div class="g-drop hub-drop" id="hbDrop"><div class="g-dl">⬆</div><b>Drop files or a whole folder here</b><span>FIR · Case Diary (CD) · CS / CS-PPI / FR · CCTNS zip · bank / telecom / NIC e-mail replies · statements · NCRP / money trail / bank action sheets · statements & KYC · CDR / IPDR / TDR / SMS · CAF · WhatsApp / Facebook / Instagram / Telegram / Google replies · zip / rar · scanned PDFs & photos (read by OCR)</span>
         <div class="row" style="gap:8px;justify-content:center;margin-top:10px"><button class="btn primary" id="hbF">📄 Choose Files</button><button class="btn" id="hbD">📁 Choose Folder</button></div></div>
@@ -14379,6 +14390,26 @@ const Hub = {
     const m = UI.modal('📥 Import / Upload' + (s.title ? ' – ' + s.title : ''), html, btns);
     this.wire(m);
   },
+  acks() { return uniq((this.st.Q || []).filter(q => q.kind === 'ncrp' && !q.ok).flatMap(q => q.acks || [])); },
+  ask(A) {
+    const s = this.st; if (!A.length || s.mode === 'auto' || s.done) return '';
+    const M = (s.match || []).filter(x => S.cases.some(c => c.id === x.id));
+    return `<div class="hub-ask${s.needPick && !s.picked ? ' need' : ''}"><div><b>🧾 Bank Action / NCRP file</b> – Acknowledgement No. <span class="mono">${esc(A.slice(0, 3).join(', '))}${A.length > 3 ? ' +' + (A.length - 3) : ''}</span>${s.firIn ? ` · FIR in file: <b>${esc(s.firIn)}</b>` : ' · no FIR / police station in the file'}.<br>${s.picked ? '<span class="good-t">✔ Chosen – press Import All.</span>' : `<b>Where should it go?</b> ${M.length ? 'Pick the matching case, or choose' : 'Choose'} below: <b>🧾 New NCRP Case</b> (no FIR yet), <b>➕ New FIR Case</b> or <b>📁 Existing Case</b>.`}</div>
+      ${M.length ? `<div class="hub-ask-b">` : ''}${M.map(x => `<button class="btn primary" data-hask="${x.id}">🎯 ${esc(AllMode.caseLabel(S.cases.find(c => c.id === x.id)))}<small>same Ack No. ${esc(x.ack)} already in this case</small></button>`).join('')}${M.length ? '</div>' : ''}</div>`;
+  },
+  async peek(q) {
+    try { const P = await Parsers.readFile(q.f, () => null), A = new Set(); let fir = '';
+      for (const sh of P.sheets) { const rows = sh.rows || []; for (let h = 0; h < Math.min(rows.length, 15); h++) { const r = rows[h] || [], i = r.findIndex(x => /acknowledg|ack\.?\s*no/i.test(String(x))), j = r.findIndex(x => /^\s*fir\b/i.test(String(x)));
+        if (i < 0) continue; for (const row of rows.slice(h + 1)) { const v = String(row[i] ?? '').replace(/\D/g, ''); if (v.length >= 10) A.add(v); if (j >= 0 && !fir && String(row[j] || '').trim()) fir = String(row[j]).trim(); } break; } }
+      q.acks = [...A]; if (fir) this.st.firIn = fir; } catch (e) { q.acks = []; }
+  },
+  async matchCases() {
+    const A = new Set(this.acks()), M = []; if (!A.size) { this.st.match = []; return; }
+    for (const c of S.cases) { let hit = AllMode.ackOf(c).find(a => A.has(a.replace(/\D/g, '')));
+      if (!hit) { const d = c.id === S.caseId && !isScope(S.caseId) ? S.data : await DB.get('case:' + c.id) || {}; for (const t of [...(d.txns || []), ...(d.ncrp || [])]) { const a = String(t.ack_no || '').replace(/\D/g, ''); if (A.has(a)) { hit = a; break; } } }
+      if (hit) M.push({ id: c.id, ack: hit }); }
+    this.st.match = M;
+  },
   list() {
     const s = this.st; if (!s.Q.length) return '<div class="muted small">No file added yet.</div>';
     const cnt = groupBy(s.Q.filter(q => q.kind !== '…'), q => q.kind);
@@ -14390,8 +14421,8 @@ const Hub = {
   redraw() { const b = this.body(); if (!b) return; $('#hbQ', b).innerHTML = this.list(); $('#hbLog', b).innerHTML = this.st.log; this.wireList(b); },
   wire(m) {
     const s = this.st;
-    $$('[data-hm]', m).forEach(b => b.onclick = () => { if (s.busy) return; s.mode = b.dataset.hm === 'new' ? 'new' : b.dataset.hm; s.edit = false; s.form = null; this.draw(); });
-    const cs = $('#hbCase', m); if (cs) cs.onchange = () => { s.sel = cs.value; s.edit = false; s.form = null; this.draw(); };
+    $$('[data-hm]', m).forEach(b => b.onclick = () => { if (s.busy) return; s.picked = 1; s.mode = b.dataset.hm; s.edit = false; s.form = null; this.draw(); });
+    const cs = $('#hbCase', m); if (cs) cs.onchange = () => { s.picked = 1; s.sel = cs.value; s.edit = false; s.form = null; this.draw(); };
     const ed = $('#hbEd', m); if (ed) ed.onclick = () => { s.edit = !s.edit; s.form = null; this.draw(); };
     CaseBox.wire(m); m.addEventListener('input', () => { const e = $('#hbErr', m); if (e) e.textContent = ''; });
     const pick = dir => { const i = document.createElement('input'); i.type = 'file'; i.multiple = true; i.className = 'hidden'; if (dir) { i.webkitdirectory = true; i.setAttribute('directory', ''); } i.onchange = () => { const f = [...i.files]; i.remove(); this.add(f); }; document.body.appendChild(i); i.click(); };
@@ -14400,12 +14431,13 @@ const Hub = {
     drop.ondragover = e => { e.preventDefault(); drop.classList.add('over'); }; drop.ondragleave = () => drop.classList.remove('over');
     drop.ondrop = async e => { e.preventDefault(); drop.classList.remove('over'); const fs = []; const walk = async (en, p) => { if (!en) return; if (en.isFile) { const f = await new Promise(r => en.file(r)); fs.push({ f, path: p + f.name }); } else if (en.isDirectory) { const rd = en.createReader(); let b; do { b = await new Promise(r => rd.readEntries(r)); for (const x of b) await walk(x, p + en.name + '/'); } while (b.length); } };
       const items = [...(e.dataTransfer.items || [])].map(i => i.webkitGetAsEntry && i.webkitGetAsEntry()).filter(Boolean); if (items.length) { for (const it of items) await walk(it, ''); this.add(fs); } else this.add([...e.dataTransfer.files]); };
+    $$('[data-hask]', m).forEach(b => b.onclick = () => { if (s.busy) return; s.picked = 1; const v = b.dataset.hask; if (v === 'new' || v === 'ncrp') s.mode = v; else { s.mode = 'old'; s.sel = v; } s.edit = false; s.form = null; this.draw(); });
     this.wireList(m);
   },
   wireList(m) {
     const s = this.st;
-    $$('[data-hk]', m).forEach(x => x.onchange = () => { const q = s.Q[+x.dataset.hk]; q.kind = x.value; q.user = 1; this.redraw(); });
-    const c = $('#hbClr', m); if (c) c.onclick = () => { s.Q = []; s.log = ''; this.draw(); };
+    $$('[data-hk]', m).forEach(x => x.onchange = async () => { const q = s.Q[+x.dataset.hk]; q.kind = x.value; q.user = 1; if (q.kind === 'ncrp' && !q.acks) { await this.peek(q); await this.matchCases(); this.draw(); } else this.redraw(); });
+    const c = $('#hbClr', m); if (c) c.onclick = () => { s.Q = []; s.log = ''; s.match = []; s.firIn = ''; s.picked = 0; s.needPick = 0; this.draw(); };
   },
   /* files (or {f, path}) → queue; zips opened with their folder path kept */
   async add(files) {
@@ -14420,7 +14452,8 @@ const Hub = {
     for (const e of E) { if (have.has(e.path + '|' + e.file.size) || /(^|\/)(\.|__MACOSX|Thumbs\.db)/i.test(e.path)) continue; s.Q.push({ f: e.file, path: e.path, kind: '…' }); }
     if (s.mode === 'old' && s.Q.some(q => CDX.meta(q.path)) && uniq(s.Q.map(q => (CDX.meta(q.path) || {}).fir).filter(Boolean)).length > 1) s.mode = 'auto';
     this.draw();
-    for (const q of s.Q) if (q.kind === '…') { q.kind = await this.detect(q); this.redraw(); }
+    for (const q of s.Q) if (q.kind === '…') { q.kind = await this.detect(q); if (q.kind === 'ncrp') await this.peek(q); this.redraw(); }
+    if (this.acks().length) await this.matchCases();
     this.draw();
   },
   async detect(q) {
@@ -14440,9 +14473,11 @@ const Hub = {
   /* make / update the chosen case; returns its id (and opens it) */
   async target(saveOnly) {
     const s = this.st, b = this.body(); if (s.mode === 'auto') return S.caseId;
-    if (s.mode === 'new' || s.edit) {
+    if (s.mode === 'new' || s.mode === 'ncrp' || s.edit) {
       const o = CaseBox.read($('.hub-f', b)), err = CaseBox.check(o), E = $('#hbErr', b);
       if (err) { E.textContent = err; return null; }
+      if (s.mode === 'ncrp') { const a = String(o.ack || '').split(/[,;\s]+/).filter(Boolean); if (!a.length && !o.name) { E.textContent = 'Type the Acknowledgement No. (or a case name) for the NCRP case'; const f = $('[data-cb="ack"]', b); if (f) f.focus(); return null; }
+        o.ack = a.join(', '); o.name = o.name || 'NCRP · Ack ' + a[0] + (a.length > 1 ? ' +' + (a.length - 1) : ''); const c = { id: uid(), created: new Date().toISOString(), status: 'Under investigation', reg: 'ncrp', ctype: 'NCRP Complaint', ...o }; S.cases.push(c); await DB.set('case:' + c.id, emptyCase()); await switchCase(c.id); s.picked = 1; return c.id; }
       if (s.mode === 'new' && !o.fir && !o.name && !o.ctype) { E.textContent = 'Type the FIR / Complaint No. (or a case name) for the new case'; const f = $('[data-cb="fir"]', b); if (f) f.focus(); return null; }
       if (s.mode === 'new') { o.name = o.name || CaseBox.autoName(o); const c = { id: uid(), created: new Date().toISOString(), status: 'Under investigation', ...o }; S.cases.push(c); await DB.set('case:' + c.id, emptyCase()); await switchCase(c.id); return c.id; }
       const c = S.cases.find(x => x.id === s.sel); if (!c) return null; const auto = !c.name || c.name === CaseBox.autoName(c) || /^Case \d+$/.test(c.name); Object.assign(c, o); if (!o.name && auto) c.name = CaseBox.autoName(c); await saveMeta(); fillCaseSel();
@@ -14454,11 +14489,13 @@ const Hub = {
     const s = this.st; if (s.busy) return;
     if (!s.Q.length) { const e = $('#hbErr', this.body()); if (e) e.textContent = 'Add files first (step 2).'; return; }
     if (s.Q.some(q => q.kind === '…')) return UI.toast('Still checking the files – one moment');
+    { const fv = $('.hub-f [data-cb="fir"]', this.body() || document); if ((s.mode === 'new' && fv && fv.value.trim()) || s.mode === 'ncrp') s.picked = 1; }
+    if (!s.picked && s.mode !== 'auto' && this.acks().length) { s.needPick = 1; this.draw(); const e = $('#hbErr', this.body()); if (e) e.textContent = '⬆ Choose where the bank action / NCRP file goes (box at the top), then press Import All.'; const a = $('.hub-ask', this.body()); if (a) a.scrollIntoView({ block: 'center' }); return; }
     const tid = await this.target(); if (!tid) return;
-    s.form = null; s.busy = true; s.mode = s.mode === 'new' ? 'old' : s.mode; s.sel = S.caseId; s.edit = false; this.draw();
+    s.form = null; s.busy = true; s.mode = s.mode === 'new' || s.mode === 'ncrp' ? 'old' : s.mode; s.sel = S.caseId; s.edit = false; this.draw();
     const log = t => { s.log = t; const b = this.body(); if (b) $('#hbLog', b).innerHTML = t; };
     const todo = s.Q.filter(q => !q.ok && q.kind !== 'skip');
-    if (S.caseId === '__all' && todo.some(q => !this.CCT.includes(q.kind))) { s.busy = false; s.mode = 'old'; s.sel = AllMode.pick(); this.draw(); const e = $('#hbErr', this.body()); if (e) e.textContent = 'Data files (bank, telecom, social, NCRP…) need one case. Choose the case above, then press Import All again.'; return; }
+    if (isScope(S.caseId) && todo.some(q => !this.CCT.includes(q.kind))) { s.busy = false; s.mode = 'old'; s.sel = AllMode.pick(); this.draw(); const e = $('#hbErr', this.body()); if (e) e.textContent = 'Data files (bank, telecom, social, NCRP…) need one case. Choose the case above, then press Import All again.'; return; }
     /* 1 · CCTNS: FIR, CD, CS / PPI / FR, case documents (OCR when scanned) */
     const cc = todo.filter(q => this.CCT.includes(q.kind));
     if (cc.length) {
@@ -14476,7 +14513,7 @@ const Hub = {
         this.redraw();
       }
       for (const [k, g] of G) { if (!g.m && k !== '_') continue; const fins = g.items.filter(x => x.kd.k === 'fin'); if (g.m && !g.m.fin && fins.length) g.m.fin = fins[0].kd.type;
-        if (k === '_' && S.caseId === '__all') { g.items.forEach(x => { x.q.res = '⚠ FIR No. not found – choose Existing Case and import again'; }); continue; }
+        if (k === '_' && isScope(S.caseId)) { g.items.forEach(x => { x.q.res = '⚠ FIR No. not found – choose Existing Case and import again'; }); continue; }
         const id = await CDX.apply(g.m ? g : { m: null }, g.items, k === '_' ? S.caseId : null);
         const c = S.cases.find(x => x.id === id); g.items.forEach(x => { if (!/^(Error|⚠)/.test(x.q.res)) x.q.res += ' → ' + (c ? c.name : 'case'); x.q.ok = 1; }); }
       await saveMeta(); fillCaseSel(); CDX._m = null;
@@ -14529,13 +14566,14 @@ const AllDash = {
   pend(c) { const f = this.fin(c); return f ? f === 'PPI' : !/complet|closed|disposed|solved|\bdone\b/i.test(c.status || ''); },
   async one(c) {
     const cur = S.data, cid = S.caseId; let d = c.id === S.caseId ? S.data : Object.assign(emptyCase(), await DB.get('case:' + c.id) || {});
-    const o = { id: c.id, name: c.name || '', fir: c.fir || '', ps: c.ps || '', io: c.io || '', section: c.section || '', fin: this.fin(c), finNo: (c.final || {}).no || '', status: c.status || 'Under investigation', pend: this.pend(c), ids: new Map() };
+    const o = { id: c.id, cat: AllMode.cat(c), name: c.name || '', fir: c.fir || '', ps: c.ps || '', io: c.io || '', section: c.section || '', fin: this.fin(c), finNo: (c.final || {}).no || '', status: c.status || 'Under investigation', pend: this.pend(c), ids: new Map() };
     S.data = d; S.caseId = c.id; Analysis.invalidate(); if (typeof CDX !== 'undefined') CDX._m = null;
     try {
       const acc = Analysis.accountRows(); o.acc = acc.filter(a => !isSynthetic(a.acc)).length; o.mule = acc.filter(a => a.score >= 60).length;
       o.ncrp = (d.ncrp || []).length; o.txns = (d.txns || []).length; let comps = []; try { comps = Trail.complaints(); } catch (e) { } o.comps = comps.length || o.ncrp;
+      o.acks = uniq([...comps.map(x => String(x.ack)), ...AllMode.ackOf(c)]); o.layers = Math.max(0, ...comps.map(x => x.layers || 0)); o.banks = uniq((d.txns || []).map(t => String(t.to_bank || '').split(' / ')[0].trim().toUpperCase()).filter(b => b && !/withdraw|transfer|hold|action|cheque/i.test(b))).length;
       o.amount = sum(d.ncrp || [], r => +r.amount || 0) || sum(comps, x => +x.amount || 0);
-      o.hold = Math.max(sum(acc, a => a.hold || 0), sum(d.ncrp || [], r => +r.hold_amount || 0));
+      o.hold = Math.max(sum(acc, a => a.hold || 0), sum(d.ncrp || [], r => +r.hold_amount || 0), sum(comps, x => +x.hold || 0));
       const cc = d.cctns || {}; o.cd = (cc.cd || []).length; o.cdLast = typeof CDX !== 'undefined' ? CDX.lastNo(cc.cd) : ''; o.cdDate = typeof CDX !== 'undefined' ? CDX.lastDate(cc.cd) : ''; o.cdGap = typeof CDX !== 'undefined' ? CDX.gaps(cc.cd) : '';
       if (typeof CDX !== 'undefined' && (o.cd || cc.fir)) { const r = CDX.analyse(d, c); if (!o.amount) o.amount = r.fir.amount || 0; o.secs = r.fir.sections.join(', '); o.got = r.items.filter(i => i.status === 'Received').length; o.ask = r.items.filter(i => i.status !== 'Received').length + r.agencies.filter(a => a.status === 'Pending').length; o.oldest = Math.max(0, ...r.agencies.filter(a => a.status === 'Pending').map(a => a.age), ...r.items.map(i => i.age || 0)); o.sugg = r.sugg.slice(0, 3).map(s => s.en); o.kyc = r.items.filter(i => i.kyc).length; }
       try { const W = CCTNS.work(d, c).filter(w => w.status === 'Pending'); o.work = W.length; o.workList = W.map(w => w.title); } catch (e) { o.work = 0; o.workList = []; }
@@ -14547,71 +14585,77 @@ const AllDash = {
     return o;
   },
   async collect(onP) {
-    if (this.busy) return this.busy;
-    this.busy = (async () => {
-      this.C.delete(S.caseId); const out = [];
-      for (let n = 0; n < S.cases.length; n++) { const c = S.cases[n]; let o = this.C.get(c.id); if (!o) { onP && onP(n + 1, S.cases.length, c.name); o = await this.one(c); this.C.set(c.id, o); await new Promise(r => setTimeout(r, 0)); }
-        Object.assign(o, { name: c.name || '', fir: c.fir || '', ps: c.ps || '', io: c.io || '', fin: this.fin(c), finNo: (c.final || {}).no || '', status: c.status || '', pend: this.pend(c) }); out.push(o); }
+    while (this.busy) { try { await this.busy; } catch (e) { } }
+    const pr = (async () => {
+      this.C.delete(S.caseId); const out = [], L = AllMode.on() ? AllMode.list() : S.cases;
+      for (let n = 0; n < L.length; n++) { const c = L[n]; let o = this.C.get(c.id); if (!o) { onP && onP(n + 1, L.length, c.name); o = await this.one(c); this.C.set(c.id, o); await new Promise(r => setTimeout(r, 0)); }
+        Object.assign(o, { cat: AllMode.cat(c), name: c.name || '', fir: c.fir || '', ps: c.ps || '', io: c.io || '', fin: this.fin(c), finNo: (c.final || {}).no || '', status: c.status || '', pend: this.pend(c) }); out.push(o); }
       for (const id of [...this.C.keys()]) if (!S.cases.some(c => c.id === id)) this.C.delete(id);
-      this.busy = null; return out;
+      return out;
     })();
-    return this.busy;
+    this.busy = pr; try { return await pr; } finally { if (this.busy === pr) this.busy = null; }
   },
   common(R) {
     const M = new Map();
     for (const o of R) for (const [k, e] of o.ids) { let g = M.get(k); if (!g) M.set(k, g = { key: k, type: e.type, value: e.value, cases: [], secs: new Set() }); g.cases.push(o); e.secs.forEach(s => g.secs.add(s)); }
     return [...M.values()].filter(g => g.cases.length >= 2).sort((a, b) => b.cases.length - a.cases.length || b.secs.size - a.secs.size);
   },
-  bar() { const v = S.caseId === '__all' ? 'all' : 'case', c = v === 'all' ? S.cases.find(x => x.id === AllMode.pick()) || {} : activeCase(); return `<div class="ad-sw"><button data-dv="all" class="${v === 'all' ? 'on' : ''}">🗂 All Cases <small>${S.cases.length}</small></button><button data-dv="case" class="${v === 'case' ? 'on' : ''}">📁 One Case <small>${esc(c.name || '')}</small></button></div>`; },
-  wireBar(main) { $$('[data-dv]', main).forEach(b => b.onclick = () => { const all = b.dataset.dv === 'all'; if (all === (S.caseId === '__all')) return; switchCase(all ? '__all' : AllMode.pick()); }); },
+  bar() {
+    const v = isScope(S.caseId) ? S.caseId : 'case', c = v === 'case' ? activeCase() : S.cases.find(x => x.id === AllMode.pick()) || {}, n = sc => AllMode.list(sc).length;
+    const b = (k, ic, l, sub) => `<button data-dv="${k}" class="${v === k ? 'on' : ''}" ${k !== 'case' && k !== '__all' && !n(k) ? 'disabled' : ''}>${ic} ${l} <small>${esc(sub)}</small></button>`;
+    return `<div class="ad-sw">${b('__all', '🗂', 'All Cases', n('__all'))}${b('__fir', '📁', 'FIR Cases', n('__fir'))}${b('__ncrp', '🧾', 'NCRP (Without FIR)', n('__ncrp'))}${b('case', '📄', 'One Case', AllMode.caseLabel(c))}</div>`;
+  },
+  wireBar(main) { $$('[data-dv]', main).forEach(b => b.onclick = () => { const k = b.dataset.dv; if (k === (isScope(S.caseId) ? S.caseId : 'case')) return; switchCase(k === 'case' ? AllMode.pick() : k); }); },
   open(id) { UI.closeDrawer(); if (id !== S.caseId) switchCase(id); else render(); },
   async draw(main) {
     const pct = (n, t) => t ? Math.round(n / t * 100) : 0;
-    main.innerHTML = `${this.bar()}<div class="card ad-head"><div><div class="small muted">ALL CASES OVERVIEW</div><h2 style="margin:2px 0">🗂 Your ${S.cases.length} Case${S.cases.length === 1 ? '' : 's'} At A Glance</h2><div class="small muted">Every case on this computer – status, money, mule accounts, suspects common to many cases and pending work. Click a case to open it.</div></div><div class="ad-acts"><button class="btn primary" id="adRe">🔄 Refresh</button></div></div><div id="adBody"><div class="muted" style="padding:20px">Reading your cases…</div></div>`;
+    main.innerHTML = `${this.bar()}<div class="card ad-head"><div><div class="small muted">${esc(AllMode.SC[S.caseId][1].toUpperCase())} – OVERVIEW</div><h2 style="margin:2px 0">${AllMode.SC[S.caseId][0]} ${esc(AllMode.label(S.caseId))} At A Glance</h2><div class="small muted">${S.caseId === '__ncrp' ? 'Complaints on NCRP (1930 / cybercrime.gov.in) with no FIR yet – Acknowledgement No., money reported, on hold and where it went. ₹5 lakh or more needs an FIR (e-Zero FIR).' : S.caseId === '__fir' ? 'FIR cases – CS / CS-PPI / FR, case diary, money, suspects and pending work.' : 'Every case on this computer – FIR cases and NCRP complaints without FIR.'} Click a case to open it.</div></div><div class="ad-acts"><button class="btn primary" id="adRe">🔄 Refresh</button></div></div><div id="adBody"><div class="muted" style="padding:20px">Reading your cases…</div></div>`;
     this.wireBar(main); $('#adRe', main).onclick = () => { this.C.clear(); this.draw(main); };
     const R = await this.collect((i, t, nm) => { const b = $('#adBody', main); if (b) b.innerHTML = `<div class="muted" style="padding:20px">Reading case ${i} of ${t}: ${esc(nm)}…</div>`; });
-    if (!document.body.contains(main) || S.page !== 'dashboard' || S.caseId !== '__all') return;
+    if (!document.body.contains(main) || S.page !== 'dashboard' || !isScope(S.caseId)) return;
+    const SC = S.caseId, isN = SC === '__ncrp', isF = SC === '__fir', BIG = 500000;
     const T = R.length, P = R.filter(r => r.pend), CS = R.filter(r => r.fin === 'CS'), PPI = R.filter(r => r.fin === 'PPI'), FR = R.filter(r => r.fin === 'FR'), UI_ = R.filter(r => !r.fin && r.pend);
-    const amt = sum(R, r => r.amount || 0), hold = sum(R, r => r.hold || 0), com = this.common(R);
+    const amt = sum(R, r => r.amount || 0), hold = sum(R, r => r.hold || 0), com = this.common(R), FC = R.filter(r => r.cat === 'fir'), NC = R.filter(r => r.cat === 'ncrp'), NEED = NC.filter(r => (r.amount || 0) >= BIG), ACK = uniq(R.flatMap(r => r.acks || []));
     const k = (l, v, h, cls) => [l, v, h, cls];
-    $('#adBody', main).innerHTML = `<div class="kpis ad-k">${[
-        k('Total FIR Cases', fmtNum(T), 'On this computer', 'c2'), k('Pending', fmtNum(P.length), `${pct(P.length, T)}% · Under Investigation ${UI_.length} + CS-PPI ${PPI.length}`, 'c5'),
-        k('CS', fmtNum(CS.length), `Charge Sheet · ${pct(CS.length, T)}%`, 'c1'), k('CS-PPI', fmtNum(PPI.length), `Further inv. pending · ${pct(PPI.length, T)}%`, 'c2'), k('FR', fmtNum(FR.length), `Final Report · ${pct(FR.length, T)}%`, 'c5'),
-        k('Amount Defrauded', fmtINR(amt), `${fmtINR(hold)} on hold / lien`, 'c3'), k('Complaints', fmtNum(sum(R, r => r.comps || 0)), fmtNum(sum(R, r => r.txns || 0)) + ' transactions', 'c4'),
-        k('Mule Accounts', fmtNum(sum(R, r => r.mule || 0)), 'High risk (score ≥ 60)', 'c5'), k('Common Suspects', fmtNum(com.length), 'Found in 2+ cases', 'c6'),
-        k('Pending Work', fmtNum(sum(R, r => r.work || 0)), 'Demands / notices to do', 'c4'), k('Replies Pending', fmtNum(sum(R, r => r.ask || 0)), 'From bank, telecom, platforms…', 'c5'), k('Case Diary Parts', fmtNum(sum(R, r => r.cd || 0)), R.filter(r => r.cdGap).length ? R.filter(r => r.cdGap).length + ' case(s) with missing CD' : 'CD numbering OK', 'c3')
-      ].map(x => `<div class="kpi ${x[3]}"><div class="label">${esc(x[0])}</div><div class="value">${x[1]}</div><div class="hint">${esc(x[2])}</div></div>`).join('')}</div>
-      <div class="grid g2"><div class="card"><h3>📊 Case Status</h3><div class="ad-stack">${[['CS', CS.length, '#10b981'], ['CS-PPI', PPI.length, '#3b82f6'], ['FR', FR.length, '#ef4444'], ['Under Investigation', UI_.length, '#f59e0b'], ['Other Closed', T - CS.length - PPI.length - FR.length - UI_.length, '#64748b']].filter(x => x[1] > 0).map(([l, n, c]) => `<b style="flex:${n};background:${c}" title="${l}: ${n}">${n}</b>`).join('')}</div>
-        <div class="ad-leg">${[['CS', CS.length, '#10b981'], ['CS-PPI', PPI.length, '#3b82f6'], ['FR', FR.length, '#ef4444'], ['Under Investigation', UI_.length, '#f59e0b']].map(([l, n, c]) => `<span><i style="background:${c}"></i>${l} <b>${n}</b> (${pct(n, T)}%)</span>`).join('')}</div></div>
-        <div class="card"><h3>💰 Amount By Case</h3>${(() => { const L = R.filter(r => r.amount).sort((a, b) => b.amount - a.amount).slice(0, 8), mx = Math.max(1, ...L.map(r => r.amount)); return L.length ? L.map(r => `<div class="ad-bar" data-open="${r.id}" title="Open ${esc(r.name)}"><span>${esc(r.name)}</span><i><b style="width:${Math.max(2, r.amount / mx * 100)}%"></b></i><em>${fmtINR(r.amount)}</em></div>`).join('') : '<div class="muted small">No amount found yet.</div>'; })()}</div></div>
-      <div class="card"><div class="d2-hd"><h3>📋 All Cases – Analysis At A Glance</h3><span class="sub">Click a row to open that case.</span></div><div id="adT"></div></div>
+    const KA = [k('Total Cases', fmtNum(T), `FIR ${FC.length} · NCRP without FIR ${NC.length}`, 'c2'), k('FIR Cases', fmtNum(FC.length), `CS ${CS.length} · CS-PPI ${PPI.length} · FR ${FR.length}`, 'c1'), k('NCRP (Without FIR)', fmtNum(NC.length), NEED.length ? NEED.length + ' need FIR (₹5 lakh +)' : 'Acknowledgement No. only', 'c4'), k('Pending', fmtNum(P.length), `${pct(P.length, T)}% · Under Investigation ${UI_.length} + CS-PPI ${PPI.length}`, 'c5')];
+    const KF = [k('Total FIR Cases', fmtNum(T), 'On this computer', 'c2'), k('Pending', fmtNum(P.length), `${pct(P.length, T)}% · Under Investigation ${UI_.length} + CS-PPI ${PPI.length}`, 'c5'), k('CS', fmtNum(CS.length), `Charge Sheet · ${pct(CS.length, T)}%`, 'c1'), k('CS-PPI', fmtNum(PPI.length), `Further inv. pending · ${pct(PPI.length, T)}%`, 'c2'), k('FR', fmtNum(FR.length), `Final Report · ${pct(FR.length, T)}%`, 'c5')];
+    const KN = [k('NCRP Cases', fmtNum(T), 'No FIR yet', 'c4'), k('FIR Needed', fmtNum(NEED.length), '₹5 lakh or more – register FIR / e-Zero FIR', 'c5'), k('Acknowledgement Nos', fmtNum(ACK.length), 'Complaints on NCRP portal', 'c2'), k('Transactions', fmtNum(sum(R, r => r.txns || 0)), `Up to layer ${Math.max(0, ...R.map(r => r.layers || 0))} · ${fmtNum(sum(R, r => r.banks || 0))} bank(s)`, 'c3')];
+    const KC = [k('Amount Defrauded', fmtINR(amt), `${fmtINR(hold)} on hold / lien`, 'c3'), ...(isN ? [k('On Hold / Lien', fmtINR(hold), `${pct(hold, amt)}% of the amount reported`, 'c1')] : [k('Complaints', fmtNum(sum(R, r => r.comps || 0)), fmtNum(sum(R, r => r.txns || 0)) + ' transactions', 'c4')]),
+      k('Mule Accounts', fmtNum(sum(R, r => r.mule || 0)), 'High risk (score ≥ 60)', 'c5'), k('Common Suspects', fmtNum(com.length), 'Found in 2+ cases', 'c6'), k('Pending Work', fmtNum(sum(R, r => r.work || 0)), 'Demands / notices to do', 'c4'), ...(isN ? [] : [k('Replies Pending', fmtNum(sum(R, r => r.ask || 0)), 'From bank, telecom, platforms…', 'c5')]),
+      ...(isF ? [k('Case Diary Parts', fmtNum(sum(R, r => r.cd || 0)), R.filter(r => r.cdGap).length ? R.filter(r => r.cdGap).length + ' case(s) with missing CD' : 'CD numbering OK', 'c3')] : [])];
+    $('#adBody', main).innerHTML = `<div class="kpis ad-k">${[...(isN ? KN : isF ? KF : KA), ...KC].map(x => `<div class="kpi ${x[3]}"><div class="label">${esc(x[0])}</div><div class="value">${x[1]}</div><div class="hint">${esc(x[2])}</div></div>`).join('')}</div>
+      <div class="grid g2">${isN ? `<div class="card"><h3>⚖ FIR Needed – ₹5 Lakh Or More</h3>${NEED.length ? NEED.sort((a, b) => b.amount - a.amount).map(r => `<div class="ad-bar" data-open="${r.id}" title="Open ${esc(r.name)}"><span>${esc(AllMode.caseLabel(r))}</span><i><b style="width:${Math.min(100, r.amount / Math.max(...NEED.map(x => x.amount)) * 100)}%"></b></i><em>${fmtINR(r.amount)}</em></div>`).join('') + '<div class="small muted" style="margin-top:8px">Open the case, then add the FIR No. in Case Details – it moves to FIR Cases.</div>' : '<div class="good-t small">No NCRP case of ₹5 lakh or more.</div>'}</div>` : `<div class="card"><h3>📊 Case Status</h3><div class="ad-stack">${[['CS', CS.length, '#10b981'], ['CS-PPI', PPI.length, '#3b82f6'], ['FR', FR.length, '#ef4444'], ['Under Investigation', UI_.length, '#f59e0b'], ['Other Closed', T - CS.length - PPI.length - FR.length - UI_.length, '#64748b']].filter(x => x[1] > 0).map(([l, n, c]) => `<b style="flex:${n};background:${c}" title="${l}: ${n}">${n}</b>`).join('')}</div>
+        <div class="ad-leg">${[['CS', CS.length, '#10b981'], ['CS-PPI', PPI.length, '#3b82f6'], ['FR', FR.length, '#ef4444'], ['Under Investigation', UI_.length, '#f59e0b']].map(([l, n, c]) => `<span><i style="background:${c}"></i>${l} <b>${n}</b> (${pct(n, T)}%)</span>`).join('')}</div>${SC === '__all' ? `<div class="ad-leg" style="margin-top:8px"><span>📁 FIR cases <b>${FC.length}</b></span><span>🧾 NCRP without FIR <b>${NC.length}</b></span>${NEED.length ? `<span class="bad-t">⚖ ${NEED.length} NCRP case(s) ₹5 lakh + need FIR</span>` : ''}</div>` : ''}</div>`}
+        <div class="card"><h3>💰 Amount By Case <span class="small muted">(green = on hold)</span></h3>${(() => { const L = R.filter(r => r.amount).sort((a, b) => b.amount - a.amount).slice(0, 8), mx = Math.max(1, ...L.map(r => r.amount)); return L.length ? L.map(r => `<div class="ad-bar" data-open="${r.id}" title="Open ${esc(r.name)}"><span>${esc(AllMode.caseLabel(r))}</span><i style="position:relative"><b style="width:${Math.max(2, r.amount / mx * 100)}%"></b><b class="ad-hold" style="width:${Math.min(r.amount, r.hold || 0) / mx * 100}%"></b></i><em>${fmtINR(r.amount)}</em></div>`).join('') : '<div class="muted small">No amount found yet.</div>'; })()}</div></div>
+      <div class="card"><div class="d2-hd"><h3>📋 ${esc(AllMode.SC[SC][1])} – Analysis At A Glance</h3><span class="sub">Click a row to open that case.</span></div><div id="adT"></div></div>
       <div class="card"><div class="d2-hd"><h3>🎯 Common Suspects Across Cases</h3><span class="sub">Mobile, account, UPI, email, IP, IMEI… found in two or more of your cases – the strongest leads to the gang. Click to track.</span></div><div id="adC"></div></div>
       <div class="card"><div class="d2-hd"><h3>⏳ Pending Work Across Cases</h3><span class="sub">What each case is waiting for – oldest pending reply first.</span></div><div id="adP"></div></div>`;
     const stChip = r => r.fin ? `<span class="cc-fin ${({ CS: 'cs', PPI: 'ppi', FR: 'fr' })[r.fin] || 'cs'}">${r.fin === 'PPI' ? 'CS-PPI' : r.fin}${r.finNo ? ' ' + esc(r.finNo) : ''}</span>` : `<span class="cs-st ${r.pend ? 'p' : 'd'}">${esc(r.pend ? 'Under Investigation' : r.status)}</span>`;
-    const comN = new Map(); com.forEach(g => g.cases.forEach(o => comN.set(o.id, (comN.get(o.id) || 0) + 1)));
+    const CD = !isN; const comN = new Map(); com.forEach(g => g.cases.forEach(o => comN.set(o.id, (comN.get(o.id) || 0) + 1)));
     Table($('#adT', main), { rows: R.map(r => ({ ...r, common: comN.get(r.id) || 0 })).sort((a, b) => (b.pend - a.pend) || (b.common - a.common) || (b.amount || 0) - (a.amount || 0)), pageSize: 15, exportName: 'all_cases_analysis', onRow: r => this.open(r.id),
-      columns: [{ key: 'name', label: 'Case', render: r => `<b>${esc(r.name)}</b>${r.id === S.caseId ? ' <span class="badge info">open</span>' : ''}<div class="small muted">${esc([r.fir && 'FIR ' + r.fir, r.ps, r.io && 'IO ' + r.io].filter(Boolean).join(' · '))}</div>` },
-        { key: 'fin', label: 'Status', render: stChip, csv: r => r.fin || r.status }, { key: 'secs', label: 'Sections', render: r => `<span class="small">${esc(r.secs || r.section || '')}</span>` },
-        { key: 'amount', label: 'Amount', num: true, render: r => r.amount ? fmtINR(r.amount) : '' }, { key: 'comps', label: 'Complaints', num: true }, { key: 'mule', label: 'Mule A/C', num: true, render: r => r.mule ? `<b class="bad-t">${r.mule}</b>` : '0' },
+      columns: [{ key: 'name', label: 'Case', render: r => `<b>${esc(r.name)}</b>${r.id === S.caseId ? ' <span class="badge info">open</span>' : ''}<div class="small muted">${esc([r.fir ? 'FIR ' + r.fir : '🧾 NCRP – no FIR', r.ps, r.io && 'IO ' + r.io].filter(Boolean).join(' · '))}</div>${!r.fir && (r.amount || 0) >= BIG ? '<span class="badge bad">⚖ FIR needed</span>' : ''}` },
+        { key: 'acks', label: 'Ack Nos', sortVal: r => (r.acks || []).length, render: r => (r.acks || []).length ? `<span class="mono small" title="${esc(r.acks.join(', '))}">${esc(r.acks[0])}${r.acks.length > 1 ? ` <b>+${r.acks.length - 1}</b>` : ''}</span>` : '', csv: r => (r.acks || []).join('; ') },
+        { key: 'fin', label: 'Status', render: stChip, csv: r => r.fin || r.status }, ...(isN ? [] : [{ key: 'secs', label: 'Sections', render: r => `<span class="small">${esc(r.secs || r.section || '')}</span>` }]),
+        { key: 'amount', label: 'Amount', num: true, render: r => r.amount ? fmtINR(r.amount) : '' }, { key: 'hold', label: 'On Hold', num: true, render: r => r.hold ? `<span class="good-t">${fmtINR(r.hold)}</span>` : '' }, { key: 'layers', label: 'Layers', num: true, render: r => r.layers || '' }, { key: 'comps', label: 'Complaints', num: true }, { key: 'mule', label: 'Mule A/C', num: true, render: r => r.mule ? `<b class="bad-t">${r.mule}</b>` : '0' },
         { key: 'nIds', label: 'Identifiers', num: true }, { key: 'common', label: 'Common Suspects', num: true, render: r => r.common ? `<b class="bad-t">${r.common}</b>` : '0' },
-        { key: 'cd', label: 'CD Parts', num: true, render: r => r.cd ? `${r.cd}${r.cdLast ? ` <span class="small muted">last ${r.cdLast}${r.cdDate ? ' · ' + esc(r.cdDate) : ''}</span>` : ''}` : '0' }, { key: 'cdGap', label: 'Missing CD', render: r => r.cdGap ? `<b class="bad-t">${esc(r.cdGap)}</b>` : '' },
+        ...(!CD ? [] : [{ key: 'cd', label: 'CD Parts', num: true, render: r => r.cd ? `${r.cd}${r.cdLast ? ` <span class="small muted">last ${r.cdLast}${r.cdDate ? ' · ' + esc(r.cdDate) : ''}</span>` : ''}` : '0' }, { key: 'cdGap', label: 'Missing CD', render: r => r.cdGap ? `<b class="bad-t">${esc(r.cdGap)}</b>` : '' }]),
         { key: 'work', label: 'Pending Work', num: true, render: r => r.work ? `<b class="bad-t" title="${esc((r.workList || []).join('; '))}">${r.work}</b>` : '0' }, { key: 'ask', label: 'Replies Pending', num: true, render: r => r.ask ? `<b class="bad-t">${r.ask}</b>${r.oldest ? ` <span class="small muted">${r.oldest} d</span>` : ''}` : '' }] });
     if (com.length) Table($('#adC', main), { rows: com, pageSize: 10, exportName: 'common_suspects_all_cases', onRow: g => Dash2.track(g.value),
       columns: [{ key: 'type', label: 'Type', render: g => `<span class="d2-tc">${Dash2.tico ? Dash2.tico(g.type) : ''}<small>${esc((Dash2.TYPE[g.type] || [0, g.type])[1])}</small></span>` }, { key: 'value', label: 'Identifier', render: g => `<b class="mono">${esc(g.value)}</b>` },
-        { key: 'n', label: 'Cases', num: true, render: g => `<b class="bad-t">${g.cases.length}</b>`, csv: g => g.cases.length }, { key: 'cases', label: 'Case Number', render: g => g.cases.map(o => `<span class="ad-cn" data-open="${o.id}" title="Open ${esc(o.name)}">${esc(o.fir ? 'FIR ' + o.fir : o.name)}</span>`).join(' '), csv: g => g.cases.map(o => o.fir || o.name).join('; ') },
+        { key: 'n', label: 'Cases', num: true, render: g => `<b class="bad-t">${g.cases.length}</b>`, csv: g => g.cases.length }, { key: 'cases', label: 'Case Number', render: g => g.cases.map(o => `<span class="ad-cn${o.fir ? '' : ' n'}" data-open="${o.id}" title="Open ${esc(o.name)}">${esc(o.fir ? 'FIR ' + o.fir : (o.acks || [])[0] ? '🧾 ' + o.acks[0] : o.name)}</span>`).join(' '), csv: g => g.cases.map(o => o.fir || (o.acks || [])[0] || o.name).join('; ') },
         { key: 'secs', label: 'Found In', render: g => `<span class="small">${esc([...g.secs].join(', '))}</span>`, csv: g => [...g.secs].join(', ') }] });
     else $('#adC', main).innerHTML = `<div class="muted small">${T < 2 ? 'Only one case – nothing to compare yet.' : 'No identifier is common to two cases yet.'}</div>`;
     const PL = R.filter(r => r.pend && (r.work || r.ask || (r.sugg || []).length)).sort((a, b) => (b.oldest || 0) - (a.oldest || 0) || b.work - a.work);
     $('#adP', main).innerHTML = PL.length ? PL.map(r => `<div class="ad-pw" data-open="${r.id}"><div class="ad-pn"><b>${esc(r.name)}</b>${stChip(r)}${r.oldest ? `<span class="bad-t small">oldest reply ${r.oldest} days</span>` : ''}</div><ul>${[...(r.sugg || []), ...(r.workList || [])].slice(0, 4).map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>`).join('') : '<div class="good-t small">No pending work found.</div>';
     $$('[data-open]', main).forEach(x => x.addEventListener('click', e => { e.stopPropagation(); this.open(x.dataset.open); }));
-    const KD = [['all', R], ['pend', P], ['cs', CS], ['ppi', PPI], ['fr', FR]];
-    $$('.ad-k .kpi', main).slice(0, 5).forEach((el, i) => DashX.bind(el, { title: ['🗂 All cases', '⏳ Pending cases', '📗 CS – Charge Sheet', '📘 CS-PPI', '📕 FR – Final Report'][i], rows: () => KD[i][1], cols: [{ key: 'name', label: 'Case' }, { key: 'fir', label: 'FIR' }, { key: 'io', label: 'IO' }, { key: 'status', label: 'Status' }, { key: 'work', label: 'Pending Work', num: true }], sort: 'name', pv: r => [r.name, r.fin || r.status], onRow: r => this.open(r.id) }));
+        const KL = isN ? [['🧾 NCRP cases', R], ['⚖ FIR needed (₹5 lakh +)', NEED]] : isF ? [['📁 FIR cases', R], ['⏳ Pending cases', P], ['📗 CS – Charge Sheet', CS], ['📘 CS-PPI', PPI], ['📕 FR – Final Report', FR]] : [['🗂 All cases', R], ['📁 FIR cases', FC], ['🧾 NCRP without FIR', NC], ['⏳ Pending cases', P]];
+    $$('.ad-k .kpi', main).slice(0, KL.length).forEach((el, i) => DashX.bind(el, { title: KL[i][0], rows: () => KL[i][1], cols: [{ key: 'name', label: 'Case' }, { key: 'fir', label: 'FIR / Ack No', fmt: (v, r) => v || (r.acks || []).join(', ') }, { key: 'amount', label: 'Amount', num: true, fmt: v => v ? fmtINR(v) : '' }, { key: 'io', label: 'IO' }, { key: 'status', label: 'Status' }, { key: 'work', label: 'Pending Work', num: true }], sort: 'name', pv: r => [r.name, r.fin || r.status], onRow: r => this.open(r.id) }));
   }
 };
 (() => {
   const og = Pages.dashboard;
   Pages.dashboard = function (main) {
-    if (S.caseId === '__all') { AllDash.draw(main); return; }
+    if (isScope(S.caseId)) { AllDash.draw(main); return; }
     const r = og.apply(this, arguments);
     if (S.cases.length > 1) { main.insertAdjacentHTML('afterbegin', AllDash.bar()); AllDash.wireBar(main); }
     return r;
@@ -14624,15 +14668,31 @@ const AllDash = {
 
 </script>
 <script>
-/* allmode.js – "🗂 All Cases" in the top Case drop-down: every page reads the combined data of all cases
-   (read-only). Pages that work on one case (Case File & Notices) ask you to pick the case. */
+/* allmode.js – top Case drop-down: "All Cases", "FIR Cases" and "NCRP (Without FIR)" show the combined data of
+   those cases on every page (view only). A case is an FIR case once it has an FIR number; until then it is an
+   NCRP case (Acknowledgement No. only). Pages that work on one case (Case File & Notices) ask you to pick the case. */
 'use strict';
 const AllMode = {
-  on: () => S.caseId === '__all',
-  pick() { return S.prevCase && S.cases.some(c => c.id === S.prevCase) ? S.prevCase : (S.cases[0] || {}).id; },
-  async merge() {
+  SC: { __all: ['🗂', 'All Cases'], __fir: ['📁', 'FIR Cases'], __ncrp: ['🧾', 'NCRP (Without FIR)'] },
+  on: () => isScope(S.caseId),
+  cat: c => String((c && c.fir) || '').trim() ? 'fir' : 'ncrp',
+  list(sc = S.caseId) { return sc === '__fir' ? S.cases.filter(c => this.cat(c) === 'fir') : sc === '__ncrp' ? S.cases.filter(c => this.cat(c) === 'ncrp') : S.cases.slice(); },
+  label(sc) { const x = this.SC[sc] || this.SC.__all; return `${x[1]} (${this.list(sc).length})`; },
+  pick() { const L = this.on() ? this.list() : S.cases, ok = id => id && L.some(c => c.id === id); return ok(S.prevCase) ? S.prevCase : ((L[0] || S.cases[0] || {}).id); },
+  ackOf: c => String(c.ack || '').split(/[,;\s]+/).filter(Boolean),
+  caseLabel(c) { const a = this.ackOf(c); return `${c.name || ''}${c.fir && !String(c.name).includes(c.fir) ? ' · ' + c.fir : ''}${!c.fir && a.length && !String(c.name).includes(a[0]) ? ' · Ack ' + a[0] + (a.length > 1 ? ' +' + (a.length - 1) : '') : ''}`; },
+  options() {
+    const F = S.cases.filter(c => this.cat(c) === 'fir'), N = S.cases.filter(c => this.cat(c) === 'ncrp'), o = (v, t) => `<option value="${v}" ${S.caseId === v ? 'selected' : ''}>${esc(t)}</option>`;
+    let h = '';
+    if (S.cases.length > 1) h += o('__all', `🗂 All Cases (${S.cases.length}) – combined`);
+    if (S.cases.length > 1 && F.length) h += o('__fir', `📁 FIR Cases (${F.length}) – combined`);
+    if (S.cases.length > 1 && N.length) h += o('__ncrp', `🧾 NCRP Without FIR (${N.length}) – combined`);
+    const grp = (l, L) => L.length ? (h ? `<optgroup label="${esc(l)}">` : '') + L.map(c => o(c.id, this.caseLabel(c))).join('') + (h ? '</optgroup>' : '') : '';
+    return h + grp(`FIR Cases (${F.length})`, F) + grp(`NCRP – No FIR Yet (${N.length})`, N);
+  },
+  async merge(sc = '__all') {
     const out = emptyCase();
-    for (const c of S.cases) {
+    for (const c of this.list(sc)) {
       const d = await DB.get('case:' + c.id) || {};
       for (const [k, v] of Object.entries(d)) {
         if (!Array.isArray(v) || !v.length) continue;
@@ -14640,25 +14700,28 @@ const AllMode = {
         for (const r of v) a.push(r && typeof r === 'object' && !Array.isArray(r) ? { ...r, _case: c.name || '', _caseId: c.id } : r);
       }
     }
-    out._all = true; return out;
+    out._all = sc; return out;
   },
   _w: 0,
-  warn() { if (Date.now() - this._w < 20000) return; this._w = Date.now(); UI.toast('All Cases view is for viewing only – choose one case in the Case box to add or change data', 5000); },
+  warn() { if (Date.now() - this._w < 20000) return; this._w = Date.now(); UI.toast('Combined view is for viewing only – choose one case in the Case box to add or change data', 5000); },
   one(main, what) {
-    main.innerHTML = `<div class="card am-pick"><h3>📁 Choose A Case</h3><div class="small muted" style="margin-bottom:12px">${esc(what)} works on one case. You are viewing <b>All Cases</b> – pick the case to open:</div>
-      <div class="am-list">${S.cases.map(c => `<button class="am-c" data-am="${c.id}"><b>${esc(c.name || '')}</b><small>${esc([c.fir && 'FIR ' + c.fir, c.ps, c.io && 'IO ' + c.io, c.final ? (c.final.type === 'PPI' ? 'CS-PPI' : c.final.type) : c.status].filter(Boolean).join(' · '))}</small></button>`).join('')}</div></div>`;
+    const L = this.list();
+    main.innerHTML = `<div class="card am-pick"><h3>📁 Choose A Case</h3><div class="small muted" style="margin-bottom:12px">${esc(what)} works on one case. You are viewing <b>${esc(this.label(S.caseId))}</b> – pick the case to open:</div>
+      <div class="am-list">${L.map(c => `<button class="am-c" data-am="${c.id}"><b>${esc(this.caseLabel(c))}</b><small>${esc([this.cat(c) === 'fir' ? 'FIR case' : 'NCRP – no FIR yet', c.ps, c.io && 'IO ' + c.io, c.final ? (c.final.type === 'PPI' ? 'CS-PPI' : c.final.type) : c.status].filter(Boolean).join(' · '))}</small></button>`).join('')}</div></div>`;
     $$('[data-am]', main).forEach(b => b.onclick = () => switchCase(b.dataset.am));
-  }
+  },
+  async refresh() { if (!this.on()) return; if (!this.list().length) return switchCase(S.cases[0].id); S.data = await this.merge(S.caseId); Analysis.invalidate(); if (typeof AllDash !== 'undefined') AllDash.C.clear(); fillCaseSel(); render(); }
 };
 (() => {
   const ONE = { others: 'Case File & Notices (case details, notes, notice drafts, reports)' };
   for (const [p, what] of Object.entries(ONE)) { const og = Pages[p]; if (!og) continue; Pages[p] = function (main) { if (AllMode.on()) return AllMode.one(main, what); return og.apply(this, arguments); }; }
-  // "common with your other cases" bar has no meaning when every case is already combined
+  // "common with your other cases" bar has no meaning when the cases are already combined
   if (typeof CaseCommon !== 'undefined' && CaseCommon.mount) { const m = CaseCommon.mount; CaseCommon.mount = function () { if (AllMode.on()) return; return m.apply(this, arguments); }; }
-  // files imported by FIR while viewing All → read the cases again
-  if (typeof Hub !== 'undefined') { const hr = Hub.run; Hub.run = async function () { const r = await hr.apply(this, arguments); if (AllMode.on()) { S.data = await AllMode.merge(); Analysis.invalidate(); AllDash.C.clear(); render(); } return r; }; }
-  // a case deleted / renamed while viewing All → rebuild the combined data
-  const dc = window.deleteCase; if (typeof dc === 'function') deleteCase = async function () { const r = await dc.apply(this, arguments); if (AllMode.on()) { if (S.cases.length < 2) await switchCase(S.cases[0].id); else { S.data = await AllMode.merge(); Analysis.invalidate(); fillCaseSel(); render(); } } return r; };
+  // files imported while viewing a combined list → read the cases again
+  if (typeof Hub !== 'undefined') { const hr = Hub.run; Hub.run = async function () { const r = await hr.apply(this, arguments); await AllMode.refresh(); return r; }; }
+  const dc = window.deleteCase; if (typeof dc === 'function') deleteCase = async function () { const r = await dc.apply(this, arguments); await AllMode.refresh(); return r; };
+  // case details saved (e.g. FIR No. added to an NCRP case) → drop-down groups update
+  const sm = saveMeta; saveMeta = async function () { const r = await sm.apply(this, arguments); try { fillCaseSel(); } catch (e) { } return r; };
 })();
 
 </script>

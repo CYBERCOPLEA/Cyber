@@ -110,7 +110,7 @@ const Reports = {
     XLSX.writeFile(wb, (activeCase().name || 'case').replace(/[^\w\- ]/g, '_') + '_analysis.xlsx');
   },
   async backup() {
-    if (S.caseId && S.caseId !== '__all') await DB.set('case:' + S.caseId, S.data);
+    if (S.caseId && !isScope(S.caseId)) await DB.set('case:' + S.caseId, S.data);
     const data = {}; for (const c of S.cases) data[c.id] = await DB.get('case:' + c.id) || emptyCase();
     UI.download('sudarshanastra_backup_' + today() + '.json', JSON.stringify({ app: 'sudarshanastra', version: 1, exported: new Date().toISOString(), cases: S.cases, data }), 'application/json');
   },
@@ -138,11 +138,11 @@ function render() {
 function applyTheme() { document.documentElement.dataset.theme = S.settings.theme === 'light' ? 'light' : 'dark'; try { DocFont.apply(); } catch (e) { } }
 
 /* ---------- Cases ---------- */
-function fillCaseSel() { $('#caseSel').innerHTML = (S.cases.length > 1 ? `<option value="__all" ${S.caseId === '__all' ? 'selected' : ''}>🗂 All Cases (${S.cases.length}) – combined</option>` : '') + S.cases.map(c => `<option value="${c.id}" ${c.id === S.caseId ? 'selected' : ''}>${esc(c.name)}${c.fir ? ' · ' + esc(c.fir) : ''}</option>`).join(''); }
+function fillCaseSel() { if (typeof AllMode !== 'undefined') { $('#caseSel').innerHTML = AllMode.options(); return; } $('#caseSel').innerHTML = S.cases.map(c => `<option value="${c.id}" ${c.id === S.caseId ? 'selected' : ''}>${esc(c.name)}${c.fir ? ' · ' + esc(c.fir) : ''}</option>`).join(''); }
 async function switchCase(id) {
-  if (S.caseId && S.data && S.caseId !== '__all') { clearTimeout(saveTimer); await DB.set('case:' + S.caseId, S.data); }
-  if (S.caseId && S.caseId !== '__all') S.prevCase = S.caseId;
-  S.caseId = id; S.data = id === '__all' ? await AllMode.merge() : Object.assign(emptyCase(), await DB.get('case:' + id) || {}); Analysis.invalidate(); S.graphOpt = null; S.filterBank = null; S.trailAck = '';
+  if (S.caseId && S.data && !isScope(S.caseId)) { clearTimeout(saveTimer); await DB.set('case:' + S.caseId, S.data); }
+  if (S.caseId && !isScope(S.caseId)) S.prevCase = S.caseId;
+  S.caseId = id; S.data = isScope(id) ? await AllMode.merge(id) : Object.assign(emptyCase(), await DB.get('case:' + id) || {}); Analysis.invalidate(); S.graphOpt = null; S.filterBank = null; S.trailAck = '';
   await saveMeta(); fillCaseSel(); render();
 }
 async function newCase(name) {
@@ -276,9 +276,9 @@ async function boot() {
 async function start() {
   S.cases = await DB.get('cases') || []; S.caseId = await DB.get('caseId');
   if (!S.cases.length) { const c = { id: uid(), name: 'Case 1', created: new Date().toISOString(), status: 'Under investigation' }; S.cases.push(c); await DB.set('case:' + c.id, emptyCase()); S.caseId = c.id; }
-  if (S.caseId === '__all' && S.cases.length < 2) S.caseId = S.cases[0].id;
-  if (S.caseId !== '__all' && !S.cases.some(c => c.id === S.caseId)) S.caseId = S.cases[0].id;
-  S.data = S.caseId === '__all' ? await AllMode.merge() : Object.assign(emptyCase(), await DB.get('case:' + S.caseId) || {});
+  if (isScope(S.caseId) && !AllMode.list(S.caseId).length) S.caseId = S.cases[0].id;
+  if (!isScope(S.caseId) && !S.cases.some(c => c.id === S.caseId)) S.caseId = S.cases[0].id;
+  S.data = isScope(S.caseId) ? await AllMode.merge(S.caseId) : Object.assign(emptyCase(), await DB.get('case:' + S.caseId) || {});
   await saveMeta(); fillCaseSel();
   $$('.nav-item').forEach(n => n.onclick = () => go(n.dataset.page));
   $('#caseSel').onchange = e => switchCase(e.target.value);
@@ -289,7 +289,7 @@ async function start() {
   $('#gsearch').onkeydown = e => { if (e.key === 'Enter') { S.searchQ = e.target.value; go('search'); } };
   let tT = 0; ['mousemove', 'keydown', 'click', 'wheel'].forEach(ev => document.addEventListener(ev, () => { lastAct = Date.now(); if (Date.now() - tT > 20000 && !$('#app').classList.contains('hidden')) { tT = Date.now(); Sess.touch(); } }, { passive: true }));
   setInterval(() => { if (S.settings.lockMins > 0 && !$('#app').classList.contains('hidden') && Date.now() - lastAct > S.settings.lockMins * 60000) lock(); }, 15000);
-  window.addEventListener('beforeunload', () => { if (S.caseId && S.caseId !== '__all') DB.set('case:' + S.caseId, S.data); if (!$('#app').classList.contains('hidden')) Sess.touch(Date.now() - lastAct < 60000); });
+  window.addEventListener('beforeunload', () => { if (S.caseId && !isScope(S.caseId)) DB.set('case:' + S.caseId, S.data); if (!$('#app').classList.contains('hidden')) Sess.touch(Date.now() - lastAct < 60000); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') { UI.closeDrawer(); } });
   render();
 }
