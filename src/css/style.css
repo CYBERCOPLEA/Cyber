@@ -1853,3 +1853,8 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
 .hp-pill small{display:block;font-size:11.5px;font-weight:700;color:#a7f3d0}
 #statusbar .sb-safe{color:#a7f3d0;font-weight:600}
 #statusbar .sb-safe b{color:#34d399;font-weight:800}
+
+.safe-ic{flex:none;filter:drop-shadow(0 0 4px rgba(16,185,129,.55))}
+.hp-pill{gap:10px}
+#statusbar .sb-safe{display:inline-flex;align-items:center;gap:6px}
+.ti-safe{display:inline-flex;align-items:center;gap:5px;color:#34d399}
