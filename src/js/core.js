@@ -43,12 +43,15 @@ function sha256(ascii) {
 }
 const hashPass = (p, salt) => { let h = salt + '|' + p; for (let i = 0; i < 2000; i++) h = sha256(h + salt); return h; };
 
+/* edition: 'admin' = Super Admin link (Sudarshanastra.html), 'user' = User link (User.html, made from the same build) */
+const SUD_ED = 'admin';
+
 /* ---------- IndexedDB key-value store ---------- */
 const DB = {
   db: null,
   open() {
     return new Promise((res, rej) => {
-      const r = indexedDB.open('sudarshanastra', 1);
+      const r = indexedDB.open(SUD_ED === 'user' ? 'sudarshanastra-user' : 'sudarshanastra', 1);
       r.onupgradeneeded = () => r.result.createObjectStore('kv');
       r.onsuccess = () => { DB.db = r.result; res(); };
       r.onerror = () => rej(r.error);
