@@ -2042,3 +2042,6 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
 .ad-dv-w{font-size:13px;color:var(--text-secondary)}.ad-dv-w b{color:var(--text-primary)}
 #main:has(.ad-dv) .cs-row{display:none}
 .ad-dv[hidden]{display:none!important}
+
+.ad-n{cursor:pointer;border-bottom:1px dashed currentColor;padding:0 2px;border-radius:4px}.ad-n:hover{background:color-mix(in srgb,var(--accent,#3b82f6) 22%,transparent)}
+.ad-stack b[data-st]{cursor:pointer}
