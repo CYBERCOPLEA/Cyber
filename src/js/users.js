@@ -1,12 +1,13 @@
 /* users.js – Super Admin control of every user's login (through the Super Admin's own Google Sheet script, Live Data Form).
-   Only login ID, name, posting, status, rights and a scrambled password go online. Case data never leaves the computer.
+   Only User ID, name, posting, status, rights and a scrambled password go online. Case data never leaves the computer.
    Super Admin link: Super Admin Control page (Pages.sadmin). User link: online login check, live status check, My Account. */
 'use strict';
 const Users = {
   USER_URL: 'https://cybercoplea.github.io/SudarshanAshtra/User.html',
   ADMIN_URL: 'https://cybercoplea.github.io/SudarshanAshtra/Sudarshanastra.html',
+  SERVER: '',         // Super Admin's login server (Google script Web app URL); when set, users only need User ID + password
   GRACE: 3 * 864e5,   // users may log in offline for 3 days after the last online check
-  link() { return S.settings && S.settings.link || null; },
+  link() { if (!S.settings) return null; if (!S.settings.link && this.SERVER && SUD_ED === 'user') S.settings.link = { url: this.SERVER }; return S.settings.link || null; },
   dt(x) { return x ? new Date(x).toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—'; },
   async post(url, body) {
     let r; try { r = await fetch(url, { method: 'POST', body: JSON.stringify(body), redirect: 'follow' }); } catch (e) { const x = new Error('No internet – could not reach the Super Admin'); x.net = 1; throw x; }
@@ -20,7 +21,7 @@ const Users = {
     if (r.ver && r.ver !== L.ver) { L.ver = r.ver; await Off.liveSave(); }
     return r;
   },
-  /* join code / link: carries the script address and the login ID, nothing secret */
+  /* join code / link: carries the script address and the User ID, nothing secret */
   code(u, i) { return 'SA1.' + btoa(unescape(encodeURIComponent(JSON.stringify({ u, i })))).replace(/=+$/, '').replace(/\+/g, '-').replace(/\//g, '_'); },
   parse(c) {
     const m = String(c || '').match(/SA1\.([A-Za-z0-9_-]+)/); if (!m) return null;
@@ -41,16 +42,19 @@ const Users = {
       if (Role.admin()) return;
       f.innerHTML = `<span class="lg-sa">🔒 <b>This link is for the Super Admin only.</b><br>Users: open the <b>User link</b> sent by the Super Admin.</span>
         <span class="row" style="gap:6px;margin-top:8px;flex-wrap:wrap"><label class="btn sm" style="cursor:pointer">🔑 Load Super Admin Key File<input type="file" id="lgSaFile" accept=".txt,.key,text/plain" hidden></label></span>`;
-      $('#lgSaFile').onchange = async e => { const x = e.target.files[0]; if (!x) return; if (Role.take(await x.text())) { UI.toast('👑 Super Admin key loaded – log in now'); f.innerHTML = S.settings.mustChange ? 'First time? Default login ID <b>admin</b>, password <b>admin@123</b>. You will be asked to change it.' : ''; } else $('#lgErr').textContent = 'This is not the Super Admin key'; };
+      $('#lgSaFile').onchange = async e => { const x = e.target.files[0]; if (!x) return; if (Role.take(await x.text())) { UI.toast('👑 Super Admin key loaded – log in now'); f.innerHTML = S.settings.mustChange ? 'First time? Default User ID <b>admin</b>, password <b>admin@123</b>. You will be asked to change it.' : ''; } else $('#lgErr').textContent = 'This is not the Super Admin key'; };
       return;
     }
     if (fg) fg.parentNode.classList.add('hidden');
+    const lb = $('label[for="lgUser"]'); if (lb) lb.textContent = 'User ID';
     const L = this.link();
-    f.innerHTML = L && L.url ? `<span class="lg-sa">🔗 Connected to the Super Admin${L.name ? ` · <b>${esc(L.name)}</b>` : ''}. Log in with the login ID and password the Super Admin gave you.</span>
-        <span class="small muted">Forgot your password? Ask the Super Admin (Vijay Tomar) to reset it.</span>`
-      : `<span class="lg-sa">🔗 <b>First time on this computer?</b> Open the <b>User link</b> sent by the Super Admin, or paste your join code here:</span>
-        <span class="row" style="gap:6px;margin-top:6px"><input id="lgJoin" placeholder="Join code (starts with SA1.)" style="flex:1"><button class="btn sm primary" type="button" id="lgJoinGo">Connect</button></span>`;
-    if ($('#lgJoinGo')) $('#lgJoinGo').onclick = async () => { const o = this.parse($('#lgJoin').value); if (!o) { $('#lgErr').textContent = 'This join code is not right. Ask the Super Admin for a new one.'; return; } await this.useJoin(o); $('#lgUser').value = o.i; $('#lgErr').textContent = ''; this.note(); $('#lgPass').focus(); };
+    f.innerHTML = `<span class="lg-sa">👤 Log in with the <b>User ID</b> and <b>password</b> given by the Super Admin (Vijay Tomar).</span>
+      <span class="small muted" style="display:block;margin-top:6px">Forgot your password? Ask the Super Admin to reset it.</span>
+      ${L && L.url ? '' : `<a href="#" id="lgJoinT" class="small" style="display:block;margin-top:8px;color:var(--accent)">First time on this computer and login does not work? ›</a>
+      <span id="lgJoinB" class="hidden" style="display:block;margin-top:6px"><span class="small">Open the personal link the Super Admin sent you once – or paste that link here:</span>
+      <span class="row" style="gap:6px;margin-top:4px"><input id="lgJoin" placeholder="Paste the link from the Super Admin" style="flex:1"><button class="btn sm primary" type="button" id="lgJoinGo">OK</button></span></span>`}`;
+    if ($('#lgJoinT')) $('#lgJoinT').onclick = e => { e.preventDefault(); $('#lgJoinB').classList.remove('hidden'); $('#lgJoin').focus(); };
+    if ($('#lgJoinGo')) $('#lgJoinGo').onclick = async () => { const o = this.parse($('#lgJoin').value); if (!o) { $('#lgErr').textContent = 'This is not the link from the Super Admin. Ask him to send it again.'; return; } await this.useJoin(o); $('#lgUser').value = o.i; $('#lgErr').textContent = ''; this.note(); $('#lgPass').focus(); };
     if (L && L.id && !$('#lgUser').value) $('#lgUser').value = L.id;
   },
   async onSubmit(e) {
@@ -58,7 +62,7 @@ const Users = {
     if (SUD_ED === 'admin') { if (Role.admin()) return; e.preventDefault(); e.stopImmediatePropagation(); $('#lgErr').textContent = 'This link is for the Super Admin only. Users must open their own User link.'; return; }
     e.preventDefault(); e.stopImmediatePropagation();
     const err = t => { $('#lgErr').textContent = t; }, L = this.link(), id = $('#lgUser').value.trim(), pw = $('#lgPass').value, btn = $('#loginForm button');
-    if (!L || !L.url) return err('This computer is not connected yet. Open the User link sent by the Super Admin, or paste your join code below.');
+    if (!L || !L.url) { if ($('#lgJoinB')) $('#lgJoinB').classList.remove('hidden'); return err('This computer is not connected to the Super Admin yet. Open the personal link he sent you once, then log in with your User ID and password.'); }
     err('⏳ Checking your account with the Super Admin…'); btn.disabled = true;
     let r; try { r = await this.post(L.url, { fn: 'ulogin', id, pw, dev: (navigator.userAgent || '').slice(0, 110) }); }
     catch (x) {
@@ -94,7 +98,7 @@ const Users = {
       const r = await this.post(L.url, { fn: 'ustat', id: L.id, tok: L.tok });
       if (r.off) { L.status = 'Off'; return this.out('⛔ Your access has been switched off by the Super Admin' + (r.at ? ' on ' + this.dt(r.at) : '') + '. Contact Vijay Tomar.'); }
       if (r.kicked) return this.out('Your login was reset by the Super Admin or used on another computer. Please log in again.');
-      if (r.gone) { L.url = L.url; return this.out('Your login ID was changed or removed by the Super Admin. Ask Vijay Tomar for your new login.'); }
+      if (r.gone) { L.url = L.url; return this.out('Your User ID was changed or removed by the Super Admin. Ask Vijay Tomar for your new login.'); }
       const u = r.user, ch = u.rights !== L.rights;
       Object.assign(L, { id: u.id, name: u.name, rank: u.rank, ps: u.ps, rights: u.rights, status: u.status, okAt: Date.now() }); await DB.set('settings', S.settings);
       if (ch) { Role.apply(); render(); UI.toast('🛡 The Super Admin changed your rights', 5000); }
@@ -103,9 +107,9 @@ const Users = {
   account() {
     const L = this.link() || {}, R = Role.rights();
     const b = UI.modal('👤 My Account', `<div class="ua-head"><span class="ua-av">${esc((L.name || L.id || '?').slice(0, 1).toUpperCase())}</span><div><b>${esc([L.rank, L.name].filter(Boolean).join(' ') || L.id || 'User')}</b><div class="small muted">${esc(L.ps || '')}</div></div><span class="spacer"></span><span class="badge ${L.status === 'Off' ? 'bad' : 'good'}">${L.status === 'Off' ? '⛔ Switched Off' : '✅ Active'}</span></div>
-      <table class="tbl ad-kv" style="margin-top:10px"><tr><th>Login ID</th><td><b>${esc(L.id || '—')}</b></td></tr><tr><th>Last Login</th><td>${this.dt(L.lastLogin)}</td></tr><tr><th>Last Checked With Super Admin</th><td>${this.dt(L.okAt)}</td></tr></table>
+      <table class="tbl ad-kv" style="margin-top:10px"><tr><th>User ID</th><td><b>${esc(L.id || '—')}</b></td></tr><tr><th>Last Login</th><td>${this.dt(L.lastLogin)}</td></tr><tr><th>Last Checked With Super Admin</th><td>${this.dt(L.okAt)}</td></tr></table>
       <h4 style="margin:14px 0 6px">🛡 My Rights</h4><div class="ua-rights">${Role.RIGHTS.map(([k, t, d]) => `<div class="ua-r ${R.includes(k) ? 'on' : ''}"><span>${R.includes(k) ? '✅' : '🚫'}</span><div><b>${esc(t)}</b><small>${esc(d)}</small></div></div>`).join('')}</div>
-      <p class="small muted" style="margin-top:10px">Rights, login ID and password resets are given by the Super Admin (Vijay Tomar). Your case data stays on this computer; only your login is checked online.</p>`,
+      <p class="small muted" style="margin-top:10px">Rights, User ID and password resets are given by the Super Admin (Vijay Tomar). Your case data stays on this computer; only your login is checked online.</p>`,
       [{ label: '🔑 Change My Password', cls: 'primary', onClick: () => this.ownPw('', false) }, { label: '🔄 Check Now', onClick: async () => { await this.tick(); if (!$('#app').classList.contains('hidden')) this.account(); } }, { label: 'Close', onClick: UI.closeModal }]);
     return b;
   },
@@ -126,7 +130,7 @@ const Users = {
 };
 
 /* ---------- Super Admin Control page ---------- */
-PAGE_META.sadmin = { group: 'Super Admin', title: 'Super Admin Control', desc: 'Every user’s login, rights and access in one place – add, switch on / off, reset password, change login ID, rights and the full activity log.', order: [] };
+PAGE_META.sadmin = { group: 'Super Admin', title: 'Super Admin Control', desc: 'Every user’s login, rights and access in one place – add, switch on / off, reset password, change User ID, rights and the full activity log.', order: [] };
 Pages.sadmin = main => {
   if (!Role.admin()) { main.innerHTML = '<div class="card" style="margin:20px">🔒 Super Admin only.</div>'; return; }
   const st = Users._st || (Users._st = { tab: 'users', q: '', f: '' });
@@ -159,13 +163,13 @@ Object.assign(Users, {
       return;
     }
     if (st.tab === 'log') {
-      Table(body, { rows: d.log || [], pageSize: 50, exportName: 'user_activity_log', columns: [{ key: 'at', label: 'Date & Time', render: x => this.dt(x.at), sortVal: x => x.at }, { key: 'id', label: 'Login ID', render: x => `<b>${esc(x.id)}</b>` }, { key: 'act', label: 'What Happened', render: x => `<span class="sa-act a-${esc(x.act.split(' ')[0].toLowerCase())}">${esc(x.act)}</span>` }, { key: 'by', label: 'By' }, { key: 'det', label: 'Detail' }] });
+      Table(body, { rows: d.log || [], pageSize: 50, exportName: 'user_activity_log', columns: [{ key: 'at', label: 'Date & Time', render: x => this.dt(x.at), sortVal: x => x.at }, { key: 'id', label: 'User ID', render: x => `<b>${esc(x.id)}</b>` }, { key: 'act', label: 'What Happened', render: x => `<span class="sa-act a-${esc(x.act.split(' ')[0].toLowerCase())}">${esc(x.act)}</span>` }, { key: 'by', label: 'By' }, { key: 'det', label: 'Detail' }] });
       return;
     }
     const rows = U.filter(u => !st.f || (st.f === 'Active' ? u.status === 'Active' : st.f === 'Off' ? u.status !== 'Active' : st.f === 'seen' ? u.lastSeen && +new Date(u.lastSeen) > day : temp(u)));
     if (!U.length) { body.innerHTML = '<div class="sa-empty">No users yet. Press <b>➕ Add User</b> to give the first user a login.</div>'; return; }
     Table(body, { rows, pageSize: 50, exportName: 'users', sortKey: 'id', onRow: u => this.one(u, main), columns: [
-      { key: 'id', label: 'Login ID', render: u => `<b class="mono">${esc(u.id)}</b>` },
+      { key: 'id', label: 'User ID', render: u => `<b class="mono">${esc(u.id)}</b>` },
       { key: 'name', label: 'Name', render: u => `<b>${esc([u.rank, u.name].filter(Boolean).join(' '))}</b><div class="small muted">${esc(u.ps)}${u.mobile ? ' · ' + esc(u.mobile) : ''}</div>` },
       { key: 'status', label: 'Status', render: u => u.status === 'Active' ? '<span class="badge good">✅ Active</span>' : '<span class="badge bad">⛔ Off</span>' + `<div class="small muted">${this.dt(u.statusAt)}</div>` },
       { key: 'pw', label: 'Password', sortVal: u => temp(u) ? 0 : 1, render: u => temp(u) ? `<span class="sa-pw t">🟠 Temporary</span><div class="small muted">given ${this.dt(u.tempAt)}</div>` : `<span class="sa-pw o">🟢 Own Password</span><div class="small muted">set ${this.dt(u.ownAt)}</div>` },
@@ -180,17 +184,17 @@ Object.assign(Users, {
   async run(op, x, main, ok) { try { this._data = Object.assign(await this.admin(op, x), {}); this._data = await this.admin('list', { log: 1 }); UI.toast(ok); Pages.sadmin(main); return true; } catch (e) { UI.toast('❌ ' + e.message, 7000); return false; } },
   one(u, main) {
     const RN = Object.fromEntries(Role.RIGHTS.map(r => [r[0], r[1]])), log = (this._data && this._data.log || []).filter(l => l.id === u.id).slice(0, 15);
-    const b = UI.modal('👤 ' + ([u.rank, u.name].filter(Boolean).join(' ') || u.id), `<table class="tbl ad-kv">${[['Login ID', `<b class="mono">${esc(u.id)}</b>`], ['Name', esc(u.name)], ['Rank', esc(u.rank)], ['Posting / PS', esc(u.ps)], ['Mobile', esc(u.mobile)], ['Status', u.status === 'Active' ? '✅ Active' : '⛔ Switched Off'], ['Status Changed', this.dt(u.statusAt)], ['Password', u.tempAt && !u.ownAt ? '🟠 Temporary (given ' + this.dt(u.tempAt) + ') – not yet changed by the user' : '🟢 User’s own password (set ' + this.dt(u.ownAt) + ')'], ['Rights', String(u.rights || '').split(',').filter(Boolean).map(k => esc(RN[k] || k)).join(' · ') || 'Cases only'], ['Created', this.dt(u.created)], ['Last Login', this.dt(u.lastLogin)], ['Last Seen', this.dt(u.lastSeen)], ['Note', esc(u.note)]].map(([k, v]) => `<tr><th>${k}</th><td>${v || '—'}</td></tr>`).join('')}</table>
-      <div class="sa-acts big">${u.status === 'Active' ? '<button class="btn" data-o="off">⛔ Switch Off</button>' : '<button class="btn" data-o="on">✅ Switch On</button>'}<button class="btn" data-o="reset">🔑 Reset Password</button><button class="btn" data-o="rename">🆔 Change Login ID</button><button class="btn" data-o="rights">🛡 Rights</button><button class="btn" data-o="edit">✏ Edit Details</button><button class="btn" data-o="link">🔗 Join Link</button><button class="btn danger" data-o="del">🗑 Remove User</button></div>
+    const b = UI.modal('👤 ' + ([u.rank, u.name].filter(Boolean).join(' ') || u.id), `<table class="tbl ad-kv">${[['User ID', `<b class="mono">${esc(u.id)}</b>`], ['Name', esc(u.name)], ['Rank', esc(u.rank)], ['Posting / PS', esc(u.ps)], ['Mobile', esc(u.mobile)], ['Status', u.status === 'Active' ? '✅ Active' : '⛔ Switched Off'], ['Status Changed', this.dt(u.statusAt)], ['Password', u.tempAt && !u.ownAt ? '🟠 Temporary (given ' + this.dt(u.tempAt) + ') – not yet changed by the user' : '🟢 User’s own password (set ' + this.dt(u.ownAt) + ')'], ['Rights', String(u.rights || '').split(',').filter(Boolean).map(k => esc(RN[k] || k)).join(' · ') || 'Cases only'], ['Created', this.dt(u.created)], ['Last Login', this.dt(u.lastLogin)], ['Last Seen', this.dt(u.lastSeen)], ['Note', esc(u.note)]].map(([k, v]) => `<tr><th>${k}</th><td>${v || '—'}</td></tr>`).join('')}</table>
+      <div class="sa-acts big">${u.status === 'Active' ? '<button class="btn" data-o="off">⛔ Switch Off</button>' : '<button class="btn" data-o="on">✅ Switch On</button>'}<button class="btn" data-o="reset">🔑 Reset Password</button><button class="btn" data-o="rename">🆔 Change User ID</button><button class="btn" data-o="rights">🛡 Rights</button><button class="btn" data-o="edit">✏ Edit Details</button><button class="btn" data-o="link">🔗 Join Link</button><button class="btn danger" data-o="del">🗑 Remove User</button></div>
       <h4 style="margin:12px 0 4px">📜 Recent Activity</h4>${log.length ? `<table class="tbl">${log.map(l => `<tr><td class="small">${this.dt(l.at)}</td><td>${esc(l.act)}</td><td class="small muted">${esc(l.det)}</td></tr>`).join('')}</table>` : '<div class="small muted">Nothing yet</div>'}`,
       [{ label: 'Close', onClick: UI.closeModal }]);
     $$('[data-o]', b).forEach(x => x.onclick = () => this.act(x.dataset.o, u, main));
   },
   share(u, pw, title) {
     const L = this._liveUrl, link = this.joinUrl(L, u.id);
-    const txt = `SudarshanAshtra – your login\nOpen this link (Chrome / Edge): ${link}\nLogin ID: ${u.id}${pw ? `\nTemporary password: ${pw}\nYou will be asked to set your own password at the first login.` : ''}\n– Super Admin, Vijay Tomar`;
+    const txt = `SudarshanAshtra – your login\nOpen this link (Chrome / Edge): ${link}\nUser ID: ${u.id}${pw ? `\nTemporary password: ${pw}\nYou will be asked to set your own password at the first login.` : ''}\n– Super Admin, Vijay Tomar`;
     const b = UI.modal(title || '🔗 Send This To The User', `${pw ? '<div class="note warn"><b>The password is shown only now.</b> It is kept scrambled – nobody, not even you, can read it later. If it is lost, use 🔑 Reset Password.</div>' : ''}
-      <table class="tbl ad-kv" style="margin-top:10px"><tr><th>User Link</th><td><code style="word-break:break-all">${esc(link)}</code></td></tr><tr><th>Login ID</th><td><b class="mono" style="font-size:16px">${esc(u.id)}</b></td></tr>${pw ? `<tr><th>Temporary Password</th><td><b class="mono" style="font-size:18px;letter-spacing:1px">${esc(pw)}</b></td></tr>` : ''}</table>
+      <table class="tbl ad-kv" style="margin-top:10px"><tr><th>User Link</th><td><code style="word-break:break-all">${esc(link)}</code></td></tr><tr><th>User ID</th><td><b class="mono" style="font-size:16px">${esc(u.id)}</b></td></tr>${pw ? `<tr><th>Temporary Password</th><td><b class="mono" style="font-size:18px;letter-spacing:1px">${esc(pw)}</b></td></tr>` : ''}</table>
       <p class="small muted">Send it to the user personally (WhatsApp / SMS). The link connects their computer to you; the password lets them in.</p>`,
       [{ label: '📋 Copy All', cls: 'primary', onClick: async () => { try { await navigator.clipboard.writeText(txt); UI.toast('Copied – paste it in WhatsApp / SMS'); } catch (e) { UI.toast('Copy failed – select the text and copy'); } } }, { label: 'Done', onClick: UI.closeModal }]);
     return b;
@@ -213,8 +217,8 @@ Object.assign(Users, {
       return;
     }
     if (op === 'rename') {
-      const b = UI.modal('🆔 Change Login ID – ' + u.id, `<div class="f"><label>New Login ID (letters, numbers, . _ - @, no spaces)</label><input id="ueNid" value="${esc(u.id)}" class="mono"></div><p class="small muted">The user is logged out and must log in with the new ID (same password).</p>`,
-        [{ label: 'Cancel', onClick: UI.closeModal }, { label: 'Change Login ID', cls: 'primary', onClick: async () => { const nid = $('#ueNid', b).value.trim(); UI.closeModal(); if (await this.run('rename', { id: u.id, nid }, main, '🆔 Login ID changed to ' + nid)) this.share(Object.assign({}, u, { id: nid }), '', '🔗 New Login ID – Send To The User'); } }]);
+      const b = UI.modal('🆔 Change User ID – ' + u.id, `<div class="f"><label>New User ID (letters, numbers, . _ - @, no spaces)</label><input id="ueNid" value="${esc(u.id)}" class="mono"></div><p class="small muted">The user is logged out and must log in with the new ID (same password).</p>`,
+        [{ label: 'Cancel', onClick: UI.closeModal }, { label: 'Change User ID', cls: 'primary', onClick: async () => { const nid = $('#ueNid', b).value.trim(); UI.closeModal(); if (await this.run('rename', { id: u.id, nid }, main, '🆔 User ID changed to ' + nid)) this.share(Object.assign({}, u, { id: nid }), '', '🔗 New User ID – Send To The User'); } }]);
       return;
     }
     if (op === 'rights') {
@@ -227,11 +231,11 @@ Object.assign(Users, {
   async edit(u, done) {
     const L = await this.live(); this._liveUrl = L.url; const isNew = !u; u = u || { rights: Role.defRights().join(',') };
     const f = (k, l, ph) => `<div class="f"><label>${l}</label><input id="ue_${k}" value="${esc(u[k] || '')}" placeholder="${ph || ''}" ${k === 'id' && !isNew ? 'disabled' : ''}></div>`;
-    const b = UI.modal(isNew ? '➕ Add User' : '✏ Edit ' + u.id, `<div class="map-grid" style="grid-template-columns:1fr 1fr">${f('id', 'Login ID', 'e.g. si.ramkumar')}${f('rank', 'Rank', 'SI / HC / Constable…')}${f('name', 'Name')}${f('ps', 'Posting / Police Station')}${f('mobile', 'Mobile')}${f('note', 'Note')}</div>
+    const b = UI.modal(isNew ? '➕ Add User' : '✏ Edit ' + u.id, `<div class="map-grid" style="grid-template-columns:1fr 1fr">${f('id', 'User ID', 'e.g. si.ramkumar')}${f('rank', 'Rank', 'SI / HC / Constable…')}${f('name', 'Name')}${f('ps', 'Posting / Police Station')}${f('mobile', 'Mobile')}${f('note', 'Note')}</div>
       ${isNew ? this.pwBox(this.pwGen()) + this.rightsBox(String(u.rights).split(',')) : ''}<div class="err" id="ueErr"></div>`,
       [{ label: 'Cancel', onClick: UI.closeModal }, { label: isNew ? '➕ Add User' : 'Save', cls: 'primary', onClick: async () => {
         const v = k => ($('#ue_' + k, b) || {}).value || '', x = { id: isNew ? v('id').trim() : u.id, name: v('name'), rank: v('rank'), ps: v('ps'), mobile: v('mobile'), note: v('note') }, e = $('#ueErr', b);
-        if (isNew) { x.pw = $('#uePw', b).value.trim(); x.rights = $$('[data-rt]', b).filter(c => c.checked).map(c => c.dataset.rt).join(','); if (!/^[A-Za-z0-9._@-]{3,40}$/.test(x.id)) return e.textContent = 'Login ID: 3 to 40 letters or numbers, no spaces'; if (x.pw.length < 6) return e.textContent = 'Password: at least 6 characters'; }
+        if (isNew) { x.pw = $('#uePw', b).value.trim(); x.rights = $$('[data-rt]', b).filter(c => c.checked).map(c => c.dataset.rt).join(','); if (!/^[A-Za-z0-9._@-]{3,40}$/.test(x.id)) return e.textContent = 'User ID: 3 to 40 letters or numbers, no spaces'; if (x.pw.length < 6) return e.textContent = 'Password: at least 6 characters'; }
         e.textContent = '⏳ Saving…';
         try { await this.admin(isNew ? 'add' : 'edit', x); this._data = await this.admin('list', { log: 1 }); } catch (er) { e.textContent = '❌ ' + er.message; return; }
         UI.closeModal(); done && done(); if (isNew) this.share(x, x.pw, '✅ User Added – Send This To ' + x.id); else UI.toast('Saved');
