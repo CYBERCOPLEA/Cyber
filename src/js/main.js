@@ -254,6 +254,7 @@ const Sess = {
 };
 function lock() { Sess.clear(); $('#app').classList.add('hidden'); $('#main').innerHTML = ''; $('#drBody') && ($('#drBody').innerHTML = ''); $('#login').classList.remove('hidden'); showLogin(); $('#lgPass').value = ''; $('#lgErr').textContent = ''; UI.closeDrawer(); UI.closeModal(); $('#lgUser').focus(); }
 async function boot() {
+  if (document.readyState === 'loading') await new Promise(r => document.addEventListener('DOMContentLoaded', r, { once: true }));   // every part of the tool is loaded first
   await DB.open();
   S.settings = await DB.get('settings');
   if (!S.settings) { const salt = uid(); S.settings = { user: 'admin', salt, hash: hashPass('admin@123', salt), theme: 'dark', lockMins: 15, mustChange: true }; await DB.set('settings', S.settings); }
