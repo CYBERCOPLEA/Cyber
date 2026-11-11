@@ -34,7 +34,7 @@ const CDRX = {
 };
 
 /* ---------- tabs ---------- */
-TelUI.TABS.cdr = [['sum', '📊 Overview'], ['con', '👥 Contacts'], ['loc', '🏠 Home, Work & Towers'], ['dev', '📱 IMEI, IMSI & SIM periods'], ['roam', '🌍 Roaming & States'], ['off', '⏸ Off / unused periods'],
+TelUI.TABS.cdr = [['sum', '📊 Smart OverView'], ['con', '👥 Contacts'], ['loc', '🏠 Home, Work & Towers'], ['dev', '📱 IMEI, IMSI & SIM periods'], ['roam', '🌍 Roaming & States'], ['off', '⏸ Off / unused periods'],
   ['new', '🆕 New, missing & last month'], ['meet', '🤝 Co-location'], ['com', '⚑ Common, CDR↔CDR & linked'], ['watch', '👁 Watchlist'], ['time', '🕐 Date & Time'], ['rec', '📋 All records'], ['files', '📁 Files']];
 
 /* Home / Work / Max stay at the top of the towers tab, plus night & day max-stay tables */

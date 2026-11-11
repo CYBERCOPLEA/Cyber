@@ -164,7 +164,7 @@ const MTabs = {
   page(main) {
     const pl = this.pl(), [PN, PC] = MReply.PL[pl], d = MData.mine(pl), c = k => d.filter(r => r.kind === k).length, A = d.filter(r => r.kind === 'Account'), csv = Analysis.socRows();
     PAGE_META.msocial.title = PN + ' (Meta LE reply)';
-    const { cur, body } = tabs(main, 'msocial', [['msum', '📊 Overview'], ['macc', `👤 Accounts (${A.length})`], ['mip', `🌐 IP Activity (${c('IP')})`], ['mcon', `📱 Phones & E-mails (${sum(A, a => a.phones.length + a.emails.length)})`],
+    const { cur, body } = tabs(main, 'msocial', [['msum', '📊 Smart OverView'], ['macc', `👤 Accounts (${A.length})`], ['mip', `🌐 IP Activity (${c('IP')})`], ['mcon', `📱 Phones & E-mails (${sum(A, a => a.phones.length + a.emails.length)})`],
       ['mcom', '⚑ Common'], ['mtime', '🕐 Date & Time'], ['mcsv', `📋 Other ${PN} rows (${csv.length})`], ['mfiles', '📁 Files']], PN,
       `<button class="btn primary" id="mImp" style="background:${PC}">⬆ Import ${PN} reply</button><input type="file" id="mPick" class="hidden" multiple accept=".html,.htm,.txt,.pdf,.zip,.rar,.json">`);
     GTabs.bar(main, body);

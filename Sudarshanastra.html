@@ -1884,7 +1884,7 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
         <div class="hp-feat" style="--fc:#06b6d4"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><div><b>Analytics</b><p>The same mobile, account, IP or e-mail across complaints, banks and platforms.</p></div></div>
         <div class="hp-feat" style="--fc:#eab308"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h5"/></svg></span><div><b>Case File &amp; Notices</b><p>Case reports, notices to banks and platforms, and CSV / PDF exports.</p></div></div>
     </section>
-    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-11 09:22 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
+    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-11 09:28 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
   </div>
 
   <div class="lg-wrap" id="lgWrap" aria-hidden="true">
@@ -8307,7 +8307,7 @@ const GTabs = {
   },
   page(main) {
     const d = GData.all(), c = k => d.filter(r => r.kind === k).length;
-    const { cur, body } = tabs(main, 'gsocial', [['gsum', '📊 Overview'], ['gacc', `👤 Accounts (${c('Account')})`], ['gdev', `🤖 Android Devices (${c('Device')})`], ['gip', `🌐 IP Activity (${c('IP activity') + c('Login')})`], ['gchg', `🔁 Change History (${c('Change')})`], ['gpay', `₹ Google Pay (${c('Google Pay') + c('Payment')})`], ['gcom', '⚑ Common'], ['gtime', '🕐 Date & Time'], ['gfiles', '📁 Files']], 'Google',
+    const { cur, body } = tabs(main, 'gsocial', [['gsum', '📊 Smart OverView'], ['gacc', `👤 Accounts (${c('Account')})`], ['gdev', `🤖 Android Devices (${c('Device')})`], ['gip', `🌐 IP Activity (${c('IP activity') + c('Login')})`], ['gchg', `🔁 Change History (${c('Change')})`], ['gpay', `₹ Google Pay (${c('Google Pay') + c('Payment')})`], ['gcom', '⚑ Common'], ['gtime', '🕐 Date & Time'], ['gfiles', '📁 Files']], 'Google',
       `<button class="btn primary" id="gImp">⬆ Import Google reply</button><input type="file" id="gPick" class="hidden" multiple accept=".txt,.csv,.xlsx,.xls,.pdf,.html,.htm,.zip,.json,.log">`);
     this.bar(main, body);
     $('#gImp').onclick = () => this.pick(); $('#gPick').onchange = e => this.load(e.target.files);
@@ -8786,7 +8786,7 @@ const WTabs = {
   C: '#25D366',
   page(main) {
     const d = WData.all(), c = k => d.filter(r => r.kind === k).length, csv = Analysis.socRows();
-    const { cur, body } = tabs(main, 'wsocial', [['wsum', '📊 Overview'], ['wacc', `👤 Accounts (${WData.accounts().length})`], ['wconn', `🌐 Connection & Devices (${c('Connection') + c('Device') + c('IP')})`], ['wbook', `📒 Address Book (${c('Contact')})`],
+    const { cur, body } = tabs(main, 'wsocial', [['wsum', '📊 Smart OverView'], ['wacc', `👤 Accounts (${WData.accounts().length})`], ['wconn', `🌐 Connection & Devices (${c('Connection') + c('Device') + c('IP')})`], ['wbook', `📒 Address Book (${c('Contact')})`],
       ['wlog', `💬 Messages & Calls (${c('Message') + c('Call')})`], ['wcom', '⚑ Common'], ['wtime', '🕐 Date & Time'], ['wcsv', `📋 Other WhatsApp rows (${csv.length})`], ['wfiles', '📁 Files']], 'WhatsApp',
       `<button class="btn primary" id="wImp">⬆ Import WhatsApp reply</button><input type="file" id="wPick" class="hidden" multiple accept=".html,.htm,.txt,.pdf,.zip,.rar,.csv,.json">`);
     GTabs.bar(main, body);
@@ -9250,7 +9250,7 @@ const MTabs = {
   page(main) {
     const pl = this.pl(), [PN, PC] = MReply.PL[pl], d = MData.mine(pl), c = k => d.filter(r => r.kind === k).length, A = d.filter(r => r.kind === 'Account'), csv = Analysis.socRows();
     PAGE_META.msocial.title = PN + ' (Meta LE reply)';
-    const { cur, body } = tabs(main, 'msocial', [['msum', '📊 Overview'], ['macc', `👤 Accounts (${A.length})`], ['mip', `🌐 IP Activity (${c('IP')})`], ['mcon', `📱 Phones & E-mails (${sum(A, a => a.phones.length + a.emails.length)})`],
+    const { cur, body } = tabs(main, 'msocial', [['msum', '📊 Smart OverView'], ['macc', `👤 Accounts (${A.length})`], ['mip', `🌐 IP Activity (${c('IP')})`], ['mcon', `📱 Phones & E-mails (${sum(A, a => a.phones.length + a.emails.length)})`],
       ['mcom', '⚑ Common'], ['mtime', '🕐 Date & Time'], ['mcsv', `📋 Other ${PN} rows (${csv.length})`], ['mfiles', '📁 Files']], PN,
       `<button class="btn primary" id="mImp" style="background:${PC}">⬆ Import ${PN} reply</button><input type="file" id="mPick" class="hidden" multiple accept=".html,.htm,.txt,.pdf,.zip,.rar,.json">`);
     GTabs.bar(main, body);
@@ -9588,7 +9588,7 @@ const TTabs = {
   C: '#229ED9',
   page(main) {
     const d = TData.all(), c = k => d.filter(r => r.kind === k).length, csv = Analysis.socRows();
-    const { cur, body } = tabs(main, 'tsocial', [['tsum', '📊 Overview'], ['tusr', `👤 Users (${c('User')})`], ['tip', `🌐 IP Activity (${c('IP')})`], ['treq', `📨 Requests & Replies (${c('Reply')})`], ['tcom', '⚑ Common'], ['ttime', '🕐 Date & Time'], ['tcsv', `📋 Other Telegram rows (${csv.length})`], ['tfiles', '📁 Files']], 'Telegram',
+    const { cur, body } = tabs(main, 'tsocial', [['tsum', '📊 Smart OverView'], ['tusr', `👤 Users (${c('User')})`], ['tip', `🌐 IP Activity (${c('IP')})`], ['treq', `📨 Requests & Replies (${c('Reply')})`], ['tcom', '⚑ Common'], ['ttime', '🕐 Date & Time'], ['tcsv', `📋 Other Telegram rows (${csv.length})`], ['tfiles', '📁 Files']], 'Telegram',
       `<button class="btn primary" id="tImp" style="background:${this.C}">⬆ Import Telegram reply</button><input type="file" id="tPick" class="hidden" multiple accept=".pdf,.txt,.html,.htm,.eml,.zip,.rar">`);
     GTabs.bar(main, body);
     $('#tImp').onclick = () => this.pick(); $('#tPick').onchange = e => this.load(e.target.files);
@@ -10700,10 +10700,10 @@ const Tel = {
 /* ---------- page ---------- */
 const TelUI = {
   TABS: {
-    cdr: [['sum', '📊 Overview'], ['con', '👥 Contacts'], ['dev', '📱 IMEI & IMSI'], ['loc', '📍 Towers & Movement'], ['time', '🕐 Date & Time'], ['com', '⚑ Common & Linked'], ['rec', '📋 All records'], ['files', '📁 Files']],
-    ipdr: [['sum', '📊 Overview'], ['ses', '🔗 Sessions'], ['find', '🔎 Find IP at a time'], ['dst', '🎯 Destinations & Apps'], ['dev', '📱 IMEI & Towers'], ['time', '🕐 Date & Time'], ['files', '📁 Files']],
-    tdr: [['sum', '📊 Overview'], ['spot', '📍 Crime spots & time'], ['com', '⚑ Common across spots'], ['meet', '🤝 Met on spot'], ['num', '🔢 Frequent numbers'], ['dev', '📱 IMEI with many SIMs'], ['roam', '🌍 Foreign SIM'], ['rec', '📋 All records'], ['files', '📁 Files']],
-    sms: [['sum', '📊 Overview'], ['snd', '🏷 Sender headers'], ['con', '👥 Person to person'], ['time', '🕐 Date & Time'], ['rec', '📋 All records'], ['files', '📁 Files']]
+    cdr: [['sum', '📊 Smart OverView'], ['con', '👥 Contacts'], ['dev', '📱 IMEI & IMSI'], ['loc', '📍 Towers & Movement'], ['time', '🕐 Date & Time'], ['com', '⚑ Common & Linked'], ['rec', '📋 All records'], ['files', '📁 Files']],
+    ipdr: [['sum', '📊 Smart OverView'], ['ses', '🔗 Sessions'], ['find', '🔎 Find IP at a time'], ['dst', '🎯 Destinations & Apps'], ['dev', '📱 IMEI & Towers'], ['time', '🕐 Date & Time'], ['files', '📁 Files']],
+    tdr: [['sum', '📊 Smart OverView'], ['spot', '📍 Crime spots & time'], ['com', '⚑ Common across spots'], ['meet', '🤝 Met on spot'], ['num', '🔢 Frequent numbers'], ['dev', '📱 IMEI with many SIMs'], ['roam', '🌍 Foreign SIM'], ['rec', '📋 All records'], ['files', '📁 Files']],
+    sms: [['sum', '📊 Smart OverView'], ['snd', '🏷 Sender headers'], ['con', '👥 Person to person'], ['time', '🕐 Date & Time'], ['rec', '📋 All records'], ['files', '📁 Files']]
   },
   page(main) {
     const k = TK[S.telKind] ? S.telKind : (S.telKind = 'cdr'), [title, col, desc, ic] = TK[k], d = Tel.of(k);
@@ -11224,7 +11224,7 @@ const CDRX = {
 };
 
 /* ---------- tabs ---------- */
-TelUI.TABS.cdr = [['sum', '📊 Overview'], ['con', '👥 Contacts'], ['loc', '🏠 Home, Work & Towers'], ['dev', '📱 IMEI, IMSI & SIM periods'], ['roam', '🌍 Roaming & States'], ['off', '⏸ Off / unused periods'],
+TelUI.TABS.cdr = [['sum', '📊 Smart OverView'], ['con', '👥 Contacts'], ['loc', '🏠 Home, Work & Towers'], ['dev', '📱 IMEI, IMSI & SIM periods'], ['roam', '🌍 Roaming & States'], ['off', '⏸ Off / unused periods'],
   ['new', '🆕 New, missing & last month'], ['meet', '🤝 Co-location'], ['com', '⚑ Common, CDR↔CDR & linked'], ['watch', '👁 Watchlist'], ['time', '🕐 Date & Time'], ['rec', '📋 All records'], ['files', '📁 Files']];
 
 /* Home / Work / Max stay at the top of the towers tab, plus night & day max-stay tables */
@@ -11436,7 +11436,7 @@ const IPX = {
   utc(ts) { const t = CDRX.ms({ ts }); return isNaN(t) ? '' : new Date(t - 5.5 * 3600e3).toISOString().replace('T', ' ').slice(0, 19); }
 };
 
-TelUI.TABS.ipdr = [['sum', '📊 Overview'], ['ses', '🔗 Sessions'], ['find', '🔎 Find IP at a time'], ['num', '👥 Users of the IP'], ['dst', '🎯 Destinations, apps & owner'], ['vpn', '🛡 VPN / proxy / remote'],
+TelUI.TABS.ipdr = [['sum', '📊 Smart OverView'], ['ses', '🔗 Sessions'], ['find', '🔎 Find IP at a time'], ['num', '👥 Users of the IP'], ['dst', '🎯 Destinations, apps & owner'], ['vpn', '🛡 VPN / proxy / remote'],
   ['geo', '🌍 Country & geo'], ['loc', '🏠 Home, Work & Towers'], ['dev', '📱 IMEI & IMSI periods'], ['off', '⏸ Off / unused periods'], ['com', '⚑ Common & app calls'], ['req', '📝 Platform requisition'], ['watch', '👁 Watchlist'], ['time', '🕐 Date & Time'], ['files', '📁 Files']];
 
 TelUI.ipdr_loc = function (el, d) { this.cdr_loc(el, d); };
@@ -12154,9 +12154,12 @@ const TC = {
   SMALL: new Set(['a', 'an', 'and', 'as', 'at', 'but', 'by', 'for', 'from', 'in', 'into', 'nor', 'of', 'on', 'or', 'per', 'the', 'to', 'up', 'via', 'vs', 'with', 'than', 'via', 'x']),
   KEEP: new Set(['am', 'pm', 'e.g.', 'i.e.', 'etc', 'etc.', 'km', 'kb', 'mb', 'gb', 'ms', 'px', 'rec', 'nos.', 'no.']),
   SEL: 'h1,h2,h3,h4,h5,h6,.tab,button,.btn,th,label,legend,summary,option,.kpi .label,.nav-item,.nav-sub,.nav-group,.tf-h,.cx-hl,.ap-p,.badge,.tf-chip,.xm-fb small,.tsc-f>span,.xm-l,.ti-step,.tel-k,.hp-feat b,.hp-kicker,.lg-head b,.crumb,.page-title,.ip-st,.tile-t,.dt-title,.d2-tt,.d2-th>b,[class*="title"],[class$="-tt"],[class$="-th"]>b,.card-h,[data-tc]',
+  HARD: 'input,textarea,#caseSel,#tscCase,#tiCase,#tscNum,#cbSel,svg,code,pre,.mono,.no-tc,[contenteditable]',
   SKIP: 'input,textarea,#caseSel,#tscCase,#tiCase,#tscNum,#cbSel,svg,td,code,pre,.mono,.no-tc,[contenteditable],.value,.hint,.sub,.muted,.small,.ap-f,.ap-a,.tf-tx,.tf-sg,a[href^="http"]',
+  STRONG: 'h1,h2,h3,h4,h5,h6,.tab,button,.btn,th,label,option,.badge,.tf-chip,.nav-item,.nav-sub,a.btn',
   NOSEL: new Set(['caseSel', 'tscCase', 'tiCase', 'tscNum', 'cbSel']),
   word(w, first) {
+    if (w.includes('-') && !/[@_\d]|:\/\/|\w\.\w/.test(w)) { const P = w.split('-'); return P.map((x, i) => i && /^[a-z]{2,}/.test(x) && !/[A-Z]/.test(x) ? this.word(x, false) : i ? x : this.word(x, first)).join('-'); }
     if (!/^[a-z]/.test(w) || /[A-Z]/.test(w) || /\d/.test(w) || /[@_]|:\/\/|\w\.\w/.test(w) || this.KEEP.has(w.toLowerCase().replace(/[^a-z.]+$/, '')) || this.KEEP.has(w.toLowerCase().replace(/[^a-z]+$/, ''))) return w;
     if (!first && this.SMALL.has(w.replace(/[^a-z]/g, ''))) return w;
     return w.replace(/(^|[-/(])([a-z])/g, (m, a, b) => a + b.toUpperCase());
@@ -12168,7 +12171,7 @@ const TC = {
     return s.replace(/\S+/g, w => { const lead = w.match(/^[^A-Za-z0-9]*/)[0], core = w.slice(lead.length); if (!core) return w; const r = lead + this.word(core, first || /[–:—|·]$/.test(lead)); first = false; return r; });
   },
   el(e) {
-    if (e.closest(this.SKIP)) return;
+    if (e.closest(this.HARD) || (!e.matches(this.STRONG) && e.closest(this.SKIP))) return;
     if (e.tagName === 'OPTION') { const s = e.parentElement && e.parentElement.closest('select'); if (s && (this.NOSEL.has(s.id) || s.classList.contains('no-tc'))) return; }
     const w = document.createTreeWalker(e, NodeFilter.SHOW_TEXT, { acceptNode: n => n.parentElement && n.parentElement !== e && n.parentElement.closest(this.SKIP) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT });
     let n; while ((n = w.nextNode())) { const v = n.nodeValue, x = this.text(v); if (x !== v) n.nodeValue = x; }

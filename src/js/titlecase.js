@@ -7,9 +7,12 @@ const TC = {
   SMALL: new Set(['a', 'an', 'and', 'as', 'at', 'but', 'by', 'for', 'from', 'in', 'into', 'nor', 'of', 'on', 'or', 'per', 'the', 'to', 'up', 'via', 'vs', 'with', 'than', 'via', 'x']),
   KEEP: new Set(['am', 'pm', 'e.g.', 'i.e.', 'etc', 'etc.', 'km', 'kb', 'mb', 'gb', 'ms', 'px', 'rec', 'nos.', 'no.']),
   SEL: 'h1,h2,h3,h4,h5,h6,.tab,button,.btn,th,label,legend,summary,option,.kpi .label,.nav-item,.nav-sub,.nav-group,.tf-h,.cx-hl,.ap-p,.badge,.tf-chip,.xm-fb small,.tsc-f>span,.xm-l,.ti-step,.tel-k,.hp-feat b,.hp-kicker,.lg-head b,.crumb,.page-title,.ip-st,.tile-t,.dt-title,.d2-tt,.d2-th>b,[class*="title"],[class$="-tt"],[class$="-th"]>b,.card-h,[data-tc]',
+  HARD: 'input,textarea,#caseSel,#tscCase,#tiCase,#tscNum,#cbSel,svg,code,pre,.mono,.no-tc,[contenteditable]',
   SKIP: 'input,textarea,#caseSel,#tscCase,#tiCase,#tscNum,#cbSel,svg,td,code,pre,.mono,.no-tc,[contenteditable],.value,.hint,.sub,.muted,.small,.ap-f,.ap-a,.tf-tx,.tf-sg,a[href^="http"]',
+  STRONG: 'h1,h2,h3,h4,h5,h6,.tab,button,.btn,th,label,option,.badge,.tf-chip,.nav-item,.nav-sub,a.btn',
   NOSEL: new Set(['caseSel', 'tscCase', 'tiCase', 'tscNum', 'cbSel']),
   word(w, first) {
+    if (w.includes('-') && !/[@_\d]|:\/\/|\w\.\w/.test(w)) { const P = w.split('-'); return P.map((x, i) => i && /^[a-z]{2,}/.test(x) && !/[A-Z]/.test(x) ? this.word(x, false) : i ? x : this.word(x, first)).join('-'); }
     if (!/^[a-z]/.test(w) || /[A-Z]/.test(w) || /\d/.test(w) || /[@_]|:\/\/|\w\.\w/.test(w) || this.KEEP.has(w.toLowerCase().replace(/[^a-z.]+$/, '')) || this.KEEP.has(w.toLowerCase().replace(/[^a-z]+$/, ''))) return w;
     if (!first && this.SMALL.has(w.replace(/[^a-z]/g, ''))) return w;
     return w.replace(/(^|[-/(])([a-z])/g, (m, a, b) => a + b.toUpperCase());
@@ -21,7 +24,7 @@ const TC = {
     return s.replace(/\S+/g, w => { const lead = w.match(/^[^A-Za-z0-9]*/)[0], core = w.slice(lead.length); if (!core) return w; const r = lead + this.word(core, first || /[–:—|·]$/.test(lead)); first = false; return r; });
   },
   el(e) {
-    if (e.closest(this.SKIP)) return;
+    if (e.closest(this.HARD) || (!e.matches(this.STRONG) && e.closest(this.SKIP))) return;
     if (e.tagName === 'OPTION') { const s = e.parentElement && e.parentElement.closest('select'); if (s && (this.NOSEL.has(s.id) || s.classList.contains('no-tc'))) return; }
     const w = document.createTreeWalker(e, NodeFilter.SHOW_TEXT, { acceptNode: n => n.parentElement && n.parentElement !== e && n.parentElement.closest(this.SKIP) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT });
     let n; while ((n = w.nextNode())) { const v = n.nodeValue, x = this.text(v); if (x !== v) n.nodeValue = x; }

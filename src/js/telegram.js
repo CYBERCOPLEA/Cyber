@@ -87,7 +87,7 @@ const TTabs = {
   C: '#229ED9',
   page(main) {
     const d = TData.all(), c = k => d.filter(r => r.kind === k).length, csv = Analysis.socRows();
-    const { cur, body } = tabs(main, 'tsocial', [['tsum', '📊 Overview'], ['tusr', `👤 Users (${c('User')})`], ['tip', `🌐 IP Activity (${c('IP')})`], ['treq', `📨 Requests & Replies (${c('Reply')})`], ['tcom', '⚑ Common'], ['ttime', '🕐 Date & Time'], ['tcsv', `📋 Other Telegram rows (${csv.length})`], ['tfiles', '📁 Files']], 'Telegram',
+    const { cur, body } = tabs(main, 'tsocial', [['tsum', '📊 Smart OverView'], ['tusr', `👤 Users (${c('User')})`], ['tip', `🌐 IP Activity (${c('IP')})`], ['treq', `📨 Requests & Replies (${c('Reply')})`], ['tcom', '⚑ Common'], ['ttime', '🕐 Date & Time'], ['tcsv', `📋 Other Telegram rows (${csv.length})`], ['tfiles', '📁 Files']], 'Telegram',
       `<button class="btn primary" id="tImp" style="background:${this.C}">⬆ Import Telegram reply</button><input type="file" id="tPick" class="hidden" multiple accept=".pdf,.txt,.html,.htm,.eml,.zip,.rar">`);
     GTabs.bar(main, body);
     $('#tImp').onclick = () => this.pick(); $('#tPick').onchange = e => this.load(e.target.files);

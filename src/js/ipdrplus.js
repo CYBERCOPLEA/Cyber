@@ -15,7 +15,7 @@ const IPX = {
   utc(ts) { const t = CDRX.ms({ ts }); return isNaN(t) ? '' : new Date(t - 5.5 * 3600e3).toISOString().replace('T', ' ').slice(0, 19); }
 };
 
-TelUI.TABS.ipdr = [['sum', '📊 Overview'], ['ses', '🔗 Sessions'], ['find', '🔎 Find IP at a time'], ['num', '👥 Users of the IP'], ['dst', '🎯 Destinations, apps & owner'], ['vpn', '🛡 VPN / proxy / remote'],
+TelUI.TABS.ipdr = [['sum', '📊 Smart OverView'], ['ses', '🔗 Sessions'], ['find', '🔎 Find IP at a time'], ['num', '👥 Users of the IP'], ['dst', '🎯 Destinations, apps & owner'], ['vpn', '🛡 VPN / proxy / remote'],
   ['geo', '🌍 Country & geo'], ['loc', '🏠 Home, Work & Towers'], ['dev', '📱 IMEI & IMSI periods'], ['off', '⏸ Off / unused periods'], ['com', '⚑ Common & app calls'], ['req', '📝 Platform requisition'], ['watch', '👁 Watchlist'], ['time', '🕐 Date & Time'], ['files', '📁 Files']];
 
 TelUI.ipdr_loc = function (el, d) { this.cdr_loc(el, d); };

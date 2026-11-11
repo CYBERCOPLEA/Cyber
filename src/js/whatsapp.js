@@ -242,7 +242,7 @@ const WTabs = {
   C: '#25D366',
   page(main) {
     const d = WData.all(), c = k => d.filter(r => r.kind === k).length, csv = Analysis.socRows();
-    const { cur, body } = tabs(main, 'wsocial', [['wsum', '📊 Overview'], ['wacc', `👤 Accounts (${WData.accounts().length})`], ['wconn', `🌐 Connection & Devices (${c('Connection') + c('Device') + c('IP')})`], ['wbook', `📒 Address Book (${c('Contact')})`],
+    const { cur, body } = tabs(main, 'wsocial', [['wsum', '📊 Smart OverView'], ['wacc', `👤 Accounts (${WData.accounts().length})`], ['wconn', `🌐 Connection & Devices (${c('Connection') + c('Device') + c('IP')})`], ['wbook', `📒 Address Book (${c('Contact')})`],
       ['wlog', `💬 Messages & Calls (${c('Message') + c('Call')})`], ['wcom', '⚑ Common'], ['wtime', '🕐 Date & Time'], ['wcsv', `📋 Other WhatsApp rows (${csv.length})`], ['wfiles', '📁 Files']], 'WhatsApp',
       `<button class="btn primary" id="wImp">⬆ Import WhatsApp reply</button><input type="file" id="wPick" class="hidden" multiple accept=".html,.htm,.txt,.pdf,.zip,.rar,.csv,.json">`);
     GTabs.bar(main, body);

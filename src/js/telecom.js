@@ -293,10 +293,10 @@ const Tel = {
 /* ---------- page ---------- */
 const TelUI = {
   TABS: {
-    cdr: [['sum', '📊 Overview'], ['con', '👥 Contacts'], ['dev', '📱 IMEI & IMSI'], ['loc', '📍 Towers & Movement'], ['time', '🕐 Date & Time'], ['com', '⚑ Common & Linked'], ['rec', '📋 All records'], ['files', '📁 Files']],
-    ipdr: [['sum', '📊 Overview'], ['ses', '🔗 Sessions'], ['find', '🔎 Find IP at a time'], ['dst', '🎯 Destinations & Apps'], ['dev', '📱 IMEI & Towers'], ['time', '🕐 Date & Time'], ['files', '📁 Files']],
-    tdr: [['sum', '📊 Overview'], ['spot', '📍 Crime spots & time'], ['com', '⚑ Common across spots'], ['meet', '🤝 Met on spot'], ['num', '🔢 Frequent numbers'], ['dev', '📱 IMEI with many SIMs'], ['roam', '🌍 Foreign SIM'], ['rec', '📋 All records'], ['files', '📁 Files']],
-    sms: [['sum', '📊 Overview'], ['snd', '🏷 Sender headers'], ['con', '👥 Person to person'], ['time', '🕐 Date & Time'], ['rec', '📋 All records'], ['files', '📁 Files']]
+    cdr: [['sum', '📊 Smart OverView'], ['con', '👥 Contacts'], ['dev', '📱 IMEI & IMSI'], ['loc', '📍 Towers & Movement'], ['time', '🕐 Date & Time'], ['com', '⚑ Common & Linked'], ['rec', '📋 All records'], ['files', '📁 Files']],
+    ipdr: [['sum', '📊 Smart OverView'], ['ses', '🔗 Sessions'], ['find', '🔎 Find IP at a time'], ['dst', '🎯 Destinations & Apps'], ['dev', '📱 IMEI & Towers'], ['time', '🕐 Date & Time'], ['files', '📁 Files']],
+    tdr: [['sum', '📊 Smart OverView'], ['spot', '📍 Crime spots & time'], ['com', '⚑ Common across spots'], ['meet', '🤝 Met on spot'], ['num', '🔢 Frequent numbers'], ['dev', '📱 IMEI with many SIMs'], ['roam', '🌍 Foreign SIM'], ['rec', '📋 All records'], ['files', '📁 Files']],
+    sms: [['sum', '📊 Smart OverView'], ['snd', '🏷 Sender headers'], ['con', '👥 Person to person'], ['time', '🕐 Date & Time'], ['rec', '📋 All records'], ['files', '📁 Files']]
   },
   page(main) {
     const k = TK[S.telKind] ? S.telKind : (S.telKind = 'cdr'), [title, col, desc, ic] = TK[k], d = Tel.of(k);

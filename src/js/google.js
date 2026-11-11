@@ -249,7 +249,7 @@ const GTabs = {
   },
   page(main) {
     const d = GData.all(), c = k => d.filter(r => r.kind === k).length;
-    const { cur, body } = tabs(main, 'gsocial', [['gsum', '📊 Overview'], ['gacc', `👤 Accounts (${c('Account')})`], ['gdev', `🤖 Android Devices (${c('Device')})`], ['gip', `🌐 IP Activity (${c('IP activity') + c('Login')})`], ['gchg', `🔁 Change History (${c('Change')})`], ['gpay', `₹ Google Pay (${c('Google Pay') + c('Payment')})`], ['gcom', '⚑ Common'], ['gtime', '🕐 Date & Time'], ['gfiles', '📁 Files']], 'Google',
+    const { cur, body } = tabs(main, 'gsocial', [['gsum', '📊 Smart OverView'], ['gacc', `👤 Accounts (${c('Account')})`], ['gdev', `🤖 Android Devices (${c('Device')})`], ['gip', `🌐 IP Activity (${c('IP activity') + c('Login')})`], ['gchg', `🔁 Change History (${c('Change')})`], ['gpay', `₹ Google Pay (${c('Google Pay') + c('Payment')})`], ['gcom', '⚑ Common'], ['gtime', '🕐 Date & Time'], ['gfiles', '📁 Files']], 'Google',
       `<button class="btn primary" id="gImp">⬆ Import Google reply</button><input type="file" id="gPick" class="hidden" multiple accept=".txt,.csv,.xlsx,.xls,.pdf,.html,.htm,.zip,.json,.log">`);
     this.bar(main, body);
     $('#gImp').onclick = () => this.pick(); $('#gPick').onchange = e => this.load(e.target.files);
