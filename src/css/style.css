@@ -2041,3 +2041,4 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
 .ad-dv-a{font-size:20px;color:var(--text-secondary)}
 .ad-dv-w{font-size:13px;color:var(--text-secondary)}.ad-dv-w b{color:var(--text-primary)}
 #main:has(.ad-dv) .cs-row{display:none}
+.ad-dv[hidden]{display:none!important}

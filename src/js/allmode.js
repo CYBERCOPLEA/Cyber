@@ -14,11 +14,11 @@ const AllMode = {
   options() {
     const F = S.cases.filter(c => this.cat(c) === 'fir'), N = S.cases.filter(c => this.cat(c) === 'ncrp'), o = (v, t) => `<option value="${v}" ${S.caseId === v ? 'selected' : ''}>${esc(t)}</option>`;
     let h = '';
-    if (S.cases.length > 1) h += o('__all', `🗂 All Cases (${S.cases.length}) – combined`);
-    if (S.cases.length > 1 && F.length) h += o('__fir', `📁 FIR Cases (${F.length}) – combined`);
-    if (S.cases.length > 1 && N.length) h += o('__ncrp', `🧾 NCRP Without FIR (${N.length}) – combined`);
+    if (S.cases.length > 1) h += o('__all', `🗂 All Cases (${S.cases.length})`);
+    if (S.cases.length > 1 && F.length) h += o('__fir', `📁 FIR Cases (${F.length})`);
+    if (S.cases.length > 1 && N.length) h += o('__ncrp', `🧾 NCRP (Without FIR) (${N.length})`);
     const grp = (l, L) => L.length ? (h ? `<optgroup label="${esc(l)}">` : '') + L.map(c => o(c.id, this.caseLabel(c))).join('') + (h ? '</optgroup>' : '') : '';
-    return h + grp(`FIR Cases (${F.length})`, F) + grp(`NCRP – No FIR Yet (${N.length})`, N);
+    return h + grp(`📄 One Case – FIR (${F.length})`, F) + grp(`📄 One Case – NCRP Without FIR (${N.length})`, N);
   },
   async merge(sc = '__all') {
     const out = emptyCase();

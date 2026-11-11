@@ -42,29 +42,15 @@ const AllDash = {
     for (const o of R) for (const [k, e] of o.ids) { let g = M.get(k); if (!g) M.set(k, g = { key: k, type: e.type, value: e.value, cases: [], secs: new Set() }); g.cases.push(o); e.secs.forEach(s => g.secs.add(s)); }
     return [...M.values()].filter(g => g.cases.length >= 2).sort((a, b) => b.cases.length - a.cases.length || b.secs.size - a.secs.size);
   },
-  /* "Show On Dashboard" drop-down: All Cases / FIR Cases / NCRP (Without FIR) / One Case › pick the case */
-  bar() {
-    const v = isScope(S.caseId) ? S.caseId : 'case', n = sc => AllMode.list(sc).length, cur = v === 'case' ? S.caseId : AllMode.pick();
-    const o = (k, l, c) => `<option value="${k}" ${v === k ? 'selected' : ''} ${c === 0 ? 'disabled' : ''}>${l}${c !== undefined ? ` (${c})` : ''}</option>`;
-    const grp = (l, L) => L.length ? `<optgroup label="${l}">${L.map(c => `<option value="${esc(c.id)}" ${c.id === cur ? 'selected' : ''}>${esc(AllMode.caseLabel(c))}</option>`).join('')}</optgroup>` : '';
-    const fir = S.cases.filter(c => AllMode.cat(c) === 'fir'), ncrp = S.cases.filter(c => AllMode.cat(c) !== 'fir');
-    const pl = (k, a, b) => `${k} ${k === 1 ? a : b}`, ac = activeCase();
-    const what = { __all: `every case on this computer – ${pl(n('__fir'), 'FIR case', 'FIR cases')} + ${pl(n('__ncrp'), 'NCRP complaint', 'NCRP complaints')} without FIR`, __fir: `${pl(n('__fir'), 'FIR case', 'FIR cases')} together`, __ncrp: `${pl(n('__ncrp'), 'NCRP complaint', 'NCRP complaints')} with no FIR yet`, case: `one ${AllMode.cat(ac) === 'fir' ? 'FIR case' : 'NCRP complaint'} – ${ac.name || ''}` }[v];
-    return `<div class="ad-dv"><label class="ad-dv-l" for="adDv">📊 Show On Dashboard</label>
-      <select id="adDv" class="ad-dv-s">${o('__all', '🗂 All Cases', n('__all'))}${o('__fir', '📁 FIR Cases', n('__fir'))}${o('__ncrp', '🧾 NCRP (Without FIR)', n('__ncrp'))}${o('case', '📄 One Case – Choose The Case →')}</select>
-      ${v === 'case' ? `<span class="ad-dv-a">›</span><select id="adDvC" class="ad-dv-s ad-dv-c" title="Choose the case">${grp('📁 FIR Cases', fir)}${grp('🧾 NCRP – No FIR Yet', ncrp)}</select>` : ''}
-      <span class="ad-dv-w">Showing: <b>${esc(what)}</b></span></div>`;
-  },
-  wireBar(main) {
-    const s = $('#adDv', main), c = $('#adDvC', main);
-    if (s) s.onchange = () => { const k = s.value; switchCase(k === 'case' ? AllMode.pick() : k); };
-    if (c) c.onchange = () => { if (c.value !== S.caseId) switchCase(c.value); };
+  what() {
+    const n = sc => AllMode.list(sc).length, pl = (k, a, b) => `${k} ${k === 1 ? a : b}`;
+    return { __all: `every case on this computer – ${pl(n('__fir'), 'FIR case', 'FIR cases')} + ${pl(n('__ncrp'), 'NCRP complaint', 'NCRP complaints')} without FIR`, __fir: `${pl(n('__fir'), 'FIR case', 'FIR cases')} together`, __ncrp: `${pl(n('__ncrp'), 'NCRP complaint', 'NCRP complaints')} with no FIR yet` }[S.caseId] || '';
   },
   open(id) { UI.closeDrawer(); if (id !== S.caseId) switchCase(id); else render(); },
   async draw(main) {
     const pct = (n, t) => t ? Math.round(n / t * 100) : 0;
-    main.innerHTML = `${this.bar()}<div class="card ad-head"><div><div class="small muted">${esc(AllMode.SC[S.caseId][1].toUpperCase())} – OVERVIEW</div><h2 style="margin:2px 0">${AllMode.SC[S.caseId][0]} ${esc(AllMode.label(S.caseId))} At A Glance</h2><div class="small muted">${S.caseId === '__ncrp' ? 'Complaints on NCRP (1930 / cybercrime.gov.in) with no FIR yet – Acknowledgement No., money reported, on hold and where it went. ₹5 lakh or more needs an FIR (e-Zero FIR).' : S.caseId === '__fir' ? 'FIR cases – CS / CS-PPI / FR, case diary, money, suspects and pending work.' : 'Every case on this computer – FIR cases and NCRP complaints without FIR.'} Click a case to open it.</div></div><div class="ad-acts"><button class="btn primary" id="adRe">🔄 Refresh</button></div></div><div id="adBody"><div class="muted" style="padding:20px">Reading your cases…</div></div>`;
-    this.wireBar(main); $('#adRe', main).onclick = () => { this.C.clear(); this.draw(main); };
+    main.innerHTML = `<i class="ad-dv" hidden></i><div class="hero-card dash-hero ad-head"><div class="dash-brand"><span class="ck-wrap db-mark"><i class="ck" aria-hidden="true"></i><span class="emblem emblem-sm" aria-hidden="true"></span></span><div class="db-txt"><div class="db-hi" lang="hi">सुदर्शनास्त्र</div><div class="db-en">SudarshanAshtra</div><div class="db-tag">Cyber Crime Analysis &amp; Tracking</div></div></div><div class="db-sep" aria-hidden="true"></div><div class="grow db-case"><div class="db-lbl">${esc(AllMode.SC[S.caseId][1])} – Overview</div><h2>${AllMode.SC[S.caseId][0]} ${esc(AllMode.label(S.caseId))} At A Glance</h2><div class="sub2">${S.caseId === '__ncrp' ? 'Complaints on NCRP (1930 / cybercrime.gov.in) with no FIR yet – Acknowledgement No., money reported, on hold and where it went. ₹5 lakh or more needs an FIR (e-Zero FIR).' : S.caseId === '__fir' ? 'FIR cases – CS / CS-PPI / FR, case diary, money, suspects and pending work.' : ''} Click a case to open it.</div><div class="ad-dv-w" style="margin-top:6px">Showing: <b>${esc(this.what())}</b> · change it in the <b>CASE</b> box at the top ↑</div></div><div class="ad-acts"><button class="btn primary" id="adRe">🔄 Refresh</button></div></div><div id="adBody"><div class="muted" style="padding:20px">Reading your cases…</div></div>`;
+    $('#adRe', main).onclick = () => { this.C.clear(); this.draw(main); };
     const R = await this.collect((i, t, nm) => { const b = $('#adBody', main); if (b) b.innerHTML = `<div class="muted" style="padding:20px">Reading case ${i} of ${t}: ${esc(nm)}…</div>`; });
     if (!document.body.contains(main) || S.page !== 'dashboard' || !isScope(S.caseId)) return;
     const SC = S.caseId, isN = SC === '__ncrp', isF = SC === '__fir', BIG = 500000;
@@ -111,7 +97,7 @@ const AllDash = {
   Pages.dashboard = function (main) {
     if (isScope(S.caseId)) { AllDash.draw(main); return; }
     const r = og.apply(this, arguments);
-    main.insertAdjacentHTML('afterbegin', AllDash.bar()); AllDash.wireBar(main);
+    if (S.cases.length > 1) main.insertAdjacentHTML('afterbegin', '<i class="ad-dv" hidden></i>');   // the CASE box at the top is the one place to choose
     return r;
   };
   const sw = switchCase; switchCase = async function (id) { AllDash.C.delete(S.caseId); return sw.apply(this, arguments); };
