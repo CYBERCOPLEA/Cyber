@@ -77,13 +77,36 @@ const Dash2 = {
   },
   chips(secs) { return [...secs].map(s => `<span class="d2-sec" style="--sc:${(this.SEC[s] || this.SEC.Others)[0]}">${(this.SEC[s] || this.SEC.Others)[1]} ${esc(s)}</span>`).join(''); },
   tico(t) { return (this.TYPE[t] || ['🔹', t])[0]; },
+  /* exact source of one record: Money Trail, Google (Gmail), CDR, CAF … */
+  src(i) {
+    const s = this.sec(i.section), r = String(i.ref || '');
+    if (s === 'Financial') return /^Statement/.test(r) ? ['Financial', '🏦', 'Bank Statement'] : /^KYC/.test(r) ? ['Financial', '🪪', 'Bank KYC'] : ['Financial', '💸', 'Money Trail'];
+    if (s === 'Social Media') { const p = Analysis.SOC_PLAT.find(x => x[3].test(r)); return ['Social Media', '💬', p ? p[1] : (r.split(' · ')[0] || 'Social Media')]; }
+    if (s === 'NCRP') return ['NCRP', '📋', /\(victim\)/.test(r) ? 'NCRP (Victim)' : 'NCRP (Suspect)'];
+    if (s === 'Telecom') return ['Telecom', '📞', i.label || r.split(' ')[0] || 'CDR'];
+    if (s === 'CAF') return ['CAF', '🪪', 'CAF'];
+    return ['Others', '🧩', 'Extracted'];
+  },
+  srcs(g) {
+    if (g._src) return g._src; const M = new Map();
+    for (const i of g.items) { const [sec, ico, nm] = this.src(i); let e = M.get(nm); if (!e) M.set(nm, e = { sec, ico, nm, refs: new Set() }); e.refs.add(i.ref || i.section); }
+    return g._src = [...M.values()].sort((a, b) => b.refs.size - a.refs.size);
+  },
+  srcChips(g) { return `<span class="d2-srcs">${this.srcs(g).map(e => `<span class="d2-sec" style="--sc:${(this.SEC[e.sec] || this.SEC.Others)[0]}" title="${esc([...e.refs].slice(0, 8).join('\n'))}">${e.ico} ${esc(e.nm)} <b>×${e.refs.size}</b></span>`).join('')}</span>`; },
+  srcText(g) { return this.srcs(g).map(e => e.nm + ' ×' + e.refs.size).join(', '); },
+  finding(g, oc) {
+    const L = this.srcs(g), t = [];
+    if (g.secs.size > 1) t.push('Links ' + [...g.secs].join(' ↔ ')); else if (L.length > 1) t.push(L.reduce((a, e) => a + e.refs.size, 0) + ' places in ' + L.length + ' sources'); else if (L[0]) t.push(`Repeats in ${L[0].refs.size} ${L[0].nm} records`);
+    if (oc) t.push(`also in ${oc} other case${oc > 1 ? 's' : ''}`); if (g.victim && !g.suspect) t.push('victim side');
+    return t.join(' · ');
+  },
 
   /* ---------- one suspect in full ---------- */
   detail(key) {
     const g = this.groups().get(key); const oc = this.inOthers(key);
     const t = g ? g.type : key.split('|')[0], v = g ? g.value : key.split('|')[1];
     const body = UI.drawer(`${this.tico(t)} ${(this.TYPE[t] || [0, t])[1]} · ${v}`, `<div class="dx-head"><div><b>${g ? g.secs.size : 0}</b><span>sections</span></div><div><b>${g ? g.refs.size : 0}</b><span>places in this case</span></div><div><b>${oc.length}</b><span>other cases</span></div>${g && g.acc ? `<div><b>${riskBadge(g.acc.score)}</b><span>risk</span></div>` : ''}<button class="btn sm" id="d2Copy">📋 Copy</button></div>
-      ${g ? `<div class="d2-chips">${this.chips(g.secs)}${g.victim ? '<span class="d2-tag v">victim number</span>' : ''}${g.suspect ? '<span class="d2-tag s">named as suspect in NCRP</span>' : ''}</div>` : ''}
+      ${g ? `<div class="d2-chips">${this.srcChips(g)}${g.victim ? '<span class="d2-tag v">victim number</span>' : ''}${g.suspect ? '<span class="d2-tag s">named as suspect in NCRP</span>' : ''}</div>` : ''}
       ${oc.length ? `<h4 class="d2-h">Also in your other cases</h4><div class="d2-oc">${oc.map(({ c, e }) => `<div class="list-item"><div class="grow small"><b>${esc(c.name)}</b>${c.fir ? ' · FIR ' + esc(c.fir) : ''}<br><span class="muted">${esc(e.refs.join(' | '))}</span></div><div>${this.chips(e.secs)}</div><button class="btn sm srch" data-case="${esc(c.id)}">Open case ›</button></div>`).join('')}</div>` : ''}
       <h4 class="d2-h">In this case</h4><div id="d2Rows"></div>`);
     $('#drawer').classList.add('dx-wide');
@@ -164,9 +187,9 @@ const Dash2 = {
       Table(el, { rows: t ? R.filter(r => r.type === t) : R, pageSize: 12, sortKey: 'score', sortDir: -1, exportName: 'linked_suspects', onRow: r => this.detail(r.key),
         columns: [{ key: 'type', label: 'Type', render: r => `<span class="d2-tc" title="${esc((this.TYPE[r.type] || [0, r.type])[1])}">${this.tico(r.type)}<small>${esc((this.TYPE[r.type] || [0, r.type])[1])}</small></span>` },
           { key: 'value', label: 'Identifier', render: r => `<b class="mono">${esc(r.value)}</b>${r.g.acc && r.g.acc.name ? `<div class="small muted">${esc(r.g.acc.name.split(' / ')[0])}</div>` : ''}${r.g.victim && !r.g.suspect ? ' <span class="d2-tag v">victim</span>' : ''}` },
-          { key: 'secs', label: 'Found in', render: r => this.chips(r.g.secs), csv: r => [...r.g.secs].join(', ') },
+          { key: 'secs', label: 'Found in', render: r => `${this.srcChips(r.g)}<div class="small muted d2-fd">${esc(this.finding(r.g, r.oc))}</div>`, csv: r => this.srcText(r.g) },
+          CX.col(r => [r.value, r.key.slice(r.key.indexOf('|') + 1)]),
           { key: 'refs', label: 'Places', num: true },
-          { key: 'oc', label: 'Other cases', num: true, render: r => r.oc ? `<b class="d2-ocn">${r.oc}</b>` : '–' },
           { key: 'score', label: 'Link score', num: true, render: r => `<span class="d2-score" style="--w:${Math.min(100, r.score * 2)}%"><i></i>${r.score}</span>` }] });
     };
     $$('.d2-ty', main).forEach(b => b.onclick = () => draw(b.dataset.ty)); draw('');
@@ -181,7 +204,7 @@ const Dash2 = {
     el.classList.remove('muted', 'small');
     if (!rows.length) { el.innerHTML = `<div class="muted small">Nothing in common with your other ${S.cases.length - 1} case${S.cases.length === 2 ? '' : 's'}.</div>`; return; }
     Table(el, { rows, pageSize: 10, sortKey: 'n', sortDir: -1, exportName: 'common_with_other_cases', onRow: r => this.detail(r.key),
-      columns: [{ key: 'type', label: 'Type', render: r => `<span class="d2-tc" title="${esc((this.TYPE[r.type] || [0, r.type])[1])}">${this.tico(r.type)}<small>${esc((this.TYPE[r.type] || [0, r.type])[1])}</small></span>` }, { key: 'value', label: 'Identifier', render: r => `<b class="mono">${esc(r.value)}</b>` }, { key: 'n', label: 'Cases', num: true }, { key: 'cases', label: 'Other cases' }, { key: 'here', label: 'Places here', num: true }] });
+      columns: [{ key: 'type', label: 'Type', render: r => `<span class="d2-tc" title="${esc((this.TYPE[r.type] || [0, r.type])[1])}">${this.tico(r.type)}<small>${esc((this.TYPE[r.type] || [0, r.type])[1])}</small></span>` }, { key: 'value', label: 'Identifier', render: r => `<b class="mono">${esc(r.value)}</b>` }, { key: 'src', label: 'Found in', render: r => this.srcChips(r.g), csv: r => this.srcText(r.g) }, CX.col(r => [r.value, r.key.slice(r.key.indexOf('|') + 1)]), { key: 'n', label: 'Cases', num: true }, { key: 'cases', label: 'Other cases' }, { key: 'here', label: 'Places here', num: true }] });
   },
 
   html() {

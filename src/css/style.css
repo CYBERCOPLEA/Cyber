@@ -1840,3 +1840,8 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
 
 /* Brand & Model from IMEI */
 .tacm{white-space:normal}
+
+/* Linked Suspects: exact sources */
+.d2-srcs{display:flex;flex-wrap:wrap;gap:3px;min-width:270px;max-width:380px}
+.d2-srcs .d2-sec b{font-weight:800;margin-left:2px}
+.d2-fd{margin-top:3px;max-width:340px;white-space:normal}
