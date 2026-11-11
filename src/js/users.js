@@ -16,7 +16,7 @@ const Users = {
   },
   async live() { const L = typeof Off !== 'undefined' ? await Off.live() : {}; return L; },
   async admin(op, x) {
-    const L = await this.live(); if (!L.url || !L.key) throw new Error('Connect your Google Sheet first (Office Work › Crime Data › 🔴 Live Data Form by Police)');
+    const L = await this.live(); if (!L.url || !L.key) throw new Error('Connect your Google Sheet first (⚙ Settings › ☁ Google Sheet & Apps Script)');
     const r = await this.post(L.url, Object.assign({ fn: 'uadmin', key: L.key, op }, x || {}));
     if (r.ver && r.ver !== L.ver) { L.ver = r.ver; await Off.liveSave(); }
     return r;
@@ -147,10 +147,10 @@ Pages.sadmin = main => {
 Object.assign(Users, {
   async draw(main, st) {
     const conn = $('#saConn', main), body = $('#saBody', main), L = await this.live();
-    const bad = (t, btn) => { conn.innerHTML = `<div class="note warn sa-conn">${t} ${btn ? '<button class="btn sm primary" id="saLv">🔴 Open Live Data Form Setup</button>' : ''}</div>`; const x = $('#saLv', conn); if (x) x.onclick = () => Off.liveOpen ? Off.liveOpen(() => { }) : go('offx', 'crime'); };
-    if (!L.url || !L.key) { bad('<b>Connect your Google Sheet first.</b> User logins are kept in the same Google Sheet as your Live Data Form by Police. Set it up once, then come back here.', 1); body.innerHTML = ''; return; }
+    const bad = (t, btn) => { conn.innerHTML = `<div class="note warn sa-conn">${t} ${btn ? '<button class="btn sm primary" id="saLv">⚙ Open Settings › Google Sheet &amp; Apps Script</button>' : ''}</div>`; const x = $('#saLv', conn); if (x) x.onclick = () => { go('settings'); setTimeout(() => { const c = $('#cloudCard'); c && c.scrollIntoView({ behavior: 'smooth' }); }, 500); }; };
+    if (!L.url || !L.key) { bad('<b>Connect your Google Sheet first.</b> Set it up once in Settings › ☁ Google Sheet &amp; Apps Script (it also serves the Live Data Form by Police), then come back here.', 1); body.innerHTML = ''; return; }
     let d = this._data;
-    if (!d) { try { d = this._data = await this.admin('list', { log: 1 }); } catch (e) { bad(/Unknown request/.test(e.message) ? '<b>Update your Google script once</b> (new version ' + Off.GSVER + ' adds user control). Open the setup, copy the new script, paste it over the old one in Apps Script and choose Deploy › Manage deployments › Edit › New version. The link stays the same.' : '❌ ' + esc(e.message), 1); body.innerHTML = ''; return; } }
+    if (!d) { try { d = this._data = await this.admin('list', { log: 1 }); } catch (e) { bad(/Unknown request/.test(e.message) ? '<b>Update your Google script once</b> (new version ' + Off.GSVER + ' adds user control) in Settings › ☁ Google Sheet &amp; Apps Script. The link stays the same.' : '❌ ' + esc(e.message), 1); body.innerHTML = ''; return; } }
     if ((d.ver || 0) < Off.GSVER) { bad('<b>Update your Google script once</b> – it is version ' + (d.ver || '?') + ', the tool needs ' + Off.GSVER + '.', 1); }
     else conn.innerHTML = `<div class="sa-ok">🟢 Connected to your Google Sheet${L.sheet ? ` · <a href="${esc(L.sheet)}" target="_blank" rel="noopener">open sheet ↗</a>` : ''} · logins checked live · case data never goes online</div>`;
     const U = d.users || [], day = Date.now() - 864e5, temp = u => u.tempAt && !u.ownAt;

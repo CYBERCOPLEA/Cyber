@@ -2101,7 +2101,11 @@ html.no-crimeEdit #cdImpM,html.no-crimeEdit #cdScan,html.no-crimeEdit #cdFile,ht
 .ua-r.on,.ua-rights.pick .ua-r{opacity:1}.ua-r b{display:block;font-size:13px}.ua-r small{color:var(--text-muted);font-size:11.5px}
 .ua-rights.pick .ua-r{cursor:pointer}.ua-rights.pick input{width:auto;margin-top:3px}
 .lg-sa{display:block;padding:8px 10px;border-radius:9px;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.35);color:var(--text)}
-#roleBadge{max-width:170px;overflow:hidden;text-overflow:ellipsis}
+#roleBadge.rb-user{max-width:170px;overflow:hidden;text-overflow:ellipsis}
+
+/* Settings: Google Sheet & Apps Script */
+.cl-st{margin:10px 0;padding:8px 12px;border-radius:9px;font-size:13px;background:rgba(22,163,74,.12);border:1px solid rgba(22,163,74,.45)}
+.cl-st.old{background:rgba(217,119,6,.12);border-color:rgba(217,119,6,.5)}.cl-st.bad{background:rgba(220,38,38,.1);border-color:rgba(220,38,38,.45)}
 
 </style>
 </head>
@@ -2150,7 +2154,7 @@ html.no-crimeEdit #cdImpM,html.no-crimeEdit #cdScan,html.no-crimeEdit #cdFile,ht
         <div class="hp-feat" style="--fc:#06b6d4"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><div><b>Analytics</b><p>The same mobile, account, IP or e-mail across complaints, banks and platforms.</p></div></div>
         <div class="hp-feat" style="--fc:#eab308"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h5"/></svg></span><div><b>Case File &amp; Notices</b><p>Case reports, notices to banks and platforms, and CSV / PDF exports.</p></div></div>
     </section>
-    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-12 00:06 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
+    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-12 00:15 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
   </div>
 
   <div class="lg-wrap" id="lgWrap" aria-hidden="true">
@@ -5575,7 +5579,7 @@ const Mail = {
     anchor.parentNode.insertBefore(card, anchor.nextSibling);
     Mail.gLoad().then(async g => { const box = $('#mlG', card); if (!box) return; const L = typeof Off !== 'undefined' ? await Off.live() : {};
       box.innerHTML = g ? `<div class="lv-st" style="margin-bottom:8px">✔ <b>E-mail code through your Google script is ON</b> – the code goes to <b>${esc(g.mail)}</b> (the Google account that owns your Live Data Form sheet). No EmailJS needed. <button class="btn sm" id="mlGt">Send test code</button></div>`
-        : `<div class="lv-old" style="margin-bottom:8px"><b>Easiest way (recommended):</b> use your Live Data Form Google script to e-mail the code – no EmailJS account needed. ${L.url ? `Your script is older than needed: paste the new script (Crime Data ▸ 🔴 Live Data Form ▸ 📋 Copy new script), then in Apps Script choose <b>setupEmail</b> ▸ ▶ Run ▸ Allow, and Deploy ▸ Manage deployments ▸ ✏ Edit ▸ New version ▸ Deploy.` : 'Connect the Live Data Form first (Office Work ▸ Crime Data ▸ 🔴 Live Data Form by Police), then in Apps Script choose <b>setupEmail</b> ▸ ▶ Run ▸ Allow.'}</div>`;
+        : `<div class="lv-old" style="margin-bottom:8px"><b>Easiest way (recommended):</b> use your Live Data Form Google script to e-mail the code – no EmailJS account needed. ${L.url ? `Your script is older than needed: paste the new script (Crime Data ▸ 🔴 Live Data Form ▸ 📋 Copy new script), then in Apps Script choose <b>setupEmail</b> ▸ ▶ Run ▸ Allow, and Deploy ▸ Manage deployments ▸ ✏ Edit ▸ New version ▸ Deploy.` : 'Connect your Google Sheet first (☁ Google Sheet &amp; Apps Script card above), then in Apps Script choose <b>setupEmail</b> ▸ ▶ Run ▸ Allow.'}</div>`;
       const t = $('#mlGt', card); if (t) t.onclick = async () => { t.disabled = true; try { const to = await Mail.gSend('123456', 'Test e-mail – this is not a real code'); UI.toast('Test code sent to ' + to + '. Check inbox / Spam.', 7000); } catch (e) { UI.toast(e.message + ' – In Apps Script choose setupEmail ▸ Run ▸ Allow once, then Deploy ▸ Manage deployments ▸ Edit ▸ New version.', 10000); } t.disabled = false; }; });
     const read = () => ({ email: $('#mlEmail').value.trim(), service: $('#mlSvc').value.trim(), template: $('#mlTpl').value.trim(), key: $('#mlKey').value.trim(), on: $('#mlOn').checked });
     $('#mlSave', card).onclick = async () => {
@@ -16429,7 +16433,7 @@ const Users = {
   },
   async live() { const L = typeof Off !== 'undefined' ? await Off.live() : {}; return L; },
   async admin(op, x) {
-    const L = await this.live(); if (!L.url || !L.key) throw new Error('Connect your Google Sheet first (Office Work › Crime Data › 🔴 Live Data Form by Police)');
+    const L = await this.live(); if (!L.url || !L.key) throw new Error('Connect your Google Sheet first (⚙ Settings › ☁ Google Sheet & Apps Script)');
     const r = await this.post(L.url, Object.assign({ fn: 'uadmin', key: L.key, op }, x || {}));
     if (r.ver && r.ver !== L.ver) { L.ver = r.ver; await Off.liveSave(); }
     return r;
@@ -16560,10 +16564,10 @@ Pages.sadmin = main => {
 Object.assign(Users, {
   async draw(main, st) {
     const conn = $('#saConn', main), body = $('#saBody', main), L = await this.live();
-    const bad = (t, btn) => { conn.innerHTML = `<div class="note warn sa-conn">${t} ${btn ? '<button class="btn sm primary" id="saLv">🔴 Open Live Data Form Setup</button>' : ''}</div>`; const x = $('#saLv', conn); if (x) x.onclick = () => Off.liveOpen ? Off.liveOpen(() => { }) : go('offx', 'crime'); };
-    if (!L.url || !L.key) { bad('<b>Connect your Google Sheet first.</b> User logins are kept in the same Google Sheet as your Live Data Form by Police. Set it up once, then come back here.', 1); body.innerHTML = ''; return; }
+    const bad = (t, btn) => { conn.innerHTML = `<div class="note warn sa-conn">${t} ${btn ? '<button class="btn sm primary" id="saLv">⚙ Open Settings › Google Sheet &amp; Apps Script</button>' : ''}</div>`; const x = $('#saLv', conn); if (x) x.onclick = () => { go('settings'); setTimeout(() => { const c = $('#cloudCard'); c && c.scrollIntoView({ behavior: 'smooth' }); }, 500); }; };
+    if (!L.url || !L.key) { bad('<b>Connect your Google Sheet first.</b> Set it up once in Settings › ☁ Google Sheet &amp; Apps Script (it also serves the Live Data Form by Police), then come back here.', 1); body.innerHTML = ''; return; }
     let d = this._data;
-    if (!d) { try { d = this._data = await this.admin('list', { log: 1 }); } catch (e) { bad(/Unknown request/.test(e.message) ? '<b>Update your Google script once</b> (new version ' + Off.GSVER + ' adds user control). Open the setup, copy the new script, paste it over the old one in Apps Script and choose Deploy › Manage deployments › Edit › New version. The link stays the same.' : '❌ ' + esc(e.message), 1); body.innerHTML = ''; return; } }
+    if (!d) { try { d = this._data = await this.admin('list', { log: 1 }); } catch (e) { bad(/Unknown request/.test(e.message) ? '<b>Update your Google script once</b> (new version ' + Off.GSVER + ' adds user control) in Settings › ☁ Google Sheet &amp; Apps Script. The link stays the same.' : '❌ ' + esc(e.message), 1); body.innerHTML = ''; return; } }
     if ((d.ver || 0) < Off.GSVER) { bad('<b>Update your Google script once</b> – it is version ' + (d.ver || '?') + ', the tool needs ' + Off.GSVER + '.', 1); }
     else conn.innerHTML = `<div class="sa-ok">🟢 Connected to your Google Sheet${L.sheet ? ` · <a href="${esc(L.sheet)}" target="_blank" rel="noopener">open sheet ↗</a>` : ''} · logins checked live · case data never goes online</div>`;
     const U = d.users || [], day = Date.now() - 864e5, temp = u => u.tempAt && !u.ownAt;
@@ -16673,6 +16677,66 @@ Object.assign(Users, {
   }
   /* open the join link on an open page too */
   window.addEventListener('hashchange', () => { const m2 = location.hash.match(/#join=([^&]+)/); if (m2 && SUD_ED === 'user') { const o = Users.parse(decodeURIComponent(m2[1])); if (o) { localStorage.setItem('sud-join', JSON.stringify(o)); history.replaceState(null, '', location.pathname + location.search); if ($('#app').classList.contains('hidden')) showLogin(); } } });
+})();
+
+</script>
+<script>
+/* cloud.js – one place (Settings, Super Admin only) to set up, update and check the Google Sheet + Apps Script used by the whole tool:
+   Live Data Form by Police, user logins (Super Admin Control) and the e-mail password-reset code. */
+'use strict';
+const Cloud = {
+  STEPS_NEW: `<ol class="lv-steps">
+      <li>Sign in to your <b>official Google account</b> and open <a href="https://sheets.new" target="_blank" rel="noopener">sheets.new</a> (a new blank Google Sheet). Name it e.g. <i>SudarshanAshtra – Server</i>.</li>
+      <li>In the sheet: <b>Extensions → Apps Script</b>. Delete what is there and paste the script (<b>📋 Copy Script</b> below). Press 💾 <b>Save</b>. Then pick <b>setupEmail</b> in the function list at the top ▸ ▶ <b>Run</b> ▸ <b>Allow</b> (once).</li>
+      <li><b>Deploy → New deployment</b> → ⚙ type <b>Web app</b> → Execute as: <b>Me</b> · Who has access: <b>Anyone</b> → <b>Deploy</b> → <b>Authorize access</b> (your account → Advanced → Go to project → Allow).</li>
+      <li>Copy the <b>Web app URL</b> (ends with <code>/exec</code>), paste it below and press <b>🔗 Connect</b>.</li></ol>`,
+  STEPS_UPD: `<ol class="lv-steps">
+      <li>Press <b>📋 Copy Script</b> here.</li>
+      <li>Open your Google Sheet → <b>Extensions → Apps Script</b>. Select all old code (Ctrl+A), paste (Ctrl+V), press 💾 <b>Save</b>.</li>
+      <li><b>Deploy → Manage deployments</b> → ✏ <b>Edit</b> → Version: <b>New version</b> → <b>Deploy</b>. (Not "New deployment" – that makes a new link.)</li>
+      <li>Come back and press <b>🔄 Check Now</b>.</li></ol>`,
+  async card(main) {
+    if (!Role.admin() || typeof Off === 'undefined') return;
+    const L = await Off.live(), cf = await Off.cfg();
+    if (!L.key) { L.key = [...crypto.getRandomValues(new Uint8Array(24))].map(b => b.toString(16).padStart(2, '0')).join(''); await Off.liveSave(); }
+    const code = Off.liveCode(L, cf.office || Off.OFFICE), old = L.url && (L.ver || 0) < Off.GSVER;
+    let card = $('#cloudCard', main); if (!card) { card = document.createElement('div'); card.className = 'card'; card.id = 'cloudCard'; const r = $('#roleCard', main) || $('#vaultCard', main) || main.querySelector('.grid'); r ? r.parentNode.insertBefore(card, r.nextSibling) : main.appendChild(card); }
+    card.innerHTML = `<h3>☁ Google Sheet &amp; Apps Script – Whole Tool <span class="badge">Super Admin</span></h3>
+      <div class="sub">One Google Sheet in your own account serves the whole tool: <b>user logins</b> (Super Admin Control), <b>Live Data Form by Police</b> and the <b>e-mail password-reset code</b>. Set it up once and update it here. Case data never goes there.</div>
+      ${L.url ? `<div class="cl-st ${L.err ? 'bad' : old ? 'old' : ''}">${L.err ? '⚠ ' + esc(L.err) : old ? '🟠 Connected – script is old' : '🟢 Connected'} · script version <b>${L.ver || '?'}</b> (tool needs ${Off.GSVER}) · last check ${L.last ? esc(new Date(L.last).toLocaleString('en-IN')) : '–'}${L.mail ? ' · e-mail ' + esc(L.mail) : ''}${L.sheet ? ` · <a href="${esc(L.sheet)}" target="_blank" rel="noopener">Open Google Sheet ↗</a>` : ''}</div>` : '<div class="cl-st bad">⚪ Not connected yet</div>'}
+      ${old ? `<div class="lv-old"><b>⚠ Update your Google script once</b> – the link stays the same:${this.STEPS_UPD}</div>` : ''}
+      ${!L.url ? this.STEPS_NEW : ''}
+      <div class="row" style="gap:6px;flex-wrap:wrap;margin-top:8px"><button class="btn primary" id="clCp">📋 Copy Script</button><button class="btn" id="clDl">⬇ Download Script</button>${L.url ? '<button class="btn" id="clChk">🔄 Check Now</button><button class="btn" id="clSet">⚙ Setup Steps / Change Link</button><button class="btn danger" id="clOff">Disconnect</button>' : ''}<span class="small muted">The script has your private key inside – do not share it.</span></div>
+      <div id="clNew" class="${L.url ? 'hidden' : ''}" style="margin-top:8px">${L.url ? this.STEPS_NEW : ''}<div class="row" style="gap:6px"><input id="clUrl" class="grow" placeholder="https://script.google.com/macros/s/…/exec" value="${esc(L.url || '')}"><button class="btn primary" id="clGo">🔗 Connect</button></div></div>
+      ${L.url ? `<div class="small muted" style="margin-top:8px">Web app link: <code style="word-break:break-all">${esc(L.url)}</code></div>` : ''}`;
+    const cp = () => { navigator.clipboard ? navigator.clipboard.writeText(code).then(() => UI.toast('Script copied – paste it in Apps Script'), () => Off.liveShow(code)) : Off.liveShow(code); };
+    $('#clCp', card).onclick = cp; $('#clDl', card).onclick = () => UI.download('SudarshanAshtra_Code.gs.txt', code);
+    if ($('#clSet', card)) $('#clSet', card).onclick = () => $('#clNew', card).classList.toggle('hidden');
+    if ($('#clChk', card)) $('#clChk', card).onclick = async () => { const b = $('#clChk', card); b.disabled = true; b.textContent = '⏳ Checking…'; try { const j = await Off.liveApi({ api: 'ping' }); Object.assign(L, { sheet: j.sheet || L.sheet, ver: j.ver || 0, mail: j.mail || '', last: new Date().toISOString(), err: '' }); await Off.liveSave(); UI.toast((j.ver || 0) >= Off.GSVER ? '✔ Script is up to date' : '🟠 Script is still old – update it'); } catch (e) { L.err = e.message; await Off.liveSave(); UI.toast('Could not reach the script: ' + e.message, 7000); } Users._data = null; this.card(main); };
+    if ($('#clOff', card)) $('#clOff', card).onclick = async () => { if (!UI.confirm('Disconnect the Google Sheet? User logins on the User link stop working and the Live Data Form stops coming in, until you connect again.')) return; clearInterval(Off._lsT); L.url = ''; L.err = ''; await Off.liveSave(); this.card(main); };
+    $('#clGo', card).onclick = async () => {
+      const u = $('#clUrl', card).value.trim(), g = $('#clGo', card); if (!/^https:\/\/script\.google(usercontent)?\.com\/.+/.test(u)) return UI.toast('Paste the Web app URL from Apps Script (https://script.google.com/…/exec)', 6000);
+      g.disabled = true; g.textContent = '⏳ Checking…'; const o = L.url; L.url = u;
+      try { const j = await Off.liveApi({ api: 'ping' }); Object.assign(L, { sheet: j.sheet || '', ver: j.ver || 0, mail: j.mail || '', paused: 0, err: '', last: new Date().toISOString() }); await Off.liveSave(); UI.toast('✔ Connected to your Google Sheet'); Off.liveStart && Off.liveStart(); Users._data = null; this.card(main); }
+      catch (e) { L.url = o; await Off.liveSave(); g.disabled = false; g.textContent = '🔗 Connect'; UI.toast('Could not connect: ' + e.message, 8000); }
+    };
+  }
+};
+(() => {
+  const os = Pages.settings; Pages.settings = main => { os(main); Cloud.card(main); };
+  /* Live Data Form by Police: setup and script now live in Settings */
+  if (typeof Off === 'undefined' || !Off.liveOpen) return;
+  const lo = Off.liveOpen;
+  Off.liveOpen = async function (re) {
+    const L = await this.live();
+    if (!L.url) { const b = UI.modal('🔴 Live Data Form by Police', `<p>First connect your Google Sheet once in <b>⚙ Settings › ☁ Google Sheet &amp; Apps Script</b>. The same sheet serves user logins and this form.</p>`, [{ label: 'Close', onClick: UI.closeModal }, { label: '⚙ Open Settings', cls: 'primary', onClick: () => { UI.closeModal(); go('settings'); setTimeout(() => { const c = $('#cloudCard'); c && c.scrollIntoView({ behavior: 'smooth' }); }, 400); } }]); return b; }
+    const r = await lo.apply(this, arguments), m = $('#mdBody');
+    ['#lvSet', '#lvOff'].forEach(s => { const x = $(s, m); if (x) x.remove(); }); const su = $('#lvSetup', m); if (su) su.remove();
+    const old = $('.lv-old', m); if (old) old.innerHTML = '<b>⚠ Your Google script is old.</b> Update it once in <a href="#" class="cl-go">⚙ Settings › ☁ Google Sheet &amp; Apps Script</a>.';
+    const st = $('.lv-st', m); if (st && !$('.cl-go2', m)) st.insertAdjacentHTML('beforeend', '<div class="small muted" style="margin-top:6px">Script setup / update / disconnect: <a href="#" class="cl-go cl-go2">⚙ Settings › ☁ Google Sheet &amp; Apps Script</a></div>');
+    $$('.cl-go', m).forEach(a => a.onclick = e => { e.preventDefault(); UI.closeModal(); go('settings'); setTimeout(() => { const c = $('#cloudCard'); c && c.scrollIntoView({ behavior: 'smooth' }); }, 400); });
+    return r;
+  };
 })();
 
 </script>
