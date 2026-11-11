@@ -72,11 +72,12 @@ const emptyCase = () => ({ txns: [], kyc: [], social: [], ncrp: [], caf: [], not
 let saveTimer = null;
 function saveCase() {
   clearTimeout(saveTimer);
-  saveTimer = setTimeout(async () => { if (S.caseId) await DB.set('case:' + S.caseId, S.data); }, 300);
+  if (S.caseId === '__all') { if (typeof AllMode !== 'undefined') AllMode.warn(); Analysis.invalidate(); return; }
+  saveTimer = setTimeout(async () => { if (S.caseId && S.caseId !== '__all') await DB.set('case:' + S.caseId, S.data); }, 300);
   Analysis.invalidate();
 }
 async function saveMeta() { await DB.set('settings', S.settings); await DB.set('cases', S.cases); await DB.set('caseId', S.caseId); }
-const activeCase = () => S.cases.find(c => c.id === S.caseId) || {};
+const activeCase = () => S.caseId === '__all' ? { id: '__all', all: true, name: 'All Cases (' + S.cases.length + ')', status: '' } : (S.cases.find(c => c.id === S.caseId) || {});
 
 /* ---------- Field definitions ---------- */
 // Each field: key, label, patterns (matched against normalised header text, in order)

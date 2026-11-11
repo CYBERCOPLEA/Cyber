@@ -16,7 +16,7 @@ const Hub = {
   /* opt: { mode: 'new' | 'old' | 'auto', hint: kind, title, files } */
   open(opt = {}) {
     const keep = this.st && this.st.Q.length && !this.st.done && !opt.fresh;
-    if (!keep) this.st = { mode: opt.mode || 'old', sel: S.caseId, edit: false, Q: [], hint: opt.hint || '', title: opt.title || '', busy: false, done: false, log: '' };
+    if (!keep) this.st = { mode: opt.mode || 'old', sel: S.caseId === '__all' ? AllMode.pick() : S.caseId, edit: false, Q: [], hint: opt.hint || '', title: opt.title || '', busy: false, done: false, log: '' };
     else { if (opt.mode) this.st.mode = opt.mode; if (opt.hint) this.st.hint = opt.hint; }
     this.draw(); if (opt.files) this.add(opt.files);
   },
@@ -127,6 +127,7 @@ const Hub = {
     s.form = null; s.busy = true; s.mode = s.mode === 'new' ? 'old' : s.mode; s.sel = S.caseId; s.edit = false; this.draw();
     const log = t => { s.log = t; const b = this.body(); if (b) $('#hbLog', b).innerHTML = t; };
     const todo = s.Q.filter(q => !q.ok && q.kind !== 'skip');
+    if (S.caseId === '__all' && todo.some(q => !this.CCT.includes(q.kind))) { s.busy = false; s.mode = 'old'; s.sel = AllMode.pick(); this.draw(); const e = $('#hbErr', this.body()); if (e) e.textContent = 'Data files (bank, telecom, social, NCRP…) need one case. Choose the case above, then press Import All again.'; return; }
     /* 1 · CCTNS: FIR, CD, CS / PPI / FR, case documents (OCR when scanned) */
     const cc = todo.filter(q => this.CCT.includes(q.kind));
     if (cc.length) {
@@ -144,6 +145,7 @@ const Hub = {
         this.redraw();
       }
       for (const [k, g] of G) { if (!g.m && k !== '_') continue; const fins = g.items.filter(x => x.kd.k === 'fin'); if (g.m && !g.m.fin && fins.length) g.m.fin = fins[0].kd.type;
+        if (k === '_' && S.caseId === '__all') { g.items.forEach(x => { x.q.res = '⚠ FIR No. not found – choose Existing Case and import again'; }); continue; }
         const id = await CDX.apply(g.m ? g : { m: null }, g.items, k === '_' ? S.caseId : null);
         const c = S.cases.find(x => x.id === id); g.items.forEach(x => { if (!/^(Error|⚠)/.test(x.q.res)) x.q.res += ' → ' + (c ? c.name : 'case'); x.q.ok = 1; }); }
       await saveMeta(); fillCaseSel(); CDX._m = null;

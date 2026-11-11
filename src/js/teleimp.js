@@ -6,7 +6,7 @@ const TelImp = {
   KN: { cdr: 'CDR', ipdr: 'IPDR', tdr: 'TDR (tower dump)', sms: 'SMS' },
   open(sel) {
     const k = TK[S.telKind] ? S.telKind : 'cdr', K = this.KN[k], col = TK[k][1];
-    sel = sel || this._sel || S.caseId; if (sel !== 'new' && !S.cases.some(c => c.id === sel)) sel = S.caseId; this._sel = sel;
+    sel = sel || this._sel || S.caseId; if (sel !== 'new' && !S.cases.some(c => c.id === sel)) sel = S.caseId === '__all' ? AllMode.pick() : S.caseId; this._sel = sel;
     const isNew = sel === 'new', c = isNew ? { year: String(new Date().getFullYear()), ps: activeCase().ps || '', district: activeCase().district || '', state: activeCase().state || 'UP – Uttar Pradesh', io: activeCase().io || '', io_mobile: activeCase().io_mobile || '', io_posting: activeCase().io_posting || '' } : S.cases.find(x => x.id === sel) || {};
     const here = !isNew && sel === S.caseId ? ['cdr', 'ipdr', 'tdr', 'sms'].map(x => [x.toUpperCase(), Tel.of(x).length, uniq(Tel.of(x).map(r => r._src)).length]) : null;
     const F = CaseBox.F.filter(f => ['ctype', 'fir', 'year', 'ps', 'district', 'state', 'io', 'io_mobile', 'io_posting', 'section'].includes(f[0]));
