@@ -110,7 +110,7 @@ const OneFile = {
     if (this.dir === null && !this._ld) { this._ld = 1; DB.get('ofDir').then(h => { this.dir = h || null; }).catch(() => { }); }
     if (!$('#ofCss')) document.head.insertAdjacentHTML('beforeend', `<style id="ofCss">${this.CSS}</style>`);
     const c = activeCase(), E = S.data.oneFile;
-    el.innerHTML = `<div class="of-bar"><button class="btn primary" id="ofExp">⬇ Export Report ▾</button><button class="btn" id="ofEd" title="Edit the text, tables and formatting – then Save">✏ Edit</button><button class="btn" id="ofAll">⤢ Open All</button><button class="btn" id="ofNone">⤡ Close All</button><span class="spacer"></span><button class="btn" id="ofDir" title="Save the Case One File of every case into a folder on this computer – FIR Cases and NCRP Without FIR sub-folders. Kept up to date automatically.">📁 ${this.dir ? 'Save All Cases Now' : 'Save All Cases To A Folder'}</button><span class="small muted" id="ofSt">${esc(this._last)}</span></div>
+    el.innerHTML = `<div class="of-bar"><button class="btn primary" id="ofExp">⬇ Export Report ▾</button><button class="btn" id="ofEd" title="Edit the text, tables and formatting – then Save">✏ Edit</button><button class="btn" id="ofAll">⤢ Open All</button><button class="btn" id="ofNone">⤡ Close All</button><span class="spacer"></span><button class="btn" id="ofDir" title="Save the Case One File of every case into a folder on this computer – FIR Cases and NCRP Without FIR sub-folders, plus a daily backup of all cases (Backups, last 7 days). Kept up to date automatically.">📁 ${this.dir ? 'Save All Cases Now' : 'Save All Cases To A Folder'}</button><span class="small muted" id="ofSt">${esc(this._last)}</span></div>
       <div id="ofFmt" class="of-fmt hidden"></div>
       ${E && E.html ? `<div class="of-ed">✏ <b>Edited by IO</b> on ${esc(new Date(E.when).toLocaleString('en-IN'))} – this copy is used for export and the folder. New data imported later is not added to it. <button class="btn sm" id="ofRe">↺ Rebuild From Latest Data</button></div>` : ''}
       <div id="ofDoc">${this.html(c)}</div>`;
@@ -192,10 +192,23 @@ const OneFile = {
     if (ask && (!this.dir || !(await this.perm(true)))) { try { this.dir = await window.showDirectoryPicker({ id: 'onefile', mode: 'readwrite' }); await DB.set('ofDir', this.dir); } catch (e) { return; } }
     if (!(await this.perm(false))) return;
     let n = 0; for (const c of S.cases) { try { await this.write(c); n++; } catch (e) { console.warn('onefile save', e); } }
-    this._last = `✔ ${n} Case One File(s) saved in "${this.dir.name}" · ${new Date().toLocaleTimeString('en-IN')}`; const s = $('#ofSt'); if (s) s.textContent = this._last; UI.toast(this._last, 5000);
+    let bk = false; try { bk = await this.backup(true); } catch (e) { console.warn('backup', e); }
+    this._last = `✔ ${n} Case One File(s) saved in "${this.dir.name}"${bk ? ' + backup of all cases (Backups folder, last 7 days kept)' : ''} · ${new Date().toLocaleTimeString('en-IN')}`; const s = $('#ofSt'); if (s) s.textContent = this._last; UI.toast(this._last, 5000);
+  },
+  /* daily backup of all cases (same file as Settings › Backup) into <folder>/Backups – last 7 kept */
+  async backup(force) {
+    if (!this.dir || !(await this.perm(false))) return false; const day = today(), last = await DB.get('ofBak');
+    if (!force && last === day) return false;
+    if (S.caseId && !isScope(S.caseId)) await DB.set('case:' + S.caseId, S.data);
+    const data = {}; for (const c of S.cases) data[c.id] = await DB.get('case:' + c.id) || emptyCase();
+    const bd = await this.dir.getDirectoryHandle('Backups', { create: true }), nm = 'SudarshanAshtra_backup_' + day + '.json';
+    const w = await (await bd.getFileHandle(nm, { create: true })).createWritable(); await w.write(JSON.stringify({ app: 'sudarshanastra', version: 1, exported: new Date().toISOString(), cases: S.cases, data })); await w.close();
+    const old = []; for await (const [n] of bd.entries()) if (/^SudarshanAshtra_backup_\d{4}-\d\d-\d\d\.json$/.test(n)) old.push(n);
+    for (const n of old.sort().reverse().slice(7)) { try { await bd.removeEntry(n); } catch (e) { } }
+    await DB.set('ofBak', day); return true;
   },
   /* after a change to the open case, rewrite its file (quietly, at most every 20 s) */
-  auto() { if (!this.dir || isScope(S.caseId)) return; clearTimeout(this._t); const id = S.caseId; this._t = setTimeout(async () => { const c = S.cases.find(x => x.id === id); if (!c || !(await this.perm(false))) return; try { await this.write(c); this._last = `✔ Auto-saved in "${this.dir.name}" · ${new Date().toLocaleTimeString('en-IN')}`; const s = $('#ofSt'); if (s) s.textContent = this._last; } catch (e) { } }, 20000); }
+  auto() { if (!this.dir || isScope(S.caseId)) return; clearTimeout(this._t); const id = S.caseId; this._t = setTimeout(async () => { const c = S.cases.find(x => x.id === id); if (!c || !(await this.perm(false))) return; try { await this.write(c); const bk = await this.backup().catch(() => false); this._last = `✔ Auto-saved in "${this.dir.name}"${bk ? ' + daily backup' : ''} · ${new Date().toLocaleTimeString('en-IN')}`; const s = $('#ofSt'); if (s) s.textContent = this._last; } catch (e) { } }, 20000); }
 };
 (() => {
   const M = PAGE_META.others; if (M) { M.order = ['onefile', ...M.order.filter(k => k !== 'onefile')]; M.names = Object.assign({}, M.names, { onefile: '📘 Case One File' }); M.extra = [...(M.extra || []), ['onefile', 'Case One File']]; M.desc = 'Case One File (the whole case in one document), case details, notes and tasks, notice drafts, reports and export, and helper tools.'; }

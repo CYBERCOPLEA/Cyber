@@ -267,7 +267,12 @@ async function boot() {
   }
   $('#loginForm').onsubmit = async e => {
     e.preventDefault();
-    if ($('#lgUser').value.trim() !== S.settings.user || hashPass($('#lgPass').value, S.settings.salt) !== S.settings.hash) { $('#lgErr').textContent = 'Wrong login ID or password'; return; }
+    const LK = 'sud-lgfail', F = (() => { try { return JSON.parse(localStorage.getItem(LK) || '{}'); } catch (x) { return {}; } })(), now = Date.now();
+    if (F.until && now < F.until) { $('#lgErr').textContent = `Too many wrong tries – wait ${Math.ceil((F.until - now) / 1000)} seconds`; return; }
+    if ($('#lgUser').value.trim() !== S.settings.user || hashPass($('#lgPass').value, S.settings.salt) !== S.settings.hash) {
+      F.n = (F.n || 0) + 1; if (F.n % 5 === 0) F.until = now + Math.min(900, 30 * 2 ** (F.n / 5 - 1)) * 1000; try { localStorage.setItem(LK, JSON.stringify(F)); } catch (x) { }
+      $('#lgErr').textContent = F.until && now < F.until ? `Too many wrong tries – wait ${Math.ceil((F.until - now) / 1000)} seconds` : `Wrong login ID or password${F.n >= 3 ? ` (${5 - F.n % 5} ${5 - F.n % 5 === 1 ? 'try' : 'tries'} left before a wait)` : ''}`; return; }
+    try { localStorage.removeItem(LK); } catch (x) { }
     $('#login').classList.add('hidden'); $('#app').classList.remove('hidden'); showLogin(false); lastAct = Date.now(); Sess.save();
     if (!S.data) await start();
     if (S.settings.mustChange) { go('settings'); UI.toast('Please set your own login ID and password now', 5000); }
