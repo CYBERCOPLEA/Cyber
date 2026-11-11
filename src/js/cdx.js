@@ -289,7 +289,7 @@ const CDX = {
     const kp = [['FIR', [r.fir.no, r.fir.date].filter(Boolean).join(' · ')], ['Sections', r.fir.sections.join(', ')], ['Complainant', [r.fir.complainant, r.fir.mobile].filter(Boolean).join(' · ')], ['Incident', r.fir.incident], ['Amount', r.fir.amount ? fmtINR(r.fir.amount) : ''], ['Case Diary', r.L.length ? `${r.L.length} parts · Last CD ${r.cdc.last ? r.cdc.last.no : ''}${r.cdc.last && r.cdc.last.prep ? ' · ' + this.dmy(r.cdc.last.prep) : ''}` : ''], ['IO', c.io || r.io], ['Status', c.final ? (c.final.type === 'PPI' ? 'CS-PPI' : c.final.type) + (c.final.no ? ' No. ' + c.final.no : '') + (c.final.date ? ' · ' + this.dmy(c.final.date) : '') : (r.L.length ? 'Under Investigation' : '')]].filter(x => x[1]);
     const pendA = r.agencies.filter(a => a.status === 'Pending').length + r.items.filter(i => i.status !== 'Received').length, gotA = r.agencies.filter(a => a.status === 'Received').length + r.items.filter(i => i.status === 'Received').length;
     at.insertAdjacentHTML('afterend', `<div class="card cdx" id="cdxG"><div class="d2-hd"><h3>🧭 Case At A Glance</h3><span class="sub">Read from the FIR and every case-diary part of this case. What is required, what is received, what is pending and from whom – with suggestions for the IO.</span>
-      <div class="cdx-bt"><button class="btn primary" id="cdxImp">📦 Import CCTNS Case (Zip / Folder)</button>${has ? '<button class="btn cdx-deep" id="cdxExp" title="Hindi Short Report, Hindi Deep Brief Report, Word, Excel">⬇ Export Report ▾</button>' : ''}</div></div>
+      <div class="cdx-bt"><button class="btn primary" id="cdxImp">📦 Import CCTNS Case (Zip / Folder)</button>${has ? '<button class="btn cdx-deep" id="cdxExp" title="Hindi Short / Deep Brief Report as PDF, Word, HTML – and Excel">⬇ Export Report ▾</button>' : ''}</div></div>
       ${has ? `<div class="cdx-kp">${kp.map(([k, v]) => `<div><span>${k}</span><b>${esc(v)}</b></div>`).join('')}</div>
       <div class="cdx-sum"><span class="good-t">✔ <b>${gotA}</b> Received</span><span class="bad-t">⏳ <b>${pendA}</b> Pending</span><span>💡 <b>${r.sugg.length}</b> Suggestions</span><span>⚖ <b>${r.secs.filter(s => s.state !== 'ok').length}</b> Section Points</span></div>
       <div class="cdx-g2"><div class="cdx-box"><h4>📄 FIR Content (Gist)</h4><div class="cdx-tx">${esc(this.cut(r.fir.tahrir || r.fir.brief || (st.fir && st.fir.text) || '', 1600)) || '<span class="muted">FIR text not found.</span>'}</div></div>
@@ -322,7 +322,7 @@ const CDX = {
   },
 
   /* ---------- one-page Hindi report (A4) ---------- */
-  report() {
+  report(mode) {
     const c = activeCase(), r = this.analyse(), f = r.fir;
     const got = [...r.items.filter(i => i.status === 'Received').map(i => `${i.value}: ${[i.kyc && 'खाताधारक ' + i.kyc, i.ip && 'आईपी ' + i.ip].filter(Boolean).join(', ') || (i.bank ? i.bank + ' से विवरण प्राप्त' : 'विवरण प्राप्त')} (पर्चा ${i.got.cd})`), ...r.agencies.filter(a => a.status === 'Received' && a.k !== 'bank').map(a => `${a.hi}: ${this.cut(a.last.s, 110)} (पर्चा ${a.last.cd})`)];
     const pend = [...r.items.filter(i => i.status !== 'Received').map(i => `${i.value} – ${i.status === 'Asked' ? `माँगा गया (पर्चा ${i.ask.cd}), ${i.age} दिन से लंबित` : 'अभी माँगा नहीं गया'} – ${i.fromHi}`), ...r.agencies.filter(a => a.status === 'Pending').map(a => `${a.hi} – पर्चा ${a.last.cd} से जवाब लंबित (${a.age} दिन)`)];
@@ -343,8 +343,7 @@ const CDX = {
       <div class="two"><div><h2>6. आगामी कार्यवाही हेतु सुझाव</h2>${li(r.sugg.map(s => s.hi), 6)}</div><div><h2>7. धारा समीक्षा</h2>${sec.length ? '<ol>' + sec.slice(0, 5).map(s => `<li><b>${esc(s.sec)}</b> ${s.state === 'add' ? '(बढ़ाने पर विचार)' : '(पुनः जाँच)'} – ${esc(this.cut(s.why, 90))}</li>`).join('') + '</ol>' : '<p class="m">FIR की धाराएँ तथ्यों के अनुरूप प्रतीत होती हैं।</p>'}</div></div>
       <div class="sg"><div>दिनांक: ${new Date().toLocaleDateString('en-IN')}</div><div>(${esc(c.io || r.io || 'विवेचक')})<br>विवेचक, थाना ${esc(c.ps || 'साइबर क्राइम')}</div></div>
       <div class="ft">यह सारांश SudarshanAshtra द्वारा इसी कम्प्यूटर पर पर्चों से तैयार किया गया है – प्रस्तुत करने से पूर्व विवेचक द्वारा जाँच लें। धारा सुझाव केवल परामर्श हेतु।</div></div>`;
-    const w = window.open('', '_blank'); if (!w) { UI.toast('Pop-up blocked. Allow pop-ups for this page.'); return; }
-    w.document.write(`<!DOCTYPE html><html lang="hi"><head><meta charset="utf-8"><title>संक्षिप्त प्रकरण आख्या – ${esc(f.no)}</title><style>
+    const full = `<!DOCTYPE html><html lang="hi"><head><meta charset="utf-8"><title>संक्षिप्त प्रकरण आख्या – ${esc(f.no)}</title><style>
       @page{size:A4;margin:10mm 11mm} *{box-sizing:border-box} body{margin:0;font:10.6px/1.42 "Nirmala UI","Mangal","Noto Sans Devanagari","Segoe UI",Arial,sans-serif;color:#111;background:#e5e7eb}
       .pg{width:210mm;min-height:297mm;margin:10px auto;background:#fff;padding:10mm 11mm;box-shadow:0 2px 12px rgba(0,0,0,.2)} .hd{text-align:center;border-bottom:2.5px solid #1e3a8a;padding-bottom:4px;margin-bottom:6px}
       .hd .t{font-size:17px;font-weight:800;color:#1e3a8a;letter-spacing:.3px} .hd .s{font-size:11px;color:#333}
@@ -352,8 +351,17 @@ const CDX = {
       h2{font-size:11.6px;margin:7px 0 2px;color:#1e3a8a;border-bottom:1px solid #c7d2fe;padding-bottom:1px} p{margin:2px 0;text-align:justify} ol{margin:2px 0 2px 16px;padding:0} li{margin:1px 0}
       .two{display:grid;grid-template-columns:1fr 1fr;gap:10px} .m{color:#666} .sg{display:flex;justify-content:space-between;margin-top:14px;font-weight:700} .sg div:last-child{text-align:center}
       .ft{margin-top:8px;font-size:9px;color:#666;border-top:1px dashed #bbb;padding-top:3px} .np{text-align:center;margin:8px} .np button{font-size:14px;padding:6px 16px}
-      @media print{body{background:#fff}.pg{margin:0;box-shadow:none;width:auto;min-height:0;padding:0}.np{display:none}}</style></head><body><div class="np"><button onclick="print()">🖨 Print / Save As PDF (A4)</button></div>${html}</body></html>`);
-    w.document.close();
+      @media print{body{background:#fff}.pg{margin:0;box-shadow:none;width:auto;min-height:0;padding:0}.np{display:none}}</style></head><body><div class="np"><button onclick="print()">🖨 Print / Save As PDF (A4)</button></div>${html}</body></html>`;
+    this.out(full, mode, 'Short_Report');
+  },
+  /* view / pdf (print → Save as PDF) / word / html */
+  out(full, mode, nm, w) {
+    const clean = () => full.replace(/<div class="np">[\s\S]*?<\/div>/, '');
+    if (mode === 'doc') return this.save(clean().replace('.pg{width:210mm;', '.pg{').replace(/min-height:297mm;?/, ''), 'application/msword', nm + '.doc');
+    if (mode === 'html') return this.save(full, 'text/html', nm + '.html');
+    w = w || window.open('', '_blank'); if (!w) { UI.toast('Pop-up blocked. Allow pop-ups for this page.'); return; }
+    w.document.open(); w.document.write(mode === 'pdf' ? full.replace('<div class="np">', '<div class="np"><b style="display:block;margin-bottom:6px">In the print box choose “Save as PDF”, paper A4.</b>') : full); w.document.close();
+    if (mode === 'pdf') setTimeout(() => { try { w.focus(); w.print(); } catch (e) { } }, 700);
   },
 
   /* ---------- deep brief report (Hindi, A4, several pages) ---------- */
@@ -361,7 +369,7 @@ const CDX = {
   TH: { mobile: 'मोबाइल', account: 'बैंक खाता', url: 'वेब लिंक', upi: 'यूपीआई', other: 'अन्य' },
   NH: { mobile: 'सीडीआर / सीएएफ / आईपीडीआर, व्हाट्सएप / टेलीग्राम आईपी लॉग', account: 'केवाईसी, स्टेटमेंट, लिंक्ड मोबाइल / आईपी, होल्ड / लियन', url: 'WHOIS, होस्टिंग, पेमेंट गेटवे, सर्वर आईपी', upi: 'यूपीआई केवाईसी व लिंक्ड खाता', other: 'विवरण' },
   async deep(mode) {
-    const w = mode === 'doc' ? null : window.open('', '_blank'); if (!w && mode !== 'doc') { UI.toast('Pop-up blocked. Allow pop-ups for this page.'); return; }
+    const w = mode === 'doc' || mode === 'html' ? null : window.open('', '_blank'); if (!w && mode !== 'doc' && mode !== 'html') { UI.toast('Pop-up blocked. Allow pop-ups for this page.'); return; }
     if (w) w.document.write('<p style="font:16px sans-serif;padding:30px">विस्तृत आख्या तैयार हो रही है…</p>');
     const c = activeCase(), r = this.analyse(), f = r.fir, E = esc, today = new Date().toLocaleDateString('en-IN');
     const sc = s => `<span class="st ${s === 'Received' ? 'g' : s === 'Asked' ? 'w' : 'b'}">${this.HI[s] || s}</span>`;
@@ -424,8 +432,7 @@ const CDX = {
       .sg{display:flex;justify-content:space-between;margin-top:22px;font-weight:700;break-inside:avoid}.sg div:last-child{text-align:center}.ft{margin-top:8px;font-size:9px;color:#666;border-top:1px dashed #bbb;padding-top:3px}
       .np{text-align:center;margin:8px}.np button{font-size:14px;padding:6px 16px}
       *{-webkit-print-color-adjust:exact;print-color-adjust:exact} @media print{body{background:#fff}.pg{margin:0;box-shadow:none;width:auto;padding:0}.np{display:none}}</style></head><body><div class="np"><button onclick="print()">🖨 Print / Save As PDF (A4)</button></div><div class="pg">${H.join('\n')}</div></body></html>`;
-    if (mode === 'doc') { this.save(full.replace(/<div class="np">[\s\S]*?<\/div>/, '').replace('.pg{width:210mm;', '.pg{'), 'application/msword', 'Deep_Brief_Report.doc'); return; }
-    w.document.open(); w.document.write(full); w.document.close();
+    this.out(full, mode, 'Deep_Brief_Report', w);
   },
 
   fname(ext) { const c = activeCase(); return ('FIR_' + (this.analyse().fir.no || c.name || 'case')).replace(/[^\w\-]+/g, '_') + '_' + ext; },
@@ -445,11 +452,13 @@ const CDX = {
   exportMenu(btn) {
     const old = $('.cdx-menu'); if (old) { old.remove(); return; }
     const m = document.createElement('div'); m.className = 'cdx-menu';
-    m.innerHTML = [['short', '🖨', 'Hindi Case Short Report', 'One A4 page for senior officers'], ['deep', '🖨', 'Hindi Case Deep Brief Report', 'Full brief – every identifier, agency, CD and section'], ['doc', '📝', 'Deep Brief As Word (DOC)', 'Open and edit in MS Word'], ['xls', '📊', 'Case Analysis Excel (XLSX)', 'FIR items, agencies, CD-wise work, sections, suggestions']]
-      .map(([k, i, t, d]) => `<button data-ex="${k}"><span class="ic">${i}</span><span><b>${t}</b><small>${d}</small></span></button>`).join('');
+    const F = [['pdf', '📕 PDF'], ['doc', '📝 Word'], ['html', '🌐 HTML'], ['view', '👁 View']];
+    m.innerHTML = [['short', '🖨', 'Hindi Case Short Report', 'One A4 page for senior officers'], ['deep', '🖨', 'Hindi Case Deep Brief Report', 'Full brief – every identifier, agency, CD and section']]
+      .map(([k, i, t, d]) => `<div class="cdx-mr"><span class="ic">${i}</span><div class="grow"><b>${t}</b><small>${d}</small><div class="cdx-fm">${F.map(([f, l]) => `<button data-ex="${k}" data-f="${f}">${l}</button>`).join('')}</div></div></div>`).join('')
+      + `<div class="cdx-mr"><span class="ic">📊</span><div class="grow"><b>Case Analysis Excel</b><small>FIR items, agencies, CD-wise work, sections, suggestions</small><div class="cdx-fm"><button data-ex="xls" data-f="xlsx">📊 Excel (XLSX)</button></div></div></div>`;
     document.body.appendChild(m); const b = btn.getBoundingClientRect(); m.style.top = (b.bottom + 6) + 'px'; m.style.left = Math.max(8, Math.min(b.right - m.offsetWidth, innerWidth - m.offsetWidth - 8)) + 'px';
     const close = e => { if (!m.contains(e.target) && e.target !== btn) { m.remove(); document.removeEventListener('mousedown', close); } }; setTimeout(() => document.addEventListener('mousedown', close));
-    $$('[data-ex]', m).forEach(x => x.onclick = () => { m.remove(); document.removeEventListener('mousedown', close); const k = x.dataset.ex; if (k === 'short') this.report(); else if (k === 'deep') this.deep(); else if (k === 'doc') this.deep('doc'); else this.excel(); });
+    $$('[data-ex]', m).forEach(x => x.onclick = () => { m.remove(); document.removeEventListener('mousedown', close); const k = x.dataset.ex, f = x.dataset.f; if (k === 'short') this.report(f); else if (k === 'deep') this.deep(f); else this.excel(); });
   },
 
   /* ---------- import ---------- */

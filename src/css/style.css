@@ -1976,3 +1976,8 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
 .cdx-menu{position:fixed;z-index:90;min-width:320px;background:#0f172a;border:1px solid rgba(124,58,237,.55);border-radius:12px;padding:6px;box-shadow:0 18px 40px rgba(0,0,0,.55),0 0 22px rgba(124,58,237,.25)}
 .cdx-menu button{display:flex;gap:10px;align-items:flex-start;width:100%;text-align:left;background:none;border:0;color:#e5e7eb;padding:8px 10px;border-radius:8px;cursor:pointer;font:inherit}
 .cdx-menu button:hover{background:rgba(124,58,237,.22)}.cdx-menu .ic{font-size:18px;line-height:1.2}.cdx-menu b{display:block;font-size:14px}.cdx-menu small{display:block;opacity:.7;font-size:12px}
+
+.cdx-menu{min-width:400px;padding:8px}.cdx-mr{display:flex;gap:10px;padding:8px 10px;border-radius:8px}.cdx-mr+.cdx-mr{border-top:1px solid rgba(255,255,255,.08)}
+.cdx-mr .ic{font-size:18px}.cdx-mr b{display:block;font-size:14px;color:#e5e7eb}.cdx-mr small{display:block;opacity:.7;font-size:12px;color:#cbd5e1}
+.cdx-fm{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px}.cdx-menu .cdx-fm button{width:auto;display:inline-block;padding:4px 11px;border:1px solid rgba(124,58,237,.6);border-radius:999px;background:rgba(124,58,237,.15);font-weight:700;font-size:12.5px}
+.cdx-menu .cdx-fm button:hover{background:#7c3aed;color:#fff}
