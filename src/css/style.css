@@ -1887,7 +1887,6 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
 @keyframes hpBlinkB{0%,45%{opacity:1}55%,100%{opacity:.25}}
 @keyframes hpBlinkR{0%,45%{opacity:.25}55%,100%{opacity:1}}
 @keyframes hpSweep{0%{transform:translateX(-100%)}60%,100%{transform:translateX(100%)}}
-@media (prefers-reduced-motion:reduce){.hp-kicker,.hp-kicker::before,.hp-kicker .sir{animation:none}}
 
 /* Login: police shield badge */
 .hp-kicker{overflow:visible;gap:12px;padding:8px 18px 8px 10px;cursor:default;transition:transform .25s ease}
@@ -1933,4 +1932,6 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
 /* siren dot: bright white */
 .hp-kicker .sir.r{width:14px;height:14px;background:#fff;border:2px solid rgba(255,255,255,.95);box-sizing:border-box;box-shadow:0 0 6px #fff,0 0 14px rgba(255,255,255,.95),0 0 26px rgba(255,255,255,.6);animation:hpBlinkW 1.6s infinite}
 @keyframes hpBlinkW{0%,45%{opacity:.7;transform:scale(.9)}55%,100%{opacity:1;transform:scale(1.1)}}
-@media (prefers-reduced-motion:reduce){.hp-kicker .sir.r{animation:none}}
+/* siren dot: real strobe blink (double flash like a police light) */
+.hp-kicker .sir.r{animation:hpStrobe 1.2s steps(1,end) infinite!important}
+@keyframes hpStrobe{0%{opacity:1;box-shadow:0 0 6px #fff,0 0 16px #fff,0 0 30px rgba(255,255,255,.9)}12%{opacity:.12;box-shadow:none}24%{opacity:1;box-shadow:0 0 6px #fff,0 0 16px #fff,0 0 30px rgba(255,255,255,.9)}36%{opacity:.12;box-shadow:none}100%{opacity:.12;box-shadow:none}}
