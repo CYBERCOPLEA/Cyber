@@ -40,7 +40,7 @@ const OneFile = {
   st: s => `<span class="st ${s === 'Received' || s === 'Done' ? 'g' : s === 'Asked' || s === 'Pending' ? 'w' : s === 'n/a' ? 'i' : 'b'}">${esc(s === 'Not Asked' ? 'Not Asked Yet' : s)}</span>`,
   tbl(cols, rows, empty) { return rows.length ? `<table><thead><tr>${cols.map(c => `<th>${esc(c[0])}</th>`).join('')}</tr></thead><tbody>${rows.map(r => `<tr>${cols.map(c => `<td>${c[1](r)}</td>`).join('')}</tr>`).join('')}</tbody></table>` : `<div class="mu">${esc(empty || '—')}</div>`; },
   kv(L) { L = L.filter(x => x[1] !== '' && x[1] != null); return L.length ? `<table class="kv"><tbody>${L.map(([k, v, raw]) => `<tr><th>${esc(k)}</th><td>${raw ? v : esc(v)}</td></tr>`).join('')}</tbody></table>` : ''; },
-  sec(n, ic, t, body, cnt, open = true) { return `<details class="s"${open ? ' open' : ''}><summary><span class="n">${n}</span>${ic} ${esc(t)}${cnt ? `<span class="c">${cnt}</span>` : ''}</summary><div class="b">${body}</div></details>`; },
+  sec(n, ic, t, body, cnt, open = true) { return `<details class="s"${open ? ' open' : ''}><summary><span class="n">${n}</span>${ic} ${esc(t)}${cnt ? `<span class="c">${esc(cnt)}</span>` : ''}</summary><div class="b">${body}</div></details>`; },
   /* the document body for the open case */
   body(d, c) {
     const E = esc, X = typeof CDX !== 'undefined' ? CDX : null, isN = this.cat(c) === 'ncrp';

@@ -31,7 +31,7 @@ const XM = {
   side: r => r.kind === 'TDR' ? 'TDR|' + r._src : r.kind + '|' + (r.target || r.mac || ''),
   sname(k) { const [K, id] = [k.slice(0, k.indexOf('|')), k.slice(k.indexOf('|') + 1)]; if (K !== 'TDR') return id; return id.replace(/^.*›\s*/, '').replace(/\.(xlsx?|csv|txt)$/i, ''); },
   sid: k => k.slice(k.indexOf('|') + 1),
-  chip(k, n) { const K = k.slice(0, k.indexOf('|')), id = this.sname(k); return `<span class="xm-s" style="--kc:${this.KC[K] || '#64748b'}"><i>${K}</i><span class="mono">${esc(id)}</span>${K !== 'TDR' ? TSC.opb(id) : ''}${n != null ? `<b>${fmtNum(n)}</b>` : ''}</span>`; },
+  chip(k, n) { const K = k.slice(0, k.indexOf('|')), id = this.sname(k); return `<span class="xm-s" style="--kc:${this.KC[K] || '#64748b'}"><i>${esc(K)}</i><span class="mono">${esc(id)}</span>${K !== 'TDR' ? TSC.opb(id) : ''}${n != null ? `<b>${fmtNum(n)}</b>` : ''}</span>`; },
   recs() { const t = TSC.tm(); let d = Tel.all().filter(r => r.kind); if (t.from || t.to) d = d.filter(r => { const x = String(r.ts || '').slice(0, 10); return (!t.from || x >= t.from) && (!t.to || x <= t.to); }); return d; },
   sides() { return Analysis.cached('tel:xmsides', () => { const m = new Map(); for (const r of this.recs()) { const k = this.side(r); if (k.endsWith('|')) continue; m.set(k, (m.get(k) || 0) + 1); } return [...m].sort((a, b) => b[1] - a[1]); }); },
   narrow(r, how, q) {
@@ -76,10 +76,10 @@ const XM = {
 TelUI.xm_view = function (el) {
   const s = XM.st(), SD = XM.sides(), sel = new Set(s.sel || SD.map(x => x[0])), FL = Object.fromEntries(XM.F.map(f => [f[0], f]));
   const kinds = uniq(SD.map(x => x[0].split('|')[0]));
-  el.innerHTML = `<div class="card xm-pick"><h3>🔀 Cross-match – what do these numbers / files share?</h3>
+  el.innerHTML = `<div class="card xm-pick"><h3>🔀 Cross-Match – What Do These Numbers / Files Share?</h3>
     <div class="sub">Tick <b>2, 3 or more</b> numbers (CDR / IPDR / SMS) or tower dumps (TDR) from this case. Every common IMEI, IMSI, MAC, mobile, B-party, cell ID, lat-long, SMS sender, IP, port, app and website is listed with <b>which number / file it was found in</b>. Works across CDR ↔ IPDR ↔ TDR ↔ SMS.</div>
     <div class="xm-bar"><input id="xmF" placeholder="Find a number / file…" value="${esc(s.find || '')}">
-      <button class="btn sm" data-xa="all">All (${SD.length})</button><button class="btn sm" data-xa="none">None</button>${kinds.map(K => `<button class="btn sm" data-xa="k:${K}" style="border-color:${XM.KC[K]}">Only ${K}</button>`).join('')}
+      <button class="btn sm" data-xa="all">All (${SD.length})</button><button class="btn sm" data-xa="none">None</button>${kinds.map(K => `<button class="btn sm" data-xa="k:${esc(K)}" style="border-color:${XM.KC[K] || "#64748b"}">Only ${esc(K)}</button>`).join('')}
       <span class="xm-cnt"><b>${sel.size}</b> chosen</span></div>
     <div class="xm-sides">${SD.filter(([k]) => !s.find || k.toLowerCase().includes(s.find.toLowerCase()) || XM.sname(k).toLowerCase().includes(s.find.toLowerCase())).slice(0, 400).map(([k, n]) => `<label class="xm-sd${sel.has(k) ? ' on' : ''}"><input type="checkbox" data-xs="${esc(k)}"${sel.has(k) ? ' checked' : ''}>${XM.chip(k, n)}</label>`).join('')}${SD.length > 400 ? '<span class="muted small">… type in Find to see more</span>' : ''}</div>
     <div class="xm-bar"><span class="xm-l">Match on</span>${XM.F.map(f => `<label class="xm-f${s.f.includes(f[0]) ? ' on' : ''}"><input type="checkbox" data-xf="${f[0]}"${s.f.includes(f[0]) ? ' checked' : ''}>${f[2]} ${esc(f[1])}</label>`).join('')}</div>

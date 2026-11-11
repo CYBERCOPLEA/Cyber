@@ -2040,6 +2040,7 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
 .of-fmt{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:8px 10px;margin-bottom:10px;border-radius:12px;background:var(--surface-2);border:1px solid #f59e0b;box-shadow:0 8px 20px -12px #000}
 .of-fmt select{max-width:170px}.of-fmt .spacer{flex:1}.of-col{display:inline-flex;align-items:center;gap:4px;font-weight:700;padding:0 6px;border:1px solid var(--border);border-radius:8px;height:30px;cursor:pointer}.of-col input{width:26px;height:22px;border:0;padding:0;background:none;cursor:pointer}
 .of-ed{margin:0 0 10px;padding:8px 12px;border-radius:10px;border:1px solid #f59e0b;background:color-mix(in srgb,#f59e0b 12%,transparent);font-size:13px}
+#main select{max-width:100%}
 
 </style>
 </head>
@@ -2088,7 +2089,7 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
         <div class="hp-feat" style="--fc:#06b6d4"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><div><b>Analytics</b><p>The same mobile, account, IP or e-mail across complaints, banks and platforms.</p></div></div>
         <div class="hp-feat" style="--fc:#eab308"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h5"/></svg></span><div><b>Case File &amp; Notices</b><p>Case reports, notices to banks and platforms, and CSV / PDF exports.</p></div></div>
     </section>
-    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-11 16:43 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
+    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-11 17:19 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
   </div>
 
   <div class="lg-wrap" id="lgWrap" aria-hidden="true">
@@ -3421,7 +3422,7 @@ const Graph = {
     };
     const mid = e => { const a = byId.get(e.from), b = byId.get(e.to); if (lay && vert) { if (a !== b && Math.abs(b.y - a.y) <= 20) return [(a.x + b.x) / 2, a.y + 95]; if (b.y > a.y + 20) { const y1 = a.y + (isMind ? 52 : a.r + 40), y2 = b.y - (isMind ? 20 : b.r + 4); return [(a.x + b.x) / 2, (y1 + y2) / 2]; } } if (lay && a !== b && Math.abs(b.x - a.x) <= 20) return [a.x + hw(a) + 80 + Math.abs(b.y - a.y) * .11, (a.y + b.y) / 2]; return [(a.x + b.x) / 2, (a.y + b.y) / 2 - 5]; };
     const ew = e => (1 + 6 * Math.sqrt((e.amount || 0) / maxE)).toFixed(1);
-    gE.innerHTML = edges.map((e, i) => `<path data-e="${i}" d="${path(e)}" fill="none" stroke="${edgeCol(i)}" stroke-opacity="${eop()}" stroke-width="${ew(e)}" marker-end="url(#arr)"><title>${esc(accLabel(e.from))} → ${esc(accLabel(e.to))}\n${fmtINR(e.amount)} in ${e.count} txn(s)${edgeDate(e) ? '\n' + edgeDate(e) : ''}</title></path>`).join('');
+    gE.innerHTML = edges.map((e, i) => `<path data-e="${i}" d="${path(e)}" fill="none" stroke="${edgeCol(i)}" stroke-opacity="${eop()}" stroke-width="${ew(e)}" marker-end="url(#arr)"><title>${esc(accLabel(e.from))} → ${esc(accLabel(e.to))}\n${fmtINR(e.amount)} in ${e.count} txn(s)${edgeDate(e) ? '\n' + esc(edgeDate(e)) : ''}</title></path>`).join('');
     const tip = e => `${accLabel(e.from)} → ${accLabel(e.to)}\n${fmtINR(e.amount)} in ${e.count} txn(s)${e.tag ? '\n' + e.tag : ''}${edgeDate(e) ? '\n' + edgeDate(e) : ''}\nClick = trace this transaction from start to end`;
     gH.innerHTML = edges.map((e, i) => `<path data-h="${i}" d="${path(e)}" fill="none" stroke="transparent" stroke-width="14" style="cursor:pointer;pointer-events:stroke"><title>${esc(tip(e))}</title></path>`).join('');
     const drawLabels = () => {
@@ -4028,7 +4029,7 @@ function showAccount(acc) {
   const kyc = S.data.kyc.filter(k => k.acc === acc);
   const xl = Analysis.crossLinks().filter(x => x.value === acc || kyc.some(k => [k.mobile, k.email, k.pan, k.aadhaar].includes(x.value)));
   const body = UI.drawer(accLabel(acc), `
-    ${n ? UI.kv({ 'Name(s)': esc([...n.names].join(' / ')), 'Bank': esc([...n.banks].join(' / ')), 'IFSC': esc([...n.ifscs].join(' / ')), 'Layer': n.layer, 'Received': fmtINR(n.inAmt) + ` (${n.inCnt} txns from ${n.senders.size})`, 'Sent out': fmtINR(n.outAmt) + ` (${n.outCnt} txns to ${n.receivers.size})`, 'On hold': n.hold ? fmtINR(n.hold) : '', 'Cash-out': n.cashOut ? fmtINR(n.cashOut) : '', 'First credit': n.firstIn, 'Last debit': n.lastOut, 'Complaints': esc([...n.acks].join(', ')), 'Risk': riskBadge(n.score), 'Flags': esc(n.flags.join('; ')) }) : '<p class="muted">Not found in transactions.</p>'}
+    ${n ? UI.kv({ 'Name(s)': esc([...n.names].join(' / ')), 'Bank': esc([...n.banks].join(' / ')), 'IFSC': esc([...n.ifscs].join(' / ')), 'Layer': n.layer, 'Received': fmtINR(n.inAmt) + ` (${n.inCnt} txns from ${n.senders.size})`, 'Sent out': fmtINR(n.outAmt) + ` (${n.outCnt} txns to ${n.receivers.size})`, 'On hold': n.hold ? fmtINR(n.hold) : '', 'Cash-out': n.cashOut ? fmtINR(n.cashOut) : '', 'First credit': esc(n.firstIn), 'Last debit': esc(n.lastOut), 'Complaints': esc([...n.acks].join(', ')), 'Risk': riskBadge(n.score), 'Flags': esc(n.flags.join('; ')) }) : '<p class="muted">Not found in transactions.</p>'}
     <div class="row" style="margin-bottom:12px">
       <button class="btn sm primary" id="aTrace">Show full trail</button><button class="btn sm" id="aMind">Mind map</button>
       <button class="btn sm" id="aNote">+ Note</button><button class="btn sm" id="aCopy">Copy</button></div>
@@ -4076,7 +4077,7 @@ const FinTabs = {
     const layerOf = t => t.layer || (A.get(t.to_acc) || {}).layer || 0;
     const L = groupBy(tx, layerOf);
     const keys = [...L.keys()].sort((a, b) => a - b);
-    $('#tBody', el).innerHTML = keys.map(k => `<div class="card"><h3>Layer ${k} <span class="muted small">· ${L.get(k).length} txns · ${fmtINR(sum(L.get(k), t => t.amount))} · ${uniq(L.get(k).map(t => t.to_acc)).length} receiving accounts</span></h3><div data-l="${k}"></div></div>`).join('') || UI.empty('No transactions yet.');
+    $('#tBody', el).innerHTML = keys.map(k => `<div class="card"><h3>Layer ${k} <span class="muted small">· ${L.get(k).length} ${L.get(k).length === 1 ? 'Txn' : 'Txns'} · ${fmtINR(sum(L.get(k), t => t.amount))} · ${uniq(L.get(k).map(t => t.to_acc)).length} Receiving Accounts</span></h3><div data-l="${k}"></div></div>`).join('') || UI.empty('No transactions yet.');
     keys.forEach(k => txnTable($(`[data-l="${k}"]`, el), L.get(k), 200));
   },
   common(el) {
@@ -4761,7 +4762,7 @@ const Trail = {
           else { const x1 = a.r, x2 = b.r + 2, cx = Math.max(a.r, b.r) + 60; d = `M${x1},${a.m} C${cx},${a.m} ${cx},${b.m} ${x2},${b.m}`; lx = cx - 14; ly = (a.m + b.m) / 2; }
           const ds = l.txns.map(t => t.date).filter(Boolean).sort(); const dt = ds.length ? ds[0].replace(/^(\d{4})-(\d{2})-(\d{2})/, '$3-$2-$1') : '';
           return `<g class="tlink" data-i="${i}" data-from="${esc(l.from)}" data-to="${esc(l.to)}"><path class="tv" d="${d}" fill="none" stroke="${C.muted}" stroke-opacity=".6" stroke-width="${(1.5 + 4 * Math.sqrt(l.amount / maxA)).toFixed(1)}" marker-end="url(#tarr)"/><path class="th" d="${d}" fill="none" stroke="transparent" stroke-width="14"/>
-            <text x="${lx}" y="${ly - 3}" text-anchor="middle" class="tl1">${esc(fmtINR(l.amount))}${l.txns.length > 1 ? ' (' + l.txns.length + ')' : ''}</text>${dt ? `<text x="${lx}" y="${ly + 10}" text-anchor="middle" class="tl2">${esc(dt)}</text>` : ''}<title>${esc(accLabel(l.from))} → ${esc(accLabel(l.to))}\n${l.txns.slice(0, 12).map(t => `${fmtINR(t.amount)}  ${t.date || ''}  ${t.txn_id || ''}`).join('\n')}${l.txns.length > 12 ? '\n… ' + (l.txns.length - 12) + ' more' : ''}\nClick = trace this transaction from start to end</title></g>`;
+            <text x="${lx}" y="${ly - 3}" text-anchor="middle" class="tl1">${esc(fmtINR(l.amount))}${l.txns.length > 1 ? ' (' + l.txns.length + ')' : ''}</text>${dt ? `<text x="${lx}" y="${ly + 10}" text-anchor="middle" class="tl2">${esc(dt)}</text>` : ''}<title>${esc(accLabel(l.from))} → ${esc(accLabel(l.to))}\n${l.txns.slice(0, 12).map(t => `${fmtINR(t.amount)}  ${esc(t.date || '')}  ${esc(t.txn_id || '')}`).join('\n')}${l.txns.length > 12 ? '\n… ' + (l.txns.length - 12) + ' more' : ''}\nClick = trace this transaction from start to end</title></g>`;
         }).join('');
       if (cv.dataset.sel) restore();
     };
@@ -5088,7 +5089,7 @@ const Sess = {
     } catch (e) { return null; }
   }
 };
-function lock() { Sess.clear(); $('#app').classList.add('hidden'); $('#login').classList.remove('hidden'); showLogin(); $('#lgPass').value = ''; $('#lgErr').textContent = ''; UI.closeDrawer(); UI.closeModal(); $('#lgUser').focus(); }
+function lock() { Sess.clear(); $('#app').classList.add('hidden'); $('#main').innerHTML = ''; $('#drBody') && ($('#drBody').innerHTML = ''); $('#login').classList.remove('hidden'); showLogin(); $('#lgPass').value = ''; $('#lgErr').textContent = ''; UI.closeDrawer(); UI.closeModal(); $('#lgUser').focus(); }
 async function boot() {
   await DB.open();
   S.settings = await DB.get('settings');
@@ -12235,7 +12236,7 @@ const XM = {
   side: r => r.kind === 'TDR' ? 'TDR|' + r._src : r.kind + '|' + (r.target || r.mac || ''),
   sname(k) { const [K, id] = [k.slice(0, k.indexOf('|')), k.slice(k.indexOf('|') + 1)]; if (K !== 'TDR') return id; return id.replace(/^.*›\s*/, '').replace(/\.(xlsx?|csv|txt)$/i, ''); },
   sid: k => k.slice(k.indexOf('|') + 1),
-  chip(k, n) { const K = k.slice(0, k.indexOf('|')), id = this.sname(k); return `<span class="xm-s" style="--kc:${this.KC[K] || '#64748b'}"><i>${K}</i><span class="mono">${esc(id)}</span>${K !== 'TDR' ? TSC.opb(id) : ''}${n != null ? `<b>${fmtNum(n)}</b>` : ''}</span>`; },
+  chip(k, n) { const K = k.slice(0, k.indexOf('|')), id = this.sname(k); return `<span class="xm-s" style="--kc:${this.KC[K] || '#64748b'}"><i>${esc(K)}</i><span class="mono">${esc(id)}</span>${K !== 'TDR' ? TSC.opb(id) : ''}${n != null ? `<b>${fmtNum(n)}</b>` : ''}</span>`; },
   recs() { const t = TSC.tm(); let d = Tel.all().filter(r => r.kind); if (t.from || t.to) d = d.filter(r => { const x = String(r.ts || '').slice(0, 10); return (!t.from || x >= t.from) && (!t.to || x <= t.to); }); return d; },
   sides() { return Analysis.cached('tel:xmsides', () => { const m = new Map(); for (const r of this.recs()) { const k = this.side(r); if (k.endsWith('|')) continue; m.set(k, (m.get(k) || 0) + 1); } return [...m].sort((a, b) => b[1] - a[1]); }); },
   narrow(r, how, q) {
@@ -12280,10 +12281,10 @@ const XM = {
 TelUI.xm_view = function (el) {
   const s = XM.st(), SD = XM.sides(), sel = new Set(s.sel || SD.map(x => x[0])), FL = Object.fromEntries(XM.F.map(f => [f[0], f]));
   const kinds = uniq(SD.map(x => x[0].split('|')[0]));
-  el.innerHTML = `<div class="card xm-pick"><h3>🔀 Cross-match – what do these numbers / files share?</h3>
+  el.innerHTML = `<div class="card xm-pick"><h3>🔀 Cross-Match – What Do These Numbers / Files Share?</h3>
     <div class="sub">Tick <b>2, 3 or more</b> numbers (CDR / IPDR / SMS) or tower dumps (TDR) from this case. Every common IMEI, IMSI, MAC, mobile, B-party, cell ID, lat-long, SMS sender, IP, port, app and website is listed with <b>which number / file it was found in</b>. Works across CDR ↔ IPDR ↔ TDR ↔ SMS.</div>
     <div class="xm-bar"><input id="xmF" placeholder="Find a number / file…" value="${esc(s.find || '')}">
-      <button class="btn sm" data-xa="all">All (${SD.length})</button><button class="btn sm" data-xa="none">None</button>${kinds.map(K => `<button class="btn sm" data-xa="k:${K}" style="border-color:${XM.KC[K]}">Only ${K}</button>`).join('')}
+      <button class="btn sm" data-xa="all">All (${SD.length})</button><button class="btn sm" data-xa="none">None</button>${kinds.map(K => `<button class="btn sm" data-xa="k:${esc(K)}" style="border-color:${XM.KC[K] || "#64748b"}">Only ${esc(K)}</button>`).join('')}
       <span class="xm-cnt"><b>${sel.size}</b> chosen</span></div>
     <div class="xm-sides">${SD.filter(([k]) => !s.find || k.toLowerCase().includes(s.find.toLowerCase()) || XM.sname(k).toLowerCase().includes(s.find.toLowerCase())).slice(0, 400).map(([k, n]) => `<label class="xm-sd${sel.has(k) ? ' on' : ''}"><input type="checkbox" data-xs="${esc(k)}"${sel.has(k) ? ' checked' : ''}>${XM.chip(k, n)}</label>`).join('')}${SD.length > 400 ? '<span class="muted small">… type in Find to see more</span>' : ''}</div>
     <div class="xm-bar"><span class="xm-l">Match on</span>${XM.F.map(f => `<label class="xm-f${s.f.includes(f[0]) ? ' on' : ''}"><input type="checkbox" data-xf="${f[0]}"${s.f.includes(f[0]) ? ' checked' : ''}>${f[2]} ${esc(f[1])}</label>`).join('')}</div>
@@ -14773,7 +14774,7 @@ const OneFile = {
   st: s => `<span class="st ${s === 'Received' || s === 'Done' ? 'g' : s === 'Asked' || s === 'Pending' ? 'w' : s === 'n/a' ? 'i' : 'b'}">${esc(s === 'Not Asked' ? 'Not Asked Yet' : s)}</span>`,
   tbl(cols, rows, empty) { return rows.length ? `<table><thead><tr>${cols.map(c => `<th>${esc(c[0])}</th>`).join('')}</tr></thead><tbody>${rows.map(r => `<tr>${cols.map(c => `<td>${c[1](r)}</td>`).join('')}</tr>`).join('')}</tbody></table>` : `<div class="mu">${esc(empty || '—')}</div>`; },
   kv(L) { L = L.filter(x => x[1] !== '' && x[1] != null); return L.length ? `<table class="kv"><tbody>${L.map(([k, v, raw]) => `<tr><th>${esc(k)}</th><td>${raw ? v : esc(v)}</td></tr>`).join('')}</tbody></table>` : ''; },
-  sec(n, ic, t, body, cnt, open = true) { return `<details class="s"${open ? ' open' : ''}><summary><span class="n">${n}</span>${ic} ${esc(t)}${cnt ? `<span class="c">${cnt}</span>` : ''}</summary><div class="b">${body}</div></details>`; },
+  sec(n, ic, t, body, cnt, open = true) { return `<details class="s"${open ? ' open' : ''}><summary><span class="n">${n}</span>${ic} ${esc(t)}${cnt ? `<span class="c">${esc(cnt)}</span>` : ''}</summary><div class="b">${body}</div></details>`; },
   /* the document body for the open case */
   body(d, c) {
     const E = esc, X = typeof CDX !== 'undefined' ? CDX : null, isN = this.cat(c) === 'ncrp';

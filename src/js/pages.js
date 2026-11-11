@@ -97,7 +97,7 @@ function showAccount(acc) {
   const kyc = S.data.kyc.filter(k => k.acc === acc);
   const xl = Analysis.crossLinks().filter(x => x.value === acc || kyc.some(k => [k.mobile, k.email, k.pan, k.aadhaar].includes(x.value)));
   const body = UI.drawer(accLabel(acc), `
-    ${n ? UI.kv({ 'Name(s)': esc([...n.names].join(' / ')), 'Bank': esc([...n.banks].join(' / ')), 'IFSC': esc([...n.ifscs].join(' / ')), 'Layer': n.layer, 'Received': fmtINR(n.inAmt) + ` (${n.inCnt} txns from ${n.senders.size})`, 'Sent out': fmtINR(n.outAmt) + ` (${n.outCnt} txns to ${n.receivers.size})`, 'On hold': n.hold ? fmtINR(n.hold) : '', 'Cash-out': n.cashOut ? fmtINR(n.cashOut) : '', 'First credit': n.firstIn, 'Last debit': n.lastOut, 'Complaints': esc([...n.acks].join(', ')), 'Risk': riskBadge(n.score), 'Flags': esc(n.flags.join('; ')) }) : '<p class="muted">Not found in transactions.</p>'}
+    ${n ? UI.kv({ 'Name(s)': esc([...n.names].join(' / ')), 'Bank': esc([...n.banks].join(' / ')), 'IFSC': esc([...n.ifscs].join(' / ')), 'Layer': n.layer, 'Received': fmtINR(n.inAmt) + ` (${n.inCnt} txns from ${n.senders.size})`, 'Sent out': fmtINR(n.outAmt) + ` (${n.outCnt} txns to ${n.receivers.size})`, 'On hold': n.hold ? fmtINR(n.hold) : '', 'Cash-out': n.cashOut ? fmtINR(n.cashOut) : '', 'First credit': esc(n.firstIn), 'Last debit': esc(n.lastOut), 'Complaints': esc([...n.acks].join(', ')), 'Risk': riskBadge(n.score), 'Flags': esc(n.flags.join('; ')) }) : '<p class="muted">Not found in transactions.</p>'}
     <div class="row" style="margin-bottom:12px">
       <button class="btn sm primary" id="aTrace">Show full trail</button><button class="btn sm" id="aMind">Mind map</button>
       <button class="btn sm" id="aNote">+ Note</button><button class="btn sm" id="aCopy">Copy</button></div>
@@ -145,7 +145,7 @@ const FinTabs = {
     const layerOf = t => t.layer || (A.get(t.to_acc) || {}).layer || 0;
     const L = groupBy(tx, layerOf);
     const keys = [...L.keys()].sort((a, b) => a - b);
-    $('#tBody', el).innerHTML = keys.map(k => `<div class="card"><h3>Layer ${k} <span class="muted small">· ${L.get(k).length} txns · ${fmtINR(sum(L.get(k), t => t.amount))} · ${uniq(L.get(k).map(t => t.to_acc)).length} receiving accounts</span></h3><div data-l="${k}"></div></div>`).join('') || UI.empty('No transactions yet.');
+    $('#tBody', el).innerHTML = keys.map(k => `<div class="card"><h3>Layer ${k} <span class="muted small">· ${L.get(k).length} ${L.get(k).length === 1 ? 'Txn' : 'Txns'} · ${fmtINR(sum(L.get(k), t => t.amount))} · ${uniq(L.get(k).map(t => t.to_acc)).length} Receiving Accounts</span></h3><div data-l="${k}"></div></div>`).join('') || UI.empty('No transactions yet.');
     keys.forEach(k => txnTable($(`[data-l="${k}"]`, el), L.get(k), 200));
   },
   common(el) {

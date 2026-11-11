@@ -252,7 +252,7 @@ const Sess = {
     } catch (e) { return null; }
   }
 };
-function lock() { Sess.clear(); $('#app').classList.add('hidden'); $('#login').classList.remove('hidden'); showLogin(); $('#lgPass').value = ''; $('#lgErr').textContent = ''; UI.closeDrawer(); UI.closeModal(); $('#lgUser').focus(); }
+function lock() { Sess.clear(); $('#app').classList.add('hidden'); $('#main').innerHTML = ''; $('#drBody') && ($('#drBody').innerHTML = ''); $('#login').classList.remove('hidden'); showLogin(); $('#lgPass').value = ''; $('#lgErr').textContent = ''; UI.closeDrawer(); UI.closeModal(); $('#lgUser').focus(); }
 async function boot() {
   await DB.open();
   S.settings = await DB.get('settings');

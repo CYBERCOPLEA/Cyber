@@ -2032,3 +2032,4 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
 .of-fmt{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:8px 10px;margin-bottom:10px;border-radius:12px;background:var(--surface-2);border:1px solid #f59e0b;box-shadow:0 8px 20px -12px #000}
 .of-fmt select{max-width:170px}.of-fmt .spacer{flex:1}.of-col{display:inline-flex;align-items:center;gap:4px;font-weight:700;padding:0 6px;border:1px solid var(--border);border-radius:8px;height:30px;cursor:pointer}.of-col input{width:26px;height:22px;border:0;padding:0;background:none;cursor:pointer}
 .of-ed{margin:0 0 10px;padding:8px 12px;border-radius:10px;border:1px solid #f59e0b;background:color-mix(in srgb,#f59e0b 12%,transparent);font-size:13px}
+#main select{max-width:100%}
