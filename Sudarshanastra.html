@@ -1830,6 +1830,13 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
 .ap-a{padding:6px 9px;border-radius:8px;background:var(--surface);font-weight:600}
 .ap-b{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:auto}
 
+/* Case Number column */
+.cx-cs{display:flex;flex-wrap:wrap;gap:4px;max-width:260px}
+.cx-cn{display:inline-block;padding:2px 7px;border-radius:7px;font-size:11.5px;font-weight:700;white-space:nowrap;border:1px solid var(--border)}
+.cx-cn.cur{background:rgba(59,130,246,.15);border-color:rgba(59,130,246,.5);color:#3b82f6}
+.cx-cn.oth{background:rgba(239,68,68,.15);border-color:rgba(239,68,68,.5);color:#ef4444}
+.cx-cn.wait{opacity:.6;font-weight:400}
+
 </style>
 </head>
 <body>
@@ -1877,7 +1884,7 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
         <div class="hp-feat" style="--fc:#06b6d4"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><div><b>Analytics</b><p>The same mobile, account, IP or e-mail across complaints, banks and platforms.</p></div></div>
         <div class="hp-feat" style="--fc:#eab308"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h5"/></svg></span><div><b>Case File &amp; Notices</b><p>Case reports, notices to banks and platforms, and CSV / PDF exports.</p></div></div>
     </section>
-    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-11 09:09 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
+    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-11 09:22 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
   </div>
 
   <div class="lg-wrap" id="lgWrap" aria-hidden="true">
@@ -10880,8 +10887,8 @@ const TelUI = {
     const types = [['mobile', d.flatMap(r => [r.target, r.other]).filter(Tel.isMob)], ['imei', d.map(r => r.imei).filter(Boolean)]];
     const L = []; for (const [t, vals] of types) for (const v of uniq(vals)) { const a = Tel.also(t, v); if (a) L.push({ t, v, a, recs: d.filter(r => r.target === v || r.other === v || r.imei === v) }); }
     el.innerHTML = `<div class="card"><h3>Common Numbers in touch with two or more targets</h3><div class="sub">Likely the same gang / handler.</div><div id="cm1"></div></div><div class="card"><h3>Found in other data of this case</h3><div class="sub">Numbers and IMEIs from these CDRs that also appear in bank / KYC, NCRP complaints, social media, Google, WhatsApp, Telegram or CAF data.</div><div id="cm2"></div></div>`;
-    Table($('#cm1', el), { rows: C, sortKey: 'n', sortDir: -1, exportName: 'cdr_common', onRow: x => this.recDrawer(x.o, x.recs), columns: [{ key: 'o', label: 'Number', render: x => `<b class="mono">${esc(x.o)}</b> ${Tel.alsoB('mobile', x.o)}` }, { key: 't', label: 'Targets', csv: x => x.t.join(' '), sortVal: x => x.t.length, render: x => `<span class="badge warn">${x.t.length}</span> ${x.t.map(esc).join(', ')}` }, { key: 'n', label: 'Records', num: true }, { key: 'dur', label: 'Talk time', num: true, render: x => Tel.hms(x.dur) }] });
-    Table($('#cm2', el), { rows: L, exportName: 'cdr_linked', onRow: x => this.recDrawer(x.v, x.recs), columns: [{ key: 't', label: 'Type' }, { key: 'v', label: 'Value', render: x => `<b class="mono">${esc(x.v)}</b>` }, { key: 'a', label: 'Also in' }, { key: 'n', label: 'CDR records', num: true, sortVal: x => x.recs.length, render: x => fmtNum(x.recs.length), csv: x => x.recs.length }] });
+    Table($('#cm1', el), { rows: C, sortKey: 'n', sortDir: -1, exportName: 'cdr_common', onRow: x => this.recDrawer(x.o, x.recs), columns: [{ key: 'o', label: 'Number', render: x => `<b class="mono">${esc(x.o)}</b> ${Tel.alsoB('mobile', x.o)}` }, { key: 't', label: 'Targets', csv: x => x.t.join(' '), sortVal: x => x.t.length, render: x => `<span class="badge warn">${x.t.length}</span> ${x.t.map(esc).join(', ')}` }, CX.col(x => x.o), { key: 'n', label: 'Records', num: true }, { key: 'dur', label: 'Talk time', num: true, render: x => Tel.hms(x.dur) }] });
+    Table($('#cm2', el), { rows: L, exportName: 'cdr_linked', onRow: x => this.recDrawer(x.v, x.recs), columns: [{ key: 't', label: 'Type' }, { key: 'v', label: 'Value', render: x => `<b class="mono">${esc(x.v)}</b>` }, { key: 'a', label: 'Also in' }, CX.col(x => x.v), { key: 'n', label: 'CDR records', num: true, sortVal: x => x.recs.length, render: x => fmtNum(x.recs.length), csv: x => x.recs.length }] });
   },
 
   /* ======== IPDR ======== */
@@ -11009,7 +11016,7 @@ const TelUI = {
   },
   tdrTable(el, rows, title, sub, id = 'tt') {
     el.insertAdjacentHTML('beforeend', `<div class="card"><h3>${title}</h3><div class="sub">${sub}</div><div id="${id}"></div></div>`);
-    Table($('#' + id, el), { rows, sortKey: 'sN', sortDir: -1, exportName: 'tdr_numbers', onRow: x => this.recDrawer(x.n, x.recs), columns: [{ key: 'n', label: 'Number', render: x => `<b class="mono">${esc(x.n)}</b> ${Tel.isMob(x.n) ? Tel.alsoB('mobile', x.n) : ''}` }, { key: 'sN', label: 'Spots', num: true, render: x => x.sN > 1 ? `<span class="badge warn">${x.sN}</span>` : '1' }, { key: 'sites', label: 'Where', csv: x => x.sites.join(' | '), render: x => `<span class="small">${x.sites.slice(0, 4).map(esc).join('<br>')}</span>` }, { key: 'cnt', label: 'Records', num: true }, { key: 'cells', label: 'Cells', num: true }, { key: 'imeis', label: 'IMEI', csv: x => x.imeis.join(' '), render: x => `<span class="mono small">${x.imeis.slice(0, 3).map(esc).join('<br>')}</span>` }, { key: 'roam', label: 'Foreign SIM' }, { key: 'first', label: 'First', render: x => esc(Tel.dd(x.first)) }, { key: 'last', label: 'Last', render: x => esc(Tel.dd(x.last)) }] });
+    Table($('#' + id, el), { rows, sortKey: 'sN', sortDir: -1, exportName: 'tdr_numbers', onRow: x => this.recDrawer(x.n, x.recs), columns: [{ key: 'n', label: 'Number', render: x => `<b class="mono">${esc(x.n)}</b> ${Tel.isMob(x.n) ? Tel.alsoB('mobile', x.n) : ''}` }, { key: 'sN', label: 'Spots', num: true, render: x => x.sN > 1 ? `<span class="badge warn">${x.sN}</span>` : '1' }, { key: 'sites', label: 'Where', csv: x => x.sites.join(' | '), render: x => `<span class="small">${x.sites.slice(0, 4).map(esc).join('<br>')}</span>` }, CX.col(x => x.n), { key: 'cnt', label: 'Records', num: true }, { key: 'cells', label: 'Cells', num: true }, { key: 'imeis', label: 'IMEI', csv: x => x.imeis.join(' '), render: x => `<span class="mono small">${x.imeis.slice(0, 3).map(esc).join('<br>')}</span>` }, { key: 'roam', label: 'Foreign SIM' }, { key: 'first', label: 'First', render: x => esc(Tel.dd(x.first)) }, { key: 'last', label: 'Last', render: x => esc(Tel.dd(x.last)) }] });
   },
   tdr_com(el, d) {
     const { L, I, multi } = this.tdrStats(d); el.innerHTML = '';
@@ -11137,6 +11144,47 @@ function TelDemo() {
   out.forEach(r => { r.id = uid(); if ((r.kind === 'CDR') && BOP[r.other]) r.bop = BOP[r.other]; });
   return out;
 }
+
+</script>
+<script>
+/* casex.js – "Case Number" column for common-item tables: the case (FIR · police station) the item belongs to, and any of
+   your other cases where the same number / IMEI / IMSI / IP / cell also appears. Other cases are read once from this
+   computer and remembered. */
+'use strict';
+const CX = {
+  M: new Map(), busy: null, ready: false,
+  lbl(c) { const f = String(c.fir || '').replace(/^\s*FIR\s*(No\.?)?\s*/i, ''); return f ? 'FIR ' + f : (c.name || 'Case'); },
+  full(c) { return [c.name, c.fir && 'FIR ' + c.fir, c.ps && 'PS ' + c.ps, c.district, c.io && 'IO ' + c.io].filter(Boolean).join(' · '); },
+  build() {
+    if (this.busy || this.ready) return this.busy;
+    this.M.delete(S.caseId);
+    const todo = S.cases.filter(c => c.id !== S.caseId && !this.M.has(c.id));
+    if (!todo.length) { this.ready = true; return null; }
+    this.busy = (async () => {
+      try { if (typeof Dash2 !== 'undefined' && Dash2.others) await Dash2.others(); } catch (e) { }
+      for (const c of todo) {
+        let raw = null; try { raw = await DB.get('case:' + c.id); } catch (e) { }
+        const s = new Set();
+        if (raw) for (const r of raw.tel || []) for (const v of [r.target, r.other, r.imei, r.imsi, r.mac, r.xip, r.cell]) if (v) s.add(String(v));
+        try { const X = Dash2.X.get(c.id); if (X) for (const k of X.keys()) s.add(k.slice(k.indexOf('|') + 1)); } catch (e) { }
+        this.M.set(c.id, s); await new Promise(r => setTimeout(r, 0));
+      }
+      this.busy = null; this.ready = true; this.fill();
+    })();
+    return this.busy;
+  },
+  other(vals) { const out = []; for (const c of S.cases) { if (c.id === S.caseId) continue; const s = this.M.get(c.id); if (s && vals.some(v => s.has(v))) out.push(c); } return out; },
+  inner(vals) {
+    const c = activeCase(), O = this.other(vals), more = S.cases.length > 1;
+    return `<span class="cx-cn cur" title="${esc(this.full(c))}">📁 ${esc(this.lbl(c))}</span>${O.map(o => `<span class="cx-cn oth" title="Also in: ${esc(this.full(o))}">⚑ ${esc(this.lbl(o))}</span>`).join('')}${more && !this.ready ? '<span class="cx-cn wait">checking other cases…</span>' : ''}`;
+  },
+  vals: v => (Array.isArray(v) ? v : [v]).map(x => String(x || '').trim()).filter(Boolean),
+  cell(v) { const V = this.vals(v); this.build(); return `<span class="cx-cs" data-cxv="${esc(V.join('|'))}">${this.inner(V)}</span>`; },
+  fill() { $$('[data-cxv]').forEach(e => e.innerHTML = this.inner(e.dataset.cxv.split('|'))); },
+  col(get) { return { key: 'casen', label: 'Case Number', sortVal: x => this.other(this.vals(get(x))).length, csv: x => [this.lbl(activeCase()), ...this.other(this.vals(get(x))).map(c => this.lbl(c))].join('; '), render: x => this.cell(get(x)) }; }
+};
+/* when the case changes, the index of "other cases" is refreshed */
+{ const _sw = switchCase; switchCase = async function (id) { const prev = S.caseId; const r = await _sw.apply(this, arguments); CX.M.delete(prev); CX.M.delete(S.caseId); CX.ready = false; return r; }; }
 
 </script>
 <script>
@@ -11339,7 +11387,7 @@ CDRX.common = function (d) {
     /* a target number that shows up as B party in other targets' CDR */
     { const m = new Map(); for (const r of d) if (r.other && T.has(r.other) && r.other !== r.target) { let x = m.get(r.other); if (!x) m.set(r.other, x = { type: 'tgt', v: r.other, by: new Map(), recs: [] }); x.by.set(r.target, (x.by.get(r.target) || 0) + 1); x.recs.push(r); }
       for (const x of m.values()) { x.n = x.recs.length; x.cdrs = [...x.by.keys()]; x.cN = x.cdrs.length; x.info = 'own CDR loaded'; x.first = x.recs.reduce((a, r) => !a || r.ts < a ? r.ts : a, ''); x.last = x.recs.reduce((a, r) => r.ts > a ? r.ts : a, ''); out.push(x); } }
-    add('b', 'other', r => r.other && !/[A-Z]/.test(r.other) && !T.has(r.other) && r.other.length >= 8 ? r.other : '', x => Tel.also('mobile', x.v) ? 'also in ' + Tel.also('mobile', x.v) : (x.recs.find(r => r.bop) || {}).bop || '');
+    add('b', 'other', r => r.other && !/[A-Z]/.test(r.other) && !T.has(r.other) && r.other.length >= 8 ? r.other : '', x => (x.recs.find(r => r.bop) || {}).bop || '');
     add('imei', 'imei', r => r.imei, x => 'TAC ' + x.v.slice(0, 8));
     add('imsi', 'imsi', r => r.imsi, x => 'network ' + x.v.slice(0, 3) + '-' + x.v.slice(3, 5));
     add('cell', 'cell', r => r.cell, x => (x.recs.find(r => r.addr) || {}).addr || '');
@@ -11366,7 +11414,7 @@ TelUI.cdrCommon = function (el, d) {
     { key: 'info', label: 'Details', render: x => `<span class="small">${esc(x.info)}</span>` },
     { key: 'cN', label: 'CDRs', num: true, render: x => `<span class="badge ${x.cN > 2 ? 'bad' : 'warn'}">${x.cN}</span>` },
     { key: 'cdrs', label: 'Found in CDR of (records)', sortVal: x => x.cN, csv: x => x.cdrs.map(t => t + ' (' + x.by.get(t) + ')').join('; '), render: x => `<span class="mono small">${x.cdrs.slice(0, 8).map(t => `${esc(t)} <span class="muted">(${x.by.get(t)})</span>`).join(', ')}${x.cdrs.length > 8 ? ' …' : ''}</span>` },
-    { key: 'n', label: 'Records', num: true }, { key: 'first', label: 'First', render: x => esc(Tel.dd(x.first)) }, { key: 'last', label: 'Last', render: x => esc(Tel.dd(x.last)) }] });
+    CX.col(x => x.v), { key: 'n', label: 'Records', num: true }, { key: 'first', label: 'First', render: x => esc(Tel.dd(x.first)) }, { key: 'last', label: 'Last', render: x => esc(Tel.dd(x.last)) }] });
 };
 
 </script>
@@ -11462,10 +11510,10 @@ TelUI.ipdr_com = function (el, d) {
     <div class="card"><h3>Servers used by 2+ users (excluding Meta, Google, Apple, Amazon, telecom operators …)</h3><div class="sub">A small shared server = same scam app / panel / gang.</div><div id="ixD"></div></div>
     <div class="grid g2"><div class="card"><h3>Handsets used by 2+ numbers</h3><div id="ixI"></div></div><div class="card"><h3>Towers shared by 2+ users</h3><div id="ixT"></div></div></div>`;
   const uc = { key: 'u', label: 'Users', sortVal: x => x.u.length, csv: x => x.u.join(' '), render: x => `<span class="badge warn">${x.u.length}</span> <span class="mono small">${x.u.slice(0, 6).map(esc).join(', ')}${x.u.length > 6 ? ' …' : ''}</span>` };
-  if (PP.length) Table($('#ixP', el), { rows: PP, sortKey: 'n', sortDir: -1, exportName: 'ipdr_app_calls', onRow: x => this.recDrawer(x.k, x.recs), columns: [{ key: 'k', label: 'Users', render: x => `<b class="mono">${esc(x.k)}</b>` }, { key: 'n', label: 'Calls', num: true }, { key: 'days', label: 'Days', num: true }, { key: 'apps', label: 'App' }, { key: 'first', label: 'First', render: x => esc(Tel.dd(x.first)) }, { key: 'last', label: 'Last', render: x => esc(Tel.dd(x.last)) }] }); else $('#ixP', el).innerHTML = '<div class="muted">No matching call sessions (needs IPDR of two or more users, or an IP-based IPDR).</div>';
-  if (D.length) Table($('#ixD', el), { rows: D, sortKey: 'u', sortDir: -1, exportName: 'ipdr_shared_servers', onRow: x => this.recDrawer(x.k, x.recs), columns: [{ key: 'k', label: 'Server IP', render: x => `<span class="mono ipv">${esc(x.k)}</span>` }, { key: 'org', label: 'Owner', sortVal: x => IPX.org(x.recs[0]), csv: x => IPX.org(x.recs[0]), render: x => `<span class="small">${esc(IPX.org(x.recs[0]))}</span>` }, uc, { key: 'n', label: 'Sessions', num: true }] }); else $('#ixD', el).innerHTML = '<div class="muted">None.</div>';
-  if (I.length) Table($('#ixI', el), { rows: I, sortKey: 'u', sortDir: -1, pageSize: 10, exportName: 'ipdr_shared_imei', onRow: x => this.recDrawer(x.k, x.recs), columns: [{ key: 'k', label: 'IMEI', render: x => `<span class="mono">${esc(x.k)}</span>` }, uc] }); else $('#ixI', el).innerHTML = '<div class="muted">None.</div>';
-  if (Tw.length) Table($('#ixT', el), { rows: Tw, sortKey: 'u', sortDir: -1, pageSize: 10, exportName: 'ipdr_shared_towers', onRow: x => this.recDrawer(x.k, x.recs), columns: [{ key: 'k', label: 'Tower', render: x => `<span class="small">${esc(x.recs.find(r => r.addr)?.addr || x.k)}</span>` }, uc] }); else $('#ixT', el).innerHTML = '<div class="muted">None.</div>';
+  if (PP.length) Table($('#ixP', el), { rows: PP, sortKey: 'n', sortDir: -1, exportName: 'ipdr_app_calls', onRow: x => this.recDrawer(x.k, x.recs), columns: [{ key: 'k', label: 'Users', render: x => `<b class="mono">${esc(x.k)}</b>` }, CX.col(x => x.k.split(' ↔ ')), { key: 'n', label: 'Calls', num: true }, { key: 'days', label: 'Days', num: true }, { key: 'apps', label: 'App' }, { key: 'first', label: 'First', render: x => esc(Tel.dd(x.first)) }, { key: 'last', label: 'Last', render: x => esc(Tel.dd(x.last)) }] }); else $('#ixP', el).innerHTML = '<div class="muted">No matching call sessions (needs IPDR of two or more users, or an IP-based IPDR).</div>';
+  if (D.length) Table($('#ixD', el), { rows: D, sortKey: 'u', sortDir: -1, exportName: 'ipdr_shared_servers', onRow: x => this.recDrawer(x.k, x.recs), columns: [{ key: 'k', label: 'Server IP', render: x => `<span class="mono ipv">${esc(x.k)}</span>` }, { key: 'org', label: 'Owner', sortVal: x => IPX.org(x.recs[0]), csv: x => IPX.org(x.recs[0]), render: x => `<span class="small">${esc(IPX.org(x.recs[0]))}</span>` }, uc, CX.col(x => [x.k, ...x.u]), { key: 'n', label: 'Sessions', num: true }] }); else $('#ixD', el).innerHTML = '<div class="muted">None.</div>';
+  if (I.length) Table($('#ixI', el), { rows: I, sortKey: 'u', sortDir: -1, pageSize: 10, exportName: 'ipdr_shared_imei', onRow: x => this.recDrawer(x.k, x.recs), columns: [{ key: 'k', label: 'IMEI', render: x => `<span class="mono">${esc(x.k)}</span>` }, uc, CX.col(x => [x.k, ...x.u])] }); else $('#ixI', el).innerHTML = '<div class="muted">None.</div>';
+  if (Tw.length) Table($('#ixT', el), { rows: Tw, sortKey: 'u', sortDir: -1, pageSize: 10, exportName: 'ipdr_shared_towers', onRow: x => this.recDrawer(x.k, x.recs), columns: [{ key: 'k', label: 'Tower', render: x => `<span class="small">${esc(x.recs.find(r => r.addr)?.addr || x.k)}</span>` }, uc, CX.col(x => [x.k, ...x.u])] }); else $('#ixT', el).innerHTML = '<div class="muted">None.</div>';
 };
 
 /* list for a notice to the platform: the user's own public IP + port + time for one app */
@@ -11911,7 +11959,7 @@ TelUI.xm_out = function (out, FL) {
     { key: 'v', label: 'Common item', render: o => `<b class="mono">${esc(o.v)}</b> ${XM.info(o)}` },
     { key: 'sN', label: 'Shared by', num: true, render: o => `<span class="badge ${o.sN > 2 ? 'bad' : 'warn'}">${o.sN}</span>` },
     { key: 'sides', label: 'Found in (records)', sortVal: o => o.sN, csv: o => o.sides.map(([k, n]) => k.replace('|', ' ') + ' (' + n + ')').join('; '), render: o => `<div class="xm-in">${o.sides.slice(0, 6).map(([k, n]) => XM.chip(k, n)).join('')}${o.sides.length > 6 ? `<span class="muted small">+${o.sides.length - 6} more</span>` : ''}</div>` },
-    { key: 'n', label: 'Records', num: true }, { key: 'first', label: 'First', render: o => esc(Tel.dd(o.first)) }, { key: 'last', label: 'Last', render: o => esc(Tel.dd(o.last)) }] });
+    CX.col(o => o.v), { key: 'n', label: 'Records', num: true }, { key: 'first', label: 'First', render: o => esc(Tel.dd(o.first)) }, { key: 'last', label: 'Last', render: o => esc(Tel.dd(o.last)) }] });
   if (!PP.length) $('#xmP', out).innerHTML = '<div class="muted">No two of the chosen numbers / files share anything with these settings.</div>';
   else Table($('#xmP', out), { rows: PP, sortKey: 'n', sortDir: -1, pageSize: 10, exportName: 'cross_match_pairs', onRow: p => { s.sel = [p.a, p.b]; s.ff = ''; const v = out.closest('[data-xmv]') || out.parentElement; TelUI.xm_view(v); v.scrollIntoView && v.scrollIntoView({ block: 'start' }); }, columns: [
     { key: 'a', label: 'Number / file 1', render: p => XM.chip(p.a) }, { key: 'b', label: 'Number / file 2', render: p => XM.chip(p.b) },

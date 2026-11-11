@@ -1,0 +1,38 @@
+/* casex.js – "Case Number" column for common-item tables: the case (FIR · police station) the item belongs to, and any of
+   your other cases where the same number / IMEI / IMSI / IP / cell also appears. Other cases are read once from this
+   computer and remembered. */
+'use strict';
+const CX = {
+  M: new Map(), busy: null, ready: false,
+  lbl(c) { const f = String(c.fir || '').replace(/^\s*FIR\s*(No\.?)?\s*/i, ''); return f ? 'FIR ' + f : (c.name || 'Case'); },
+  full(c) { return [c.name, c.fir && 'FIR ' + c.fir, c.ps && 'PS ' + c.ps, c.district, c.io && 'IO ' + c.io].filter(Boolean).join(' · '); },
+  build() {
+    if (this.busy || this.ready) return this.busy;
+    this.M.delete(S.caseId);
+    const todo = S.cases.filter(c => c.id !== S.caseId && !this.M.has(c.id));
+    if (!todo.length) { this.ready = true; return null; }
+    this.busy = (async () => {
+      try { if (typeof Dash2 !== 'undefined' && Dash2.others) await Dash2.others(); } catch (e) { }
+      for (const c of todo) {
+        let raw = null; try { raw = await DB.get('case:' + c.id); } catch (e) { }
+        const s = new Set();
+        if (raw) for (const r of raw.tel || []) for (const v of [r.target, r.other, r.imei, r.imsi, r.mac, r.xip, r.cell]) if (v) s.add(String(v));
+        try { const X = Dash2.X.get(c.id); if (X) for (const k of X.keys()) s.add(k.slice(k.indexOf('|') + 1)); } catch (e) { }
+        this.M.set(c.id, s); await new Promise(r => setTimeout(r, 0));
+      }
+      this.busy = null; this.ready = true; this.fill();
+    })();
+    return this.busy;
+  },
+  other(vals) { const out = []; for (const c of S.cases) { if (c.id === S.caseId) continue; const s = this.M.get(c.id); if (s && vals.some(v => s.has(v))) out.push(c); } return out; },
+  inner(vals) {
+    const c = activeCase(), O = this.other(vals), more = S.cases.length > 1;
+    return `<span class="cx-cn cur" title="${esc(this.full(c))}">📁 ${esc(this.lbl(c))}</span>${O.map(o => `<span class="cx-cn oth" title="Also in: ${esc(this.full(o))}">⚑ ${esc(this.lbl(o))}</span>`).join('')}${more && !this.ready ? '<span class="cx-cn wait">checking other cases…</span>' : ''}`;
+  },
+  vals: v => (Array.isArray(v) ? v : [v]).map(x => String(x || '').trim()).filter(Boolean),
+  cell(v) { const V = this.vals(v); this.build(); return `<span class="cx-cs" data-cxv="${esc(V.join('|'))}">${this.inner(V)}</span>`; },
+  fill() { $$('[data-cxv]').forEach(e => e.innerHTML = this.inner(e.dataset.cxv.split('|'))); },
+  col(get) { return { key: 'casen', label: 'Case Number', sortVal: x => this.other(this.vals(get(x))).length, csv: x => [this.lbl(activeCase()), ...this.other(this.vals(get(x))).map(c => this.lbl(c))].join('; '), render: x => this.cell(get(x)) }; }
+};
+/* when the case changes, the index of "other cases" is refreshed */
+{ const _sw = switchCase; switchCase = async function (id) { const prev = S.caseId; const r = await _sw.apply(this, arguments); CX.M.delete(prev); CX.M.delete(S.caseId); CX.ready = false; return r; }; }

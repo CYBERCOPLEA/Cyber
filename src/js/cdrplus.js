@@ -197,7 +197,7 @@ CDRX.common = function (d) {
     /* a target number that shows up as B party in other targets' CDR */
     { const m = new Map(); for (const r of d) if (r.other && T.has(r.other) && r.other !== r.target) { let x = m.get(r.other); if (!x) m.set(r.other, x = { type: 'tgt', v: r.other, by: new Map(), recs: [] }); x.by.set(r.target, (x.by.get(r.target) || 0) + 1); x.recs.push(r); }
       for (const x of m.values()) { x.n = x.recs.length; x.cdrs = [...x.by.keys()]; x.cN = x.cdrs.length; x.info = 'own CDR loaded'; x.first = x.recs.reduce((a, r) => !a || r.ts < a ? r.ts : a, ''); x.last = x.recs.reduce((a, r) => r.ts > a ? r.ts : a, ''); out.push(x); } }
-    add('b', 'other', r => r.other && !/[A-Z]/.test(r.other) && !T.has(r.other) && r.other.length >= 8 ? r.other : '', x => Tel.also('mobile', x.v) ? 'also in ' + Tel.also('mobile', x.v) : (x.recs.find(r => r.bop) || {}).bop || '');
+    add('b', 'other', r => r.other && !/[A-Z]/.test(r.other) && !T.has(r.other) && r.other.length >= 8 ? r.other : '', x => (x.recs.find(r => r.bop) || {}).bop || '');
     add('imei', 'imei', r => r.imei, x => 'TAC ' + x.v.slice(0, 8));
     add('imsi', 'imsi', r => r.imsi, x => 'network ' + x.v.slice(0, 3) + '-' + x.v.slice(3, 5));
     add('cell', 'cell', r => r.cell, x => (x.recs.find(r => r.addr) || {}).addr || '');
@@ -224,5 +224,5 @@ TelUI.cdrCommon = function (el, d) {
     { key: 'info', label: 'Details', render: x => `<span class="small">${esc(x.info)}</span>` },
     { key: 'cN', label: 'CDRs', num: true, render: x => `<span class="badge ${x.cN > 2 ? 'bad' : 'warn'}">${x.cN}</span>` },
     { key: 'cdrs', label: 'Found in CDR of (records)', sortVal: x => x.cN, csv: x => x.cdrs.map(t => t + ' (' + x.by.get(t) + ')').join('; '), render: x => `<span class="mono small">${x.cdrs.slice(0, 8).map(t => `${esc(t)} <span class="muted">(${x.by.get(t)})</span>`).join(', ')}${x.cdrs.length > 8 ? ' …' : ''}</span>` },
-    { key: 'n', label: 'Records', num: true }, { key: 'first', label: 'First', render: x => esc(Tel.dd(x.first)) }, { key: 'last', label: 'Last', render: x => esc(Tel.dd(x.last)) }] });
+    CX.col(x => x.v), { key: 'n', label: 'Records', num: true }, { key: 'first', label: 'First', render: x => esc(Tel.dd(x.first)) }, { key: 'last', label: 'Last', render: x => esc(Tel.dd(x.last)) }] });
 };

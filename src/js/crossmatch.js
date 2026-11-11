@@ -114,7 +114,7 @@ TelUI.xm_out = function (out, FL) {
     { key: 'v', label: 'Common item', render: o => `<b class="mono">${esc(o.v)}</b> ${XM.info(o)}` },
     { key: 'sN', label: 'Shared by', num: true, render: o => `<span class="badge ${o.sN > 2 ? 'bad' : 'warn'}">${o.sN}</span>` },
     { key: 'sides', label: 'Found in (records)', sortVal: o => o.sN, csv: o => o.sides.map(([k, n]) => k.replace('|', ' ') + ' (' + n + ')').join('; '), render: o => `<div class="xm-in">${o.sides.slice(0, 6).map(([k, n]) => XM.chip(k, n)).join('')}${o.sides.length > 6 ? `<span class="muted small">+${o.sides.length - 6} more</span>` : ''}</div>` },
-    { key: 'n', label: 'Records', num: true }, { key: 'first', label: 'First', render: o => esc(Tel.dd(o.first)) }, { key: 'last', label: 'Last', render: o => esc(Tel.dd(o.last)) }] });
+    CX.col(o => o.v), { key: 'n', label: 'Records', num: true }, { key: 'first', label: 'First', render: o => esc(Tel.dd(o.first)) }, { key: 'last', label: 'Last', render: o => esc(Tel.dd(o.last)) }] });
   if (!PP.length) $('#xmP', out).innerHTML = '<div class="muted">No two of the chosen numbers / files share anything with these settings.</div>';
   else Table($('#xmP', out), { rows: PP, sortKey: 'n', sortDir: -1, pageSize: 10, exportName: 'cross_match_pairs', onRow: p => { s.sel = [p.a, p.b]; s.ff = ''; const v = out.closest('[data-xmv]') || out.parentElement; TelUI.xm_view(v); v.scrollIntoView && v.scrollIntoView({ block: 'start' }); }, columns: [
     { key: 'a', label: 'Number / file 1', render: p => XM.chip(p.a) }, { key: 'b', label: 'Number / file 2', render: p => XM.chip(p.b) },

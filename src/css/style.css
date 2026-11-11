@@ -1821,3 +1821,10 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
 .ap-hd{display:flex;justify-content:space-between;align-items:center}.ap-p{font-size:11.5px;font-weight:800;color:var(--ac);text-transform:uppercase;letter-spacing:.03em}.ap-i{font-size:18px}
 .ap-a{padding:6px 9px;border-radius:8px;background:var(--surface);font-weight:600}
 .ap-b{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:auto}
+
+/* Case Number column */
+.cx-cs{display:flex;flex-wrap:wrap;gap:4px;max-width:260px}
+.cx-cn{display:inline-block;padding:2px 7px;border-radius:7px;font-size:11.5px;font-weight:700;white-space:nowrap;border:1px solid var(--border)}
+.cx-cn.cur{background:rgba(59,130,246,.15);border-color:rgba(59,130,246,.5);color:#3b82f6}
+.cx-cn.oth{background:rgba(239,68,68,.15);border-color:rgba(239,68,68,.5);color:#ef4444}
+.cx-cn.wait{opacity:.6;font-weight:400}
