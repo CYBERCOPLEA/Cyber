@@ -2033,3 +2033,11 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
 .of-fmt select{max-width:170px}.of-fmt .spacer{flex:1}.of-col{display:inline-flex;align-items:center;gap:4px;font-weight:700;padding:0 6px;border:1px solid var(--border);border-radius:8px;height:30px;cursor:pointer}.of-col input{width:26px;height:22px;border:0;padding:0;background:none;cursor:pointer}
 .of-ed{margin:0 0 10px;padding:8px 12px;border-radius:10px;border:1px solid #f59e0b;background:color-mix(in srgb,#f59e0b 12%,transparent);font-size:13px}
 #main select{max-width:100%}
+
+.ad-dv{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:10px 14px;margin-bottom:12px;border-radius:14px;background:var(--surface-2);border:1px solid var(--border);border-left:4px solid var(--accent,#3b82f6)}
+.ad-dv-l{font-weight:700;font-size:15px;white-space:nowrap}
+#main .ad-dv-s{font:inherit;font-weight:600;font-size:15px;padding:8px 12px;border-radius:10px;border:1px solid var(--accent,#3b82f6);background:var(--surface,#111827);color:var(--text-primary);min-width:230px;max-width:100%;cursor:pointer}
+#main .ad-dv-c{min-width:300px;max-width:min(520px,100%)}
+.ad-dv-a{font-size:20px;color:var(--text-secondary)}
+.ad-dv-w{font-size:13px;color:var(--text-secondary)}.ad-dv-w b{color:var(--text-primary)}
+#main:has(.ad-dv) .cs-row{display:none}

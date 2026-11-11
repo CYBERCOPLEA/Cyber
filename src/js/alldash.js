@@ -42,12 +42,24 @@ const AllDash = {
     for (const o of R) for (const [k, e] of o.ids) { let g = M.get(k); if (!g) M.set(k, g = { key: k, type: e.type, value: e.value, cases: [], secs: new Set() }); g.cases.push(o); e.secs.forEach(s => g.secs.add(s)); }
     return [...M.values()].filter(g => g.cases.length >= 2).sort((a, b) => b.cases.length - a.cases.length || b.secs.size - a.secs.size);
   },
+  /* "Show On Dashboard" drop-down: All Cases / FIR Cases / NCRP (Without FIR) / One Case › pick the case */
   bar() {
-    const v = isScope(S.caseId) ? S.caseId : 'case', c = v === 'case' ? activeCase() : S.cases.find(x => x.id === AllMode.pick()) || {}, n = sc => AllMode.list(sc).length;
-    const b = (k, ic, l, sub) => `<button data-dv="${k}" class="${v === k ? 'on' : ''}" ${k !== 'case' && k !== '__all' && !n(k) ? 'disabled' : ''}>${ic} ${l} <small>${esc(sub)}</small></button>`;
-    return `<div class="ad-sw">${b('__all', '🗂', 'All Cases', n('__all'))}${b('__fir', '📁', 'FIR Cases', n('__fir'))}${b('__ncrp', '🧾', 'NCRP (Without FIR)', n('__ncrp'))}${b('case', '📄', 'One Case', AllMode.caseLabel(c))}</div>`;
+    const v = isScope(S.caseId) ? S.caseId : 'case', n = sc => AllMode.list(sc).length, cur = v === 'case' ? S.caseId : AllMode.pick();
+    const o = (k, l, c) => `<option value="${k}" ${v === k ? 'selected' : ''} ${c === 0 ? 'disabled' : ''}>${l}${c !== undefined ? ` (${c})` : ''}</option>`;
+    const grp = (l, L) => L.length ? `<optgroup label="${l}">${L.map(c => `<option value="${esc(c.id)}" ${c.id === cur ? 'selected' : ''}>${esc(AllMode.caseLabel(c))}</option>`).join('')}</optgroup>` : '';
+    const fir = S.cases.filter(c => AllMode.cat(c) === 'fir'), ncrp = S.cases.filter(c => AllMode.cat(c) !== 'fir');
+    const pl = (k, a, b) => `${k} ${k === 1 ? a : b}`, ac = activeCase();
+    const what = { __all: `every case on this computer – ${pl(n('__fir'), 'FIR case', 'FIR cases')} + ${pl(n('__ncrp'), 'NCRP complaint', 'NCRP complaints')} without FIR`, __fir: `${pl(n('__fir'), 'FIR case', 'FIR cases')} together`, __ncrp: `${pl(n('__ncrp'), 'NCRP complaint', 'NCRP complaints')} with no FIR yet`, case: `one ${AllMode.cat(ac) === 'fir' ? 'FIR case' : 'NCRP complaint'} – ${ac.name || ''}` }[v];
+    return `<div class="ad-dv"><label class="ad-dv-l" for="adDv">📊 Show On Dashboard</label>
+      <select id="adDv" class="ad-dv-s">${o('__all', '🗂 All Cases', n('__all'))}${o('__fir', '📁 FIR Cases', n('__fir'))}${o('__ncrp', '🧾 NCRP (Without FIR)', n('__ncrp'))}${o('case', '📄 One Case – Choose The Case →')}</select>
+      ${v === 'case' ? `<span class="ad-dv-a">›</span><select id="adDvC" class="ad-dv-s ad-dv-c" title="Choose the case">${grp('📁 FIR Cases', fir)}${grp('🧾 NCRP – No FIR Yet', ncrp)}</select>` : ''}
+      <span class="ad-dv-w">Showing: <b>${esc(what)}</b></span></div>`;
   },
-  wireBar(main) { $$('[data-dv]', main).forEach(b => b.onclick = () => { const k = b.dataset.dv; if (k === (isScope(S.caseId) ? S.caseId : 'case')) return; switchCase(k === 'case' ? AllMode.pick() : k); }); },
+  wireBar(main) {
+    const s = $('#adDv', main), c = $('#adDvC', main);
+    if (s) s.onchange = () => { const k = s.value; switchCase(k === 'case' ? AllMode.pick() : k); };
+    if (c) c.onchange = () => { if (c.value !== S.caseId) switchCase(c.value); };
+  },
   open(id) { UI.closeDrawer(); if (id !== S.caseId) switchCase(id); else render(); },
   async draw(main) {
     const pct = (n, t) => t ? Math.round(n / t * 100) : 0;
@@ -99,7 +111,7 @@ const AllDash = {
   Pages.dashboard = function (main) {
     if (isScope(S.caseId)) { AllDash.draw(main); return; }
     const r = og.apply(this, arguments);
-    if (S.cases.length > 1) { main.insertAdjacentHTML('afterbegin', AllDash.bar()); AllDash.wireBar(main); }
+    main.insertAdjacentHTML('afterbegin', AllDash.bar()); AllDash.wireBar(main);
     return r;
   };
   const sw = switchCase; switchCase = async function (id) { AllDash.C.delete(S.caseId); return sw.apply(this, arguments); };
