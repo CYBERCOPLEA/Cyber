@@ -2058,3 +2058,12 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
 /* top-bar CASE label and banner CURRENT CASE label: red badge, bold white */
 #topbar label[for="caseSel"]{background:linear-gradient(135deg,#dc2626,#b91c1c);color:#fff!important;font-weight:800;font-size:12px;letter-spacing:1px;text-transform:uppercase;padding:5px 11px;border-radius:7px;line-height:1.2;white-space:nowrap;box-shadow:0 3px 10px -4px #dc2626;margin-right:2px}
 .db-case .db-lbl{display:inline-block;width:max-content;max-width:100%;background:linear-gradient(135deg,#dc2626,#b91c1c);color:#fff;font-weight:800;font-size:11.5px;letter-spacing:1.2px;padding:4px 11px;border-radius:7px;line-height:1.25;margin-bottom:6px;box-shadow:0 3px 10px -4px #dc2626;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* Super Admin / User */
+#roleBadge{font-size:12px;font-weight:800;padding:5px 10px;border-radius:7px;white-space:nowrap;cursor:pointer;margin-right:6px}
+#roleBadge.rb-admin{background:linear-gradient(135deg,#fbbf24,#d4a017);color:#3b2a00}
+#roleBadge.rb-user{background:linear-gradient(135deg,#0ea5e9,#0369a1);color:#fff}
+.cd-ro{font-size:12px;font-weight:700;background:#0ea5e9;color:#fff;padding:3px 9px;border-radius:6px;margin-left:8px;vertical-align:middle}
+html.role-user option[value="__edit"],html.role-user .nc-edit,html.role-user [data-leaedit],html.role-user .fm-acts [data-ed],html.role-user .of-hint,html.role-user .nav-sub[data-ox="offx|files"]{display:none!important}
+html.role-user #cdImpM,html.role-user #cdScan,html.role-user #cdFile,html.role-user #cdAdd,html.role-user #cdForm,html.role-user #cdFImp,html.role-user #cdLive,html.role-user #cdCols,html.role-user #cdSe,html.role-user #cdKe{display:none!important}
+#topbar #gsearch{width:220px}
