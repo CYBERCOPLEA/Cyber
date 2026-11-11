@@ -1916,6 +1916,16 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
 @media (max-width:700px){.hp-kicker .pk-t{white-space:normal}}
 .hp-kicker::before{transform:none;background:linear-gradient(110deg,transparent 40%,rgba(255,255,255,.28) 50%,transparent 60%) no-repeat;background-size:300% 100%;animation:hpSweep2 3.2s ease-in-out infinite}
 @keyframes hpSweep2{0%{background-position:150% 0}60%,100%{background-position:-50% 0}}
+/* bigger police badge that always fits its text */
+.hp-kicker{font-size:19px;letter-spacing:2px;padding:12px 24px 12px 14px;gap:14px;min-height:62px;max-width:100%;box-sizing:border-box;line-height:1.25;border-radius:12px}
+.hp-kicker::before{border-radius:12px}
+.hp-kicker .pol-sh{width:46px;height:54px;margin:-4px 0}
+.hp-kicker .pk-t{white-space:normal;flex:0 1 auto;min-width:0}
+.hp-kicker .pk-pol{padding:2px 11px;white-space:nowrap}
+.hp-kicker .sir{width:13px;height:13px}
+@media (max-width:1300px){.hp-kicker{font-size:17px;letter-spacing:1.5px}}
+.hp-kicker{font-size:clamp(15px,1.32vw,19px);letter-spacing:1.4px}
+@media (max-width:1300px){.hp-kicker{font-size:clamp(15px,1.32vw,19px);letter-spacing:1.2px}}
 
 </style>
 </head>
@@ -1964,7 +1974,7 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
         <div class="hp-feat" style="--fc:#06b6d4"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><div><b>Analytics</b><p>The same mobile, account, IP or e-mail across complaints, banks and platforms.</p></div></div>
         <div class="hp-feat" style="--fc:#eab308"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h5"/></svg></span><div><b>Case File &amp; Notices</b><p>Case reports, notices to banks and platforms, and CSV / PDF exports.</p></div></div>
     </section>
-    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-11 13:26 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
+    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-11 13:32 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
   </div>
 
   <div class="lg-wrap" id="lgWrap" aria-hidden="true">

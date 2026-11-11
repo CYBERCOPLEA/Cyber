@@ -1908,3 +1908,13 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
 @media (max-width:700px){.hp-kicker .pk-t{white-space:normal}}
 .hp-kicker::before{transform:none;background:linear-gradient(110deg,transparent 40%,rgba(255,255,255,.28) 50%,transparent 60%) no-repeat;background-size:300% 100%;animation:hpSweep2 3.2s ease-in-out infinite}
 @keyframes hpSweep2{0%{background-position:150% 0}60%,100%{background-position:-50% 0}}
+/* bigger police badge that always fits its text */
+.hp-kicker{font-size:19px;letter-spacing:2px;padding:12px 24px 12px 14px;gap:14px;min-height:62px;max-width:100%;box-sizing:border-box;line-height:1.25;border-radius:12px}
+.hp-kicker::before{border-radius:12px}
+.hp-kicker .pol-sh{width:46px;height:54px;margin:-4px 0}
+.hp-kicker .pk-t{white-space:normal;flex:0 1 auto;min-width:0}
+.hp-kicker .pk-pol{padding:2px 11px;white-space:nowrap}
+.hp-kicker .sir{width:13px;height:13px}
+@media (max-width:1300px){.hp-kicker{font-size:17px;letter-spacing:1.5px}}
+.hp-kicker{font-size:clamp(15px,1.32vw,19px);letter-spacing:1.4px}
+@media (max-width:1300px){.hp-kicker{font-size:clamp(15px,1.32vw,19px);letter-spacing:1.2px}}
