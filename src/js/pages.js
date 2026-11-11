@@ -683,7 +683,7 @@ Pages.settings = main => {
     if (hashPass($('#sCur').value, S.settings.salt) !== S.settings.hash) { e.textContent = 'Current password is wrong'; return; }
     const p1 = $('#sP1').value, p2 = $('#sP2').value, u = $('#sUser').value.trim();
     if (!u) { e.textContent = 'Login ID required'; return; }
-    if (p1 || p2) { if (p1.length < 6) { e.textContent = 'Password must be at least 6 characters'; return; } if (p1 !== p2) { e.textContent = 'Passwords do not match'; return; } S.settings.salt = uid(); S.settings.hash = hashPass(p1, S.settings.salt); S.settings.mustChange = false; }
+    if (p1 || p2) { if (p1.length < 6) { e.textContent = 'Password must be at least 6 characters'; return; } if (p1 !== p2) { e.textContent = 'Passwords do not match'; return; } S.settings.salt = uid(); S.settings.hash = hashPass(p1, S.settings.salt); S.settings.mustChange = false; if (Vault.on()) await Vault.rewrap(p1); }
     S.settings.user = u; await saveMeta(); UI.toast('Login updated');
   };
   $('#sPref').onclick = async () => { S.settings.lockMins = Math.max(0, +$('#sLock').value || 0); S.settings.theme = $('#sTheme').value; applyTheme(); await saveMeta(); UI.toast('Saved'); };

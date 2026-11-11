@@ -64,6 +64,7 @@ const Mail = {
   },
   async verify() {
     const st = S.settings, err = $('#otErr');
+    if (Vault.on()) { err.textContent = 'Case data is locked with your password – reset it with your recovery key instead.'; return; }
     if (!st.otpHash) { err.textContent = 'Click "Send code" first.'; return; }
     if (Date.now() > st.otpExp) { err.textContent = 'This code has expired. Send a new one.'; return; }
     const code = $('#otCode').value.replace(/\D/g, ''), u = $('#otUser').value.trim(), p1 = $('#otP1').value, p2 = $('#otP2').value;
@@ -88,6 +89,7 @@ const Mail = {
   const byKey = Recovery.forgot.bind(Recovery);
   Recovery.forgotKey = byKey;
   Recovery.forgot = async () => {
+    if (Vault.on()) return byKey();
     await Mail.gLoad();
     if (!Mail.ready()) return byKey();
     const btns = [{ label: 'Cancel', onClick: UI.closeModal }];

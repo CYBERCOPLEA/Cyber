@@ -243,7 +243,7 @@ const Sess = {
   sig: tok => sha256(tok + '|' + S.settings.user + '|' + S.settings.hash),
   save() { try { const tok = uid() + uid(); sessionStorage.setItem(this.K, JSON.stringify({ tok, sig: this.sig(tok), at: Date.now() })); } catch (e) { } },
   touch(active = true) { try { const o = JSON.parse(sessionStorage.getItem(this.K) || 'null'); if (o) { if (active) o.at = Date.now(); o.page = S.page; o.sub = S.sub; sessionStorage.setItem(this.K, JSON.stringify(o)); } } catch (e) { } },
-  clear() { try { sessionStorage.removeItem(this.K); } catch (e) { } },
+  clear() { try { sessionStorage.removeItem(this.K); } catch (e) { } Vault.forget(); },
   valid() {
     try {
       const o = JSON.parse(sessionStorage.getItem(this.K) || 'null'); if (!o || !o.tok || o.sig !== this.sig(o.tok)) return null;
@@ -260,7 +260,7 @@ async function boot() {
   applyTheme();
   if (S.settings.mustChange) $('#lgFirst').innerHTML = 'First time? Default login ID <b>admin</b>, password <b>admin@123</b>. You will be asked to change it.';
   const back = Sess.valid();
-  if (back && !S.settings.mustChange) { // page was refreshed while signed in: go straight back to where you were
+  if (back && !S.settings.mustChange && await Vault.resume()) { // page was refreshed while signed in: go straight back to where you were
     if (back.sub && typeof back.sub === 'object') S.sub = Object.assign(S.sub || {}, back.sub);
     if (back.page && back.page !== 'search') S.page = back.page;
     $('#login').classList.add('hidden'); $('#app').classList.remove('hidden'); lastAct = Date.now(); Sess.save(); await start();
@@ -273,9 +273,14 @@ async function boot() {
       F.n = (F.n || 0) + 1; if (F.n % 5 === 0) F.until = now + Math.min(900, 30 * 2 ** (F.n / 5 - 1)) * 1000; try { localStorage.setItem(LK, JSON.stringify(F)); } catch (x) { }
       $('#lgErr').textContent = F.until && now < F.until ? `Too many wrong tries – wait ${Math.ceil((F.until - now) / 1000)} seconds` : `Wrong login ID or password${F.n >= 3 ? ` (${5 - F.n % 5} ${5 - F.n % 5 === 1 ? 'try' : 'tries'} left before a wait)` : ''}`; return; }
     try { localStorage.removeItem(LK); } catch (x) { }
+    const pw = $('#lgPass').value;
+    if (Vault.on() && !Vault.key) { $('#lgErr').textContent = 'Unlocking case data…'; const ok = await Vault.unlock(pw); $('#lgErr').textContent = '';
+      if (!ok) { $('#lgErr').textContent = 'Password is right but the locked case data could not be opened. Use "Forgot password?" with your recovery key.'; return; } }
+    else if (Vault.on() && !(await Vault.unlock(pw))) { $('#lgErr').textContent = 'Wrong login ID or password'; return; }
     $('#login').classList.add('hidden'); $('#app').classList.remove('hidden'); showLogin(false); lastAct = Date.now(); Sess.save();
     if (!S.data) await start();
     if (S.settings.mustChange) { go('settings'); UI.toast('Please set your own login ID and password now', 5000); }
+    else if (typeof VaultUI !== 'undefined') VaultUI.after(pw);
   };
 }
 async function start() {

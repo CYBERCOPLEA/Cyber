@@ -9,7 +9,7 @@ const Recovery = {
   norm: k => String(k || '').toUpperCase().replace(/[^A-Z0-9]/g, ''),
   async create() {
     const k = this.gen(); S.settings.recSalt = uid(); S.settings.recHash = hashPass(this.norm(k), S.settings.recSalt); S.settings.recWhen = new Date().toISOString();
-    await DB.set('settings', S.settings); this.show(k);
+    await Vault.wrapRec(this.norm(k)); await DB.set('settings', S.settings); this.show(k);
   },
   show(k) {
     const body = UI.modal('Your password recovery key', `
@@ -51,6 +51,7 @@ const Recovery = {
           if (!u) { err.textContent = 'Login ID required'; return; }
           if (p1.length < 6) { err.textContent = 'Password must be at least 6 characters'; return; }
           if (p1 !== p2) { err.textContent = 'Passwords do not match'; return; }
+          if (Vault.on()) { if (!(await Vault.fromRec(key))) { err.textContent = 'This recovery key cannot open the locked case data.'; return; } await Vault.rewrap(p1); }
           Object.assign(S.settings, { user: u, salt: uid(), mustChange: false, recTries: 0, recLockUntil: 0 }); S.settings.hash = hashPass(p1, S.settings.salt);
           await Recovery.create();   // old key is used up – show a new one
           $('#lgUser').value = u; $('#lgPass').value = ''; $('#lgErr').textContent = ''; $('#lgFirst').textContent = '';

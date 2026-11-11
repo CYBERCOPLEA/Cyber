@@ -2089,7 +2089,7 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
         <div class="hp-feat" style="--fc:#06b6d4"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><div><b>Analytics</b><p>The same mobile, account, IP or e-mail across complaints, banks and platforms.</p></div></div>
         <div class="hp-feat" style="--fc:#eab308"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h5"/></svg></span><div><b>Case File &amp; Notices</b><p>Case reports, notices to banks and platforms, and CSV / PDF exports.</p></div></div>
     </section>
-    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-11 17:21 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
+    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-11 18:26 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
   </div>
 
   <div class="lg-wrap" id="lgWrap" aria-hidden="true">
@@ -2646,6 +2646,110 @@ function extractIdentifiers(text) {
   (text.match(RX.account) || []).forEach(a => { if (!used.has(a) && !(a.length === 10 && /^[6-9]/.test(a)) && !(a.length === 12 && /^91[6-9]/.test(a))) add('account', a); });
   return out;
 }
+
+</script>
+<script>
+/* vault.js – locks all case data kept in this browser with the login password (AES-256-GCM, offline).
+   One random data key seals every record. That key is stored only in sealed form: once with the password,
+   once with the recovery key. Without one of them the records cannot be read, even from a copy of the browser files. */
+'use strict';
+class VaultPlain extends Error { }
+const Vault = (() => {
+  const PLAIN = /^(settings|ofDir|ofBak|ifscdb)$/, IT = 600000, E8 = new TextEncoder(), D8 = new TextDecoder();
+  const b64 = u => { let s = ''; const a = new Uint8Array(u); for (let i = 0; i < a.length; i += 32768) s += String.fromCharCode.apply(null, a.subarray(i, i + 32768)); return btoa(s); };
+  const unb64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+  const rnd = n => crypto.getRandomValues(new Uint8Array(n));
+  let openGate, keyIn; const gate = new Promise(r => openGate = r), hasKey = new Promise(r => keyIn = r);
+  const V = { key: null, SK: 'sud-vk', ok: () => !!(window.crypto && crypto.subtle) };
+  const on = () => !!(S.settings && S.settings.enc);
+  const isSealed = r => !!(r && r.__sv === 1 && r.ct instanceof ArrayBuffer);
+
+  /* ---- keys ---- */
+  const kek = async (pw, salt, it) => crypto.subtle.deriveKey({ name: 'PBKDF2', salt, iterations: it, hash: 'SHA-256' },
+    await crypto.subtle.importKey('raw', E8.encode(pw), 'PBKDF2', false, ['deriveKey']), { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+  const wrap = async pw => { const salt = rnd(16), iv = rnd(12), raw = await crypto.subtle.exportKey('raw', V.key);
+    return { s: b64(salt), i: b64(iv), c: b64(await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, await kek(pw, salt, IT), raw)), it: IT }; };
+  const imp = raw => crypto.subtle.importKey('raw', raw, 'AES-GCM', true, ['encrypt', 'decrypt']);
+  const unwrap = async (pw, w) => { try { return await imp(await crypto.subtle.decrypt({ name: 'AES-GCM', iv: unb64(w.i) }, await kek(pw, unb64(w.s), w.it || IT), unb64(w.c))); } catch (e) { return null; } };
+  const use = async k => { V.key = k; try { sessionStorage.setItem(V.SK, b64(await crypto.subtle.exportKey('raw', k))); } catch (e) { } openGate(); keyIn(); };
+
+  /* ---- records: JSON plus files / bytes / dates, packed into one buffer ---- */
+  async function pack(v) {
+    const parts = [];
+    const json = JSON.stringify(v === undefined ? null : v, function (k, x) {
+      const o = this[k];
+      if (o instanceof Blob) { parts.push(o); return { '\u0000b': parts.length - 1, n: o.name || '', t: o.type, m: o.lastModified || 0, f: o instanceof File ? 1 : 0 }; }
+      if (o instanceof Date) return { '\u0000d': isNaN(o) ? null : o.toISOString() };
+      if (o instanceof ArrayBuffer || ArrayBuffer.isView(o)) { const u = o instanceof ArrayBuffer ? new Uint8Array(o) : new Uint8Array(o.buffer, o.byteOffset, o.byteLength); parts.push(u); return { '\u0000u': parts.length - 1, c: o instanceof ArrayBuffer ? 'ArrayBuffer' : o.constructor.name }; }
+      if (o && typeof o === 'object') { const p = Object.getPrototypeOf(o); if (p !== Object.prototype && p !== Array.prototype && p !== null) throw new VaultPlain(); }
+      return x;
+    });
+    const jb = E8.encode(json), hd = new DataView(new ArrayBuffer(8 + 4 * parts.length));
+    hd.setUint32(0, jb.length); hd.setUint32(4, parts.length); parts.forEach((p, i) => hd.setUint32(8 + 4 * i, p.size !== undefined ? p.size : p.byteLength));
+    return new Blob([hd.buffer, jb, ...parts]).arrayBuffer();
+  }
+  function unpack(buf) {
+    const dv = new DataView(buf), n = dv.getUint32(0), P = dv.getUint32(4); let off = 8 + 4 * P + n; const at = [];
+    for (let i = 0; i < P; i++) { const z = dv.getUint32(8 + 4 * i); at.push([off, z]); off += z; }
+    const bytes = i => new Uint8Array(buf, at[i][0], at[i][1]).slice();
+    return JSON.parse(D8.decode(new Uint8Array(buf, 8 + 4 * P, n)), (k, x) => {
+      if (x && typeof x === 'object' && !Array.isArray(x)) {
+        if ('\u0000b' in x) { const b = bytes(x['\u0000b']); return x.f ? new File([b], x.n, { type: x.t, lastModified: x.m }) : new Blob([b], { type: x.t }); }
+        if ('\u0000u' in x) { const b = bytes(x['\u0000u']); return x.c === 'ArrayBuffer' ? b.buffer : new (window[x.c] || Uint8Array)(b.buffer); }
+        if ('\u0000d' in x) return new Date(x['\u0000d']);
+      }
+      return x;
+    });
+  }
+  V.seal = async v => { const iv = rnd(12); return { __sv: 1, iv, ct: await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, V.key, await pack(v)) }; };
+  V.unseal = async r => unpack(await crypto.subtle.decrypt({ name: 'AES-GCM', iv: r.iv }, V.key, r.ct));
+
+  /* ---- the database layer: seal on write, open on read ---- */
+  const G = DB.get.bind(DB), P = DB.set.bind(DB), D = DB.del.bind(DB), q = new Map();
+  const mk = k => on() && typeof k === 'string' && k.startsWith('ocrc:') ? 'ocrc#' + sha256(k.slice(5)) : k;   // OCR cache keys hold file names
+  const chain = (k, f) => { const p = (q.get(k) || Promise.resolve()).catch(() => { }).then(f); q.set(k, p); p.finally(() => { if (q.get(k) === p) q.delete(k); }).catch(() => { }); return p; };
+  DB.raw = { get: G, set: P, del: D };
+  DB.get = async k => {
+    if (q.has(k)) { try { await q.get(k); } catch (e) { } }
+    const K = mk(k); let r = await G(K); if (r === undefined && K !== k) r = await G(k);
+    if (k === 'settings' && !(r && r.enc)) openGate();
+    if (!isSealed(r)) return r;
+    if (!V.key) await hasKey;
+    return V.unseal(r);
+  };
+  DB.set = (k, v) => chain(k, async () => {
+    const K = mk(k); if (typeof k === 'string' && PLAIN.test(k)) return P(K, v);
+    if (!V.key) await gate;
+    if (!V.key) return P(K, v);
+    let s; try { s = await V.seal(v); } catch (e) { if (e instanceof VaultPlain) { console.warn('vault: kept unsealed (not plain data)', k); return P(K, v); } throw e; }
+    await P(K, s); if (K !== k) await D(k).catch(() => { });
+  });
+  DB.del = k => chain(k, async () => { const K = mk(k); await D(K); if (K !== k) await D(k); });
+
+  /* ---- unlock / lock / change password ---- */
+  const check = async k => { const c = S.settings.enc.t; if (!c) return true; try { await crypto.subtle.decrypt({ name: 'AES-GCM', iv: unb64(c.i) }, k, unb64(c.c)); return true; } catch (e) { return false; } };
+  V.on = on;
+  V.resume = async () => {   // page refresh while signed in
+    if (!on()) return true; if (V.key) return true;
+    try { const s = sessionStorage.getItem(V.SK); if (!s) return false; const k = await imp(unb64(s)); if (!(await check(k))) return false; await use(k); return true; } catch (e) { return false; }
+  };
+  V.unlock = async pw => { if (!on()) return true; const k = await unwrap(pw, S.settings.enc.p); if (!k) return false; await use(k); return true; };
+  V.fromRec = async rk => { const w = on() && S.settings.enc.r; if (!w) return false; const k = await unwrap(rk, w); if (!k) return false; await use(k); return true; };
+  V.rewrap = async pw => { S.settings.enc.p = await wrap(pw); };
+  V.wrapRec = async rk => { if (on() && V.key) S.settings.enc.r = await wrap(rk); };
+  V.forget = () => { try { sessionStorage.removeItem(V.SK); } catch (e) { } };
+  V.enable = async (pw, prog) => {
+    if (on()) return 0; if (!V.ok()) throw new Error('This browser cannot lock data. Use Google Chrome or Microsoft Edge.');
+    const k = await crypto.subtle.generateKey({ name: 'AES-GCM', length: 256 }, true, ['encrypt', 'decrypt']); V.key = k;
+    const iv = rnd(12), t = { i: b64(iv), c: b64(await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, k, E8.encode('SudarshanAshtra'))) };
+    S.settings.enc = { v: 1, when: new Date().toISOString(), p: await wrap(pw), t };
+    await P('settings', S.settings); await use(k);
+    const keys = (await DB.keys()).filter(x => typeof x === 'string' && !PLAIN.test(x) && !x.startsWith('ocrc#')); let n = 0, i = 0;
+    for (const x of keys) { i++; const r = await G(x); if (r !== undefined && !isSealed(r)) { await DB.set(x, r); n++; } if (prog && i % 10 === 0) prog(i, keys.length); }
+    return n;
+  };
+  return V;
+})();
 
 </script>
 <script>
@@ -4615,7 +4719,7 @@ Pages.settings = main => {
     if (hashPass($('#sCur').value, S.settings.salt) !== S.settings.hash) { e.textContent = 'Current password is wrong'; return; }
     const p1 = $('#sP1').value, p2 = $('#sP2').value, u = $('#sUser').value.trim();
     if (!u) { e.textContent = 'Login ID required'; return; }
-    if (p1 || p2) { if (p1.length < 6) { e.textContent = 'Password must be at least 6 characters'; return; } if (p1 !== p2) { e.textContent = 'Passwords do not match'; return; } S.settings.salt = uid(); S.settings.hash = hashPass(p1, S.settings.salt); S.settings.mustChange = false; }
+    if (p1 || p2) { if (p1.length < 6) { e.textContent = 'Password must be at least 6 characters'; return; } if (p1 !== p2) { e.textContent = 'Passwords do not match'; return; } S.settings.salt = uid(); S.settings.hash = hashPass(p1, S.settings.salt); S.settings.mustChange = false; if (Vault.on()) await Vault.rewrap(p1); }
     S.settings.user = u; await saveMeta(); UI.toast('Login updated');
   };
   $('#sPref').onclick = async () => { S.settings.lockMins = Math.max(0, +$('#sLock').value || 0); S.settings.theme = $('#sTheme').value; applyTheme(); await saveMeta(); UI.toast('Saved'); };
@@ -5080,7 +5184,7 @@ const Sess = {
   sig: tok => sha256(tok + '|' + S.settings.user + '|' + S.settings.hash),
   save() { try { const tok = uid() + uid(); sessionStorage.setItem(this.K, JSON.stringify({ tok, sig: this.sig(tok), at: Date.now() })); } catch (e) { } },
   touch(active = true) { try { const o = JSON.parse(sessionStorage.getItem(this.K) || 'null'); if (o) { if (active) o.at = Date.now(); o.page = S.page; o.sub = S.sub; sessionStorage.setItem(this.K, JSON.stringify(o)); } } catch (e) { } },
-  clear() { try { sessionStorage.removeItem(this.K); } catch (e) { } },
+  clear() { try { sessionStorage.removeItem(this.K); } catch (e) { } Vault.forget(); },
   valid() {
     try {
       const o = JSON.parse(sessionStorage.getItem(this.K) || 'null'); if (!o || !o.tok || o.sig !== this.sig(o.tok)) return null;
@@ -5097,7 +5201,7 @@ async function boot() {
   applyTheme();
   if (S.settings.mustChange) $('#lgFirst').innerHTML = 'First time? Default login ID <b>admin</b>, password <b>admin@123</b>. You will be asked to change it.';
   const back = Sess.valid();
-  if (back && !S.settings.mustChange) { // page was refreshed while signed in: go straight back to where you were
+  if (back && !S.settings.mustChange && await Vault.resume()) { // page was refreshed while signed in: go straight back to where you were
     if (back.sub && typeof back.sub === 'object') S.sub = Object.assign(S.sub || {}, back.sub);
     if (back.page && back.page !== 'search') S.page = back.page;
     $('#login').classList.add('hidden'); $('#app').classList.remove('hidden'); lastAct = Date.now(); Sess.save(); await start();
@@ -5110,9 +5214,14 @@ async function boot() {
       F.n = (F.n || 0) + 1; if (F.n % 5 === 0) F.until = now + Math.min(900, 30 * 2 ** (F.n / 5 - 1)) * 1000; try { localStorage.setItem(LK, JSON.stringify(F)); } catch (x) { }
       $('#lgErr').textContent = F.until && now < F.until ? `Too many wrong tries – wait ${Math.ceil((F.until - now) / 1000)} seconds` : `Wrong login ID or password${F.n >= 3 ? ` (${5 - F.n % 5} ${5 - F.n % 5 === 1 ? 'try' : 'tries'} left before a wait)` : ''}`; return; }
     try { localStorage.removeItem(LK); } catch (x) { }
+    const pw = $('#lgPass').value;
+    if (Vault.on() && !Vault.key) { $('#lgErr').textContent = 'Unlocking case data…'; const ok = await Vault.unlock(pw); $('#lgErr').textContent = '';
+      if (!ok) { $('#lgErr').textContent = 'Password is right but the locked case data could not be opened. Use "Forgot password?" with your recovery key.'; return; } }
+    else if (Vault.on() && !(await Vault.unlock(pw))) { $('#lgErr').textContent = 'Wrong login ID or password'; return; }
     $('#login').classList.add('hidden'); $('#app').classList.remove('hidden'); showLogin(false); lastAct = Date.now(); Sess.save();
     if (!S.data) await start();
     if (S.settings.mustChange) { go('settings'); UI.toast('Please set your own login ID and password now', 5000); }
+    else if (typeof VaultUI !== 'undefined') VaultUI.after(pw);
   };
 }
 async function start() {
@@ -5150,7 +5259,7 @@ const Recovery = {
   norm: k => String(k || '').toUpperCase().replace(/[^A-Z0-9]/g, ''),
   async create() {
     const k = this.gen(); S.settings.recSalt = uid(); S.settings.recHash = hashPass(this.norm(k), S.settings.recSalt); S.settings.recWhen = new Date().toISOString();
-    await DB.set('settings', S.settings); this.show(k);
+    await Vault.wrapRec(this.norm(k)); await DB.set('settings', S.settings); this.show(k);
   },
   show(k) {
     const body = UI.modal('Your password recovery key', `
@@ -5192,6 +5301,7 @@ const Recovery = {
           if (!u) { err.textContent = 'Login ID required'; return; }
           if (p1.length < 6) { err.textContent = 'Password must be at least 6 characters'; return; }
           if (p1 !== p2) { err.textContent = 'Passwords do not match'; return; }
+          if (Vault.on()) { if (!(await Vault.fromRec(key))) { err.textContent = 'This recovery key cannot open the locked case data.'; return; } await Vault.rewrap(p1); }
           Object.assign(S.settings, { user: u, salt: uid(), mustChange: false, recTries: 0, recLockUntil: 0 }); S.settings.hash = hashPass(p1, S.settings.salt);
           await Recovery.create();   // old key is used up – show a new one
           $('#lgUser').value = u; $('#lgPass').value = ''; $('#lgErr').textContent = ''; $('#lgFirst').textContent = '';
@@ -5294,6 +5404,7 @@ const Mail = {
   },
   async verify() {
     const st = S.settings, err = $('#otErr');
+    if (Vault.on()) { err.textContent = 'Case data is locked with your password – reset it with your recovery key instead.'; return; }
     if (!st.otpHash) { err.textContent = 'Click "Send code" first.'; return; }
     if (Date.now() > st.otpExp) { err.textContent = 'This code has expired. Send a new one.'; return; }
     const code = $('#otCode').value.replace(/\D/g, ''), u = $('#otUser').value.trim(), p1 = $('#otP1').value, p2 = $('#otP2').value;
@@ -5318,6 +5429,7 @@ const Mail = {
   const byKey = Recovery.forgot.bind(Recovery);
   Recovery.forgotKey = byKey;
   Recovery.forgot = async () => {
+    if (Vault.on()) return byKey();
     await Mail.gLoad();
     if (!Mail.ready()) return byKey();
     const btns = [{ label: 'Cancel', onClick: UI.closeModal }];
@@ -5370,6 +5482,68 @@ const Mail = {
     };
   };
 })();
+
+</script>
+<script>
+/* vaultui.js – "Lock Case Data" card in Settings, the one-time offer after login, and a save when the tab is hidden */
+'use strict';
+const VaultUI = {
+  busy: false,
+  async lockNow(pw) {
+    if (this.busy || Vault.on()) return; this.busy = true;
+    const body = UI.modal('🔒 Locking Case Data…', `<p>Sealing every case, file and note in this browser with your password. Please keep this page open.</p><div class="small muted" id="vlProg">Starting…</div>`, []);
+    try {
+      if (S.caseId && S.data && !isScope(S.caseId)) { clearTimeout(saveTimer); await DB.set('case:' + S.caseId, S.data); }
+      const n = await Vault.enable(pw, (i, t) => { const e = $('#vlProg', body); if (e) e.textContent = `${i} of ${t} records…`; });
+      UI.closeModal(); await Recovery.create();   // new recovery key – it can open the locked data too
+      UI.toast(`✔ Case data locked (${n} records). Save the new recovery key shown now.`, 8000);
+      if (S.page === 'settings') render();
+    } catch (e) { UI.closeModal(); UI.toast('Could not lock: ' + e.message, 8000); console.warn('vault', e); }
+    this.busy = false;
+  },
+  offer(pw) {
+    if (Vault.on() || !Vault.ok()) return;
+    UI.modal('🔒 Lock Case Data With Your Password', `
+      <div class="note"><b>Recommended.</b> All cases, imported files, Case One Files and notes kept in this browser will be locked (AES-256). They open only after you log in.
+      Anyone who copies the browser files or opens this computer without your password sees nothing readable.</div>
+      <ul class="small" style="color:var(--text-secondary);margin-top:10px">
+        <li>A <b>new recovery key</b> is shown at the end. Keep it safe: it is the only way back if you forget the password.</li>
+        <li>If both the password and the recovery key are lost, the data cannot be opened – only your backup files can bring it back.</li>
+        <li>Files you save outside (exports, Case One File folder, backups) stay normal files so Word / Excel can open them – keep that folder safe.</li>
+        <li>Password reset by e-mail code is turned off after locking (it cannot open the data). Use the recovery key.</li></ul>`,
+      [{ label: 'Later', onClick: async () => { UI.closeModal(); S.settings.encAsk = today(); await DB.set('settings', S.settings); } },
+       { label: '🔒 Lock Now', cls: 'primary', onClick: () => { UI.closeModal(); this.lockNow(pw); } }]);
+  },
+  after(pw) {
+    if (Vault.on() || S.settings.mustChange || S.settings.encAsk === today()) return;
+    let n = 0; const t = setInterval(() => { if (++n > 400 || Vault.on() || $('#app').classList.contains('hidden')) { clearInterval(t); return; }   // wait until other pop-ups (recovery key) are closed
+      if (n > 1 && $('#modal').classList.contains('hidden')) { clearInterval(t); this.offer(pw); } }, 1500);
+  }
+};
+
+/* Settings card */
+(() => {
+  const orig = Pages.settings;
+  Pages.settings = main => {
+    orig(main);
+    const card = document.createElement('div'); card.className = 'card'; card.id = 'vaultCard';
+    const E = S.settings.enc;
+    card.innerHTML = `<h3>🔒 Lock Case Data With Password</h3>
+      <div class="sub">Seals all cases, files and notes kept in this browser (AES-256, fully offline). They open only with your login password or your recovery key.</div>
+      ${E ? `<div class="row"><span class="badge good">Locked</span><span class="small muted">since ${esc(new Date(E.when).toLocaleDateString('en-IN'))} · opens with your password or recovery key</span></div>`
+        : Vault.ok() ? `<div class="row"><span class="badge bad">Not locked</span><input type="password" id="vlPw" placeholder="Your current password" style="max-width:240px"><button class="btn primary" id="vlGo">🔒 Lock Now</button><span class="err" id="vlErr"></span></div>`
+        : '<div class="note warn">This browser cannot lock data. Use Google Chrome or Microsoft Edge.</div>'}`;
+    const grid = main.querySelector('.grid'); grid.parentNode.insertBefore(card, grid.nextSibling);
+    const go = $('#vlGo', card);
+    if (go) go.onclick = () => { const pw = $('#vlPw', card).value; if (hashPass(pw, S.settings.salt) !== S.settings.hash) { $('#vlErr', card).textContent = 'Password is wrong'; return; } VaultUI.offer(pw); };
+    /* first password change: offer locking with the new password */
+    const btn = $('#sSave'), save = btn.onclick;
+    btn.onclick = async () => { const before = S.settings.hash, p1 = $('#sP1').value; await save(); if (S.settings.hash !== before && p1 && !Vault.on()) setTimeout(() => VaultUI.after(p1), 600); };
+  };
+})();
+
+/* save the open case when the tab is hidden – sealing takes a moment, closing can be too quick */
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden' && S.caseId && S.data && !isScope(S.caseId) && !$('#app').classList.contains('hidden')) DB.set('case:' + S.caseId, S.data); });
 
 </script>
 <script>
