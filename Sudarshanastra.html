@@ -1880,6 +1880,23 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
 .nd-tag.wo{background:rgba(239,68,68,.14);color:#f87171;border:1px solid rgba(239,68,68,.4)}
 .nd-tag.wi{background:rgba(234,179,8,.14);color:#facc15;border:1px solid rgba(234,179,8,.4)}
 
+/* Login: police-light badge */
+.hp-kicker{position:relative;display:inline-flex;align-items:center;gap:12px;font-size:15px;font-weight:800;letter-spacing:2.4px;text-transform:uppercase;color:#fff;
+  padding:9px 18px;border-radius:10px;overflow:hidden;isolation:isolate;
+  background:linear-gradient(90deg,#1d4ed8 0%,#2563eb 30%,#7c3aed 50%,#dc2626 70%,#b91c1c 100%);
+  border:1px solid rgba(255,255,255,.35);text-shadow:0 1px 2px rgba(0,0,0,.55),0 0 10px rgba(255,255,255,.35);
+  box-shadow:0 0 18px rgba(37,99,235,.65),0 0 18px rgba(220,38,38,.55),inset 0 1px 0 rgba(255,255,255,.3);animation:hpSiren 1.6s ease-in-out infinite}
+.hp-kicker span{position:relative;z-index:1}
+.hp-kicker::before{content:'';position:absolute;inset:0;z-index:0;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.28) 50%,transparent 70%);transform:translateX(-100%);animation:hpSweep 3.2s ease-in-out infinite}
+.hp-kicker .sir{position:relative;z-index:1;width:11px;height:11px;border-radius:50%;flex:none}
+.hp-kicker .sir.b{background:#93c5fd;box-shadow:0 0 6px #60a5fa,0 0 14px #3b82f6;animation:hpBlinkB 1.6s infinite}
+.hp-kicker .sir.r{background:#fca5a5;box-shadow:0 0 6px #f87171,0 0 14px #ef4444;animation:hpBlinkR 1.6s infinite}
+@keyframes hpSiren{0%,100%{box-shadow:-10px 0 24px rgba(37,99,235,.85),10px 0 10px rgba(220,38,38,.35),inset 0 1px 0 rgba(255,255,255,.3)}50%{box-shadow:-10px 0 10px rgba(37,99,235,.35),10px 0 24px rgba(220,38,38,.85),inset 0 1px 0 rgba(255,255,255,.3)}}
+@keyframes hpBlinkB{0%,45%{opacity:1}55%,100%{opacity:.25}}
+@keyframes hpBlinkR{0%,45%{opacity:.25}55%,100%{opacity:1}}
+@keyframes hpSweep{0%{transform:translateX(-100%)}60%,100%{transform:translateX(100%)}}
+@media (prefers-reduced-motion:reduce){.hp-kicker,.hp-kicker::before,.hp-kicker .sir{animation:none}}
+
 </style>
 </head>
 <body>
@@ -1895,7 +1912,7 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
     </header>
     <section class="hp-hero">
       <div class="hp-copy">
-        <div class="hp-kicker">For Cyber Crime Investigators</div>
+        <div class="hp-kicker"><i class="sir b"></i><span>For Cyber Crime Investigators</span><i class="sir r"></i></div>
         <div class="hp-name"><span class="hp-nhi" lang="hi">सुदर्शनास्त्र</span><span class="hp-nen">SudarshanAshtra</span></div>
         <h1>Trace the Suspect.<br><span>Connect the evidence.</span></h1>
         <p class="hp-lead">SudarshanAshtra turns NCRP complaints, bank statements and social media replies into clear money trails, linked accounts and ready case files, all on this computer.</p>
@@ -1927,7 +1944,7 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
         <div class="hp-feat" style="--fc:#06b6d4"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><div><b>Analytics</b><p>The same mobile, account, IP or e-mail across complaints, banks and platforms.</p></div></div>
         <div class="hp-feat" style="--fc:#eab308"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h5"/></svg></span><div><b>Case File &amp; Notices</b><p>Case reports, notices to banks and platforms, and CSV / PDF exports.</p></div></div>
     </section>
-    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-11 13:15 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
+    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-11 13:17 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
   </div>
 
   <div class="lg-wrap" id="lgWrap" aria-hidden="true">
