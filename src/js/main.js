@@ -222,8 +222,8 @@ const CaseBox = {
       $('#cbSv', el).onclick = async () => { const o = this.read(el), err = this.check(o); if (err) return $('#cbErr', el).textContent = err; const auto = !c.name || c.name === this.autoName(c) || /^Case \d+$/.test(c.name); Object.assign(c, o); if (auto) c.name = this.autoName(c); await saveMeta(); fillCaseSel(); render(); UI.toast('Case details saved'); }; };
   }
 };
-async function deleteCase(id) {
-  const c = S.cases.find(x => x.id === id); if (!c || !UI.confirm(`Delete case "${c.name}" and ALL its data? Download a backup first if unsure.`)) return;
+async function deleteCase(id, sure) {
+  const c = S.cases.find(x => x.id === id); if (!c || !sure && !UI.confirm(`Delete case "${c.name}" and ALL its data? Download a backup first if unsure.`)) return;
   await DB.del('case:' + id); S.cases = S.cases.filter(x => x.id !== id);
   if (!S.cases.length) { S.caseId = null; await newCase('Case 1'); return; }
   if (S.caseId === id) { S.caseId = null; await switchCase(S.cases[0].id); } else { await saveMeta(); render(); }

@@ -2057,6 +2057,12 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
 .ad-kv{width:100%;border-collapse:collapse}.ad-kv th{text-align:left;width:34%;padding:7px 10px;color:var(--text-secondary);font-weight:600;border-bottom:1px solid var(--border);vertical-align:top}.ad-kv td{padding:7px 10px;border-bottom:1px solid var(--border);word-break:break-word}
 .ad-dcase{font-weight:700;margin-bottom:8px}.ad-full{white-space:pre-wrap;max-height:50vh;overflow:auto;padding:12px 14px;border:1px solid var(--border);border-radius:10px;background:var(--surface-2);font-size:14px;line-height:1.55}
 
+/* top bar: New Case / Import in blue, Delete Case Data in gold */
+#btnNewCase{background:linear-gradient(135deg,#2563eb,#1d4ed8)!important;color:#fff!important;border-color:#3b82f6!important;box-shadow:0 4px 14px -6px #2563eb}
+#btnNewCase:hover{filter:brightness(1.12)}
+#btnDelCase{background:linear-gradient(135deg,#fbbf24,#d4a017)!important;color:#3b2a00!important;border-color:#f59e0b!important;font-weight:700;margin-left:6px;box-shadow:0 4px 14px -6px #d4a017}
+#btnDelCase:hover{filter:brightness(1.08)}
+
 </style>
 </head>
 <body>
@@ -2104,7 +2110,7 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
         <div class="hp-feat" style="--fc:#06b6d4"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><div><b>Analytics</b><p>The same mobile, account, IP or e-mail across complaints, banks and platforms.</p></div></div>
         <div class="hp-feat" style="--fc:#eab308"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h5"/></svg></span><div><b>Case File &amp; Notices</b><p>Case reports, notices to banks and platforms, and CSV / PDF exports.</p></div></div>
     </section>
-    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-11 22:46 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
+    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-11 22:52 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
   </div>
 
   <div class="lg-wrap" id="lgWrap" aria-hidden="true">
@@ -5223,8 +5229,8 @@ const CaseBox = {
       $('#cbSv', el).onclick = async () => { const o = this.read(el), err = this.check(o); if (err) return $('#cbErr', el).textContent = err; const auto = !c.name || c.name === this.autoName(c) || /^Case \d+$/.test(c.name); Object.assign(c, o); if (auto) c.name = this.autoName(c); await saveMeta(); fillCaseSel(); render(); UI.toast('Case details saved'); }; };
   }
 };
-async function deleteCase(id) {
-  const c = S.cases.find(x => x.id === id); if (!c || !UI.confirm(`Delete case "${c.name}" and ALL its data? Download a backup first if unsure.`)) return;
+async function deleteCase(id, sure) {
+  const c = S.cases.find(x => x.id === id); if (!c || !sure && !UI.confirm(`Delete case "${c.name}" and ALL its data? Download a backup first if unsure.`)) return;
   await DB.del('case:' + id); S.cases = S.cases.filter(x => x.id !== id);
   if (!S.cases.length) { S.caseId = null; await newCase('Case 1'); return; }
   if (S.caseId === id) { S.caseId = null; await switchCase(S.cases[0].id); } else { await saveMeta(); render(); }
@@ -5617,6 +5623,51 @@ const VaultUI = {
 
 /* save the open case when the tab is hidden – sealing takes a moment, closing can be too quick */
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden' && S.caseId && S.data && !isScope(S.caseId) && !$('#app').classList.contains('hidden')) DB.set('case:' + S.caseId, S.data); });
+
+</script>
+<script>
+/* casedel.js – "Delete Case Data" in the top bar: choose the case, keep a backup, confirm with the password */
+'use strict';
+const CaseDel = {
+  open() {
+    if (!S.cases.length) { UI.toast('No case to delete'); return; }
+    const cur = isScope(S.caseId) ? '' : S.caseId;
+    const grp = (l, L) => L.length ? `<optgroup label="${esc(l)}">${L.map(c => `<option value="${esc(c.id)}" ${c.id === cur ? 'selected' : ''}>${esc(AllMode.caseLabel(c))}</option>`).join('')}</optgroup>` : '';
+    const body = UI.modal('🗑 Delete Case Data', `
+      <div class="note warn"><b>This removes the case and all its data from this computer</b> – imported files, trail, CDR, CD, notices and notes. It cannot be undone, except from a backup file.</div>
+      <div class="map-grid" style="grid-template-columns:1fr;margin-top:12px">
+        <div class="f"><label>Case to delete</label><select id="cdSel">${cur ? '' : '<option value="">— Choose the case —</option>'}${grp('📁 FIR Cases', S.cases.filter(c => AllMode.cat(c) === 'fir'))}${grp('🧾 NCRP – No FIR Yet', S.cases.filter(c => AllMode.cat(c) !== 'fir'))}</select></div>
+        <div id="cdInfo" class="small muted"></div>
+        <label class="row" style="gap:8px;align-items:center"><input type="checkbox" id="cdBak" checked style="width:auto"> Download a backup file of this case first (recommended)</label>
+        <div class="f"><label>Your login password (to confirm)</label><input type="password" id="cdPw" autocomplete="current-password"></div></div>
+      <div class="err" id="cdErr" style="margin-top:8px"></div>`,
+      [{ label: 'Cancel', onClick: UI.closeModal }, { label: '🗑 Delete This Case', cls: 'danger', onClick: () => this.go() }]);
+    const info = async () => { const id = $('#cdSel', body).value, i = $('#cdInfo', body); if (!id) { i.textContent = ''; return; } i.textContent = 'Reading…';
+      let d = {}; try { d = (id === S.caseId ? S.data : await DB.get('case:' + id)) || {}; } catch (e) { }
+      const n = k => (d[k] || []).length, cc = d.cctns || {};
+      i.innerHTML = `Contains: <b>${fmtNum(n('txns'))}</b> transactions · <b>${fmtNum(n('ncrp'))}</b> complaints · <b>${fmtNum(n('tel'))}</b> CDR / IPDR rows · <b>${fmtNum(n('social'))}</b> social · <b>${fmtNum((cc.cd || []).length)}</b> CD parts · <b>${fmtNum(n('imports'))}</b> files imported`; };
+    $('#cdSel', body).onchange = info; info();
+  },
+  async go() {
+    const id = $('#cdSel').value, pw = $('#cdPw').value, err = $('#cdErr'), c = S.cases.find(x => x.id === id);
+    if (!c) { err.textContent = 'Choose the case to delete'; return; }
+    if (hashPass(pw, S.settings.salt) !== S.settings.hash) { err.textContent = 'Password is wrong'; return; }
+    if ($('#cdBak').checked) {
+      let d = null; try { d = (id === S.caseId ? S.data : await DB.get('case:' + id)) || emptyCase(); } catch (e) { err.textContent = 'Could not read the case for the backup – nothing deleted.'; return; }
+      UI.download(`SudarshanAshtra_backup_${(c.fir || c.ack || c.name || 'case').replace(/[^\w.-]+/g, '_')}_${today()}.json`, JSON.stringify({ app: 'sudarshanastra', version: 1, exported: new Date().toISOString(), cases: [c], data: { [id]: d } }), 'application/json');
+    }
+    UI.closeModal();
+    await deleteCase(id, true);
+    if (isScope(S.caseId) && (S.cases.length < 2 || !AllMode.list(S.caseId).length)) await switchCase(S.cases[0].id);   // one case left: show it
+    for (const k of ['dx', 'cxt', 'cc', 'ofx', 'ad']) DB.del('sum:' + k + ':' + id).catch(() => { });
+    UI.toast(`🗑 Case "${c.name}" deleted`, 6000);
+  }
+};
+(() => {
+  const nb = $('#btnNewCase'); if (!nb || $('#btnDelCase')) return;
+  nb.insertAdjacentHTML('afterend', '<button class="btn sm" id="btnDelCase" title="Remove a case and all its data from this computer (asks for your password; keeps a backup file)">🗑 Delete Case Data</button>');
+  $('#btnDelCase').onclick = () => CaseDel.open();
+})();
 
 </script>
 <script>

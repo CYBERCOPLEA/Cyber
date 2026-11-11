@@ -2048,3 +2048,9 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
 
 .ad-kv{width:100%;border-collapse:collapse}.ad-kv th{text-align:left;width:34%;padding:7px 10px;color:var(--text-secondary);font-weight:600;border-bottom:1px solid var(--border);vertical-align:top}.ad-kv td{padding:7px 10px;border-bottom:1px solid var(--border);word-break:break-word}
 .ad-dcase{font-weight:700;margin-bottom:8px}.ad-full{white-space:pre-wrap;max-height:50vh;overflow:auto;padding:12px 14px;border:1px solid var(--border);border-radius:10px;background:var(--surface-2);font-size:14px;line-height:1.55}
+
+/* top bar: New Case / Import in blue, Delete Case Data in gold */
+#btnNewCase{background:linear-gradient(135deg,#2563eb,#1d4ed8)!important;color:#fff!important;border-color:#3b82f6!important;box-shadow:0 4px 14px -6px #2563eb}
+#btnNewCase:hover{filter:brightness(1.12)}
+#btnDelCase{background:linear-gradient(135deg,#fbbf24,#d4a017)!important;color:#3b2a00!important;border-color:#f59e0b!important;font-weight:700;margin-left:6px;box-shadow:0 4px 14px -6px #d4a017}
+#btnDelCase:hover{filter:brightness(1.08)}
