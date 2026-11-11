@@ -1897,6 +1897,26 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
 @keyframes hpSweep{0%{transform:translateX(-100%)}60%,100%{transform:translateX(100%)}}
 @media (prefers-reduced-motion:reduce){.hp-kicker,.hp-kicker::before,.hp-kicker .sir{animation:none}}
 
+/* Login: police shield badge */
+.hp-kicker{overflow:visible;gap:12px;padding:8px 18px 8px 10px;cursor:default;transition:transform .25s ease}
+.hp-kicker::before{border-radius:10px;overflow:hidden}
+.hp-kicker .pol-sh{position:relative;z-index:1;width:36px;height:42px;flex:none;filter:drop-shadow(0 2px 3px rgba(0,0,0,.55)) drop-shadow(0 0 6px rgba(244,184,31,.55));margin:-6px 0}
+.hp-kicker .pk-t{position:relative;z-index:1;white-space:nowrap}
+.hp-kicker .pk-pol{display:inline-block;padding:1px 9px;margin:0 2px;border-radius:4px;font-weight:900;color:#fff;letter-spacing:2px;
+  background:linear-gradient(160deg,#ef1c1c 0 50%,#1434e6 50% 100%);border:1px solid rgba(255,255,255,.7);box-shadow:0 0 10px rgba(255,255,255,.35)}
+.hp-kicker:hover,.hp-kicker:focus-visible{transform:translateY(-2px) scale(1.04);outline:none}
+.pk-pop{position:absolute;left:0;top:calc(100% + 12px);z-index:30;display:flex;gap:12px;align-items:center;width:max-content;max-width:min(460px,92vw);
+  padding:12px 16px 12px 12px;border-radius:12px;background:#0b1630;border:1px solid rgba(147,197,253,.45);text-transform:none;letter-spacing:0;text-shadow:none;
+  box-shadow:0 12px 30px rgba(0,0,0,.55),0 0 16px rgba(37,99,235,.45),0 0 16px rgba(220,38,38,.35);opacity:0;visibility:hidden;transform:translateY(-6px);transition:opacity .2s,transform .2s,visibility .2s;pointer-events:none}
+.pk-pop::before{content:'';position:absolute;top:-7px;left:26px;width:12px;height:12px;background:#0b1630;border-left:1px solid rgba(147,197,253,.45);border-top:1px solid rgba(147,197,253,.45);transform:rotate(45deg)}
+.pk-pop .pol-sh{width:46px;height:54px;margin:0}
+.pk-pop b{display:block;font-size:14px;color:#fbbf24;font-weight:800;margin-bottom:3px}
+.pk-pop span{display:block;font-size:12.5px;font-weight:500;color:#dbeafe;line-height:1.45;white-space:normal}
+.hp-kicker:hover .pk-pop,.hp-kicker:focus-visible .pk-pop{opacity:1;visibility:visible;transform:none}
+@media (max-width:700px){.hp-kicker .pk-t{white-space:normal}}
+.hp-kicker::before{transform:none;background:linear-gradient(110deg,transparent 40%,rgba(255,255,255,.28) 50%,transparent 60%) no-repeat;background-size:300% 100%;animation:hpSweep2 3.2s ease-in-out infinite}
+@keyframes hpSweep2{0%{background-position:150% 0}60%,100%{background-position:-50% 0}}
+
 </style>
 </head>
 <body>
@@ -1912,7 +1932,7 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
     </header>
     <section class="hp-hero">
       <div class="hp-copy">
-        <div class="hp-kicker"><i class="sir b"></i><span>For Cyber Crime Investigators</span><i class="sir r"></i></div>
+        <div class="hp-kicker no-tc" tabindex="0"><svg class="pol-sh" viewBox="0 0 100 116" aria-hidden="true"><path d="M50 3 C68 10 84 11 96 8 L96 52 C96 82 76 102 50 113 C24 102 4 82 4 52 L4 8 C16 11 32 10 50 3Z" fill="#e0a526" stroke="#8a5a00" stroke-width="1.5"/><path d="M50 11 C66 17 79 18 88 16 L88 52 C88 77 71 94 50 104 C29 94 12 77 12 52 L12 16 C21 18 34 17 50 11Z" fill="#14254f"/><text x="50" y="35" text-anchor="middle" font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="15" fill="#f4b81f" letter-spacing=".5">POLICE</text><path d="M50 42 l5.6 11.6 12.8 1.6 -9.4 8.8 2.4 12.6 -11.4 -6.2 -11.4 6.2 2.4 -12.6 -9.4 -8.8 12.8 -1.6z" fill="#f4b81f" stroke="#b8860b" stroke-width=".8"/><g fill="#cfd5dc"><ellipse cx="26" cy="56" rx="2.2" ry="4.6" transform="rotate(-20 26 56)"/><ellipse cx="25" cy="64" rx="2.2" ry="4.6" transform="rotate(-30 25 64)"/><ellipse cx="26" cy="72" rx="2.2" ry="4.6" transform="rotate(-40 26 72)"/><ellipse cx="30" cy="80" rx="2.2" ry="4.6" transform="rotate(-52 30 80)"/><ellipse cx="36" cy="87" rx="2.2" ry="4.6" transform="rotate(-62 36 87)"/><ellipse cx="74" cy="56" rx="2.2" ry="4.6" transform="rotate(20 74 56)"/><ellipse cx="75" cy="64" rx="2.2" ry="4.6" transform="rotate(30 75 64)"/><ellipse cx="74" cy="72" rx="2.2" ry="4.6" transform="rotate(40 74 72)"/><ellipse cx="70" cy="80" rx="2.2" ry="4.6" transform="rotate(52 70 80)"/><ellipse cx="64" cy="87" rx="2.2" ry="4.6" transform="rotate(62 64 87)"/></g><path d="M30 52 Q24 74 46 92 M70 52 Q76 74 54 92" fill="none" stroke="#cfd5dc" stroke-width="1.6"/></svg><span class="pk-t">For Cyber Crime <b class="pk-pol">Police</b> Investigators</span><i class="sir r"></i><div class="pk-pop"><svg class="pol-sh" viewBox="0 0 100 116" aria-hidden="true"><path d="M50 3 C68 10 84 11 96 8 L96 52 C96 82 76 102 50 113 C24 102 4 82 4 52 L4 8 C16 11 32 10 50 3Z" fill="#e0a526" stroke="#8a5a00" stroke-width="1.5"/><path d="M50 11 C66 17 79 18 88 16 L88 52 C88 77 71 94 50 104 C29 94 12 77 12 52 L12 16 C21 18 34 17 50 11Z" fill="#14254f"/><text x="50" y="35" text-anchor="middle" font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="15" fill="#f4b81f" letter-spacing=".5">POLICE</text><path d="M50 42 l5.6 11.6 12.8 1.6 -9.4 8.8 2.4 12.6 -11.4 -6.2 -11.4 6.2 2.4 -12.6 -9.4 -8.8 12.8 -1.6z" fill="#f4b81f" stroke="#b8860b" stroke-width=".8"/><g fill="#cfd5dc"><ellipse cx="26" cy="56" rx="2.2" ry="4.6" transform="rotate(-20 26 56)"/><ellipse cx="25" cy="64" rx="2.2" ry="4.6" transform="rotate(-30 25 64)"/><ellipse cx="26" cy="72" rx="2.2" ry="4.6" transform="rotate(-40 26 72)"/><ellipse cx="30" cy="80" rx="2.2" ry="4.6" transform="rotate(-52 30 80)"/><ellipse cx="36" cy="87" rx="2.2" ry="4.6" transform="rotate(-62 36 87)"/><ellipse cx="74" cy="56" rx="2.2" ry="4.6" transform="rotate(20 74 56)"/><ellipse cx="75" cy="64" rx="2.2" ry="4.6" transform="rotate(30 75 64)"/><ellipse cx="74" cy="72" rx="2.2" ry="4.6" transform="rotate(40 74 72)"/><ellipse cx="70" cy="80" rx="2.2" ry="4.6" transform="rotate(52 70 80)"/><ellipse cx="64" cy="87" rx="2.2" ry="4.6" transform="rotate(62 64 87)"/></g><path d="M30 52 Q24 74 46 92 M70 52 Q76 74 54 92" fill="none" stroke="#cfd5dc" stroke-width="1.6"/></svg><div><b>Made for Police Cyber Crime Investigators</b><span>CDR · IPDR · TDR · Money Trail · NCRP · Social Media · Notices – all in one tool, fully offline. Your case data never leaves this computer.</span></div></div></div>
         <div class="hp-name"><span class="hp-nhi" lang="hi">सुदर्शनास्त्र</span><span class="hp-nen">SudarshanAshtra</span></div>
         <h1>Trace the Suspect.<br><span>Connect the evidence.</span></h1>
         <p class="hp-lead">SudarshanAshtra turns NCRP complaints, bank statements and social media replies into clear money trails, linked accounts and ready case files, all on this computer.</p>
@@ -1944,7 +1964,7 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
         <div class="hp-feat" style="--fc:#06b6d4"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><div><b>Analytics</b><p>The same mobile, account, IP or e-mail across complaints, banks and platforms.</p></div></div>
         <div class="hp-feat" style="--fc:#eab308"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h5"/></svg></span><div><b>Case File &amp; Notices</b><p>Case reports, notices to banks and platforms, and CSV / PDF exports.</p></div></div>
     </section>
-    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-11 13:17 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
+    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-11 13:26 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
   </div>
 
   <div class="lg-wrap" id="lgWrap" aria-hidden="true">

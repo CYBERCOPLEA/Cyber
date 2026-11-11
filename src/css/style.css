@@ -1888,3 +1888,23 @@ textarea.nk-ta,#ntOut,#ccOut{font-family:'Arial Narrow',Arial,sans-serif !import
 @keyframes hpBlinkR{0%,45%{opacity:.25}55%,100%{opacity:1}}
 @keyframes hpSweep{0%{transform:translateX(-100%)}60%,100%{transform:translateX(100%)}}
 @media (prefers-reduced-motion:reduce){.hp-kicker,.hp-kicker::before,.hp-kicker .sir{animation:none}}
+
+/* Login: police shield badge */
+.hp-kicker{overflow:visible;gap:12px;padding:8px 18px 8px 10px;cursor:default;transition:transform .25s ease}
+.hp-kicker::before{border-radius:10px;overflow:hidden}
+.hp-kicker .pol-sh{position:relative;z-index:1;width:36px;height:42px;flex:none;filter:drop-shadow(0 2px 3px rgba(0,0,0,.55)) drop-shadow(0 0 6px rgba(244,184,31,.55));margin:-6px 0}
+.hp-kicker .pk-t{position:relative;z-index:1;white-space:nowrap}
+.hp-kicker .pk-pol{display:inline-block;padding:1px 9px;margin:0 2px;border-radius:4px;font-weight:900;color:#fff;letter-spacing:2px;
+  background:linear-gradient(160deg,#ef1c1c 0 50%,#1434e6 50% 100%);border:1px solid rgba(255,255,255,.7);box-shadow:0 0 10px rgba(255,255,255,.35)}
+.hp-kicker:hover,.hp-kicker:focus-visible{transform:translateY(-2px) scale(1.04);outline:none}
+.pk-pop{position:absolute;left:0;top:calc(100% + 12px);z-index:30;display:flex;gap:12px;align-items:center;width:max-content;max-width:min(460px,92vw);
+  padding:12px 16px 12px 12px;border-radius:12px;background:#0b1630;border:1px solid rgba(147,197,253,.45);text-transform:none;letter-spacing:0;text-shadow:none;
+  box-shadow:0 12px 30px rgba(0,0,0,.55),0 0 16px rgba(37,99,235,.45),0 0 16px rgba(220,38,38,.35);opacity:0;visibility:hidden;transform:translateY(-6px);transition:opacity .2s,transform .2s,visibility .2s;pointer-events:none}
+.pk-pop::before{content:'';position:absolute;top:-7px;left:26px;width:12px;height:12px;background:#0b1630;border-left:1px solid rgba(147,197,253,.45);border-top:1px solid rgba(147,197,253,.45);transform:rotate(45deg)}
+.pk-pop .pol-sh{width:46px;height:54px;margin:0}
+.pk-pop b{display:block;font-size:14px;color:#fbbf24;font-weight:800;margin-bottom:3px}
+.pk-pop span{display:block;font-size:12.5px;font-weight:500;color:#dbeafe;line-height:1.45;white-space:normal}
+.hp-kicker:hover .pk-pop,.hp-kicker:focus-visible .pk-pop{opacity:1;visibility:visible;transform:none}
+@media (max-width:700px){.hp-kicker .pk-t{white-space:normal}}
+.hp-kicker::before{transform:none;background:linear-gradient(110deg,transparent 40%,rgba(255,255,255,.28) 50%,transparent 60%) no-repeat;background-size:300% 100%;animation:hpSweep2 3.2s ease-in-out infinite}
+@keyframes hpSweep2{0%{background-position:150% 0}60%,100%{background-position:-50% 0}}
