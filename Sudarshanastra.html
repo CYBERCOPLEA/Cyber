@@ -2226,7 +2226,7 @@ html.no-crimeEdit #cdImpM,html.no-crimeEdit #cdScan,html.no-crimeEdit #cdFile,ht
         <div class="hp-feat" style="--fc:#06b6d4"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><div><b>Analytics</b><p>The same mobile, account, IP or e-mail across complaints, banks and platforms.</p></div></div>
         <div class="hp-feat" style="--fc:#eab308"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h5"/></svg></span><div><b>Case File &amp; Notices</b><p>Case reports, notices to banks and platforms, and CSV / PDF exports.</p></div></div>
     </section>
-    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-12 23:50 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
+    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-13 00:54 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
   </div>
 
   <div class="lg-wrap" id="lgWrap" aria-hidden="true">
@@ -17221,7 +17221,13 @@ Object.assign(Users, {
   if (m) { const o = Users.parse(decodeURIComponent(m[1])); if (o) localStorage.setItem('sud-join', JSON.stringify(o)); history.replaceState(null, '', location.pathname + location.search); }
   document.addEventListener('submit', e => { Users.onSubmit(e); }, true);
   document.addEventListener('click', e => { if (SUD_ED === 'user' && e.target.closest && e.target.closest('#lgForgot')) { e.preventDefault(); e.stopImmediatePropagation(); UI.toast('Ask the Super Admin (Vijay Tomar) to reset your password', 6000); } }, true);
-  const sl = showLogin; showLogin = function (on = true) { const r = sl.apply(this, arguments); if (on) (async () => { try { const j = JSON.parse(localStorage.getItem('sud-join') || 'null'); if (j && S.settings) { localStorage.removeItem('sud-join'); await Users.useJoin(j); $('#lgUser').value = j.i; } } catch (e) { } Users.note(); })(); return r; };
+  const sl = showLogin; showLogin = function (on = true) { const r = sl.apply(this, arguments); if (on) (async () => { try { const j = JSON.parse(localStorage.getItem('sud-join') || 'null'); if (j && S.settings) { localStorage.removeItem('sud-join'); await Users.useJoin(j); $('#lgUser').value = j.i; } } catch (e) { }
+      /* Cloudflare door hand-off: the door already checked the User ID + password; take the Super Admin link from it (no join link needed).
+         The password itself never comes through, so it is asked once more here – it also opens the case data kept on this computer. */
+      try { const g = JSON.parse(sessionStorage.getItem('sa_gate') || 'null'); sessionStorage.removeItem('sa_gate');
+        if (SUD_ED === 'user' && g && S.settings && Date.now() - (+g.at || 0) < 120000 && g.id && /^https:\/\/script\.google\.com\/(a\/[\w.-]+\/)?macros\/s\/[\w-]+\/exec$/.test(String(g.url || ''))) {
+          await Users.useJoin({ u: g.url, i: g.id }); const L = Users.link(); if (L && g.user) Object.assign(L, { name: g.user.name, rank: g.user.rank, ps: g.user.ps, rights: g.user.rights, status: 'Active', okAt: Date.now() }); await DB.set('settings', S.settings);
+          $('#lgUser').value = g.id; setTimeout(() => { const e = $('#lgErr'); if (e) e.textContent = '✅ Signed in at the door as ' + g.id + '. Enter your password once more to open your data on this computer.'; const pw = $('#lgPass'); if (pw) pw.focus(); }, 50); } } catch (e) { } Users.note(); })(); return r; };
   const os = start; start = async function () { const r = await os.apply(this, arguments); Role.apply(); return r; };
   if (SUD_ED === 'user') {
     const og = go; go = function (page, sub) { if (page === 'settings' || page === 'sadmin') { Users.account(); return; } return og(page, sub); };

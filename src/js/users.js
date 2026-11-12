@@ -250,7 +250,13 @@ Object.assign(Users, {
   if (m) { const o = Users.parse(decodeURIComponent(m[1])); if (o) localStorage.setItem('sud-join', JSON.stringify(o)); history.replaceState(null, '', location.pathname + location.search); }
   document.addEventListener('submit', e => { Users.onSubmit(e); }, true);
   document.addEventListener('click', e => { if (SUD_ED === 'user' && e.target.closest && e.target.closest('#lgForgot')) { e.preventDefault(); e.stopImmediatePropagation(); UI.toast('Ask the Super Admin (Vijay Tomar) to reset your password', 6000); } }, true);
-  const sl = showLogin; showLogin = function (on = true) { const r = sl.apply(this, arguments); if (on) (async () => { try { const j = JSON.parse(localStorage.getItem('sud-join') || 'null'); if (j && S.settings) { localStorage.removeItem('sud-join'); await Users.useJoin(j); $('#lgUser').value = j.i; } } catch (e) { } Users.note(); })(); return r; };
+  const sl = showLogin; showLogin = function (on = true) { const r = sl.apply(this, arguments); if (on) (async () => { try { const j = JSON.parse(localStorage.getItem('sud-join') || 'null'); if (j && S.settings) { localStorage.removeItem('sud-join'); await Users.useJoin(j); $('#lgUser').value = j.i; } } catch (e) { }
+      /* Cloudflare door hand-off: the door already checked the User ID + password; take the Super Admin link from it (no join link needed).
+         The password itself never comes through, so it is asked once more here – it also opens the case data kept on this computer. */
+      try { const g = JSON.parse(sessionStorage.getItem('sa_gate') || 'null'); sessionStorage.removeItem('sa_gate');
+        if (SUD_ED === 'user' && g && S.settings && Date.now() - (+g.at || 0) < 120000 && g.id && /^https:\/\/script\.google\.com\/(a\/[\w.-]+\/)?macros\/s\/[\w-]+\/exec$/.test(String(g.url || ''))) {
+          await Users.useJoin({ u: g.url, i: g.id }); const L = Users.link(); if (L && g.user) Object.assign(L, { name: g.user.name, rank: g.user.rank, ps: g.user.ps, rights: g.user.rights, status: 'Active', okAt: Date.now() }); await DB.set('settings', S.settings);
+          $('#lgUser').value = g.id; setTimeout(() => { const e = $('#lgErr'); if (e) e.textContent = '✅ Signed in at the door as ' + g.id + '. Enter your password once more to open your data on this computer.'; const pw = $('#lgPass'); if (pw) pw.focus(); }, 50); } } catch (e) { } Users.note(); })(); return r; };
   const os = start; start = async function () { const r = await os.apply(this, arguments); Role.apply(); return r; };
   if (SUD_ED === 'user') {
     const og = go; go = function (page, sub) { if (page === 'settings' || page === 'sadmin') { Users.account(); return; } return og(page, sub); };
