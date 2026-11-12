@@ -40,6 +40,7 @@ const Role = {
     const full = Role.can('crimeEdit');
     if (!full) { try { const v = await Vault.verKey(); if (localStorage.getItem('sud-cdv') !== v) { await this.rescan(true); localStorage.setItem('sud-cdv', v); } } catch (e) { } }
     const r = await oc.call(this, el);
+    if (!Role.admin()) { const lv = $('#cdLive', el); if (lv) lv.remove(); }
     if (!full) { ADM.forEach(s => { const b = $(s, el); if (b) b.remove(); }); const h = $('.cd-bar h3', el); if (h && !$('.cd-ro', el)) h.insertAdjacentHTML('beforeend', ' <span class="cd-ro">👁 View Only</span>'); }
     return r;
   };
@@ -52,8 +53,8 @@ const Role = {
     UI.modal('👁 Crime Data Entry', `<table class="tbl ad-kv">${LBL.filter(([k]) => r[k]).map(([k, l]) => `<tr><th>${esc(l)}</th><td>${esc(String(val(k)))}</td></tr>`).join('')}</table>`,
       [{ label: '🎯 Track This Everywhere', onClick: () => { UI.closeModal(); typeof Dash2 !== 'undefined' && Dash2.track(r.value); } }, { label: 'Close', onClick: UI.closeModal }]);
   };
-  for (const [f, w] of [['formMake', 'make data forms'], ['formImport', 'import form files'], ['liveOpen', 'use the Live Data Form'], ['cdImport', 'import files']]) {
-    const o = Off[f]; if (o) Off[f] = function (...a) { return Role.can('crimeEdit') ? o.apply(this, a) : Role.deny(w); };
+  for (const [f, w, sa] of [['formMake', 'make data forms'], ['formImport', 'import form files'], ['liveOpen', 'use the Live Data Form', 1], ['cdImport', 'import files']]) {
+    const o = Off[f]; if (o) Off[f] = function (...a) { return (sa ? Role.admin() : Role.can('crimeEdit')) ? o.apply(this, a) : Role.deny(w); };
   }
   const TABR = { crime: 'crime', eo: 'office', good: 'office', press: 'office', duty: 'office', files: 'upload' };
   const ofp = Off.filesPage; if (ofp) Off.filesPage = function (...a) { return Role.can('upload') ? ofp.apply(this, a) : Role.deny('use Office Upload +'); };
