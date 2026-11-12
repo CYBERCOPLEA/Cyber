@@ -55,7 +55,7 @@ const Role = {
   for (const [f, w] of [['formMake', 'make data forms'], ['formImport', 'import form files'], ['liveOpen', 'use the Live Data Form'], ['cdImport', 'import files']]) {
     const o = Off[f]; if (o) Off[f] = function (...a) { return Role.can('crimeEdit') ? o.apply(this, a) : Role.deny(w); };
   }
-  const TABR = { crime: 'crime', good: 'office', press: 'office', duty: 'office', files: 'upload' };
+  const TABR = { crime: 'crime', eo: 'office', good: 'office', press: 'office', duty: 'office', files: 'upload' };
   const ofp = Off.filesPage; if (ofp) Off.filesPage = function (...a) { return Role.can('upload') ? ofp.apply(this, a) : Role.deny('use Office Upload +'); };
   const po = Pages.offx;
   Pages.offx = main => {

@@ -2135,3 +2135,24 @@ html.no-crimeEdit #cdImpM,html.no-crimeEdit #cdScan,html.no-crimeEdit #cdFile,ht
 @media (prefers-reduced-motion:reduce){.bn-dot{animation:none}}
 
 .nd-bar.nd-sm{margin-bottom:8px;gap:6px}.nd-bar.nd-sm .nd-b{padding:4px 11px;font-size:12px}
+
+/* Office Work: Enquiry Officer (EO) */
+.eo-hero{display:grid;grid-template-columns:auto 1fr;gap:22px;align-items:center}
+@media (max-width:1100px){.eo-hero{grid-template-columns:1fr}}
+.eo-ringbox{display:flex;align-items:center;gap:14px}
+.eo-ring{width:150px;height:150px}.eo-seg{cursor:pointer;transition:stroke-width .15s}.eo-seg:hover{stroke-width:26}
+.eo-rn{font-size:26px;font-weight:800;fill:var(--text-primary)}.eo-rl{font-size:11px;fill:var(--text-muted);font-weight:600}
+.eo-leg{display:flex;flex-direction:column;gap:6px}.eo-leg button{display:flex;align-items:center;gap:7px;background:none;border:1px solid var(--border);border-radius:9px;padding:5px 10px;color:var(--text-primary);cursor:pointer;font-size:12.5px}
+.eo-leg button:hover{box-shadow:0 0 0 2px var(--c)}.eo-leg i{width:11px;height:11px;border-radius:50%;background:var(--c)}.eo-leg small{color:var(--text-muted)}
+.eo-k{grid-template-columns:repeat(6,minmax(0,1fr))}
+.eo-types{display:flex;flex-direction:column;gap:6px}
+.eo-tb{display:grid;grid-template-columns:190px 1fr 40px;align-items:center;gap:10px;background:none;border:1px solid var(--border);border-radius:9px;padding:5px 10px;color:var(--text-primary);cursor:pointer;font-size:12.5px;font-weight:600;text-align:left}
+.eo-tb:hover,.eo-tb.on{box-shadow:0 0 0 2px var(--c)}.eo-bar{height:10px;border-radius:99px;background:var(--surface-3)}.eo-bar i{display:block;height:100%;border-radius:99px;background:var(--c)}.eo-tb b{text-align:right}
+.eo-ty,.eo-st{display:inline-block;padding:2px 9px;border-radius:999px;font-size:11.5px;font-weight:700;white-space:nowrap;border:1px solid color-mix(in srgb,var(--c) 60%,transparent);background:color-mix(in srgb,var(--c) 18%,transparent);color:color-mix(in srgb,var(--c) 70%,#fff)}
+.eo-hi{color:#ef4444!important;font-weight:800}.eo-hiin{border-color:#ef4444!important;color:#ef4444!important;font-weight:700}
+.eo-who{cursor:pointer;padding:5px 10px;border:1px dashed var(--border);border-radius:9px;font-size:12.5px}.eo-who:hover{border-color:var(--accent)}
+.eo-form .eo-wide{grid-column:1/-1}.eo-form textarea{width:100%}
+.eo-firbox{border:1px solid rgba(37,99,235,.5);border-left:4px solid #2563eb;border-radius:10px;padding:8px 10px}
+.eo-hd{margin:8px 0}.eo-hd summary{cursor:pointer;font-weight:700}
+.eo-sheet{background:#fff;color:#000;border-radius:8px;padding:24px;max-height:55vh;overflow:auto;border:1px solid var(--border)}
+#erF .df-bar{margin:10px 0}
