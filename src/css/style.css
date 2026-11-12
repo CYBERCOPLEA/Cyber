@@ -2175,3 +2175,17 @@ html.no-crimeEdit #cdImpM,html.no-crimeEdit #cdScan,html.no-crimeEdit #cdFile,ht
 .ag-id{display:inline-block;padding:1px 8px;border-radius:7px;font-size:11.5px;font-weight:600;cursor:pointer;white-space:nowrap;background:rgba(99,102,241,.14);border:1px solid rgba(99,102,241,.5);color:#a5b4fc;font-family:ui-monospace,Consolas,monospace}
 .ag-id:hover{box-shadow:0 0 0 2px #818cf8;color:#fff}.ag-id.more{font-family:inherit;background:transparent;border-style:dashed}
 .ag-tip mark,.ag-evt mark{background:#facc15;color:#111;border-radius:3px;padding:0 2px}
+
+.pl-hide{display:none!important}
+.pl-b{display:inline-block;padding:1px 9px;border-radius:999px;font-size:12px;font-weight:700;background:color-mix(in srgb,var(--c) 18%,transparent);border:1px solid var(--c);color:var(--c);white-space:nowrap}
+#plTimer.pl-tm{display:inline-flex;gap:4px;align-items:center;padding:4px 10px;border-radius:9px;font-size:12.5px;font-weight:600;cursor:pointer;border:1px solid var(--c);background:color-mix(in srgb,var(--c) 14%,transparent);margin-right:6px;white-space:nowrap}
+#plTimer.mid{border-color:#f59e0b;background:rgba(245,158,11,.18)}#plTimer.low{border-color:#ef4444;background:rgba(239,68,68,.22);animation:plBl 1s infinite}@keyframes plBl{50%{opacity:.6}}
+.pl-cats{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px;margin:10px 0}
+.pl-cat{text-align:left;padding:10px 12px;border-radius:10px;border:1px solid var(--c);background:transparent;color:inherit;cursor:pointer;display:flex;flex-direction:column;gap:3px}.pl-cat.on{background:color-mix(in srgb,var(--c) 20%,transparent);box-shadow:0 0 0 2px var(--c)}.pl-cat small{opacity:.8}
+.pl-ed{border:1px solid var(--c);border-radius:10px;padding:12px}
+.pl-tree{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:6px;margin-top:10px}
+.pl-sec{border:1px solid var(--border,#334155);border-radius:8px;padding:6px 10px}.pl-sec summary{cursor:pointer;display:flex;gap:8px;align-items:center;justify-content:space-between}
+.pl-sec summary::before{content:'▸';margin-right:4px}.pl-sec[open] summary::before{content:'▾'}
+.pl-subs{display:flex;flex-direction:column;gap:3px;margin:6px 0 2px 22px;font-size:13px}
+.pl-box{display:grid;grid-template-columns:1fr 1fr;gap:8px}.pl-box label{display:flex;flex-direction:column;gap:3px;font-size:12.5px}
+.bad-t{color:#ef4444}.warn-t{color:#f59e0b}

@@ -84,11 +84,11 @@ const Role = {
     const a = Role.admin(), card = document.createElement('div'); card.className = 'card'; card.id = 'roleCard';
     card.innerHTML = `<h3>👑 Super Admin</h3>
       <div class="sub">This link is for the Super Admin (Vijay Tomar) only. Users use their own <b>User link</b>, made in Super Admin Control, where you give each user a login, rights and access.</div>
-      ${a ? `<div class="row" style="gap:8px;flex-wrap:wrap"><span class="badge good">Super Admin on This Computer</span><span class="spacer"></span><button class="btn primary" id="saCtl">👥 Open Super Admin Control</button><button class="btn" id="saOff" title="This computer can no longer open the Super Admin link until the key file is loaded again.">Remove Super Admin From This Computer</button></div>`
+      ${a ? `<div class="row" style="gap:8px;flex-wrap:wrap"><span class="badge good">Super Admin on This Computer</span><span class="spacer"></span><button class="btn primary" id="saCtl">👥 Open Super Admin Control</button></div>`
         : `<div class="row" style="gap:8px;flex-wrap:wrap"><span class="badge">Not Super Admin</span><span class="spacer"></span><label class="btn" style="cursor:pointer">🔑 Load Super Admin Key File<input type="file" id="saFile" accept=".txt,.key,.sakey,text/plain" hidden></label><input type="password" id="saKey" placeholder="or paste the key" style="max-width:260px"><button class="btn primary" id="saGo">Open Super Admin</button><span class="err" id="saErr"></span></div>`}`;
     const v = $('#vaultCard', main) || main.querySelector('.grid'); if (v) v.parentNode.insertBefore(card, v.nextSibling); else main.appendChild(card);
     const ok = t => { if (Role.take(t)) { UI.toast('👑 Super Admin opened on this computer'); render(); } else $('#saErr', card).textContent = 'This is not the Super Admin key'; };
-    if (a) { $('#saCtl', card).onclick = () => go('sadmin'); $('#saOff', card).onclick = () => { if (!UI.confirm('Remove Super Admin from this computer? The Super Admin link will not open here until you load the key file again.')) return; Role.off(); lock(); }; }
+    if (a) { $('#saCtl', card).onclick = () => go('sadmin'); }
     else { $('#saGo', card).onclick = () => ok($('#saKey', card).value); $('#saFile', card).onchange = async e => { const f = e.target.files[0]; if (f) ok(await f.text()); }; }
   };
 })();

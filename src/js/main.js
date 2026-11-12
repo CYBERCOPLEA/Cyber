@@ -243,13 +243,17 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape' && $('#lgWrap
 const Sess = {
   K: 'sud-session',
   sig: tok => sha256(tok + '|' + S.settings.user + '|' + S.settings.hash),
-  save() { try { const tok = uid() + uid(); sessionStorage.setItem(this.K, JSON.stringify({ tok, sig: this.sig(tok), at: Date.now() })); } catch (e) { } },
-  touch(active = true) { try { const o = JSON.parse(sessionStorage.getItem(this.K) || 'null'); if (o) { if (active) o.at = Date.now(); o.page = S.page; o.sub = S.sub; sessionStorage.setItem(this.K, JSON.stringify(o)); } } catch (e) { } },
-  clear() { try { sessionStorage.removeItem(this.K); } catch (e) { } Vault.forget(); },
+  /* Super Admin link: log in once – the sign-in stays on this computer (also after closing the browser, no auto-lock) until Logout */
+  keep() { return typeof SUD_ED !== 'undefined' && SUD_ED === 'admin' && typeof Role !== 'undefined' && Role.admin(); },
+  mirror() { if (!this.keep()) return; try { const o = sessionStorage.getItem(this.K); if (o) localStorage.setItem('sud-keep', o); const v = sessionStorage.getItem('sud-vk'); if (v) localStorage.setItem('sud-keep-vk', v); } catch (e) { } },
+  save() { try { const tok = uid() + uid(); sessionStorage.setItem(this.K, JSON.stringify({ tok, sig: this.sig(tok), at: Date.now() })); } catch (e) { } this.mirror(); },
+  touch(active = true) { try { const o = JSON.parse(sessionStorage.getItem(this.K) || 'null'); if (o) { if (active) o.at = Date.now(); o.page = S.page; o.sub = S.sub; sessionStorage.setItem(this.K, JSON.stringify(o)); } } catch (e) { } this.mirror(); },
+  clear() { try { sessionStorage.removeItem(this.K); localStorage.removeItem('sud-keep'); localStorage.removeItem('sud-keep-vk'); } catch (e) { } Vault.forget(); },
   valid() {
     try {
+      if (this.keep() && !sessionStorage.getItem(this.K)) { const a = localStorage.getItem('sud-keep'), v = localStorage.getItem('sud-keep-vk'); if (a) sessionStorage.setItem(this.K, a); if (v) sessionStorage.setItem('sud-vk', v); }
       const o = JSON.parse(sessionStorage.getItem(this.K) || 'null'); if (!o || !o.tok || o.sig !== this.sig(o.tok)) return null;
-      if (S.settings.lockMins > 0 && Date.now() - (o.at || 0) > S.settings.lockMins * 60000) { this.clear(); return null; }
+      if (S.settings.lockMins > 0 && !this.keep() && Date.now() - (o.at || 0) > S.settings.lockMins * 60000) { this.clear(); return null; }
       return o;
     } catch (e) { return null; }
   }
@@ -302,7 +306,7 @@ async function start() {
   $('#drClose').onclick = UI.closeDrawer; $('#mdClose').onclick = UI.closeModal;
   $('#gsearch').onkeydown = e => { if (e.key === 'Enter') { S.searchQ = e.target.value; go('search'); } };
   let tT = 0; ['mousemove', 'keydown', 'click', 'wheel'].forEach(ev => document.addEventListener(ev, () => { lastAct = Date.now(); if (Date.now() - tT > 20000 && !$('#app').classList.contains('hidden')) { tT = Date.now(); Sess.touch(); } }, { passive: true }));
-  setInterval(() => { if (S.settings.lockMins > 0 && !$('#app').classList.contains('hidden') && Date.now() - lastAct > S.settings.lockMins * 60000) lock(); }, 15000);
+  setInterval(() => { if (S.settings.lockMins > 0 && !Sess.keep() && !$('#app').classList.contains('hidden') && Date.now() - lastAct > S.settings.lockMins * 60000) lock(); }, 15000);
   window.addEventListener('beforeunload', () => { if (S.caseId && !isScope(S.caseId)) DB.set('case:' + S.caseId, S.data); if (!$('#app').classList.contains('hidden')) Sess.touch(Date.now() - lastAct < 60000); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') { UI.closeDrawer(); } });
   render();
