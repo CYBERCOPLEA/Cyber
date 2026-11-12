@@ -162,7 +162,8 @@ const CaseBox = {
     return `<label>${l}${t === 'ct' ? `<select data-cb="${k}">${opts(this.types(), true)}</select>` : t === 'st' ? `<select data-cb="${k}">${opts(this.states())}</select>` : `<input data-cb="${k}" value="${esc(v || '')}"${k === 'year' ? ' inputmode="numeric" maxlength="4"' : k === 'io_mobile' ? ' inputmode="tel" maxlength="14"' : ''}>`}</label>`; },
   wire(box) { const ct = $('[data-cb="ctype"]', box); if (ct) ct.onchange = () => { if (ct.value !== '__new') return; const n = (prompt('New case type:') || '').trim(); if (!n) { ct.value = ''; return; } try { const L = Off.ctList(); if (!L.includes(n)) { L.push(n); EditList.save('cd-ctype', L); } } catch (e) { } ct.insertAdjacentHTML('afterbegin', `<option>${esc(n)}</option>`); ct.value = n; }; },
   read(box) { const o = {}; $$('[data-cb]', box).forEach(i => o[i.dataset.cb] = i.value === '__new' ? '' : i.value.trim()); return o; },
-  check(o) { if (o.year && !/^(19|20)\d\d$/.test(o.year)) return 'Year should be 4 digits, e.g. 2026'; if (o.io_mobile && !/^(\+?91)?[6-9]\d{9}$/.test(o.io_mobile.replace(/[\s-]/g, ''))) return 'IO mobile should be a 10-digit mobile number'; return ''; },
+  check(o) { const E = [['FIR No.', VCK('case', o.fir, /ncrp|without fir/i.test(o.ctype || '') ? 'NCRP' : '')], ['Year', VCK('year', o.year)], ['IO Mobile', VCK('mobile', o.io_mobile)]].filter(x => x[1]);
+    if (E.length) Valid.pop(E.map(x => ({ where: x[0], msg: x[1] }))); return E.map(x => x[0] + ': ' + x[1]).join(' · '); },
   // modal: Select case (or new) → fill details → Save / Close
   open(id, opt = {}) { this._opt = opt;
     let sel = id === 'new' ? 'new' : (id || S.caseId);

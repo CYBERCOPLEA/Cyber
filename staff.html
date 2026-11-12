@@ -2,6 +2,57 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex, nofollow"><meta name="referrer" content="no-referrer">
 <title>Live Data Form by Police</title>
 <style>body{font:15px/1.4 Arial,sans-serif;margin:0;background:#f1f5f9;color:#0f172a}#ld{max-width:600px;margin:40px auto;padding:16px;background:#fff;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.08);text-align:center}#ld.er{background:#fee2e2;border:1px solid #dc2626}</style>
+<script>/* mandatory input checks (same code as the tool) */
+function VCK(k, v, o) {
+  v = String(v == null ? '' : v).trim(); if (!v) return '';
+  if (k === 'case') {
+    var s = v.replace(/\s*\/\s*(19|20)\d\d$/, '');
+    var nc = o === 'NCRP' || (o !== 'FIR' && o !== 'COMP' && s.replace(/\D/g, '').length > 6);
+    if (nc) return /^\d{14}$/.test(s) ? '' : 'Please enter complete 14 digits Cyber Crime Complaint Acknowledgement No.';
+    return /^\d{4}$/.test(s) ? '' : 'Please enter correct 4 digit Complaint / FIR No. (e.g. 1234, 0012, 4590)';
+  }
+  if (k === 'mobile') {
+    var bad = !/^[6-9]\d{9}$/.test(v) || /(\d)\1{6}/.test(v);
+    for (var i = 0; !bad && i + 7 <= v.length; i++) { var up = 1, dn = 1; for (var j = i + 1; j < i + 7; j++) { var d = +v[j] - +v[j - 1]; if (d !== 1) up = 0; if (d !== -1) dn = 0; } if (up || dn) bad = true; }
+    return bad ? 'Please enter correct Mobile No. (10 digits, numbers only)' : '';
+  }
+  if (k === 'year') return /^(19|20)\d\d$/.test(v) ? '' : 'Please enter complete Year e.g. 2026';
+  if (k === 'note') {
+    if (v.length > 50) return 'Note can have at most 50 characters (now ' + v.length + ')';
+    if (/([,. ])\1{3,}/.test(v)) return "You can't repeatedly use special characters ( , . or space )";
+  }
+  return '';
+}
+function VPOP(E, title) {
+  var o = document.getElementById('vPop'); if (o) o.parentNode.removeChild(o);
+  if (!document.getElementById('vPopCss')) { var c = document.createElement('style'); c.id = 'vPopCss'; c.textContent = '#vPop{position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:2147483000;display:flex;align-items:center;justify-content:center;font:14px/1.45 Arial,sans-serif}#vPop .vb{background:#fff;color:#0f172a;border-radius:12px;max-width:520px;width:92%;box-shadow:0 20px 50px rgba(0,0,0,.35);overflow:hidden;border-top:6px solid #dc2626}#vPop h3{margin:0;padding:14px 18px 6px;color:#b91c1c;font-size:17px}#vPop ul{margin:0;padding:6px 18px 6px 36px;max-height:50vh;overflow:auto}#vPop li{margin:5px 0}#vPop li b{color:#334155}#vPop .vf{padding:12px 18px;text-align:right;background:#f8fafc}#vPop button{font:inherit;font-weight:bold;padding:8px 22px;border-radius:7px;border:0;background:#dc2626;color:#fff;cursor:pointer}.v-bad,input.v-bad{border-color:#dc2626!important;background:#fef2f2!important;color:#7f1d1d!important;box-shadow:0 0 0 2px rgba(220,38,38,.35)!important}'; document.head.appendChild(c); }
+  var q = function (s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;'); };
+  o = document.createElement('div'); o.id = 'vPop';
+  o.innerHTML = '<div class="vb" role="alertdialog"><h3>⚠ ' + q(title || 'Please correct before saving') + '</h3><ul>' + E.slice(0, 12).map(function (e) { return '<li>' + (e.where ? '<b>' + q(e.where) + ':</b> ' : '') + q(e.msg) + '</li>'; }).join('') + (E.length > 12 ? '<li>… and ' + (E.length - 12) + ' more</li>' : '') + '</ul><div class="vf"><button type="button">OK</button></div></div>';
+  document.body.appendChild(o);
+  var close = function () { if (o.parentNode) o.parentNode.removeChild(o); var f = E[0] && E[0].el; if (f && f.focus) { try { f.focus(); f.select && f.select(); } catch (x) { } } };
+  o.querySelector('button').onclick = close; o.onclick = function (ev) { if (ev.target === o) close(); };
+  o.querySelector('button').focus();
+}
+function VFORM() {
+  if (window.__vform) return; window.__vform = 1;
+  var NM = { fir: 'FIR / Case No.', year: 'Year', note: 'Note', value: 'Mobile' };
+  function one(el, k, o) { var m = VCK(k, el.value, o); el.classList.toggle('v-bad', !!m); el.title = m; return m; }
+  function rowOf(el) { return el.closest('.en') || el.closest('tr'); }
+  function kindOf(el) { var k = el.getAttribute('data-k'), r = rowOf(el); if (k === 'fir') return 'case'; if (k === 'year' || k === 'note') return k;
+    if (k === 'value' && r) { var t = r.querySelector('[data-k=type]'); if (t && (t.value === 'mobile' || t.value === 'whatsapp')) return 'mobile'; } if (el.id === 'sm') return 'mobile'; return ''; }
+  function check() { var E = [], n = 0;
+    var sm = document.getElementById('sm'); if (sm && !sm.disabled) { var m0 = one(sm, 'mobile'); if (m0) E.push({ el: sm, where: 'Your Mobile', msg: m0 }); }
+    [].slice.call(document.querySelectorAll('[data-k=value]')).forEach(function (vi) { var r = rowOf(vi); n++; if (!r || !String(vi.value || '').trim()) return;
+      ['fir', 'year', 'value', 'note'].forEach(function (k) { var el = r.querySelector('input[data-k=' + k + ']'); if (!el) return; var kd = kindOf(el); if (!kd) { el.classList.remove('v-bad'); return; } var m = one(el, kd); if (m) E.push({ el: el, where: 'Entry ' + n + ' – ' + NM[k], msg: m }); }); });
+    return E; }
+  document.addEventListener('click', function (ev) { var b = ev.target && ev.target.closest && ev.target.closest('#sb'); if (!b) return; var E = check(); if (E.length) { ev.preventDefault(); ev.stopImmediatePropagation(); VPOP(E, 'Please correct ' + E.length + ' entr' + (E.length > 1 ? 'ies' : 'y') + ' before sending'); } }, true);
+  document.addEventListener('focusout', function (ev) { var el = ev.target; if (!el || el.tagName !== 'INPUT') return; var k = kindOf(el); if (k) one(el, k); }, true);
+  document.addEventListener('input', function (ev) { var el = ev.target; if (el && el.classList && el.classList.contains('v-bad')) { var k = kindOf(el); if (k && !VCK(k, el.value)) { el.classList.remove('v-bad'); el.title = ''; } } }, true);
+  document.addEventListener('change', function (ev) { var el = ev.target; if (el && el.getAttribute && el.getAttribute('data-k') === 'type') { var r = rowOf(el), v = r && r.querySelector('input[data-k=value]'); if (v) { var k = kindOf(v); if (k) one(v, k); else { v.classList.remove('v-bad'); v.title = ''; } } } }, true);
+}
+VFORM();
+</script>
 </head><body><div id="ld">⏳ Loading your form…</div>
 <script>
 /* SudarshanAshtra – Live Data Form by Police (staff page).

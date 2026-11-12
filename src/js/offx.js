@@ -479,12 +479,12 @@ async function mac(m){const k=await crypto.subtle.importKey('raw',new Uint8Array
 $('#sb').onclick=async()=>{const rows=st.rows.map(r=>({...r,value:nm(r.type,r.value)})).filter(r=>r.value);if(!rows.length)return alert('Add at least one entry');if(!st.sn)return alert('Write your name');if(!confirm('Submit '+rows.length+' entries? After submit they cannot be edited.'))return;
 st.at=new Date().toISOString();st.sid=F.id+'-'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);const payload=JSON.stringify({form:F.id,sid:st.sid,at:st.at,sub:{name:st.sn,rank:st.sr,ps:st.sp,mobile:st.sm},entries:rows});const seal=await mac(payload);
 const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify({sudcd:1,payload,seal})],{type:'application/json'}));a.download='CrimeData_'+(st.sn||'form').replace(/[^\\w]+/g,'_')+'_'+st.at.slice(0,10)+'.sudcd';document.body.appendChild(a);a.click();st.rows=rows;st.done=1;sv();draw()};
-$('#nb').onclick=()=>{if(!confirm('Start a new empty batch? The submitted batch stays in the file you already sent.'))return;st.rows=[{type:'mobile'}];st.done=0;delete st.at;sv();draw()};if(!st.rows.length)st.rows.push({type:'mobile'});draw();<\/script></body></html>`;
+$('#nb').onclick=()=>{if(!confirm('Start a new empty batch? The submitted batch stays in the file you already sent.'))return;st.rows=[{type:'mobile'}];st.done=0;delete st.at;sv();draw()};if(!st.rows.length)st.rows.push({type:'mobile'});draw();<\/script><script>${Valid.formSrc().replace(/<\/script/gi, '<\\/script')}<\/script></body></html>`;
     UI.download('CrimeData_Form_' + (f.to || 'subordinate').replace(/[^\w]+/g, '_') + '.html', html, 'text/html');
   },
   formImport(done) {
     const inp = document.createElement('input'); inp.type = 'file'; inp.multiple = true; inp.accept = '.sudcd,.json';
-    inp.onchange = async () => { const forms = await this.get('forms', []), R = await this.get('crime', []), got = await this.get('subs', []); const res = [];
+    inp.onchange = async () => { const forms = await this.get('forms', []), R = await this.get('crime', []), got = await this.get('subs', []); const res = [], n0 = R.length;
       for (const file of inp.files) { let j; try { j = JSON.parse(await file.text()); } catch (e) { res.push([file.name, '❌ not a form file']); continue; }
         if (!j || !j.sudcd || !j.payload) { res.push([file.name, '❌ not a form file']); continue; }
         let P; try { P = JSON.parse(j.payload); } catch (e) { res.push([file.name, '❌ damaged']); continue; }
@@ -495,7 +495,7 @@ $('#nb').onclick=()=>{if(!confirm('Start a new empty batch? The submitted batch 
         for (const e of P.entries) { const t = this.CT.some(x => x[0] === e.type) ? e.type : 'other', v = this.norm(t, e.value); if (!v) continue; const c = S.cases.find(x => e.fir && (x.fir === e.fir || x.name === e.fir)) || {};
           R.push({ id: 's' + uid(), type: t, value: v, name: e.name || '', caseId: c.id || '', case: c.name || e.fir || '', fir: c.fir || e.fir || '', year: e.year || '', ctype: e.ctype || '', pstn: e.pstn || '', dist: e.dist || '', istate: e.istate || '', idist: e.idist || '', source: (e.source ? e.source + ' · ' : '') + 'Offline Data Form by Police', note: e.note || '', by, sid: P.sid, added: P.at }); }
         got.push(P.sid); f.subs = (f.subs || 0) + 1; res.push([file.name, `✔ ${P.entries.length} entries from ${by}`]); }
-      await this.put('crime'); await this.put('subs'); await this.put('forms');
+      await this.put('crime'); await this.put('subs'); await this.put('forms'); setTimeout(() => Valid.yearAudit(R.slice(n0), 'Offline Data Form files'), 400);
       UI.modal('Form files imported', `<table class="tbl"><tbody>${res.map(r => `<tr><td>${esc(r[0])}</td><td>${esc(r[1])}</td></tr>`).join('')}</tbody></table>`, [{ label: 'OK', cls: 'primary', onClick: () => { UI.closeModal(); done(); } }]); };
     inp.click();
   },
