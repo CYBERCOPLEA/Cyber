@@ -32,7 +32,8 @@ const Plans = {
     $$('#sidebar > .nav-group').forEach(g => { let n = g.nextElementSibling, any = false; while (n && !n.classList.contains('nav-group')) { if (n.classList.contains('nav-item') && !n.classList.contains('pl-hide') && getComputedStyle(n).display !== 'none') any = true; n = n.nextElementSibling; } g.classList.toggle('pl-hide', !any); });
   },
   plan() { const L = SUD_ED === 'user' && typeof Users !== 'undefined' ? Users.link() : null; return L && L.plan ? L.plan : null; },
-  blocked(page) { const p = this.plan(); return !!(p && page && (p.hide || []).includes('S:' + page)); },
+  SEC: { arrest: 'arrest-item', cctns: 'io-item', others: 'io-item', formats: 'io-item' },
+  blocked(page) { const p = this.plan(), H = p && p.hide || []; return !!(p && page && (H.includes('S:' + page) || (this.SEC[page] && H.includes('S:' + this.SEC[page])))); },
   apply() {
     if (SUD_ED !== 'user') return; const p = this.plan();
     this._busy = 1; try { this.hideNav(p ? p.hide : []); } finally { this._busy = 0; }

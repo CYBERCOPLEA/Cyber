@@ -17,6 +17,10 @@ function VCK(k, v, o) {
     for (var i = 0; !bad && i + 7 <= v.length; i++) { var up = 1, dn = 1; for (var j = i + 1; j < i + 7; j++) { var d = +v[j] - +v[j - 1]; if (d !== 1) up = 0; if (d !== -1) dn = 0; } if (up || dn) bad = true; }
     return bad ? 'Please enter correct Mobile No. (10 digits, numbers only)' : '';
   }
+  if (k === 'aadhaar') return /^\d{12}$/.test(v.replace(/\s/g, '')) ? '' : 'Please enter correct 12 digit Aadhaar No.';
+  if (k === 'pan') return /^[A-Z]{5}\d{4}[A-Z]$/i.test(v) ? '' : 'Please enter correct PAN (e.g. ABCDE1234F)';
+  if (k === 'ckyc') return /^\d{14}$/.test(v) ? '' : 'Please enter correct 14 digit CKYC No.';
+  if (k === 'email') return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v) ? '' : 'Please enter correct Email';
   if (k === 'year') return /^(19|20)\d\d$/.test(v) ? '' : 'Please enter complete Year e.g. 2026';
   if (k === 'note') {
     if (v.length > 50) return 'Note can have at most 50 characters (now ' + v.length + ')';
