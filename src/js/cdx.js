@@ -284,6 +284,7 @@ const CDX = {
   chip(s) { const x = this.ST[s] || ['', s]; return `<span class="cdx-st ${x[0]}">${x[1]}</span>`; },
   /* From Whom – Asked & Received: live summary, CD chips with hover preview, click for the full record in place */
   agTable(r, g, el) {
+    this.agTip(null);
     const A = r.agencies, box = $('#cdxA', g), pend = A.filter(a => a.status === 'Pending'), old = pend.filter(a => a.age >= 30), cds = a => [...new Set(a.map(e => e.cd))];
     const sum = [['all', '🏢', 'Agencies / Persons', A.length, '#6366f1'], ['Pending', '⏳', 'Reply Pending', pend.length, '#d97706'], ['old', '🔴', 'Pending 30+ Days', old.length, '#dc2626'], ['Received', '✅', 'Reply Received', A.length - pend.length, '#16a34a'],
       ['asks', '📨', 'Requests Sent', A.reduce((n, a) => n + a.ask.length, 0), '#0891b2'], ['gots', '📥', 'Replies Recorded', A.reduce((n, a) => n + a.got.length, 0), '#7c3aed']];

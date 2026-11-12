@@ -18,6 +18,7 @@ const EO = {
   match(r, f) { return !f || (f === 'old' ? r.status === 'Pending' && this.days(r) >= 30 : f === 'hi' ? +r.amount > this.HI : f === 'all' ? true : r.status === f); },
 
   async page(el) {
+    this.tip(null);
     const L = await this.list(), C = await this.cfg(), st = this.st(), q = st.q.toLowerCase();
     const rows = L.filter(r => this.match(r, st.f) && (!st.t || r.type === st.t) && (!q || [r.sr, r.no, r.year, r.victim, r.mobile, r.brief, r.notes, this.firTxt(r)].join(' ').toLowerCase().includes(q)));
     const n = k => L.filter(r => this.match(r, k)).length, amt = L.reduce((s, r) => s + (+r.amount || 0), 0);

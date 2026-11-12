@@ -2165,6 +2165,19 @@ html.no-crimeEdit #cdImpM,html.no-crimeEdit #cdScan,html.no-crimeEdit #cdFile,ht
 .eo-sheet{background:#fff;color:#000;border-radius:8px;padding:24px;max-height:55vh;overflow:auto;border:1px solid var(--border)}
 #erF .df-bar{margin:10px 0}
 
+/* Analytics: Trending Crime */
+.tr-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px;margin-top:10px}
+.tr-card{text-align:left;border:1px solid var(--border);border-radius:12px;padding:9px 11px;background:var(--surface-2,transparent);color:var(--text-primary);cursor:pointer;display:flex;flex-direction:column;gap:4px}
+.tr-card:hover,.tr-card.on{box-shadow:0 0 0 2px var(--accent)}.tr-h{display:flex;gap:6px;align-items:center;font-size:12.5px}.tr-n{display:flex;align-items:center;justify-content:space-between}.tr-n b{font-size:22px}
+.tr-sp{width:70px;height:20px;color:var(--accent)}.tr-card.up .tr-ch,.tr-card.up .tr-sp{color:#ef4444}.tr-card.down .tr-ch,.tr-card.down .tr-sp{color:#22c55e}.tr-ch{font-weight:800}
+/* Analytics: Target */
+.tg-k{grid-template-columns:repeat(6,minmax(0,1fr))}@media (max-width:1200px){.tg-k{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.tg-jm{border:1px solid var(--border);border-left:4px solid #f59e0b;border-radius:10px;padding:8px 10px;margin-bottom:10px}
+.tg-tb{width:100%;border-collapse:collapse}.tg-tb th,.tg-tb td{border-bottom:1px solid var(--border);padding:5px 8px;text-align:left;vertical-align:top;font-size:13px}.tg-tb th{width:28%;color:var(--text-muted);font-weight:700}
+.tg-utr{display:flex;flex-direction:column;gap:4px;max-height:34vh;overflow:auto}.tg-utr>div{display:grid;grid-template-columns:28px 1.3fr 1fr .8fr 2fr;gap:8px;align-items:center;border:1px solid var(--border);border-radius:8px;padding:4px 8px}
+.tg-un{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--accent);color:#fff;font-size:11px;font-weight:800}
+#tgT td{white-space:nowrap}#tgT td .small{white-space:nowrap}
+
 </style>
 </head>
 <body>
@@ -2212,7 +2225,7 @@ html.no-crimeEdit #cdImpM,html.no-crimeEdit #cdScan,html.no-crimeEdit #cdFile,ht
         <div class="hp-feat" style="--fc:#06b6d4"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><div><b>Analytics</b><p>The same mobile, account, IP or e-mail across complaints, banks and platforms.</p></div></div>
         <div class="hp-feat" style="--fc:#eab308"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h5"/></svg></span><div><b>Case File &amp; Notices</b><p>Case reports, notices to banks and platforms, and CSV / PDF exports.</p></div></div>
     </section>
-    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-12 23:24 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
+    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-12 23:37 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
   </div>
 
   <div class="lg-wrap" id="lgWrap" aria-hidden="true">
@@ -14537,6 +14550,7 @@ const CDX = {
   chip(s) { const x = this.ST[s] || ['', s]; return `<span class="cdx-st ${x[0]}">${x[1]}</span>`; },
   /* From Whom – Asked & Received: live summary, CD chips with hover preview, click for the full record in place */
   agTable(r, g, el) {
+    this.agTip(null);
     const A = r.agencies, box = $('#cdxA', g), pend = A.filter(a => a.status === 'Pending'), old = pend.filter(a => a.age >= 30), cds = a => [...new Set(a.map(e => e.cd))];
     const sum = [['all', '🏢', 'Agencies / Persons', A.length, '#6366f1'], ['Pending', '⏳', 'Reply Pending', pend.length, '#d97706'], ['old', '🔴', 'Pending 30+ Days', old.length, '#dc2626'], ['Received', '✅', 'Reply Received', A.length - pend.length, '#16a34a'],
       ['asks', '📨', 'Requests Sent', A.reduce((n, a) => n + a.ask.length, 0), '#0891b2'], ['gots', '📥', 'Replies Recorded', A.reduce((n, a) => n + a.got.length, 0), '#7c3aed']];
@@ -16397,6 +16411,7 @@ const EO = {
   match(r, f) { return !f || (f === 'old' ? r.status === 'Pending' && this.days(r) >= 30 : f === 'hi' ? +r.amount > this.HI : f === 'all' ? true : r.status === f); },
 
   async page(el) {
+    this.tip(null);
     const L = await this.list(), C = await this.cfg(), st = this.st(), q = st.q.toLowerCase();
     const rows = L.filter(r => this.match(r, st.f) && (!st.t || r.type === st.t) && (!q || [r.sr, r.no, r.year, r.victim, r.mobile, r.brief, r.notes, this.firTxt(r)].join(' ').toLowerCase().includes(q)));
     const n = k => L.filter(r => this.match(r, k)).length, amt = L.reduce((s, r) => s + (+r.amount || 0), 0);
@@ -16540,6 +16555,239 @@ const EO = {
   const subs = $('.offx-subs'), cr = subs && $('.nav-sub[data-ox="offx|crime"]', subs);
   if (cr) { cr.insertAdjacentHTML('afterend', `<div class="nav-sub" data-ox="offx|eo" style="--pc:#0ea5e9"><i></i><span>EO – Enquiry Officer</span></div>`); const n = $('[data-ox="offx|eo"]', subs); n.onclick = () => go('offx', 'eo');
     $$('.nav-sub span', subs).forEach((s, i) => s.textContent = s.textContent.replace(/^\d+\.\s*/, (i + 1) + '. ')); }
+})();
+
+</script>
+<script>
+/* trend.js – Analytics › Trending Crime: crime trends across ALL cases, NCRP complaints and EO enquiries.
+   Fraud type (APK, phone hacking, call forwarding, investment…), district / commissionerate, zone, police station,
+   identifier, incident & reporting date, reporting delay to the second, IO / EO. Read on this computer only. */
+'use strict';
+const Trend = {
+  TYPES: [
+    ['APK / Malicious App', '📲', /\bapk\b|malicious app|remote (access|app)|any ?desk|team ?viewer|quick ?support|screen ?shar|rust ?desk|mirror app/i],
+    ['Call Forwarding', '📞', /call ?forward|\*\*?21\*|\*401\*|divert(ed)? call|ussd code/i],
+    ['Phone Hacking / SIM Swap', '🔓', /hack|sim ?swap|e-?sim|duplicate sim|account take ?over|whatsapp (account )?(hack|compromis)/i],
+    ['Digital Arrest / Impersonation', '🚔', /digital arrest|cbi|customs|narcotic|\bned\b|enforcement directorate|\bed officer|police officer|fedex|courier|parcel|trai|money laundering/i],
+    ['Investment / Trading', '📈', /invest|trading|stock|share market|\bipo\b|crypto|forex|bitcoin|usdt/i],
+    ['Part-Time Job / Task', '💼', /part.?time|task|work from home|youtube like|hotel rating|prepaid task|job fraud|job offer/i],
+    ['Sextortion', '🎥', /sextortion|nude|obscene|video call (blackmail|record)/i],
+    ['Loan App', '💸', /loan app|instant loan|loan fraud|loan harass/i],
+    ['KYC / Bank Impersonation', '🏦', /\bkyc\b|customer care|bank (official|executive)|card block|account block|electricity bill|reward points|credit card limit/i],
+    ['UPI / OTP Fraud', '🔢', /\botp\b|\bupi\b|qr code|collect request|debit card|credit card|card fraud|internet banking|net banking/i],
+    ['Lottery / Gift / Prize', '🎁', /lottery|gift|prize|kbc|lucky draw/i],
+    ['E-Commerce / Online Shopping', '🛒', /e-?commerce|online shop|olx|quikr|delivery|refund|army (officer|man)|seller|buyer/i],
+    ['Matrimonial / Romance', '💔', /matrimon|romance|dating|marriage|friendship/i],
+    ['Social Media / Fake Profile', '👤', /fake (profile|id|account)|impersonat|social media|facebook|instagram|morph/i]
+  ],
+  OTHER: ['Other / Not Clear', '❓'],
+  type(t) { t = String(t || ''); for (const [n, , rx] of this.TYPES) if (rx.test(t)) return n; return this.OTHER[0]; },
+  icon(n) { const x = this.TYPES.find(t => t[0] === n); return x ? x[1] : this.OTHER[1]; },
+  ts(s) { s = String(s || '').trim(); if (!s) return 0; let m = s.match(/^(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{2,4})(?:[ T,]+(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(am|pm)?)?/i);
+    if (m) { let h = +(m[4] || 0); if (m[7]) h = h % 12 + (/pm/i.test(m[7]) ? 12 : 0); const y = m[3].length === 2 ? 2000 + +m[3] : +m[3]; return new Date(y, +m[2] - 1, +m[1], h, +(m[5] || 0), +(m[6] || 0)).getTime() || 0; }
+    m = s.match(/^(\d{4})-(\d\d)-(\d\d)(?:[ T](\d\d):(\d\d)(?::(\d\d))?)?/); if (m) return new Date(+m[1], +m[2] - 1, +m[3], +(m[4] || 0), +(m[5] || 0), +(m[6] || 0)).getTime() || 0; return 0; },
+  dur(sec) { if (sec == null || sec === '' || isNaN(sec)) return ''; sec = Math.round(sec); const neg = sec < 0; sec = Math.abs(sec); const d = Math.floor(sec / 86400), h = Math.floor(sec % 86400 / 3600), m = Math.floor(sec % 3600 / 60), s = sec % 60;
+    return (neg ? '-' : '') + (d ? d + 'd ' : '') + String(h).padStart(2, '0') + 'h ' + String(m).padStart(2, '0') + 'm ' + String(s).padStart(2, '0') + 's'; },
+  fdt(t) { if (!t) return ''; const d = new Date(t), p = n => String(n).padStart(2, '0'); return `${p(d.getDate())}-${p(d.getMonth() + 1)}-${d.getFullYear()}` + (d.getHours() || d.getMinutes() || d.getSeconds() ? ` ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}` : ''); },
+  /* one case → its records (NCRP complaints; a case with no NCRP rows counts once from its own details) */
+  one(c, d) {
+    const io = [c.io_rank, c.io].filter(Boolean).join(' '), base = { caseId: c.id, case: AllMode && AllMode.caseLabel ? AllMode.caseLabel(c) : c.name, fir: c.fir || '', io, zone: c.zone || '' };
+    const out = (d.ncrp || []).map(n => { const inc = this.ts(n.incident_date || n.incident_datetime || n.date_of_incident || n.incident), rep = this.ts(n.reported_date || n.complaint_date || n.reporting_date || n.date);
+      const ids = [['Mobile', n.suspect_mobile], ['Account', n.suspect_acc], ['UPI', n.suspect_upi], ['URL / App', n.suspect_url], ['Email', n.suspect_email]].flatMap(([t, v]) => String(v || '').split(/[,;\/|\s]+/).filter(x => x.length > 3).map(x => ({ t, v: x })));
+      return { ...base, src: 'NCRP', ack: n.ack_no || '', type: this.type([n.category, n.sub_category, n.remarks, n.suspect_url].join(' ')), cat: [n.category, n.sub_category].filter(Boolean).join(' › '), state: n.state || '', district: n.district || c.district || '', ps: n.ps || c.ps || '', zone: n.zone || base.zone, inc, rep, amount: +n.amount || 0, ids }; });
+    if (out.length) return out;
+    let fd = 0, txt = [c.name, c.section, c.ctype].join(' '); try { const r = CDX.analyse(d, c); fd = this.ts(r.fir.date); txt += ' ' + (r.fir.brief || '').slice(0, 3000); } catch (e) { }
+    return [{ ...base, src: 'Case', ack: c.ack || '', type: this.type(txt), cat: c.ctype || '', state: c.state || '', district: c.district || '', ps: c.ps || '', inc: 0, rep: fd || this.ts(c.firDate), amount: 0, ids: [] }];
+  },
+  async collect(force) {
+    if (this._d && !force && Date.now() - this._t < 60000) return this._d;
+    const R = [];
+    for (const c of S.cases) {
+      R.push(...(c.id === S.caseId && S.data && !isScope(S.caseId) ? this.one(c, S.data) : await Vault.sum(c.id, 'trd', 'v1|' + JSON.stringify(c), async () => { const d = await DB.get('case:' + c.id); return d ? this.one(c, Object.assign(emptyCase(), d)) : []; })));
+      await new Promise(r => setTimeout(r, 0));
+    }
+    try { const C = await EO.cfg(); for (const e of await EO.list()) R.push({ src: 'EO', caseId: '', case: [e.type, EO.caseNo(e)].filter(Boolean).join(' '), ack: e.type === 'NCRP' ? e.no : '', fir: e.fir && e.fir.no || '', type: this.type(e.brief + ' ' + (e.notes || '')), cat: (EO.TYPES[e.type] || [])[1] || '', state: '', district: (e.fir && e.fir.district) || '', ps: (e.fir && e.fir.ps) || '', zone: '', inc: 0, rep: this.ts(e.recv), amount: +e.amount || 0, ids: [], io: e.fir && e.fir.io || '', eo: [C.eo, C.desig].filter(Boolean).join(', ') }); } catch (e) { }
+    this._t = Date.now(); return (this._d = R);
+  },
+  DIMS: [['type', '🧩 Fraud Type'], ['district', '🏙 District / Commissionerate'], ['zone', '🗺 Zone'], ['ps', '🚓 Police Station'], ['ident', '🔎 Identifier'], ['month', '📅 Month (Reporting)'], ['io', '👮 IO / EO'], ['cat', '🗂 NCRP Category']],
+  key(r, k) { return k === 'month' ? (r.rep ? new Date(r.rep).toISOString().slice(0, 7) : '') : k === 'io' ? [r.io, r.eo].filter(Boolean).join(' / ') : r[k] || ''; },
+  st() { return this._s || (this._s = { dim: 'type', src: '', type: '', f: null, from: '', to: '' }); },
+
+  async page(main) {
+    main.innerHTML = `<div class="page-head"><div class="ph-text"><div class="crumb">Analysis <span>›</span> Trending Crime</div><h2>📊 Trending Crime</h2><div class="ph-desc">Crime trends across all cases, NCRP complaints and EO enquiries – fraud type, district, zone, police station, identifier, incident / reporting date with delay, IO / EO.</div></div></div><div id="trB"><div class="card muted">Reading all cases…</div></div>`;
+    const A = await this.collect(); if (S.page !== 'trend') return; this.draw($('#trB', main), A);
+  },
+  draw(el, A) {
+    Target.tip(null);
+    const st = this.st(), from = st.from ? new Date(st.from).getTime() : 0, to = st.to ? new Date(st.to).getTime() + 864e5 : 0;
+    const base = A.filter(r => (!st.src || r.src === st.src) && (!from || r.rep >= from) && (!to || (r.rep && r.rep < to)));
+    const F = base.filter(r => (!st.type || r.type === st.type) && (!st.f || (st.f.k === 'ident' ? r.ids.some(i => i.v === st.f.v) : this.key(r, st.f.k) === st.f.v)));
+    const now = Date.now(), D30 = 30 * 864e5, amt = F.reduce((s, r) => s + r.amount, 0), dl = F.filter(r => r.inc && r.rep && r.rep >= r.inc).map(r => (r.rep - r.inc) / 1000);
+    // per fraud type: count, amount, last 30 days vs the 30 before, last 6 months
+    const months = [...Array(6)].map((_, i) => { const d = new Date(); d.setDate(1); d.setMonth(d.getMonth() - 5 + i); return d.toISOString().slice(0, 7); });
+    const T = [...groupBy(base, r => r.type)].map(([t, l]) => { const a = l.filter(r => r.rep > now - D30).length, b = l.filter(r => r.rep <= now - D30 && r.rep > now - 2 * D30).length;
+      return { t, n: l.length, amt: l.reduce((s, r) => s + r.amount, 0), a, b, ch: b ? Math.round((a - b) / b * 100) : a ? 100 : 0, m: months.map(m => l.filter(r => r.rep && new Date(r.rep).toISOString().slice(0, 7) === m).length), top: [...groupBy(l, r => r.ps || r.district || '—')].sort((x, y) => y[1].length - x[1].length).slice(0, 3).map(([k, v]) => k + ' (' + v.length + ')') }; }).sort((x, y) => y.n - x.n);
+    const rise = T.filter(t => t.a >= 2).sort((x, y) => y.ch - x.ch)[0];
+    const spark = m => { const mx = Math.max(1, ...m); return `<svg viewBox="0 0 60 18" class="tr-sp"><polyline fill="none" stroke="currentColor" stroke-width="1.6" points="${m.map((v, i) => `${i * 12},${17 - v / mx * 15}`).join(' ')}"/></svg>`; };
+    el.innerHTML = `${UI.kpis([['Records', fmtNum(F.length), `${S.cases.length} case(s) · NCRP · EO`, 'c2'], ['Amount', fmtINR(amt), 'fraud amount reported', 'c4'], ['Top Fraud Type', T[0] ? this.icon(T[0].t) + ' ' + T[0].t : '—', T[0] ? T[0].n + ' records' : '', 'c5'], ['Rising Fast', rise ? this.icon(rise.t) + ' ' + rise.t : '—', rise ? `${rise.a} in last 30 days · ${rise.ch >= 0 ? '▲' : '▼'} ${Math.abs(rise.ch)}%` : 'not enough dated records', 'c1'], ['Avg Reporting Delay', dl.length ? this.dur(dl.reduce((s, x) => s + x, 0) / dl.length) : '—', dl.length ? `incident → reporting · ${dl.length} records` : 'needs incident & reporting dates', 'c3'], ['Districts / PS', fmtNum(uniq(F.map(r => r.district).filter(Boolean)).length) + ' / ' + fmtNum(uniq(F.map(r => r.ps).filter(Boolean)).length), '', 'c6']])}
+      <div class="card"><div class="row" style="gap:8px;flex-wrap:wrap;align-items:center"><h3 class="grow" style="margin:0">🔥 Fraud Type Trend <span class="small muted">last 30 days vs the 30 before · 6-month line</span></h3>
+        <div class="seg">${[['', 'All Sources'], ['NCRP', '🧾 NCRP'], ['Case', '📁 Cases'], ['EO', '🕵 EO']].map(([k, l]) => `<button class="btn sm ${st.src === k ? 'primary' : ''}" data-tsrc="${k}">${l}</button>`).join('')}</div>
+        <label class="small">From <input type="date" id="trFrom" value="${st.from}"></label><label class="small">To <input type="date" id="trTo" value="${st.to}"></label>${st.type || st.f || st.from || st.to || st.src ? '<button class="btn sm" id="trClr">✖ Clear</button>' : ''}</div>
+        <div class="tr-cards">${T.map(t => `<button class="tr-card ${st.type === t.t ? 'on' : ''} ${t.ch > 0 ? 'up' : t.ch < 0 ? 'down' : ''}" data-tty="${esc(t.t)}"><div class="tr-h"><span>${this.icon(t.t)}</span><b>${esc(t.t)}</b></div><div class="tr-n"><b>${fmtNum(t.n)}</b>${spark(t.m)}</div><div class="small">${t.amt ? fmtINR(t.amt) + ' · ' : ''}<span class="tr-ch">${t.ch > 0 ? '▲' : t.ch < 0 ? '▼' : '•'} ${Math.abs(t.ch)}%</span> <span class="muted">(${t.a} vs ${t.b})</span></div></button>`).join('') || '<div class="muted">No records yet – import NCRP complaints or add cases / EO enquiries.</div>'}</div></div>
+      <div class="grid g2"><div class="card"><div class="row" style="gap:6px;flex-wrap:wrap;align-items:center"><h3 class="grow" style="margin:0">Smart Overview</h3><select id="trDim">${this.DIMS.map(([k, l]) => `<option value="${k}" ${st.dim === k ? 'selected' : ''}>${l}</option>`).join('')}</select></div><div class="small muted" style="margin:4px 0 6px">Hover for numbers · click a bar to filter everything below.</div><div id="trBar"></div></div>
+        <div class="card"><h3>📅 Month-Wise (Reporting Date)${st.type ? ' – ' + esc(st.type) : ''}</h3><div id="trLine"></div><h3 style="margin-top:12px">⏱ Reporting Delay</h3><div id="trDl"></div></div></div>
+      <div class="card"><div class="row" style="gap:8px;align-items:center"><h3 class="grow" style="margin:0">📋 Records <span class="badge">${fmtNum(F.length)}</span>${st.f ? ` <span class="chip">${esc((this.DIMS.find(d => d[0] === st.f.k) || [])[1] || '')}: ${esc(st.f.v)}</span>` : ''}${st.type ? ` <span class="chip">${esc(st.type)}</span>` : ''}</h3></div><div id="trT" style="margin-top:8px"></div></div>`;
+    // overview bars
+    const bars = st.dim === 'ident' ? [...groupBy(F.flatMap(r => r.ids.map(i => ({ ...i, r }))), i => i.t + ': ' + i.v)].map(([k, l]) => ({ label: k, value: uniq(l.map(x => x.r.ack || x.r.caseId)).length, sub: 'records with this ' + l[0].t, k: 'ident', v: l[0].v })).filter(x => x.value >= 1)
+      : [...groupBy(F, r => this.key(r, st.dim) || '—')].map(([k, l]) => ({ label: st.dim === 'type' ? this.icon(k) + ' ' + k : k, value: l.length, sub: fmtINR(l.reduce((s, r) => s + r.amount, 0)) + ' · ' + uniq(l.map(r => r.ps).filter(Boolean)).slice(0, 3).join(', '), k: st.dim, v: k }));
+    bars.sort((a, b) => st.dim === 'month' ? String(b.v).localeCompare(a.v) : b.value - a.value);
+    Charts.hbar($('#trBar', el), bars, { max: 15, fmt: v => fmtNum(v) + ' records', onClick: d => { if (d.v === '—') return; if (st.dim === 'type') st.type = st.type === d.v ? '' : d.v; else st.f = st.f && st.f.v === d.v ? null : { k: d.k, v: d.v }; this.draw(el, A); } });
+    const mm = [...groupBy(F.filter(r => r.rep), r => new Date(r.rep).toISOString().slice(0, 7))].sort((a, b) => a[0].localeCompare(b[0])).map(([k, l]) => ({ label: k, value: l.length }));
+    Charts.line($('#trLine', el), mm, { fmt: v => fmtNum(v) + ' records' });
+    const bk = [['Same Day (< 24h)', 0, 1], ['1–3 Days', 1, 3], ['4–7 Days', 3, 7], ['8–30 Days', 7, 30], ['30+ Days', 30, 1e9]].map(([l, a, b]) => ({ label: l, value: dl.filter(x => x / 86400 >= a && x / 86400 < b).length }));
+    Charts.vbar($('#trDl', el), dl.length ? bk : [], { fmt: v => fmtNum(v) + ' records' });
+    Table($('#trT', el), { rows: F, pageSize: 25, sortKey: 'rep', sortDir: -1, exportName: 'trending_crime', noNd: true, onRow: r => { if (r.caseId && r.caseId !== S.caseId) switchCase(r.caseId); }, columns: [
+      { key: 'src', label: 'Source' }, { key: 'case', label: 'Case / Ack', render: r => `<b>${esc(r.case || '')}</b>${r.ack ? `<div class="small muted mono">${esc(r.ack)}</div>` : ''}`, csv: r => [r.case, r.ack].filter(Boolean).join(' · ') },
+      { key: 'type', label: 'Fraud Type', render: r => `${this.icon(r.type)} ${esc(r.type)}${r.cat ? `<div class="small muted">${esc(r.cat)}</div>` : ''}` },
+      { key: 'district', label: 'District' }, { key: 'zone', label: 'Zone' }, { key: 'ps', label: 'PS' },
+      { key: 'inc', label: 'Incident', sortVal: r => r.inc || 0, render: r => esc(this.fdt(r.inc)), csv: r => this.fdt(r.inc) }, { key: 'rep', label: 'Reporting', sortVal: r => r.rep || 0, render: r => esc(this.fdt(r.rep)), csv: r => this.fdt(r.rep) },
+      { key: 'delay', label: 'Delay', sortVal: r => r.inc && r.rep ? r.rep - r.inc : -1, render: r => r.inc && r.rep ? `<span class="mono small">${this.dur((r.rep - r.inc) / 1000)}</span>` : '', csv: r => r.inc && r.rep ? this.dur((r.rep - r.inc) / 1000) : '' },
+      { key: 'amount', label: 'Amount', num: true, render: r => r.amount ? fmtINR(r.amount) : '' },
+      { key: 'ids', label: 'Identifiers', sortVal: r => r.ids.length, render: r => `<span class="small">${esc(r.ids.slice(0, 3).map(i => i.v).join(', '))}${r.ids.length > 3 ? ' +' + (r.ids.length - 3) : ''}</span>`, csv: r => r.ids.map(i => i.t + ': ' + i.v).join('; ') },
+      { key: 'io', label: 'IO / EO', render: r => esc([r.io, r.eo && 'EO ' + r.eo].filter(Boolean).join(' · ')), csv: r => [r.io, r.eo].filter(Boolean).join(' / ') }] });
+    const re = () => this.draw(el, A);
+    $$('[data-tsrc]', el).forEach(b => b.onclick = () => { st.src = b.dataset.tsrc; re(); });
+    $$('[data-tty]', el).forEach(b => { b.onclick = () => { st.type = st.type === b.dataset.tty ? '' : b.dataset.tty; re(); };
+      const t = T.find(x => x.t === b.dataset.tty); b.title = `${t.t}: ${t.n} records${t.amt ? ' · ' + fmtINR(t.amt) : ''}\nLast 30 days ${t.a} · before that ${t.b}\nMonths ${months.map((m, i) => m.slice(5) + ':' + t.m[i]).join('  ')}\nTop: ${t.top.join(', ')}`; });
+    $('#trDim', el).onchange = e => { st.dim = e.target.value; st.f = null; re(); };
+    $('#trFrom', el).onchange = e => { st.from = e.target.value; re(); }; $('#trTo', el).onchange = e => { st.to = e.target.value; re(); };
+    if ($('#trClr', el)) $('#trClr', el).onclick = () => { Object.assign(st, { src: '', type: '', f: null, from: '', to: '' }); re(); };
+  }
+};
+Pages.trend = main => Trend.page(main);
+
+</script>
+<script>
+/* target.js – Analytics › Target: suspect accounts / persons across ALL cases, in working order:
+   JMIS notice status → account, IFSC, bank, holder → mobile, email, Aadhaar, PAN, KYC, CKYC → state, district →
+   ATM location, cheque branch → UTR trail. Common targets (2+ cases / complaints) first. Read on this computer only. */
+'use strict';
+const Target = {
+  JS: { P: ['⏳', 'Pending', '#f59e0b'], ST: ['✅', 'Served ~ Trace', '#16a34a'], SNT: ['🟠', 'Served ~ Not Trace', '#ea580c'], NSW: ['❌', 'Not Served ~ Wrong Address', '#dc2626'] },
+  ok: a => { a = String(a || '').trim(); return a.length >= 6 && !/^(VICTIM|CASH|ATM|NA|N\/A|NIL)/i.test(a) && !(typeof isSynthetic === 'function' && isSynthetic(a)); },
+  one(c, d) {
+    const M = new Map(), lab = AllMode && AllMode.caseLabel ? AllMode.caseLabel(c) : c.name;
+    const get = acc => { let t = M.get(acc); if (!t) M.set(acc, t = { acc, caseId: c.id, case: lab, names: [], banks: [], ifsc: [], branch: [], mobile: [], email: [], pan: [], aadhaar: [], kyc: [], ckyc: [], address: [], state: [], district: [], atm: [], chq: [], utr: [], acks: [], layers: [], amt: 0 }); return t; };
+    const put = (t, k, v) => { v = String(v || '').trim(); if (v && v !== '-' && !t[k].includes(v)) t[k].push(v); };
+    for (const x of d.txns || []) {
+      if (!this.ok(x.to_acc)) continue; const t = get(String(x.to_acc).trim()), how = [x.mode, x.action, x.remarks].join(' ');
+      put(t, 'names', x.to_name); put(t, 'banks', x.to_bank); put(t, 'ifsc', x.to_ifsc); ['mobile', 'email', 'pan', 'aadhaar', 'state', 'district'].forEach(k => put(t, k, x[k])); put(t, 'acks', x.ack_no); if (x.layer != null) put(t, 'layers', 'L' + x.layer);
+      t.amt += Math.abs(+x.amount || 0);
+      if (x.txn_id) t.utr.push({ utr: String(x.txn_id), date: [x.date, x.time].filter(Boolean).join(' '), amt: +x.amount || 0, from: x.from_acc || '', mode: x.mode || '', act: x.action || '' });
+      if (x.atm_loc || /\batm\b|cash withdraw/i.test(how)) put(t, 'atm', x.atm_loc || (how.match(/atm[^,;|]{0,60}/i) || [''])[0]);
+      if (/che(que|ck)|\bchq\b|clearing/i.test(how)) put(t, 'chq', x.atm_loc || (how.match(/(?:branch|br\.?)\s*[:\-]?\s*[^,;|]{2,50}/i) || [''])[0] || x.to_bank);
+    }
+    for (const k of d.kyc || []) {
+      if (!this.ok(k.acc)) continue; const t = get(String(k.acc).trim());
+      put(t, 'names', k.name); put(t, 'banks', k.bank); put(t, 'ifsc', k.ifsc); put(t, 'branch', k.branch); ['mobile', 'email', 'pan', 'aadhaar', 'address', 'state', 'district'].forEach(f => put(t, f, k[f]));
+      put(t, 'kyc', k.kyc_doc || k.id_type || k.acc_type || k.type || 'KYC received'); const ck = k.ckyc || (String(k.remarks || '').match(/ckyc\s*(?:no\.?|number)?\s*[:\-]?\s*(\d{14})/i) || [])[1]; put(t, 'ckyc', ck);
+    }
+    return [...M.values()];
+  },
+  async collect(force) {
+    if (this._d && !force && Date.now() - this._t < 60000) return this._d;
+    const all = new Map();
+    for (const c of S.cases) {
+      const L = c.id === S.caseId && S.data && !isScope(S.caseId) ? this.one(c, S.data) : await Vault.sum(c.id, 'tgt', 'v1|' + JSON.stringify(c), async () => { const d = await DB.get('case:' + c.id); return d ? this.one(c, Object.assign(emptyCase(), d)) : []; });
+      for (const t of L) { const g = all.get(t.acc); if (!g) { all.set(t.acc, { ...t, cases: [{ id: t.caseId, name: t.case }] }); continue; }
+        for (const k of ['names', 'banks', 'ifsc', 'branch', 'mobile', 'email', 'pan', 'aadhaar', 'kyc', 'ckyc', 'address', 'state', 'district', 'atm', 'chq', 'acks', 'layers']) t[k].forEach(v => { if (!g[k].includes(v)) g[k].push(v); });
+        g.utr.push(...t.utr); g.amt += t.amt; if (!g.cases.some(x => x.id === t.caseId)) g.cases.push({ id: t.caseId, name: t.case }); }
+      await new Promise(r => setTimeout(r, 0));
+    }
+    const T = [...all.values()];
+    // same person: other accounts sharing PAN / Aadhaar / mobile / email
+    const idx = new Map(); T.forEach(t => ['pan', 'aadhaar', 'mobile', 'email'].forEach(k => t[k].forEach(v => { const K = k + '|' + v.toLowerCase(); (idx.get(K) || idx.set(K, []).get(K)).push(t); })));
+    T.forEach(t => { const s = new Set(); ['pan', 'aadhaar', 'mobile', 'email'].forEach(k => t[k].forEach(v => (idx.get(k + '|' + v.toLowerCase()) || []).forEach(o => { if (o !== t) s.add(o.acc); }))); t.links = [...s]; t.utr.sort((a, b) => String(a.date).localeCompare(String(b.date))); t.score = t.cases.length * 10 + t.acks.length * 3 + t.links.length * 2 + (t.layers.includes('L1') ? 2 : 0); });
+    this._t = Date.now(); return (this._d = T.sort((a, b) => b.score - a.score));
+  },
+  jm() { return Off.get('tgt', {}); },
+  st() { return this._s || (this._s = { f: '', c: false, q: '' }); },
+  async page(main) {
+    main.innerHTML = `<div class="page-head"><div class="ph-text"><div class="crumb">Analysis <span>›</span> Target</div><h2>🎯 Target</h2><div class="ph-desc">Suspect accounts and persons across all cases, in working order: JMIS notice status → account, IFSC, bank, holder → mobile, email, Aadhaar, PAN, KYC, CKYC → state, district → ATM location, cheque branch → UTR trail.</div></div></div><div id="tgB"><div class="card muted">Reading all cases…</div></div>`;
+    const [T, J] = [await this.collect(), await this.jm()]; if (S.page !== 'target') return; this.draw($('#tgB', main), T, J);
+  },
+  sOf(J, t) { return (J[t.acc] && J[t.acc].st) || 'P'; },
+  draw(el, T, J) {
+    this.tip(null);
+    const st = this.st(), q = st.q.toLowerCase(), common = t => t.cases.length >= 2 || t.acks.length >= 2 || t.links.length > 0;
+    const F = T.filter(t => (!st.f || this.sOf(J, t) === st.f) && (!st.c || common(t)) && (!q || [t.acc, ...t.names, ...t.mobile, ...t.email, ...t.pan, ...t.aadhaar, ...t.ifsc, ...t.banks, ...t.district, ...t.state, ...t.utr.map(u => u.utr)].join(' ').toLowerCase().includes(q)));
+    const n = k => T.filter(t => this.sOf(J, t) === k).length, j = (a, m = 2) => esc(a.slice(0, m).join(', ')) + (a.length > m ? ` <small class="muted">+${a.length - m}</small>` : '');
+    el.innerHTML = `<div class="card"><div class="ag-k tg-k"><button class="ag-kb ${!st.f && !st.c ? 'on' : ''}" data-tgf="" style="--c:#6366f1"><span>🎯</span><b>${fmtNum(T.length)}</b><small>All Targets</small></button><button class="ag-kb ${st.c ? 'on' : ''}" data-tgc="1" style="--c:#be123c"><span>🔗</span><b>${fmtNum(T.filter(common).length)}</b><small>Common (2+ Cases / Complaints / Same Person)</small></button>${Object.entries(this.JS).map(([k, [i, l, c]]) => `<button class="ag-kb ${st.f === k ? 'on' : ''}" data-tgf="${k}" style="--c:${c}"><span>${i}</span><b>${fmtNum(n(k))}</b><small>JMIS: ${l}</small></button>`).join('')}</div>
+      <div class="row" style="gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px"><h3 class="grow" style="margin:0">🎯 Targets <span class="badge">${fmtNum(F.length)}</span></h3><input id="tgQ" placeholder="Find account, name, mobile, PAN, UTR…" value="${esc(st.q)}" style="max-width:280px"><button class="btn" id="tgImp" title="Excel / CSV from JMIS with account number and notice status">📥 Import JMIS Status</button><button class="btn" id="tgRe">🔄 Read All Cases Again</button></div>
+      <div id="tgT" style="margin-top:10px"></div></div>`;
+    Table($('#tgT', el), { rows: F, pageSize: 25, exportName: 'targets', onRow: t => this.open(t, J, () => this.draw(el, T, J)), columns: [
+      { key: 'jm', label: 'JMIS Notice', sortVal: t => this.sOf(J, t), csv: t => this.JS[this.sOf(J, t)][1] + (J[t.acc] && J[t.acc].date ? ' · ' + J[t.acc].date : ''), render: t => { const s = this.JS[this.sOf(J, t)]; return `<span class="eo-st" style="--c:${s[2]}">${s[0]} ${s[1]}</span>${J[t.acc] && J[t.acc].date ? `<div class="small muted">${esc(EO.dmy(J[t.acc].date))}</div>` : ''}`; } },
+      { key: 'acc', label: 'Account', render: t => `<b class="mono">${esc(t.acc)}</b>${common(t) ? ' <span class="tg-c" title="Common target">🔗</span>' : ''}<div class="small muted">${esc(t.layers.join(' '))}</div>` },
+      { key: 'ifsc', label: 'IFSC', csv: t => t.ifsc.join('; '), render: t => `<span class="mono small">${j(t.ifsc, 1)}</span>` },
+      { key: 'bank', label: 'Bank', csv: t => t.banks.join('; '), render: t => j(t.banks, 1) },
+      { key: 'name', label: 'Holder', csv: t => t.names.join('; '), sortVal: t => t.names[0] || '', render: t => `<b>${j(t.names, 1)}</b>` },
+      { key: 'mobile', label: 'Mobile', csv: t => t.mobile.join('; '), render: t => j(t.mobile) },
+      { key: 'email', label: 'Email', csv: t => t.email.join('; '), render: t => `<span class="small">${j(t.email, 1)}</span>` },
+      { key: 'aadhaar', label: 'Aadhaar', csv: t => t.aadhaar.join('; '), render: t => j(t.aadhaar, 1) },
+      { key: 'pan', label: 'PAN', csv: t => t.pan.join('; '), render: t => j(t.pan, 1) },
+      { key: 'kyc', label: 'KYC', csv: t => t.kyc.join('; '), render: t => t.kyc.length ? '✔ ' + j(t.kyc, 1) : '<span class="muted">—</span>' },
+      { key: 'ckyc', label: 'CKYC', csv: t => t.ckyc.join('; '), render: t => j(t.ckyc, 1) },
+      { key: 'state', label: 'State', csv: t => t.state.join('; '), render: t => j(t.state, 1) },
+      { key: 'district', label: 'District', csv: t => t.district.join('; '), render: t => j(t.district, 1) },
+      { key: 'atm', label: 'ATM Location', csv: t => t.atm.join('; '), render: t => `<span class="small">${j(t.atm, 1)}</span>` },
+      { key: 'chq', label: 'Cheque Branch', csv: t => t.chq.join('; '), render: t => `<span class="small">${j(t.chq, 1)}</span>` },
+      { key: 'utr', label: 'UTR Trail', sortVal: t => t.utr.length, csv: t => t.utr.map(u => u.utr).join('; '), render: t => t.utr.length ? `<b>${t.utr.length}</b> <span class="small muted mono">${esc(t.utr[0].utr)}${t.utr.length > 1 ? ' …' : ''}</span>` : '' },
+      { key: 'cases', label: 'Cases / Complaints', sortVal: t => t.score, csv: t => t.cases.map(c => c.name).join('; ') + ' | ' + t.acks.join('; '), render: t => `<b class="${t.cases.length > 1 ? 'bad-t' : ''}">${t.cases.length}</b> case${t.cases.length > 1 ? 's' : ''} · <b>${t.acks.length}</b> compl.${t.links.length ? `<div class="small">👤 ${t.links.length} linked A/C</div>` : ''}` },
+      { key: 'amt', label: 'Amount', num: true, render: t => t.amt ? fmtINR(t.amt) : '' }] });
+    const re = () => this.draw(el, T, J);
+    $$('[data-tgf]', el).forEach(b => { b.onclick = () => { st.f = b.dataset.tgf; st.c = false; re(); }; b.onmouseenter = () => this.tip(b, T.filter(t => !b.dataset.tgf || this.sOf(J, t) === b.dataset.tgf)); b.onmouseleave = () => this.tip(null); });
+    $$('[data-tgc]', el).forEach(b => { b.onclick = () => { st.c = !st.c; st.f = ''; re(); }; b.onmouseenter = () => this.tip(b, T.filter(common)); b.onmouseleave = () => this.tip(null); });
+    const qi = $('#tgQ', el); qi.onchange = () => { st.q = qi.value; re(); };
+    $('#tgRe', el).onclick = async () => { $('#tgRe', el).disabled = true; const T2 = await this.collect(true); this.draw(el, T2, J); };
+    $('#tgImp', el).onclick = () => this.imp(J, re);
+  },
+  tip(el, list) {
+    let t = $('#agTip'); if (!el) { if (t) t.remove(); return; }
+    if (!t) { t = document.createElement('div'); t.id = 'agTip'; t.className = 'ag-tip'; document.body.appendChild(t); }
+    t.innerHTML = `<b>${list.length} target${list.length === 1 ? '' : 's'}</b>${list.slice(0, 8).map(x => `<div><span class="mono">${esc(x.acc)}</span> · ${esc(x.names[0] || '')} · ${esc(x.banks[0] || '')} <i>${x.cases.length} case</i></div>`).join('')}${list.length > 8 ? `<div class="muted">+ ${list.length - 8} more – click</div>` : ''}`;
+    const r = el.getBoundingClientRect(); t.style.left = Math.min(innerWidth - 440, Math.max(8, r.left)) + 'px'; t.style.top = (r.bottom + 6) + 'px';
+  },
+  open(t, J, done) {
+    const s = J[t.acc] || { st: 'P', date: '', note: '' }, row = (k, v) => v && v.length ? `<tr><th>${k}</th><td>${esc(Array.isArray(v) ? v.join(', ') : v)}</td></tr>` : '';
+    const m = UI.modal('🎯 ' + t.acc + (t.names[0] ? ' · ' + t.names[0] : ''), `<div class="tg-jm"><b>📮 JMIS Notice Status</b><div class="map-grid"><label>Status<select id="tjS">${Object.entries(this.JS).map(([k, [i, l]]) => `<option value="${k}" ${s.st === k ? 'selected' : ''}>${i} ${l}</option>`).join('')}</select></label><label>Date<input type="date" id="tjD" value="${esc(s.date || '')}"></label><label>Note<input id="tjN" value="${esc(s.note || '')}" placeholder="Address found / police station / remarks"></label></div></div>
+      <table class="tg-tb">${row('Account', t.acc)}${row('IFSC', t.ifsc)}${row('Bank', t.banks)}${row('Branch', t.branch)}${row('Holder', t.names)}${row('Mobile', t.mobile)}${row('Email', t.email)}${row('Aadhaar', t.aadhaar)}${row('PAN', t.pan)}${row('KYC', t.kyc)}${row('CKYC', t.ckyc)}${row('Address', t.address)}${row('State', t.state)}${row('District', t.district)}${row('ATM Location', t.atm)}${row('Cheque Branch', t.chq)}${row('Layers', t.layers)}${row('Complaints (Ack)', t.acks)}${row('Cases', t.cases.map(c => c.name))}${row('Same Person – Linked A/C', t.links)}${row('Amount Received', t.amt ? fmtINR(t.amt) : '')}</table>
+      ${t.utr.length ? `<h4 style="margin:12px 0 6px">🔗 UTR Trail (${t.utr.length})</h4><div class="tg-utr">${t.utr.map((u, i) => `<div><span class="tg-un">${i + 1}</span><b class="mono">${esc(u.utr)}</b><span class="small muted">${esc(u.date)}</span><span>${u.amt ? fmtINR(u.amt) : ''}</span><span class="small">${esc([u.from && 'from ' + u.from, u.mode, u.act].filter(Boolean).join(' · '))}</span></div>`).join('')}</div>` : ''}`,
+      [{ label: '🔎 Track Everywhere', onClick: () => { UI.closeModal(); if (typeof Dash2 !== 'undefined' && Dash2.track) Dash2.track(t.acc); } }, { label: 'Close', onClick: UI.closeModal }, { label: 'Save Status', cls: 'primary', onClick: async () => { J[t.acc] = { st: $('#tjS', m).value, date: $('#tjD', m).value, note: $('#tjN', m).value.trim() }; await Off.put('tgt'); UI.closeModal(); UI.toast('JMIS status saved'); done(); } }]);
+  },
+  imp(J, done) {
+    const i = document.createElement('input'); i.type = 'file'; i.accept = '.xlsx,.xls,.csv';
+    i.onchange = async () => { const f = i.files[0]; if (!f) return; try {
+      const wb = XLSX.read(await f.arrayBuffer(), { type: 'array' }), rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: '' }); let n = 0;
+      for (const r of rows) { const ks = Object.keys(r), ak = ks.find(k => /a\/?c|account/i.test(k)), sk = ks.find(k => /status|served|trace/i.test(k)), dk = ks.find(k => /date/i.test(k)); if (!ak || !sk) continue;
+        const a = String(r[ak]).replace(/\s/g, ''), v = String(r[sk]); if (!this.ok(a) || !v.trim()) continue;
+        const code = /not\s*served|wrong|address/i.test(v) ? 'NSW' : /not\s*trace|untrace/i.test(v) ? 'SNT' : /trace|served/i.test(v) ? 'ST' : 'P';
+        J[a] = { st: code, date: dk && Trend.ts(r[dk]) ? new Date(Trend.ts(r[dk]) + 432e5).toISOString().slice(0, 10) : '', note: v.slice(0, 120) }; n++; }
+      await Off.put('tgt'); UI.toast(n ? n + ' JMIS status rows taken' : 'No rows with account + status found', 5000); done(); } catch (e) { UI.toast('Could not read the file: ' + e.message, 5000); } };
+    i.click();
+  }
+};
+Pages.target = main => Target.page(main);
+
+/* Analytics drop-down: Trending Crime above CDR Analysis, Target after SMS Analysis */
+(() => {
+  const subs = $('.tel-subs'); if (!subs) return;
+  subs.insertAdjacentHTML('afterbegin', `<div class="nav-sub" data-tx="trend" style="--pc:#ef4444" title="Crime trends across all cases: fraud type, district, PS, identifier, delay"><i></i><span>Trending Crime</span></div>`);
+  subs.insertAdjacentHTML('beforeend', `<div class="nav-sub" data-tx="target" style="--pc:#be123c" title="Common suspect accounts / persons across all cases with JMIS notice status"><i></i><span>Target</span></div>`);
+  $$('.nav-sub span', subs).forEach((s, i) => s.textContent = (i + 1) + '. ' + s.textContent.replace(/^\d+\.\s*/, ''));
+  $$('[data-tx]', subs).forEach(n => n.onclick = () => go(n.dataset.tx));
+  const r0 = render; render = function () { const r = r0.apply(this, arguments);
+    $$('[data-tx]', subs).forEach(n => n.classList.toggle('active', S.page === n.dataset.tx));
+    if (/^(trend|target)$/.test(S.page)) { const it = $('.nav-item[data-page="analytics"]'); if (it) it.classList.add('active'); if (!subs.classList.contains('open')) { subs.classList.add('open'); it && it.classList.add('open'); S.telOpen = true; } } return r; };
 })();
 
 </script>
