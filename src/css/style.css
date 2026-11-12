@@ -2169,3 +2169,4 @@ html.no-crimeEdit #cdImpM,html.no-crimeEdit #cdScan,html.no-crimeEdit #cdFile,ht
 .tg-utr{display:flex;flex-direction:column;gap:4px;max-height:34vh;overflow:auto}.tg-utr>div{display:grid;grid-template-columns:28px 1.3fr 1fr .8fr 2fr;gap:8px;align-items:center;border:1px solid var(--border);border-radius:8px;padding:4px 8px}
 .tg-un{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--accent);color:#fff;font-size:11px;font-weight:800}
 #tgT td{white-space:nowrap}#tgT td .small{white-space:nowrap}
+.nd-note{margin:0 0 6px;padding:3px 10px;border-radius:8px;display:inline-block;background:rgba(234,179,8,.12);border:1px solid rgba(234,179,8,.4)}

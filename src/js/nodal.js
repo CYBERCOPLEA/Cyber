@@ -36,10 +36,14 @@ const Nodal = {
   Table = function (box, o) {
     const R = o && o.rows, acc = r => r && typeof r === 'object' ? String(r.acc || r.to_acc || r.account || r.acc_no || '') : '';
     if (!box || !Array.isArray(R) || R.length < 2 || o.noNd || box.closest('.nd-t, .nd-w') || !R.slice(0, 300).some(r => /\d{6,}/.test(acc(r)))) return T0.apply(this, arguments);
-    const all = R, isN = r => !!Nodal.of(acc(r)), draw = () => {
+    const all = R, isN = r => !!Nodal.of(acc(r)), inMain = !!box.closest('#main');
+    /* one choice bar per page: later tables on the same page follow it quietly */
+    if (inMain && $$('#main .nd-bar').some(x => !box.contains(x))) { const f = S.nodalF || 'all', rows = f === 'all' ? all : all.filter(r => f === 'wi' ? isN(r) : !isN(r));
+      box.dataset.ndq = '1'; const api = T0(box, Object.assign({}, o, { rows })); if (f !== 'all') box.insertAdjacentHTML('afterbegin', `<div class="nd-note small">${f === 'wo' ? '🎯 Showing Without Nodal ~ Escrow only' : '🏛️ Showing With Nodal ~ Escrow only'} – change it in the Accounts bar above</div>`); return api; }
+    const draw = () => {
       const f = S.nodalF || 'all', wo = all.filter(r => !isN(r)), wi = all.filter(isN);
       box.innerHTML = `<div class="nd-bar nd-sm"><span class="nd-l">Accounts</span>${Nodal.OPTS(all.length, wo.length, wi.length).map(([k, l, n]) => `<button class="nd-b no-tc ${k} ${k === f ? 'on' : ''}" data-nd="${k}" title="${k === 'wo' ? 'Own / mule accounts – freeze and act first' : k === 'wi' ? 'Nodal / escrow / payment-gateway / wallet pool accounts – ask them for the next beneficiary' : 'Every account'}">${l} <b>${fmtNum(n)}</b></button>`).join('')}</div><div class="nd-w"></div>`;
-      $$('[data-nd]', box).forEach(b => b.onclick = () => { S.nodalF = b.dataset.nd; draw(); });
+      $$('[data-nd]', box).forEach(b => b.onclick = () => { S.nodalF = b.dataset.nd; if (inMain && $('#main [data-ndq]')) render(); else draw(); });
       return T0($('.nd-w', box), Object.assign({}, o, { rows: f === 'wo' ? wo : f === 'wi' ? wi : all }));
     };
     let api = draw();

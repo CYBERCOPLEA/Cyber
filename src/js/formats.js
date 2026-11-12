@@ -240,7 +240,7 @@ Object.assign(NoticeKit.REC, {
 /* sidebar: Case File & Notices becomes a drop-down */
 (() => {
   const nav = $('#sidebar'), it = nav && $('.nav-item[data-page="others"]', nav); if (!it) return;
-  const SUB = [['others', '', 'Case File & Drafts', '#eab308'], ['formats', 'notice', 'Notice Format', '#3b82f6'], ['formats', 'memo', 'Memo', '#ef4444'], ['formats', 'upload', 'Upload +', '#22c55e']];
+  const SUB = [['others', '', 'Case File & Drafts', '#eab308'], ['formats', 'notice', 'Notice Format', '#3b82f6'], ['formats', 'memo', 'Memo', '#ef4444'], ['formats', 'upload', 'Upload Formats +', '#22c55e']];
   it.insertAdjacentHTML('beforeend', '<span class="nav-chev">▾</span>');
   it.insertAdjacentHTML('afterend', `<div class="nav-subs cf-subs">${SUB.map(([p, s, l, c], i) => `<div class="nav-sub" data-cf="${p}|${s}" style="--pc:${c}"><i></i><span>${i + 1}. ${l}</span></div>`).join('')}</div>`);
   const subs = $('.cf-subs', nav), setOpen = on => { S.cfOpen = on; subs.classList.toggle('open', on); it.classList.toggle('open', on); };

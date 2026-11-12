@@ -2177,6 +2177,7 @@ html.no-crimeEdit #cdImpM,html.no-crimeEdit #cdScan,html.no-crimeEdit #cdFile,ht
 .tg-utr{display:flex;flex-direction:column;gap:4px;max-height:34vh;overflow:auto}.tg-utr>div{display:grid;grid-template-columns:28px 1.3fr 1fr .8fr 2fr;gap:8px;align-items:center;border:1px solid var(--border);border-radius:8px;padding:4px 8px}
 .tg-un{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--accent);color:#fff;font-size:11px;font-weight:800}
 #tgT td{white-space:nowrap}#tgT td .small{white-space:nowrap}
+.nd-note{margin:0 0 6px;padding:3px 10px;border-radius:8px;display:inline-block;background:rgba(234,179,8,.12);border:1px solid rgba(234,179,8,.4)}
 
 </style>
 </head>
@@ -2225,7 +2226,7 @@ html.no-crimeEdit #cdImpM,html.no-crimeEdit #cdScan,html.no-crimeEdit #cdFile,ht
         <div class="hp-feat" style="--fc:#06b6d4"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><div><b>Analytics</b><p>The same mobile, account, IP or e-mail across complaints, banks and platforms.</p></div></div>
         <div class="hp-feat" style="--fc:#eab308"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h5"/></svg></span><div><b>Case File &amp; Notices</b><p>Case reports, notices to banks and platforms, and CSV / PDF exports.</p></div></div>
     </section>
-    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-12 23:37 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
+    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-12 23:50 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
   </div>
 
   <div class="lg-wrap" id="lgWrap" aria-hidden="true">
@@ -6361,10 +6362,14 @@ const Nodal = {
   Table = function (box, o) {
     const R = o && o.rows, acc = r => r && typeof r === 'object' ? String(r.acc || r.to_acc || r.account || r.acc_no || '') : '';
     if (!box || !Array.isArray(R) || R.length < 2 || o.noNd || box.closest('.nd-t, .nd-w') || !R.slice(0, 300).some(r => /\d{6,}/.test(acc(r)))) return T0.apply(this, arguments);
-    const all = R, isN = r => !!Nodal.of(acc(r)), draw = () => {
+    const all = R, isN = r => !!Nodal.of(acc(r)), inMain = !!box.closest('#main');
+    /* one choice bar per page: later tables on the same page follow it quietly */
+    if (inMain && $$('#main .nd-bar').some(x => !box.contains(x))) { const f = S.nodalF || 'all', rows = f === 'all' ? all : all.filter(r => f === 'wi' ? isN(r) : !isN(r));
+      box.dataset.ndq = '1'; const api = T0(box, Object.assign({}, o, { rows })); if (f !== 'all') box.insertAdjacentHTML('afterbegin', `<div class="nd-note small">${f === 'wo' ? '🎯 Showing Without Nodal ~ Escrow only' : '🏛️ Showing With Nodal ~ Escrow only'} – change it in the Accounts bar above</div>`); return api; }
+    const draw = () => {
       const f = S.nodalF || 'all', wo = all.filter(r => !isN(r)), wi = all.filter(isN);
       box.innerHTML = `<div class="nd-bar nd-sm"><span class="nd-l">Accounts</span>${Nodal.OPTS(all.length, wo.length, wi.length).map(([k, l, n]) => `<button class="nd-b no-tc ${k} ${k === f ? 'on' : ''}" data-nd="${k}" title="${k === 'wo' ? 'Own / mule accounts – freeze and act first' : k === 'wi' ? 'Nodal / escrow / payment-gateway / wallet pool accounts – ask them for the next beneficiary' : 'Every account'}">${l} <b>${fmtNum(n)}</b></button>`).join('')}</div><div class="nd-w"></div>`;
-      $$('[data-nd]', box).forEach(b => b.onclick = () => { S.nodalF = b.dataset.nd; draw(); });
+      $$('[data-nd]', box).forEach(b => b.onclick = () => { S.nodalF = b.dataset.nd; if (inMain && $('#main [data-ndq]')) render(); else draw(); });
       return T0($('.nd-w', box), Object.assign({}, o, { rows: f === 'wo' ? wo : f === 'wi' ? wi : all }));
     };
     let api = draw();
@@ -15768,7 +15773,7 @@ Object.assign(NoticeKit.REC, {
 /* sidebar: Case File & Notices becomes a drop-down */
 (() => {
   const nav = $('#sidebar'), it = nav && $('.nav-item[data-page="others"]', nav); if (!it) return;
-  const SUB = [['others', '', 'Case File & Drafts', '#eab308'], ['formats', 'notice', 'Notice Format', '#3b82f6'], ['formats', 'memo', 'Memo', '#ef4444'], ['formats', 'upload', 'Upload +', '#22c55e']];
+  const SUB = [['others', '', 'Case File & Drafts', '#eab308'], ['formats', 'notice', 'Notice Format', '#3b82f6'], ['formats', 'memo', 'Memo', '#ef4444'], ['formats', 'upload', 'Upload Formats +', '#22c55e']];
   it.insertAdjacentHTML('beforeend', '<span class="nav-chev">▾</span>');
   it.insertAdjacentHTML('afterend', `<div class="nav-subs cf-subs">${SUB.map(([p, s, l, c], i) => `<div class="nav-sub" data-cf="${p}|${s}" style="--pc:${c}"><i></i><span>${i + 1}. ${l}</span></div>`).join('')}</div>`);
   const subs = $('.cf-subs', nav), setOpen = on => { S.cfOpen = on; subs.classList.toggle('open', on); it.classList.toggle('open', on); };
