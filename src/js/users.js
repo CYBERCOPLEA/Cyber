@@ -159,7 +159,7 @@ Object.assign(Users, {
     $$('[data-kf]', main).forEach(b => b.onclick = () => { st.f = st.f === b.dataset.kf ? '' : b.dataset.kf; st.tab = 'users'; Pages.sadmin(main); });
     const RN = Object.fromEntries(Role.RIGHTS.map(r => [r[0], r[1]]));
     if (st.tab === 'rights') {
-      body.innerHTML = `<p class="small muted">Tick these for each user (➕ Add User or 🛡 Rights). Everything else in the tool – cases, import of own case files, analysis, dashboards, notices – every active user can use. Users have no Settings page.</p><div class="ua-rights">${Role.RIGHTS.map(([k, t, dd, def]) => `<div class="ua-r on"><span>${def ? '✅' : '➖'}</span><div><b>${esc(t)}</b><small>${esc(dd)}${def ? ' · on for new users' : ' · off for new users'}</small></div></div>`).join('')}<div class="ua-r"><span>👑</span><div><b>Super Admin Only</b><small>Settings, Super Admin Control, the Google script, user logins</small></div></div></div>`;
+      body.innerHTML = `<p class="small muted">Crime Data (👁 View / ✏ Full Use), Office Work tabs and Upload + follow the Left Panel ticks of each user (➕ Add User or 💎 Plan &amp; Time). The two below are set with 🛡 Rights. Users have no Settings page.</p><div class="ua-rights">${Role.RIGHTS.filter(r => this.RX.includes(r[0])).map(([k, t, dd, def]) => `<div class="ua-r on"><span>${def ? '✅' : '➖'}</span><div><b>${esc(t)}</b><small>${esc(dd)}${def ? ' · on for new users' : ' · off for new users'}</small></div></div>`).join('')}<div class="ua-r"><span>👑</span><div><b>Super Admin Only</b><small>Settings, Super Admin Control, the Google script, user logins</small></div></div></div>`;
       return;
     }
     if (st.tab === 'log') {
@@ -200,7 +200,8 @@ Object.assign(Users, {
     return b;
   },
   pwBox(pw) { return `<div class="f"><label>Temporary Password (the user changes it at first login)</label><div class="row" style="gap:6px"><input id="uePw" value="${esc(pw)}" class="mono"><button class="btn sm" type="button" id="ueGen">🎲 New</button></div></div>`; },
-  rightsBox(sel) { return `<div class="f"><label>Rights</label><div class="ua-rights pick">${Role.RIGHTS.map(([k, t, d]) => `<label class="ua-r"><input type="checkbox" data-rt="${k}" ${sel.includes(k) ? 'checked' : ''}><div><b>${esc(t)}</b><small>${esc(d)}</small></div></label>`).join('')}</div></div>`; },
+  RX: ['lists', 'delcase'],
+  rightsBox(sel) { return `<div class="f"><label>Rights</label><div class="ua-rights pick">${Role.RIGHTS.filter(r => this.RX.includes(r[0])).map(([k, t, d]) => `<label class="ua-r"><input type="checkbox" data-rt="${k}" ${sel.includes(k) ? 'checked' : ''}><div><b>${esc(t)}</b><small>${esc(d)}</small></div></label>`).join('')}</div></div>`; },
   async act(op, u, main) {
     const L = await this.live(); this._liveUrl = L.url;
     if (op === 'link') return this.share(u, '', '🔗 Join Link For ' + u.id);
@@ -222,8 +223,8 @@ Object.assign(Users, {
       return;
     }
     if (op === 'rights') {
-      const b = UI.modal('🛡 Rights – ' + u.id, this.rightsBox(String(u.rights || '').split(',')) + '<p class="small muted">Changes reach the user within a minute.</p>',
-        [{ label: 'Cancel', onClick: UI.closeModal }, { label: 'Save Rights', cls: 'primary', onClick: async () => { const rights = $$('[data-rt]', b).filter(x => x.checked).map(x => x.dataset.rt).join(','); UI.closeModal(); await this.run('rights', { id: u.id, rights }, main, '🛡 Rights saved for ' + u.id); } }]);
+      const b = UI.modal('🛡 Rights – ' + u.id, this.rightsBox(String(u.rights || '').split(',')) + '<p class="small muted">Crime Data (View / Full Use), Office Work and Upload + are set with the ticks in 💎 Plan &amp; Time › Left Panel. Changes reach the user within a minute.</p>',
+        [{ label: 'Cancel', onClick: UI.closeModal }, { label: 'Save Rights', cls: 'primary', onClick: async () => { const rights = [...String(u.rights || '').split(',').filter(k => k && !this.RX.includes(k)), ...$$('[data-rt]', b).filter(x => x.checked).map(x => x.dataset.rt)].join(','); UI.closeModal(); await this.run('rights', { id: u.id, rights }, main, '🛡 Rights saved for ' + u.id); } }]);
       return;
     }
     if (op === 'del') { if (!UI.confirm(`Remove user ${u.id}? They can no longer log in. Their case data stays on their own computer. This cannot be undone (you can add them again).`)) return; UI.closeModal(); await this.run('del', { id: u.id }, main, '🗑 ' + u.id + ' removed'); }
@@ -232,10 +233,10 @@ Object.assign(Users, {
     const L = await this.live(); this._liveUrl = L.url; const isNew = !u; u = u || { rights: Role.defRights().join(',') };
     const f = (k, l, ph) => `<div class="f"><label>${l}</label><input id="ue_${k}" value="${esc(u[k] || '')}" placeholder="${ph || ''}" ${k === 'id' && !isNew ? 'disabled' : ''}></div>`;
     const b = UI.modal(isNew ? '➕ Add User' : '✏ Edit ' + u.id, `<div class="map-grid" style="grid-template-columns:1fr 1fr">${f('id', 'User ID', 'e.g. si.ramkumar')}${f('rank', 'Rank', 'SI / HC / Constable…')}${f('name', 'Name')}${f('ps', 'Posting / Police Station')}${f('mobile', 'Mobile')}${f('note', 'Note')}</div>
-      ${isNew ? this.pwBox(this.pwGen()) + this.rightsBox(String(u.rights).split(',')) : ''}<div class="err" id="ueErr"></div>`,
+      ${isNew ? this.pwBox(this.pwGen()) : ''}<div class="err" id="ueErr"></div>`,
       [{ label: 'Cancel', onClick: UI.closeModal }, { label: isNew ? '➕ Add User' : 'Save', cls: 'primary', onClick: async () => {
         const v = k => ($('#ue_' + k, b) || {}).value || '', x = { id: isNew ? v('id').trim() : u.id, name: v('name'), rank: v('rank'), ps: v('ps'), mobile: v('mobile'), note: v('note') }, e = $('#ueErr', b);
-        if (isNew) { x.pw = $('#uePw', b).value.trim(); x.rights = $$('[data-rt]', b).filter(c => c.checked).map(c => c.dataset.rt).join(','); if (!/^[A-Za-z0-9._@-]{3,40}$/.test(x.id)) return e.textContent = 'User ID: 3 to 40 letters or numbers, no spaces'; if (x.pw.length < 6) return e.textContent = 'Password: at least 6 characters'; }
+        if (isNew) { x.pw = $('#uePw', b).value.trim(); x.rights = Role.defRights().join(','); if (!/^[A-Za-z0-9._@-]{3,40}$/.test(x.id)) return e.textContent = 'User ID: 3 to 40 letters or numbers, no spaces'; if (x.pw.length < 6) return e.textContent = 'Password: at least 6 characters'; }
         e.textContent = '⏳ Saving…';
         try { await this.admin(isNew ? 'add' : 'edit', x); this._data = await this.admin('list', { log: 1 }); } catch (er) { e.textContent = '❌ ' + er.message; return; }
         UI.closeModal(); done && done(); if (isNew) this.share(x, x.pw, '✅ User Added – Send This To ' + x.id); else UI.toast('Saved');

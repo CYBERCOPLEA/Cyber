@@ -152,14 +152,9 @@ const EO = {
 
 /* Office Work: EO tab right after Crime Data, and in the sidebar drop-down */
 (() => {
-  PAGE_META.offx.order.splice(PAGE_META.offx.order.indexOf('crime') + 1, 0, 'eo'); PAGE_META.offx.names.eo = '🕵 Enquiry Officer (EO)';
-  PAGE_META.offx.desc = 'Crime data of all cases, Enquiry Officer (EO) enquiries, good work, press notes, duty chart and office files – the same in every case, kept on this computer.';
-  const po = Pages.offx;
-  Pages.offx = main => { if (S.sub.offx !== 'eo') return po(main);
-    const { body } = tabs(main, 'offx', [['crime', '🗃 Crime Data'], ['eo', '🕵 Enquiry Officer (EO)'], ['good', '🏅 Good Work'], ['press', '📰 Press Note'], ['duty', '📅 Duty Chart'], ['files', '⬆ Upload +']], 'Office Work');
-    EO.page(body); };
-  const _tabs = tabs; tabs = function (main, page, list) { if (page === 'offx' && !list.some(t => t[0] === 'eo')) { const i = list.findIndex(t => t[0] === 'crime'); list = list.slice(); list.splice(i + 1, 0, ['eo', '🕵 Enquiry Officer (EO)']); arguments[2] = list; } return _tabs.apply(this, arguments); };
-  const subs = $('.offx-subs'), cr = subs && $('.nav-sub[data-ox="offx|crime"]', subs);
-  if (cr) { cr.insertAdjacentHTML('afterend', `<div class="nav-sub" data-ox="offx|eo" style="--pc:#0ea5e9"><i></i><span>EO – Enquiry Officer</span></div>`); const n = $('[data-ox="offx|eo"]', subs); n.onclick = () => go('offx', 'eo');
-    $$('.nav-sub span', subs).forEach((s, i) => s.textContent = s.textContent.replace(/^\d+\.\s*/, (i + 1) + '. ')); }
+  /* EO is its own page in Investigation, right below IO – Investigation Officer (sidebar item added in io.js) */
+  PAGE_META.eo = { group: 'Investigation', title: 'EO – Enquiry Officer', desc: 'Enquiries marked to the Enquiry Officer (EO): complaint / NCRP details, enquiry report and status – kept on this computer.', order: ['eo'], names: { eo: '🕵 Enquiry Officer (EO)' } };
+  Pages.eo = main => { const { body } = tabs(main, 'eo', [['eo', '🕵 Enquiry Officer (EO)']], 'EO – Enquiry Officer'); EO.page(body); };
+  /* old links to Office Work › EO open the new page */
+  const og = go; go = function (page, sub) { if (page === 'offx' && sub === 'eo') return og('eo'); return og.apply(this, arguments); };
 })();

@@ -33,7 +33,7 @@ const FX = (() => {
     [/photo|image|picture/i, 'framed-picture'], [/upload|file|document/i, 'open-file-folder'], [/import|data/i, 'inbox-tray'], [/case/i, 'card-file-box'], [/setting/i, 'gear'], [/link/i, 'link']];
   const pick = t => { for (const [r, k] of KW) if (r.test(t)) return k; return ''; };
   const NAV = { dashboard: 'house', financial: 'bank', ncrp: 'police-car-light', trail: 'link', social: 'busts-in-silhouette', analytics: 'bar-chart', osint: 'globe-with-meridians', tools: 'toolbox', caf: 'identification-card',
-    others: 'file-folder', lsearch: 'magnifying-glass-tilted-left', office: 'scroll', settings: 'gear', 'offx-item': 'briefcase', 'lea-item': 'police-car-light', 'cctns-item': 'card-file-box', 'io-item': 'detective', 'arrest-item': 'balance-scale' };
+    others: 'file-folder', lsearch: 'magnifying-glass-tilted-left', office: 'scroll', settings: 'gear', 'offx-item': 'briefcase', 'lea-item': 'police-car-light', 'cctns-item': 'card-file-box', 'io-item': 'detective', eo: 'spiral-notepad', 'arrest-item': 'balance-scale' };
   const LEAB = { 'wa-rec': 'whatsapp', wa: 'whatsapp', 'fb-rec': 'facebook', 'th-rec': 'threads', x: 'x', snap: 'snapchat', google: 'google', apple: 'apple', phonepe: 'phonepe', gpay: 'googlepay', amazon: 'amazon', jio: 'jio', airtel: 'airtel', vi: 'vodafone', paytm: 'paytm', ig: 'instagram', insta: 'instagram', telegram: 'telegram', yt: 'youtube', youtube: 'youtube' };
   const PLATB = { whatsapp: 'whatsapp', telegram: 'telegram', facebook: 'facebook', instagram: 'instagram', google: 'google' };
   /* things that are not emoji: sidebar tiles, tabs, sub-menu items, platform chips, portal list */

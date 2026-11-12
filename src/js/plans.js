@@ -25,7 +25,20 @@ const Plans = {
     let grp = '';
     [...$('#sidebar').children].forEach(it => { if (it.classList.contains('nav-group')) { grp = it.textContent.trim(); return; } if (!it.classList.contains('nav-item')) return; const k = this.secKey(it); if (k === 'settings') return; const nx = it.nextElementSibling, subs = nx && nx.classList.contains('nav-subs') ? nx : null;
       out.push({ g: grp, k, name: (it.dataset.ncOrig || it.textContent).replace(/[▾▸▶]/g, '').trim(), subs: subs ? NavCustom.items(subs).map(n => ({ k: k + '|' + NavCustom.id(n), name: (n.dataset.ncOrig || n.textContent).replace(/\s+/g, ' ').trim() })) : [] }); });
+    const o = out.find(s => s.k === 'offx-item'), i = o ? o.subs.findIndex(x => x.k === this.CD) : -1;
+    if (i >= 0) { o.subs[i].name = '👁 View Crime Data'; o.subs.splice(i + 1, 0, { k: this.CDF, name: '✏ Crime Data – Full Use (Import, Add Entry, Forms, Columns)', inv: 1 }); }
     return out;
+  },
+  CD: 'offx-item|ox:offx|crime', CDF: '+R:crimeEdit',
+  /* rights that follow the Left Panel ticks (Office Work) – the rest stay as given */
+  rightsOf(rs, p) {
+    const R = new Set(String(rs || '').split(',').map(s => s.trim()).filter(Boolean)); if (!p) return [...R];
+    const H = new Set(p.hide || []), sec = H.has('S:offx-item'), sub = k => !sec && !H.has('offx-item|ox:offx|' + k);
+    ['crime', 'crimeEdit', 'office', 'upload'].forEach(k => R.delete(k));
+    if (sub('crime')) { R.add('crime'); if (H.has(this.CDF)) R.add('crimeEdit'); }
+    if (['good', 'press', 'duty'].some(sub)) R.add('office');
+    if (sub('files')) R.add('upload');
+    return [...R];
   },
   hideNav(hide) {
     const H = new Set(hide || []);
@@ -38,7 +51,7 @@ const Plans = {
   blocked(page) { const p = this.plan(), H = p && p.hide || []; return !!(p && page && (H.includes('S:' + page) || (this.SEC[page] && H.includes('S:' + this.SEC[page])))); },
   apply() {
     if (SUD_ED !== 'user') return; const p = this.plan();
-    this._busy = 1; try { this.hideNav(p ? p.hide : []); } finally { this._busy = 0; }
+    this._busy = 1; try { this.hideNav(p ? p.hide : []); for (const [k] of Role.RIGHTS) document.documentElement.classList.toggle('no-' + k, !Role.can(k)); } finally { this._busy = 0; }
     this.timer();
   },
   /* ---------- countdown (User link) ---------- */
@@ -61,16 +74,17 @@ const Plans = {
   treeHtml(hide) {
     const H = new Set(hide || []), tr = this.tree(), G = [...new Set(tr.map(s => s.g))];
     return `<div class="row pl-tbar" style="gap:6px;flex-wrap:wrap"><button type="button" class="btn sm" data-tall="1">☑ Show All</button><button type="button" class="btn sm" data-tall="0">☐ Hide All</button><button type="button" class="btn sm" data-topen>▾ Open All</button></div>
-      ${G.map(g => `<div class="pl-grp"><div class="pl-gh">${esc(g || 'Other')}</div><div class="pl-tree">${tr.filter(s => s.g === g).map(s => `<details class="pl-sec"><summary><label onclick="event.stopPropagation()"><input type="checkbox" data-pk="S:${esc(s.k)}" ${H.has('S:' + s.k) ? '' : 'checked'}> <b>${esc(s.name)}</b></label>${s.subs.length ? `<span class="small muted">${s.subs.filter(x => !H.has(x.k)).length} / ${s.subs.length}</span>` : '<span class="small muted">no drop-down</span>'}</summary>
-        ${s.subs.length ? `<div class="pl-subs">${s.subs.map(x => `<label><input type="checkbox" data-pk="${esc(x.k)}" ${H.has(x.k) ? '' : 'checked'}> ${esc(x.name)}</label>`).join('')}</div>` : ''}</details>`).join('')}</div></div>`).join('')}`;
+      ${G.map(g => `<div class="pl-grp"><div class="pl-gh">${esc(g || 'Other')}</div><div class="pl-tree">${tr.filter(s => s.g === g).map(s => `<details class="pl-sec"><summary><label onclick="event.stopPropagation()"><input type="checkbox" data-pk="S:${esc(s.k)}" ${H.has('S:' + s.k) ? '' : 'checked'}> <b>${esc(s.name)}</b></label>${s.subs.length ? `<span class="small muted">${s.subs.filter(x => !x.inv && !H.has(x.k)).length} / ${s.subs.filter(x => !x.inv).length}</span>` : '<span class="small muted">no drop-down</span>'}</summary>
+        ${s.subs.length ? `<div class="pl-subs">${s.subs.map(x => `<label class="${x.inv ? 'pl-full' : ''}"><input type="checkbox" data-pk="${esc(x.k)}" ${x.inv ? 'data-inv="1"' : ''} ${H.has(x.k) === !x.inv ? '' : 'checked'}> ${esc(x.name)}</label>`).join('')}</div>` : ''}</details>`).join('')}</div></div>`).join('')}`;
   },
   treeBind(root, onChange) {
     const boxes = () => $$('[data-pk]', root);
-    $$('[data-tall]', root).forEach(b => b.onclick = () => { boxes().forEach(x => x.checked = b.dataset.tall === '1'); onChange && onChange(); });
+    $$('[data-tall]', root).forEach(b => b.onclick = () => { boxes().forEach(x => { if (!x.dataset.inv || b.dataset.tall !== '1') x.checked = b.dataset.tall === '1'; }); onChange && onChange(); });
+    const cd = $(`[data-pk="${this.CD}"]`, root), cf = $(`[data-pk="${this.CDF}"]`, root);
     $$('[data-topen]', root).forEach(b => b.onclick = () => $$('details.pl-sec', root).forEach(x => x.open = true));
-    $$('details.pl-sec', root).forEach(dt => { const sec = $('summary [data-pk]', dt); sec.onchange = () => { $$('.pl-subs [data-pk]', dt).forEach(x => x.checked = sec.checked); onChange && onChange(); }; $$('.pl-subs [data-pk]', dt).forEach(x => x.onchange = () => { if (x.checked) sec.checked = true; onChange && onChange(); }); });
+    $$('details.pl-sec', root).forEach(dt => { const sec = $('summary [data-pk]', dt); sec.onchange = () => { $$('.pl-subs [data-pk]', dt).forEach(x => { if (!x.dataset.inv || !sec.checked) x.checked = sec.checked; }); onChange && onChange(); }; $$('.pl-subs [data-pk]', dt).forEach(x => x.onchange = () => { if (x.checked) sec.checked = true; if (cd && cf) { if (x === cf && cf.checked) cd.checked = true; if (x === cd && !cd.checked) cf.checked = false; } onChange && onChange(); }); });
   },
-  treeRead(root) { return $$('[data-pk]', root).filter(x => !x.checked).map(x => x.dataset.pk); },
+  treeRead(root) { return $$('[data-pk]', root).filter(x => x.dataset.inv ? x.checked : !x.checked).map(x => x.dataset.pk); },
   tiersOf(d) { const T = (d && d.tiers) || {}; return Object.fromEntries(this.T.map(([k, , , h]) => [k, { h: T[k] && T[k].h != null ? +T[k].h : h, hide: (T[k] && T[k].hide) || [] }])); },
   tab(body, d, main, st) {
     const T = this.tiersOf(d), cur = st.pt || 'trial', tr = this.tree(), U = d.users || [];
@@ -138,6 +152,7 @@ const Plans = {
       opt.columns.splice(i + 1, 0, { key: 'plan', label: 'Plan & Time', sortVal: u => Plans.T.findIndex(t => t[0] === (u.plan && u.plan.tier)), csv: u => u.plan ? [u.plan.tier, Plans.hrs(u.plan.h), u.plan.from && 'from ' + u.plan.from, u.plan.to && 'to ' + u.plan.to].filter(Boolean).join(' ') : '',
         render: u => { const p = u.plan; if (!p) return '<span class="small muted">update script</span>'; const exp = p.to && p.today > p.to, ny = p.from && p.today < p.from;
           return `${Plans.badge(p.tier)}<div class="small">${Plans.hrs(p.h)}${p.hrs !== '' && p.hrs != null ? ' <i class="muted">(own)</i>' : ''}${p.h > 0 ? ` · <b>${Plans.mins(p.left)}</b> left today` : ''}${p.tf && p.tt ? ` · 🕘 ${p.tf}–${p.tt}` : ''}${p.own ? ' · 🧭 own panel' : ''}</div><div class="small ${exp ? 'bad-t' : ny ? 'warn-t' : 'muted'}">${p.from || p.to ? `${Plans.dmy(p.from) || '…'} → ${Plans.dmy(p.to) || 'no end'}` : 'No end date'}${exp ? ' · ⌛ Over' : ny ? ' · ⏳ Not Started' : ''}</div>`; } });
+      const rc = opt.columns.find(c => c.key === 'rights'); if (rc) { const RN = Object.fromEntries(Role.RIGHTS.map(r => [r[0], r[1]])); rc.label = 'Rights'; rc.render = u => `<div class="sa-rc">${Plans.rightsOf(u.rights, u.plan).map(k => `<i>${esc(RN[k] || k)}</i>`).join('') || '<span class="muted small">Cases only</span>'}</div>`; }
       const ac = opt.columns.find(c => c.key === 'act'); if (ac) { const r0 = ac.render; ac.render = u => r0(u).replace('<button class="btn sm" data-ua="rights"', `<button class="btn sm" data-ua="plan" data-id="${esc(u.id)}" title="Plan, Dates &amp; Daily Time">💎</button><button class="btn sm" data-ua="rights"`); }
     }
     return ot.call(this, box, opt);
@@ -171,6 +186,10 @@ const Plans = {
     setInterval(() => Plans.timer(), 1000);
     const obs = new MutationObserver(() => { if (Plans._busy || !Plans.plan()) return; clearTimeout(Plans._mt); Plans._mt = setTimeout(() => Plans.apply(), 60); });
     const hook = () => { const s = $('#sidebar'); if (s) obs.observe(s, { childList: true, subtree: true }); }; if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', hook); else hook();
+    const rr = Role.rights; Role.rights = function () { const r = rr.apply(this, arguments), p = Plans.plan(); return p ? Plans.rightsOf(r.join(','), p) : r; };
+    const po = Pages.offx; Pages.offx = function (main) { const p = Plans.plan(), H = new Set(p && p.hide || []), hid = t => H.has('offx-item|ox:offx|' + t);
+      const ok = ['crime', 'good', 'press', 'duty', 'files'].filter(t => !hid(t)); if (p && ok.length && hid(S.sub.offx || 'crime')) S.sub.offx = ok[0];
+      const r = po.apply(this, arguments); if (p) $$('.tab[data-t]', main).forEach(x => { if (hid(x.dataset.t)) x.remove(); }); return r; };
     const ra = Role.apply; Role.apply = function () { const r = ra.apply(this, arguments); setTimeout(() => Plans.apply(), 0); return r; };
     const acc = Users.account; Users.account = function () { const r = acc.apply(this, arguments); const p = Plans.plan(), b = $('#mdBody');
       if (p && b) { const tb = $('.ad-kv', b); const ms = Plans.left(); tb && tb.insertAdjacentHTML('beforeend', `<tr><th>Plan</th><td>${Plans.badge(p.tier)} ${Plans.hrs(p.h)}</td></tr>${p.h > 0 ? `<tr><th>Time Left Today</th><td><b>${Plans.mins((ms || 0) / 60000)}</b></td></tr>` : ''}<tr><th>Valid</th><td>${Plans.dmy(p.from) || '…'} → ${Plans.dmy(p.to) || 'no end'}</td></tr><tr><th>Session</th><td>One computer at a time – logging in elsewhere ends this session</td></tr>`); }

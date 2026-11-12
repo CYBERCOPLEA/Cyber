@@ -2220,6 +2220,10 @@ html.no-crimeEdit #cdImpM,html.no-crimeEdit #cdScan,html.no-crimeEdit #cdFile,ht
 .pl-grp{margin-top:8px}.pl-gh{font-size:11.5px;font-weight:800;letter-spacing:1px;text-transform:uppercase;opacity:.75;margin:4px 0}
 .pl-own{margin-top:10px;border:1px dashed var(--border,#475569);border-radius:10px;padding:8px 10px}.pl-own .pl-tree{grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
 
+.pl-subs .pl-full{color:#f59e0b;font-weight:600}
+
+html.ed-user .nav-bottom,html.ed-user #sidebar [data-page="settings"]{display:none!important}
+
 </style>
 </head>
 <body>
@@ -2267,7 +2271,7 @@ html.no-crimeEdit #cdImpM,html.no-crimeEdit #cdScan,html.no-crimeEdit #cdFile,ht
         <div class="hp-feat" style="--fc:#06b6d4"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><div><b>Analytics</b><p>The same mobile, account, IP or e-mail across complaints, banks and platforms.</p></div></div>
         <div class="hp-feat" style="--fc:#eab308"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h5"/></svg></span><div><b>Case File &amp; Notices</b><p>Case reports, notices to banks and platforms, and CSV / PDF exports.</p></div></div>
     </section>
-    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-13 04:02 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
+    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-13 05:01 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
   </div>
 
   <div class="lg-wrap" id="lgWrap" aria-hidden="true">
@@ -16246,7 +16250,7 @@ const Off = {
     const common = G.filter(g => g.cases.length >= 2).sort((a, b) => b.cases.length - a.cases.length);
     const cnt = t => uniq(R.filter(r => r.type === t).map(r => r.value)).length;
     el.innerHTML = `<div class="card cd-top"><div class="row cd-bar" style="gap:8px;flex-wrap:wrap"><h3 class="grow" style="margin:0;flex-basis:100%">🗃 Crime Data – master sheet <span class="badge">${fmtNum(uniq(R.map(r => r.type + r.value)).length)} unique</span></h3>
-        <button class="btn primary" id="cdScan" title="Read every case again: FIR, CCTNS case diary, money trail, KYC, NCRP, social media replies, extracted identifiers">🔄 Import from all cases</button><button class="btn" id="cdFile" title="Import Excel / CSV / PDF / Word file">📥 Import file</button><button class="btn" id="cdAdd">➕ Add entry</button><button class="btn" id="cdForm" title="Make an offline form for a subordinate. They can only add entries and send you a sealed file.">📝 Offline Data Form by Police</button><button class="btn" id="cdFImp" title="Import a sealed .sudcd file sent by a subordinate">📥 Import offline form file</button><button class="btn lv-btn" id="cdLive" title="Live Data Form by Police on your Google Sheet: staff add entries from their phone, they come here every minute">🔴 Live Data Form by Police</button><button class="btn" id="cdCols">⇆ Columns</button></div>
+        <button class="btn primary" id="cdScan" title="Read every case again: FIR, CCTNS case diary, money trail, KYC, NCRP, social media replies, extracted identifiers">🔄 Import from all cases</button><button class="btn" id="cdFile" title="Import Excel / CSV / PDF / Word file">📥 Import file</button><button class="btn" id="cdAdd">➕ Add entry</button><button class="btn" id="cdForm" title="Make an offline form for a subordinate. They can only add entries and send you a sealed file.">📝 Offline Data Form by Police</button><button class="btn" id="cdFImp" title="Import a sealed .sudcd file sent by a subordinate">📥 Import offline form file</button><button class="btn" id="cdCols">⇆ Columns</button></div>
       <div class="cd-types">${this.CT.map(([k, l, i]) => `<button class="cd-ty ${st.t === k ? 'on' : ''}" data-t="${k}"><span>${i}</span><b>${fmtNum(cnt(k))}</b><small>${l}</small></button>`).join('')}</div>
       <div class="row" style="gap:6px;flex-wrap:wrap"><div class="seg"><button class="btn sm ${st.v === 'all' ? 'primary' : ''}" data-v="all">All entries</button><button class="btn sm ${st.v === 'common' ? 'primary' : ''}" data-v="common">🔗 Common in 2+ cases <b>${common.length}</b></button><button class="btn sm ${st.v === 'case' ? 'primary' : ''}" data-v="case">📁 Case-wise</button></div>
         <select id="cdS" title="Filter by Found in / source"><option value="">All sources</option>${this.srcList().map(x => `<option ${x === st.s ? 'selected' : ''}>${esc(x)}</option>`).join('')}${(() => { const o = uniq(R.map(r => String(r.source || '').split(' · ').pop().trim()).filter(x => x && !this.srcList().includes(x))); return o.length ? `<optgroup label="Also in the data">${o.map(x => `<option ${x === st.s ? 'selected' : ''}>${esc(x)}</option>`).join('')}</optgroup>` : ''; })()}</select><button class="btn sm" id="cdSe" title="Add / remove / rename sources">±</button><select id="cdK" title="Filter by Case Type"><option value="">All case types</option>${uniq([...this.ctList(), ...R.map(r => r.ctype).filter(Boolean)]).map(x => `<option ${x === st.k ? 'selected' : ''}>${esc(x)}</option>`).join('')}</select><button class="btn sm" id="cdKe" title="Add / remove / rename case types">±</button><select id="cdC"><option value="">All cases</option>${S.cases.map(c => `<option value="${c.id}" ${c.id === st.c ? 'selected' : ''}>${esc(c.name)}${c.fir ? ' · ' + esc(c.fir) : ''}</option>`).join('')}</select><input id="cdQ" placeholder="Search identifier, name, source…" value="${esc(st.q)}" style="flex:1;min-width:200px">${st.t ? `<button class="btn sm" id="cdT0">✕ ${esc(this.ct(st.t)[1])}</button>` : ''}</div></div>
@@ -16260,7 +16264,7 @@ const Off = {
     $('#cdAdd', el).onclick = () => this.cdEdit(null, re);
     $('#cdForm', el).onclick = () => this.formMake();
     $('#cdFImp', el).onclick = () => this.formImport(re);
-    $('#cdLive', el).onclick = () => this.liveOpen(re); this.liveChip && this.liveChip();
+
     $('#cdFile', el).onclick = () => this.cdImport(re);
     try { this.glance(R, el, st, re); } catch (e) { console.error(e); }
     const COLS = [['firc', 'FIR / Case'], ['year', 'Year'], ['ctype', 'Case Type'], ['pstn', 'Police Station'], ['dist', 'District / Commissionerate'], ['type', 'Type'], ['value', 'Value'], ['name', 'Name / holder'], ['source', 'Found in'], ['istate', 'Identifier State Code'], ['idist', 'Identifier District'], ['place', 'State / District'], ['note', 'Note'], ['added', 'Added'], ['seen', 'Cases']];
@@ -16761,16 +16765,11 @@ const EO = {
 
 /* Office Work: EO tab right after Crime Data, and in the sidebar drop-down */
 (() => {
-  PAGE_META.offx.order.splice(PAGE_META.offx.order.indexOf('crime') + 1, 0, 'eo'); PAGE_META.offx.names.eo = '🕵 Enquiry Officer (EO)';
-  PAGE_META.offx.desc = 'Crime data of all cases, Enquiry Officer (EO) enquiries, good work, press notes, duty chart and office files – the same in every case, kept on this computer.';
-  const po = Pages.offx;
-  Pages.offx = main => { if (S.sub.offx !== 'eo') return po(main);
-    const { body } = tabs(main, 'offx', [['crime', '🗃 Crime Data'], ['eo', '🕵 Enquiry Officer (EO)'], ['good', '🏅 Good Work'], ['press', '📰 Press Note'], ['duty', '📅 Duty Chart'], ['files', '⬆ Upload +']], 'Office Work');
-    EO.page(body); };
-  const _tabs = tabs; tabs = function (main, page, list) { if (page === 'offx' && !list.some(t => t[0] === 'eo')) { const i = list.findIndex(t => t[0] === 'crime'); list = list.slice(); list.splice(i + 1, 0, ['eo', '🕵 Enquiry Officer (EO)']); arguments[2] = list; } return _tabs.apply(this, arguments); };
-  const subs = $('.offx-subs'), cr = subs && $('.nav-sub[data-ox="offx|crime"]', subs);
-  if (cr) { cr.insertAdjacentHTML('afterend', `<div class="nav-sub" data-ox="offx|eo" style="--pc:#0ea5e9"><i></i><span>EO – Enquiry Officer</span></div>`); const n = $('[data-ox="offx|eo"]', subs); n.onclick = () => go('offx', 'eo');
-    $$('.nav-sub span', subs).forEach((s, i) => s.textContent = s.textContent.replace(/^\d+\.\s*/, (i + 1) + '. ')); }
+  /* EO is its own page in Investigation, right below IO – Investigation Officer (sidebar item added in io.js) */
+  PAGE_META.eo = { group: 'Investigation', title: 'EO – Enquiry Officer', desc: 'Enquiries marked to the Enquiry Officer (EO): complaint / NCRP details, enquiry report and status – kept on this computer.', order: ['eo'], names: { eo: '🕵 Enquiry Officer (EO)' } };
+  Pages.eo = main => { const { body } = tabs(main, 'eo', [['eo', '🕵 Enquiry Officer (EO)']], 'EO – Enquiry Officer'); EO.page(body); };
+  /* old links to Office Work › EO open the new page */
+  const og = go; go = function (page, sub) { if (page === 'offx' && sub === 'eo') return og('eo'); return og.apply(this, arguments); };
 })();
 
 </script>
@@ -17261,6 +17260,8 @@ if (PAGE_META.cctns) PAGE_META.cctns.group = 'Investigation';
       [...ios.children].forEach((n, i) => { const sp = n.querySelector('span'); if (!sp) return; sp.textContent = sp.textContent.replace(/^\s*\d+\.\s*/, ''); delete n.dataset.ncOrig; delete n.dataset.ncI; });
       [cct, ccs, cf, cfs].forEach(x => x && x.remove()); } finally { NavCustom.busy = false; }
     drop(io, ios, 'ioOpen', () => ['cctns', 'others', 'formats'].includes(S.page));
+    ios.insertAdjacentHTML('afterend', `<div class="nav-item" data-page="eo" title="EO – Enquiry Officer: enquiries, enquiry report and status" style="--c:#0891b2"><span class="nib">🕵</span><span>EO – Enquiry Officer</span></div>`);
+    const eo = $('.nav-item[data-page="eo"]', nav); eo.onclick = () => go('eo');
     const or = render; render = function () { const r = or.apply(this, arguments);
       $$('[data-cct]', ios).forEach(n => n.classList.toggle('active', S.page === 'cctns' && (S.sub.cctns || 'diary') === n.dataset.cct));
       $$('[data-cf]', ios).forEach(n => { const [p, s] = n.dataset.cf.split('|'); n.classList.toggle('active', S.page === p && (!s || (S.sub.formats || 'notice') === s)); }); return r; };
@@ -17314,7 +17315,7 @@ const FX = (() => {
     [/photo|image|picture/i, 'framed-picture'], [/upload|file|document/i, 'open-file-folder'], [/import|data/i, 'inbox-tray'], [/case/i, 'card-file-box'], [/setting/i, 'gear'], [/link/i, 'link']];
   const pick = t => { for (const [r, k] of KW) if (r.test(t)) return k; return ''; };
   const NAV = { dashboard: 'house', financial: 'bank', ncrp: 'police-car-light', trail: 'link', social: 'busts-in-silhouette', analytics: 'bar-chart', osint: 'globe-with-meridians', tools: 'toolbox', caf: 'identification-card',
-    others: 'file-folder', lsearch: 'magnifying-glass-tilted-left', office: 'scroll', settings: 'gear', 'offx-item': 'briefcase', 'lea-item': 'police-car-light', 'cctns-item': 'card-file-box', 'io-item': 'detective', 'arrest-item': 'balance-scale' };
+    others: 'file-folder', lsearch: 'magnifying-glass-tilted-left', office: 'scroll', settings: 'gear', 'offx-item': 'briefcase', 'lea-item': 'police-car-light', 'cctns-item': 'card-file-box', 'io-item': 'detective', eo: 'spiral-notepad', 'arrest-item': 'balance-scale' };
   const LEAB = { 'wa-rec': 'whatsapp', wa: 'whatsapp', 'fb-rec': 'facebook', 'th-rec': 'threads', x: 'x', snap: 'snapchat', google: 'google', apple: 'apple', phonepe: 'phonepe', gpay: 'googlepay', amazon: 'amazon', jio: 'jio', airtel: 'airtel', vi: 'vodafone', paytm: 'paytm', ig: 'instagram', insta: 'instagram', telegram: 'telegram', yt: 'youtube', youtube: 'youtube' };
   const PLATB = { whatsapp: 'whatsapp', telegram: 'telegram', facebook: 'facebook', instagram: 'instagram', google: 'google' };
   /* things that are not emoji: sidebar tiles, tabs, sub-menu items, platform chips, portal list */
@@ -17612,7 +17613,7 @@ Object.assign(Users, {
     $$('[data-kf]', main).forEach(b => b.onclick = () => { st.f = st.f === b.dataset.kf ? '' : b.dataset.kf; st.tab = 'users'; Pages.sadmin(main); });
     const RN = Object.fromEntries(Role.RIGHTS.map(r => [r[0], r[1]]));
     if (st.tab === 'rights') {
-      body.innerHTML = `<p class="small muted">Tick these for each user (➕ Add User or 🛡 Rights). Everything else in the tool – cases, import of own case files, analysis, dashboards, notices – every active user can use. Users have no Settings page.</p><div class="ua-rights">${Role.RIGHTS.map(([k, t, dd, def]) => `<div class="ua-r on"><span>${def ? '✅' : '➖'}</span><div><b>${esc(t)}</b><small>${esc(dd)}${def ? ' · on for new users' : ' · off for new users'}</small></div></div>`).join('')}<div class="ua-r"><span>👑</span><div><b>Super Admin Only</b><small>Settings, Super Admin Control, the Google script, user logins</small></div></div></div>`;
+      body.innerHTML = `<p class="small muted">Crime Data (👁 View / ✏ Full Use), Office Work tabs and Upload + follow the Left Panel ticks of each user (➕ Add User or 💎 Plan &amp; Time). The two below are set with 🛡 Rights. Users have no Settings page.</p><div class="ua-rights">${Role.RIGHTS.filter(r => this.RX.includes(r[0])).map(([k, t, dd, def]) => `<div class="ua-r on"><span>${def ? '✅' : '➖'}</span><div><b>${esc(t)}</b><small>${esc(dd)}${def ? ' · on for new users' : ' · off for new users'}</small></div></div>`).join('')}<div class="ua-r"><span>👑</span><div><b>Super Admin Only</b><small>Settings, Super Admin Control, the Google script, user logins</small></div></div></div>`;
       return;
     }
     if (st.tab === 'log') {
@@ -17653,7 +17654,8 @@ Object.assign(Users, {
     return b;
   },
   pwBox(pw) { return `<div class="f"><label>Temporary Password (the user changes it at first login)</label><div class="row" style="gap:6px"><input id="uePw" value="${esc(pw)}" class="mono"><button class="btn sm" type="button" id="ueGen">🎲 New</button></div></div>`; },
-  rightsBox(sel) { return `<div class="f"><label>Rights</label><div class="ua-rights pick">${Role.RIGHTS.map(([k, t, d]) => `<label class="ua-r"><input type="checkbox" data-rt="${k}" ${sel.includes(k) ? 'checked' : ''}><div><b>${esc(t)}</b><small>${esc(d)}</small></div></label>`).join('')}</div></div>`; },
+  RX: ['lists', 'delcase'],
+  rightsBox(sel) { return `<div class="f"><label>Rights</label><div class="ua-rights pick">${Role.RIGHTS.filter(r => this.RX.includes(r[0])).map(([k, t, d]) => `<label class="ua-r"><input type="checkbox" data-rt="${k}" ${sel.includes(k) ? 'checked' : ''}><div><b>${esc(t)}</b><small>${esc(d)}</small></div></label>`).join('')}</div></div>`; },
   async act(op, u, main) {
     const L = await this.live(); this._liveUrl = L.url;
     if (op === 'link') return this.share(u, '', '🔗 Join Link For ' + u.id);
@@ -17675,8 +17677,8 @@ Object.assign(Users, {
       return;
     }
     if (op === 'rights') {
-      const b = UI.modal('🛡 Rights – ' + u.id, this.rightsBox(String(u.rights || '').split(',')) + '<p class="small muted">Changes reach the user within a minute.</p>',
-        [{ label: 'Cancel', onClick: UI.closeModal }, { label: 'Save Rights', cls: 'primary', onClick: async () => { const rights = $$('[data-rt]', b).filter(x => x.checked).map(x => x.dataset.rt).join(','); UI.closeModal(); await this.run('rights', { id: u.id, rights }, main, '🛡 Rights saved for ' + u.id); } }]);
+      const b = UI.modal('🛡 Rights – ' + u.id, this.rightsBox(String(u.rights || '').split(',')) + '<p class="small muted">Crime Data (View / Full Use), Office Work and Upload + are set with the ticks in 💎 Plan &amp; Time › Left Panel. Changes reach the user within a minute.</p>',
+        [{ label: 'Cancel', onClick: UI.closeModal }, { label: 'Save Rights', cls: 'primary', onClick: async () => { const rights = [...String(u.rights || '').split(',').filter(k => k && !this.RX.includes(k)), ...$$('[data-rt]', b).filter(x => x.checked).map(x => x.dataset.rt)].join(','); UI.closeModal(); await this.run('rights', { id: u.id, rights }, main, '🛡 Rights saved for ' + u.id); } }]);
       return;
     }
     if (op === 'del') { if (!UI.confirm(`Remove user ${u.id}? They can no longer log in. Their case data stays on their own computer. This cannot be undone (you can add them again).`)) return; UI.closeModal(); await this.run('del', { id: u.id }, main, '🗑 ' + u.id + ' removed'); }
@@ -17685,10 +17687,10 @@ Object.assign(Users, {
     const L = await this.live(); this._liveUrl = L.url; const isNew = !u; u = u || { rights: Role.defRights().join(',') };
     const f = (k, l, ph) => `<div class="f"><label>${l}</label><input id="ue_${k}" value="${esc(u[k] || '')}" placeholder="${ph || ''}" ${k === 'id' && !isNew ? 'disabled' : ''}></div>`;
     const b = UI.modal(isNew ? '➕ Add User' : '✏ Edit ' + u.id, `<div class="map-grid" style="grid-template-columns:1fr 1fr">${f('id', 'User ID', 'e.g. si.ramkumar')}${f('rank', 'Rank', 'SI / HC / Constable…')}${f('name', 'Name')}${f('ps', 'Posting / Police Station')}${f('mobile', 'Mobile')}${f('note', 'Note')}</div>
-      ${isNew ? this.pwBox(this.pwGen()) + this.rightsBox(String(u.rights).split(',')) : ''}<div class="err" id="ueErr"></div>`,
+      ${isNew ? this.pwBox(this.pwGen()) : ''}<div class="err" id="ueErr"></div>`,
       [{ label: 'Cancel', onClick: UI.closeModal }, { label: isNew ? '➕ Add User' : 'Save', cls: 'primary', onClick: async () => {
         const v = k => ($('#ue_' + k, b) || {}).value || '', x = { id: isNew ? v('id').trim() : u.id, name: v('name'), rank: v('rank'), ps: v('ps'), mobile: v('mobile'), note: v('note') }, e = $('#ueErr', b);
-        if (isNew) { x.pw = $('#uePw', b).value.trim(); x.rights = $$('[data-rt]', b).filter(c => c.checked).map(c => c.dataset.rt).join(','); if (!/^[A-Za-z0-9._@-]{3,40}$/.test(x.id)) return e.textContent = 'User ID: 3 to 40 letters or numbers, no spaces'; if (x.pw.length < 6) return e.textContent = 'Password: at least 6 characters'; }
+        if (isNew) { x.pw = $('#uePw', b).value.trim(); x.rights = Role.defRights().join(','); if (!/^[A-Za-z0-9._@-]{3,40}$/.test(x.id)) return e.textContent = 'User ID: 3 to 40 letters or numbers, no spaces'; if (x.pw.length < 6) return e.textContent = 'Password: at least 6 characters'; }
         e.textContent = '⏳ Saving…';
         try { await this.admin(isNew ? 'add' : 'edit', x); this._data = await this.admin('list', { log: 1 }); } catch (er) { e.textContent = '❌ ' + er.message; return; }
         UI.closeModal(); done && done(); if (isNew) this.share(x, x.pw, '✅ User Added – Send This To ' + x.id); else UI.toast('Saved');
@@ -17750,7 +17752,20 @@ const Plans = {
     let grp = '';
     [...$('#sidebar').children].forEach(it => { if (it.classList.contains('nav-group')) { grp = it.textContent.trim(); return; } if (!it.classList.contains('nav-item')) return; const k = this.secKey(it); if (k === 'settings') return; const nx = it.nextElementSibling, subs = nx && nx.classList.contains('nav-subs') ? nx : null;
       out.push({ g: grp, k, name: (it.dataset.ncOrig || it.textContent).replace(/[▾▸▶]/g, '').trim(), subs: subs ? NavCustom.items(subs).map(n => ({ k: k + '|' + NavCustom.id(n), name: (n.dataset.ncOrig || n.textContent).replace(/\s+/g, ' ').trim() })) : [] }); });
+    const o = out.find(s => s.k === 'offx-item'), i = o ? o.subs.findIndex(x => x.k === this.CD) : -1;
+    if (i >= 0) { o.subs[i].name = '👁 View Crime Data'; o.subs.splice(i + 1, 0, { k: this.CDF, name: '✏ Crime Data – Full Use (Import, Add Entry, Forms, Columns)', inv: 1 }); }
     return out;
+  },
+  CD: 'offx-item|ox:offx|crime', CDF: '+R:crimeEdit',
+  /* rights that follow the Left Panel ticks (Office Work) – the rest stay as given */
+  rightsOf(rs, p) {
+    const R = new Set(String(rs || '').split(',').map(s => s.trim()).filter(Boolean)); if (!p) return [...R];
+    const H = new Set(p.hide || []), sec = H.has('S:offx-item'), sub = k => !sec && !H.has('offx-item|ox:offx|' + k);
+    ['crime', 'crimeEdit', 'office', 'upload'].forEach(k => R.delete(k));
+    if (sub('crime')) { R.add('crime'); if (H.has(this.CDF)) R.add('crimeEdit'); }
+    if (['good', 'press', 'duty'].some(sub)) R.add('office');
+    if (sub('files')) R.add('upload');
+    return [...R];
   },
   hideNav(hide) {
     const H = new Set(hide || []);
@@ -17763,7 +17778,7 @@ const Plans = {
   blocked(page) { const p = this.plan(), H = p && p.hide || []; return !!(p && page && (H.includes('S:' + page) || (this.SEC[page] && H.includes('S:' + this.SEC[page])))); },
   apply() {
     if (SUD_ED !== 'user') return; const p = this.plan();
-    this._busy = 1; try { this.hideNav(p ? p.hide : []); } finally { this._busy = 0; }
+    this._busy = 1; try { this.hideNav(p ? p.hide : []); for (const [k] of Role.RIGHTS) document.documentElement.classList.toggle('no-' + k, !Role.can(k)); } finally { this._busy = 0; }
     this.timer();
   },
   /* ---------- countdown (User link) ---------- */
@@ -17786,16 +17801,17 @@ const Plans = {
   treeHtml(hide) {
     const H = new Set(hide || []), tr = this.tree(), G = [...new Set(tr.map(s => s.g))];
     return `<div class="row pl-tbar" style="gap:6px;flex-wrap:wrap"><button type="button" class="btn sm" data-tall="1">☑ Show All</button><button type="button" class="btn sm" data-tall="0">☐ Hide All</button><button type="button" class="btn sm" data-topen>▾ Open All</button></div>
-      ${G.map(g => `<div class="pl-grp"><div class="pl-gh">${esc(g || 'Other')}</div><div class="pl-tree">${tr.filter(s => s.g === g).map(s => `<details class="pl-sec"><summary><label onclick="event.stopPropagation()"><input type="checkbox" data-pk="S:${esc(s.k)}" ${H.has('S:' + s.k) ? '' : 'checked'}> <b>${esc(s.name)}</b></label>${s.subs.length ? `<span class="small muted">${s.subs.filter(x => !H.has(x.k)).length} / ${s.subs.length}</span>` : '<span class="small muted">no drop-down</span>'}</summary>
-        ${s.subs.length ? `<div class="pl-subs">${s.subs.map(x => `<label><input type="checkbox" data-pk="${esc(x.k)}" ${H.has(x.k) ? '' : 'checked'}> ${esc(x.name)}</label>`).join('')}</div>` : ''}</details>`).join('')}</div></div>`).join('')}`;
+      ${G.map(g => `<div class="pl-grp"><div class="pl-gh">${esc(g || 'Other')}</div><div class="pl-tree">${tr.filter(s => s.g === g).map(s => `<details class="pl-sec"><summary><label onclick="event.stopPropagation()"><input type="checkbox" data-pk="S:${esc(s.k)}" ${H.has('S:' + s.k) ? '' : 'checked'}> <b>${esc(s.name)}</b></label>${s.subs.length ? `<span class="small muted">${s.subs.filter(x => !x.inv && !H.has(x.k)).length} / ${s.subs.filter(x => !x.inv).length}</span>` : '<span class="small muted">no drop-down</span>'}</summary>
+        ${s.subs.length ? `<div class="pl-subs">${s.subs.map(x => `<label class="${x.inv ? 'pl-full' : ''}"><input type="checkbox" data-pk="${esc(x.k)}" ${x.inv ? 'data-inv="1"' : ''} ${H.has(x.k) === !x.inv ? '' : 'checked'}> ${esc(x.name)}</label>`).join('')}</div>` : ''}</details>`).join('')}</div></div>`).join('')}`;
   },
   treeBind(root, onChange) {
     const boxes = () => $$('[data-pk]', root);
-    $$('[data-tall]', root).forEach(b => b.onclick = () => { boxes().forEach(x => x.checked = b.dataset.tall === '1'); onChange && onChange(); });
+    $$('[data-tall]', root).forEach(b => b.onclick = () => { boxes().forEach(x => { if (!x.dataset.inv || b.dataset.tall !== '1') x.checked = b.dataset.tall === '1'; }); onChange && onChange(); });
+    const cd = $(`[data-pk="${this.CD}"]`, root), cf = $(`[data-pk="${this.CDF}"]`, root);
     $$('[data-topen]', root).forEach(b => b.onclick = () => $$('details.pl-sec', root).forEach(x => x.open = true));
-    $$('details.pl-sec', root).forEach(dt => { const sec = $('summary [data-pk]', dt); sec.onchange = () => { $$('.pl-subs [data-pk]', dt).forEach(x => x.checked = sec.checked); onChange && onChange(); }; $$('.pl-subs [data-pk]', dt).forEach(x => x.onchange = () => { if (x.checked) sec.checked = true; onChange && onChange(); }); });
+    $$('details.pl-sec', root).forEach(dt => { const sec = $('summary [data-pk]', dt); sec.onchange = () => { $$('.pl-subs [data-pk]', dt).forEach(x => { if (!x.dataset.inv || !sec.checked) x.checked = sec.checked; }); onChange && onChange(); }; $$('.pl-subs [data-pk]', dt).forEach(x => x.onchange = () => { if (x.checked) sec.checked = true; if (cd && cf) { if (x === cf && cf.checked) cd.checked = true; if (x === cd && !cd.checked) cf.checked = false; } onChange && onChange(); }); });
   },
-  treeRead(root) { return $$('[data-pk]', root).filter(x => !x.checked).map(x => x.dataset.pk); },
+  treeRead(root) { return $$('[data-pk]', root).filter(x => x.dataset.inv ? x.checked : !x.checked).map(x => x.dataset.pk); },
   tiersOf(d) { const T = (d && d.tiers) || {}; return Object.fromEntries(this.T.map(([k, , , h]) => [k, { h: T[k] && T[k].h != null ? +T[k].h : h, hide: (T[k] && T[k].hide) || [] }])); },
   tab(body, d, main, st) {
     const T = this.tiersOf(d), cur = st.pt || 'trial', tr = this.tree(), U = d.users || [];
@@ -17863,6 +17879,7 @@ const Plans = {
       opt.columns.splice(i + 1, 0, { key: 'plan', label: 'Plan & Time', sortVal: u => Plans.T.findIndex(t => t[0] === (u.plan && u.plan.tier)), csv: u => u.plan ? [u.plan.tier, Plans.hrs(u.plan.h), u.plan.from && 'from ' + u.plan.from, u.plan.to && 'to ' + u.plan.to].filter(Boolean).join(' ') : '',
         render: u => { const p = u.plan; if (!p) return '<span class="small muted">update script</span>'; const exp = p.to && p.today > p.to, ny = p.from && p.today < p.from;
           return `${Plans.badge(p.tier)}<div class="small">${Plans.hrs(p.h)}${p.hrs !== '' && p.hrs != null ? ' <i class="muted">(own)</i>' : ''}${p.h > 0 ? ` · <b>${Plans.mins(p.left)}</b> left today` : ''}${p.tf && p.tt ? ` · 🕘 ${p.tf}–${p.tt}` : ''}${p.own ? ' · 🧭 own panel' : ''}</div><div class="small ${exp ? 'bad-t' : ny ? 'warn-t' : 'muted'}">${p.from || p.to ? `${Plans.dmy(p.from) || '…'} → ${Plans.dmy(p.to) || 'no end'}` : 'No end date'}${exp ? ' · ⌛ Over' : ny ? ' · ⏳ Not Started' : ''}</div>`; } });
+      const rc = opt.columns.find(c => c.key === 'rights'); if (rc) { const RN = Object.fromEntries(Role.RIGHTS.map(r => [r[0], r[1]])); rc.label = 'Rights'; rc.render = u => `<div class="sa-rc">${Plans.rightsOf(u.rights, u.plan).map(k => `<i>${esc(RN[k] || k)}</i>`).join('') || '<span class="muted small">Cases only</span>'}</div>`; }
       const ac = opt.columns.find(c => c.key === 'act'); if (ac) { const r0 = ac.render; ac.render = u => r0(u).replace('<button class="btn sm" data-ua="rights"', `<button class="btn sm" data-ua="plan" data-id="${esc(u.id)}" title="Plan, Dates &amp; Daily Time">💎</button><button class="btn sm" data-ua="rights"`); }
     }
     return ot.call(this, box, opt);
@@ -17896,6 +17913,10 @@ const Plans = {
     setInterval(() => Plans.timer(), 1000);
     const obs = new MutationObserver(() => { if (Plans._busy || !Plans.plan()) return; clearTimeout(Plans._mt); Plans._mt = setTimeout(() => Plans.apply(), 60); });
     const hook = () => { const s = $('#sidebar'); if (s) obs.observe(s, { childList: true, subtree: true }); }; if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', hook); else hook();
+    const rr = Role.rights; Role.rights = function () { const r = rr.apply(this, arguments), p = Plans.plan(); return p ? Plans.rightsOf(r.join(','), p) : r; };
+    const po = Pages.offx; Pages.offx = function (main) { const p = Plans.plan(), H = new Set(p && p.hide || []), hid = t => H.has('offx-item|ox:offx|' + t);
+      const ok = ['crime', 'good', 'press', 'duty', 'files'].filter(t => !hid(t)); if (p && ok.length && hid(S.sub.offx || 'crime')) S.sub.offx = ok[0];
+      const r = po.apply(this, arguments); if (p) $$('.tab[data-t]', main).forEach(x => { if (hid(x.dataset.t)) x.remove(); }); return r; };
     const ra = Role.apply; Role.apply = function () { const r = ra.apply(this, arguments); setTimeout(() => Plans.apply(), 0); return r; };
     const acc = Users.account; Users.account = function () { const r = acc.apply(this, arguments); const p = Plans.plan(), b = $('#mdBody');
       if (p && b) { const tb = $('.ad-kv', b); const ms = Plans.left(); tb && tb.insertAdjacentHTML('beforeend', `<tr><th>Plan</th><td>${Plans.badge(p.tier)} ${Plans.hrs(p.h)}</td></tr>${p.h > 0 ? `<tr><th>Time Left Today</th><td><b>${Plans.mins((ms || 0) / 60000)}</b></td></tr>` : ''}<tr><th>Valid</th><td>${Plans.dmy(p.from) || '…'} → ${Plans.dmy(p.to) || 'no end'}</td></tr><tr><th>Session</th><td>One computer at a time – logging in elsewhere ends this session</td></tr>`); }
@@ -17930,11 +17951,12 @@ const Cloud = {
       ${L.url ? `<div class="cl-st ${L.err ? 'bad' : old ? 'old' : ''}">${L.err ? '⚠ ' + esc(L.err) : old ? '🟠 Connected – script is old' : '🟢 Connected'} · script version <b>${L.ver || '?'}</b> (tool needs ${Off.GSVER}) · last check ${L.last ? esc(new Date(L.last).toLocaleString('en-IN')) : '–'}${L.mail ? ' · e-mail ' + esc(L.mail) : ''}${L.sheet ? ` · <a href="${esc(L.sheet)}" target="_blank" rel="noopener">Open Google Sheet ↗</a>` : ''}</div>` : '<div class="cl-st bad">⚪ Not connected yet</div>'}
       ${old ? `<div class="lv-old"><b>⚠ Update your Google script once</b> – the link stays the same:${this.STEPS_UPD}</div>` : ''}
       ${!L.url ? this.STEPS_NEW : ''}
-      <div class="row" style="gap:6px;flex-wrap:wrap;margin-top:8px"><button class="btn primary" id="clCp">📋 Copy Script</button><button class="btn" id="clDl">⬇ Download Script</button>${L.url ? '<button class="btn" id="clChk">🔄 Check Now</button><button class="btn" id="clSet">⚙ Setup Steps / Change Link</button><button class="btn danger" id="clOff">Disconnect</button>' : ''}<span class="small muted">The script has your private key inside – do not share it.</span></div>
+      <div class="row" style="gap:6px;flex-wrap:wrap;margin-top:8px"><button class="btn primary" id="clCp">📋 Copy Script</button><button class="btn" id="clDl">⬇ Download Script</button>${L.url ? '<button class="btn" id="clStaff" title="Staff personal links for the Live Data Form by Police">👮 Staff Links – Live Data Form</button><button class="btn" id="clChk">🔄 Check Now</button><button class="btn" id="clSet">⚙ Setup Steps / Change Link</button><button class="btn danger" id="clOff">Disconnect</button>' : ''}<span class="small muted">The script has your private key inside – do not share it.</span></div>
       <div id="clNew" class="${L.url ? 'hidden' : ''}" style="margin-top:8px">${L.url ? this.STEPS_NEW : ''}<div class="row" style="gap:6px"><input id="clUrl" class="grow" placeholder="https://script.google.com/macros/s/…/exec" value="${esc(L.url || '')}"><button class="btn primary" id="clGo">🔗 Connect</button></div></div>
       ${L.url ? `<div class="small muted" style="margin-top:8px">Web app link: <code style="word-break:break-all">${esc(L.url)}</code></div>` : ''}`;
     const cp = () => { navigator.clipboard ? navigator.clipboard.writeText(code).then(() => UI.toast('Script copied – paste it in Apps Script'), () => Off.liveShow(code)) : Off.liveShow(code); };
     $('#clCp', card).onclick = cp; $('#clDl', card).onclick = () => UI.download('SudarshanAshtra_Code.gs.txt', code);
+    if ($('#clStaff', card)) $('#clStaff', card).onclick = () => Off.liveOpen(() => this.card(main));
     if ($('#clSet', card)) $('#clSet', card).onclick = () => $('#clNew', card).classList.toggle('hidden');
     if ($('#clChk', card)) $('#clChk', card).onclick = async () => { const b = $('#clChk', card); b.disabled = true; b.textContent = '⏳ Checking…'; try { const j = await Off.liveApi({ api: 'ping' }); Object.assign(L, { sheet: j.sheet || L.sheet, ver: j.ver || 0, mail: j.mail || '', last: new Date().toISOString(), err: '' }); await Off.liveSave(); UI.toast((j.ver || 0) >= Off.GSVER ? '✔ Script is up to date' : '🟠 Script is still old – update it'); } catch (e) { L.err = e.message; await Off.liveSave(); UI.toast('Could not reach the script: ' + e.message, 7000); } Users._data = null; this.card(main); };
     if ($('#clOff', card)) $('#clOff', card).onclick = async () => { if (!UI.confirm('Disconnect the Google Sheet? User logins on the User link stop working and the Live Data Form stops coming in, until you connect again.')) return; clearInterval(Off._lsT); L.url = ''; L.err = ''; await Off.liveSave(); this.card(main); };

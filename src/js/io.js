@@ -251,6 +251,8 @@ if (PAGE_META.cctns) PAGE_META.cctns.group = 'Investigation';
       [...ios.children].forEach((n, i) => { const sp = n.querySelector('span'); if (!sp) return; sp.textContent = sp.textContent.replace(/^\s*\d+\.\s*/, ''); delete n.dataset.ncOrig; delete n.dataset.ncI; });
       [cct, ccs, cf, cfs].forEach(x => x && x.remove()); } finally { NavCustom.busy = false; }
     drop(io, ios, 'ioOpen', () => ['cctns', 'others', 'formats'].includes(S.page));
+    ios.insertAdjacentHTML('afterend', `<div class="nav-item" data-page="eo" title="EO – Enquiry Officer: enquiries, enquiry report and status" style="--c:#0891b2"><span class="nib">🕵</span><span>EO – Enquiry Officer</span></div>`);
+    const eo = $('.nav-item[data-page="eo"]', nav); eo.onclick = () => go('eo');
     const or = render; render = function () { const r = or.apply(this, arguments);
       $$('[data-cct]', ios).forEach(n => n.classList.toggle('active', S.page === 'cctns' && (S.sub.cctns || 'diary') === n.dataset.cct));
       $$('[data-cf]', ios).forEach(n => { const [p, s] = n.dataset.cf.split('|'); n.classList.toggle('active', S.page === p && (!s || (S.sub.formats || 'notice') === s)); }); return r; };
