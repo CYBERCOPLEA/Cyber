@@ -4,6 +4,24 @@
 'use strict';
 const CDX = {
   dg: s => String(s || '').replace(/[०-९]/g, d => '०१२३४५६७८९'.indexOf(d)),
+  /* identifiers in one sentence: mobile, account, IFSC, e-mail, UPI, IP, IMEI, PAN, URL, Ack No. */
+  IDT: { Mobile: '📱', Account: '🏦', IFSC: '🏛', Email: '✉', UPI: '💳', IP: '🌐', IMEI: '📟', PAN: '🪪', URL: '🔗', 'Ack No': '🧾' },
+  idsOf(s) {
+    s = this.dg(s); const out = [], seen = new Set(), add = (t, v) => { v = String(v).trim(); const k = t + v.toLowerCase(); if (v && !seen.has(k)) { seen.add(k); out.push({ t, v }); } };
+    (s.match(/https?:\/\/[^\s,;'"()<>]+/gi) || []).forEach(u => add('URL', u.replace(/[.।]+$/, '')));
+    (s.match(/[\w.+\-]+@[\w\-]+\.[\w.\-]+/g) || []).forEach(e => add('Email', e.replace(/[.]+$/, '')));
+    (s.match(/(?<![\w.@])[\w.\-]{2,}@(?:ok\w+|ybl|ibl|axl|upi|paytm|apl|yapl|ptyes|ptsbi|pthdfc|ptaxis|kotak|sbi|icici|hdfcbank|axisbank|airtel|jio|fbl|idfcbank|waicici|wahdfcbank|waaxis|wasbi)\b(?!\.)/gi) || []).forEach(u => add('UPI', u));
+    (s.match(/\b[A-Z]{4}0[A-Z0-9]{6}\b/g) || []).forEach(v => add('IFSC', v));
+    (s.match(/\b[A-Z]{5}\d{4}[A-Z]\b/g) || []).forEach(v => add('PAN', v));
+    (s.match(/\b(?:\d{1,3}\.){3}\d{1,3}\b/g) || []).filter(v => v.split('.').every(n => +n < 256)).forEach(v => add('IP', v));
+    const re = /(?<![\d.\/\-])(?:\+?91[\s\-]?)?(\d{9,18})(?![\d.\/\-])/g; let m;
+    while ((m = re.exec(s))) { const v = m[1], pre = s.slice(Math.max(0, m.index - 30), m.index);
+      if (v.length === 10 && /^[6-9]/.test(v) && !/खाता|a\/c|account|acc\.?\s*no/i.test(pre.slice(-14))) add('Mobile', v);
+      else if (/imei/i.test(pre) && v.length >= 14 && v.length <= 16) add('IMEI', v);
+      else if (/ack|acknow|शिकायत/i.test(pre) && v.length >= 12) add('Ack No', v);
+      else if (v.length >= 9) add('Account', v); }
+    return out.slice(0, 40);
+  },
   iso(d) { const m = String(d || '').match(/(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{2,4})/); if (!m) return /^\d{4}-\d\d-\d\d/.test(d || '') ? d.slice(0, 10) : ''; const y = m[3].length === 2 ? '20' + m[3] : m[3]; return `${y}-${m[2].padStart(2, '0')}-${m[1].padStart(2, '0')}`; },
   dmy(iso) { return iso && /^\d{4}-\d\d-\d\d/.test(iso) ? iso.slice(0, 10).split('-').reverse().join('/') : (iso || ''); },
   days(iso) { if (!iso) return 0; return Math.max(0, Math.round((Date.now() - new Date(iso + 'T00:00:00')) / 864e5)); },
@@ -179,9 +197,10 @@ const CDX = {
       const got = this.GOT.test(s), ask = this.ASK.test(s); if (!got && !ask) return;
       for (const [k, en, hi, rx, nt] of this.AG) { if (!rx.test(s)) continue; if (k === 'sub' && !ask && !got) continue;
         const banks = k === 'bank' ? this.ifscBanks(s) : [];
-        (banks.length ? banks : ['']).forEach(bk => ev.push({ k, en: bk ? en + ' · ' + bk : en, hi: bk ? hi + ' · ' + bk : hi, nt, bank: bk, act: got ? 'got' : 'ask', cd: l.no, date: l.prep, s: this.cut(s, 260) })); }
+        (banks.length ? banks : ['']).forEach(bk => ev.push({ k, en: bk ? en + ' · ' + bk : en, hi: bk ? hi + ' · ' + bk : hi, nt, bank: bk, act: got ? 'got' : 'ask', cd: l.no, date: l.prep, s: this.cut(s, 260), ids: this.idsOf(s) })); }
     }));
     const ag = new Map(); for (const e of ev) { const key = e.k + '|' + e.bank; const a = ag.get(key) || { key, k: e.k, en: e.en, hi: e.hi, nt: e.nt, bank: e.bank, ask: [], got: [] }; a[e.act].push(e); ag.set(key, a); }
+    ag.forEach(a => { const M = new Map(); [...a.ask, ...a.got].forEach(e => (e.ids || []).forEach(i => { const k = i.t + '|' + i.v; (M.get(k) || M.set(k, { ...i, ev: [] }).get(k)).ev.push(e); })); a.ids = [...M.values()].sort((x, y) => y.ev.length - x.ev.length); });
     const agencies = [...ag.values()].map(a => { const la = a.ask.slice(-1)[0], lg = a.got.slice(-1)[0]; const status = lg && (!la || lg.cd >= la.cd) ? 'Received' : la ? 'Pending' : 'Received'; return { ...a, status, since: status === 'Pending' ? la.date : '', age: status === 'Pending' ? this.days(la.date) : 0, last: (lg && (!la || lg.cd >= la.cd) ? lg : la || lg) }; })
       .sort((a, b) => (a.status === 'Pending' ? 0 : 1) - (b.status === 'Pending' ? 0 : 1) || b.age - a.age);
     // each identifier named in the FIR: required → received / asked / not asked
@@ -292,9 +311,11 @@ const CDX = {
     box.innerHTML = `<div class="ag-k">${sum.map(([k, i, t, n, c]) => `<button class="ag-kb ${st.f === k ? 'on' : ''}" data-agf="${k}" style="--c:${c}"><span>${i}</span><b>${fmtNum(n)}</b><small>${t}</small></button>`).join('')}</div><div id="cdxAT"></div>`;
     const rows = A.filter(a => st.f === 'Pending' ? a.status === 'Pending' : st.f === 'Received' ? a.status === 'Received' : st.f === 'old' ? a.status === 'Pending' && a.age >= 30 : true);
     const chips = (a, act) => cds(a[act]).map(cd => `<span class="ag-cd ${act}" data-agk="${esc(a.key)}" data-act="${act}" data-cd="${cd}">CD ${cd}</span>`).join('') || '<span class="muted">—</span>';
-    Table($('#cdxAT', box), { rows, pageSize: 10, exportName: 'agency_status', onRow: a => this.agOne(a, el), columns: [{ key: 'en', label: 'Agency / Person', render: a => `<b>${esc(a.en)}</b><div class="small muted">${esc(a.hi)}</div>` }, { key: 'status', label: 'Status', sortVal: a => a.status === 'Pending' ? -a.age : 1, render: a => this.chip(a.status) + (a.age ? ` <small class="bad-t">${a.age} days</small>` : '') }, { key: 'ask', label: 'Asked (CD)', sortVal: a => a.ask.length, render: a => `<div class="ag-cds">${chips(a, 'ask')}</div>` }, { key: 'got', label: 'Received (CD)', sortVal: a => a.got.length, render: a => `<div class="ag-cds">${chips(a, 'got')}</div>` }, { key: 'last', label: 'Latest Entry', render: a => `<span class="small">${esc(a.last ? a.last.s : '')}</span>` }],
-      after: c => $$('.ag-cd', c).forEach(x => { const a = A.find(y => y.key === x.dataset.agk), E = a ? a[x.dataset.act].filter(e => String(e.cd) === x.dataset.cd) : [];
-        x.onmouseenter = () => this.agTip(x, a, E); x.onmouseleave = () => this.agTip(null); x.onclick = ev => { ev.stopPropagation(); this.agTip(null); this.agOne(a, el, x.dataset.act + x.dataset.cd); }; }) });
+    Table($('#cdxAT', box), { rows, pageSize: 10, exportName: 'agency_status', onRow: a => this.agOne(a, el), columns: [{ key: 'en', label: 'Agency / Person', csv: a => a.en + (a.ids.length ? ' | ' + a.ids.map(i => i.t + ': ' + i.v).join('; ') : ''), render: a => `<b>${esc(a.en)}</b><div class="small muted">${esc(a.hi)}</div>${a.ids.length ? `<div class="ag-ids">${a.ids.slice(0, 4).map((i, n) => `<span class="ag-id" data-agk="${esc(a.key)}" data-idn="${n}">${this.IDT[i.t] || ''} ${esc(i.v.length > 26 ? i.v.slice(0, 24) + '…' : i.v)}</span>`).join('')}${a.ids.length > 4 ? `<span class="ag-id more" data-agk="${esc(a.key)}" data-idm="1">+${a.ids.length - 4} more</span>` : ''}</div>` : ''}` }, { key: 'status', label: 'Status', sortVal: a => a.status === 'Pending' ? -a.age : 1, render: a => this.chip(a.status) + (a.age ? ` <small class="bad-t">${a.age} days</small>` : '') }, { key: 'ask', label: 'Asked (CD)', sortVal: a => a.ask.length, render: a => `<div class="ag-cds">${chips(a, 'ask')}</div>` }, { key: 'got', label: 'Received (CD)', sortVal: a => a.got.length, render: a => `<div class="ag-cds">${chips(a, 'got')}</div>` }, { key: 'last', label: 'Latest Entry', render: a => `<span class="small">${esc(a.last ? a.last.s : '')}</span>` }],
+      after: c => { $$('.ag-id', c).forEach(x => { const a = A.find(y => y.key === x.dataset.agk); if (!a) return; if (x.dataset.idm) { x.onclick = ev => { ev.stopPropagation(); this.agOne(a, el); }; return; } const i = a.ids[+x.dataset.idn];
+        x.onmouseenter = () => this.idTip(x, i, a); x.onmouseleave = () => this.agTip(null); x.onclick = ev => { ev.stopPropagation(); this.agTip(null); this.idOne(i, A, el); }; });
+        $$('.ag-cd', c).forEach(x => { const a = A.find(y => y.key === x.dataset.agk), E = a ? a[x.dataset.act].filter(e => String(e.cd) === x.dataset.cd) : [];
+        x.onmouseenter = () => this.agTip(x, a, E); x.onmouseleave = () => this.agTip(null); x.onclick = ev => { ev.stopPropagation(); this.agTip(null); this.agOne(a, el, x.dataset.act + x.dataset.cd); }; }); } });
     $$('[data-agf]', box).forEach(b => b.onclick = () => { st.f = b.dataset.agf === 'asks' || b.dataset.agf === 'gots' ? 'all' : b.dataset.agf; this.agTable(r, g, el); });
     $$('[data-agf]', box).forEach(b => { const k = b.dataset.agf, L = k === 'all' || k === 'asks' || k === 'gots' ? A : A.filter(a => k === 'old' ? a.status === 'Pending' && a.age >= 30 : a.status === k);
       b.onmouseenter = () => this.agTip(b, null, null, L); b.onmouseleave = () => this.agTip(null); });
@@ -305,6 +326,22 @@ const CDX = {
     t.innerHTML = list ? `<b>${list.length} agencies / persons</b>${list.slice(0, 8).map(a => `<div>${a.status === 'Pending' ? '⏳' : '✅'} ${esc(a.en)}${a.age ? ` <i>${a.age} d</i>` : ''}</div>`).join('')}${list.length > 8 ? `<div class="muted">+ ${list.length - 8} more – click</div>` : ''}`
       : `<b>${esc(a.en)}</b> · ${E[0].act === 'ask' ? '📨 Asked' : '📥 Received'} in CD ${E[0].cd}${E[0].date ? ' · ' + esc(this.dmy(E[0].date)) : ''}${E.map(e => `<div class="ag-tx">${esc(e.s)}</div>`).join('')}<div class="muted">Click for the full record</div>`;
     const r = el.getBoundingClientRect(); t.style.left = Math.min(innerWidth - 440, Math.max(8, r.left)) + 'px'; t.style.top = (r.bottom + 6 + 260 > innerHeight ? Math.max(8, r.top - 6 - t.offsetHeight) : r.bottom + 6) + 'px';
+  },
+  hl(s, v) { const t = esc(s); if (!v) return t; const e = esc(v).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); return t.replace(new RegExp(e, 'gi'), x => `<mark>${x}</mark>`); },
+  idTip(x, i, a) {
+    this.agTip(x, a, [{ act: 'ask', cd: '', s: '' }]); const t = $('#agTip'); if (!t) return;
+    const ask = [...new Set(i.ev.filter(e => e.act === 'ask').map(e => e.cd))], got = [...new Set(i.ev.filter(e => e.act === 'got').map(e => e.cd))];
+    t.innerHTML = `<b>${this.IDT[i.t] || ''} ${esc(i.t)}: <span class="mono">${esc(i.v)}</span></b><div>🏢 ${esc(a.en)}</div><div>📨 Asked in ${ask.length ? 'CD ' + ask.join(', ') : '—'} · 📥 Received in ${got.length ? 'CD ' + got.join(', ') : '—'}</div><div class="ag-tx">${this.hl(i.ev[0].s, i.v)}</div><div class="muted">Click for every entry with this ${esc(i.t.toLowerCase())}</div>`;
+  },
+  idOne(i, A, el) {
+    const E = []; A.forEach(a => [...a.ask, ...a.got].forEach(e => { if ((e.ids || []).some(x => x.v.toLowerCase() === i.v.toLowerCase())) E.push({ ...e, ag: a.en }); }));
+    E.sort((x, y) => x.cd - y.cd || (x.act === 'ask' ? -1 : 1));
+    const ags = [...new Set(E.map(e => e.ag))];
+    const b = UI.modal(`${this.IDT[i.t] || ''} ${i.t}: ${i.v}`, `<div class="row" style="gap:8px;flex-wrap:wrap;align-items:center"><span class="small">Found in <b>${E.length}</b> entr${E.length === 1 ? 'y' : 'ies'} · <b>${ags.length}</b> agenc${ags.length === 1 ? 'y' : 'ies'}: ${esc(ags.join(', '))}</span><span class="spacer"></span><button class="btn sm primary" id="idTrk">🔎 Track Everywhere</button><button class="btn sm" id="idCp">📋 Copy</button></div>
+      <div class="ag-tl">${E.map(e => `<div class="ag-ev ${e.act}"><div class="ag-evh"><span class="ag-cd ${e.act}">CD ${e.cd}</span><b>${e.act === 'ask' ? '📨 Asked / Sent' : '📥 Reply Received'}</b><span class="small">🏢 ${esc(e.ag)}</span><span class="small muted">${esc(this.dmy(e.date) || '')}</span><span class="spacer"></span><button class="btn sm" data-ocd="${e.cd}">📖 Open CD ${e.cd}</button></div><div class="ag-evt">${this.hl(e.s, i.v)}</div></div>`).join('')}</div>`, [{ label: 'Close', onClick: UI.closeModal }]);
+    $('#idTrk', b).onclick = () => { UI.closeModal(); if (typeof Dash2 !== 'undefined' && Dash2.track) Dash2.track(i.v); };
+    $('#idCp', b).onclick = () => { navigator.clipboard && navigator.clipboard.writeText(i.v); UI.toast('Copied'); };
+    $$('[data-ocd]', b).forEach(x => x.onclick = () => { const l = (this._m && this._m.r.L || []).find(l => String(l.no) === x.dataset.ocd), sel = $('#ccDoc', el); UI.closeModal(); if (l && sel) { sel.value = 'cd' + l.i; sel.dispatchEvent(new Event('change')); sel.scrollIntoView({ block: 'center' }); } });
   },
   agOne(a, el, mark) {
     if (!a) return; const E = [...a.ask, ...a.got].sort((x, y) => x.cd - y.cd || (x.act === 'ask' ? -1 : 1));

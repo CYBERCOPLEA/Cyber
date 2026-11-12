@@ -2170,3 +2170,8 @@ html.no-crimeEdit #cdImpM,html.no-crimeEdit #cdScan,html.no-crimeEdit #cdFile,ht
 .tg-un{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--accent);color:#fff;font-size:11px;font-weight:800}
 #tgT td{white-space:nowrap}#tgT td .small{white-space:nowrap}
 .nd-note{margin:0 0 6px;padding:3px 10px;border-radius:8px;display:inline-block;background:rgba(234,179,8,.12);border:1px solid rgba(234,179,8,.4)}
+
+.ag-ids{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}
+.ag-id{display:inline-block;padding:1px 8px;border-radius:7px;font-size:11.5px;font-weight:600;cursor:pointer;white-space:nowrap;background:rgba(99,102,241,.14);border:1px solid rgba(99,102,241,.5);color:#a5b4fc;font-family:ui-monospace,Consolas,monospace}
+.ag-id:hover{box-shadow:0 0 0 2px #818cf8;color:#fff}.ag-id.more{font-family:inherit;background:transparent;border-style:dashed}
+.ag-tip mark,.ag-evt mark{background:#facc15;color:#111;border-radius:3px;padding:0 2px}
