@@ -21,7 +21,7 @@ const OneFile = {
 .of[contenteditable=true]{outline:3px dashed #f59e0b;outline-offset:4px}.of[contenteditable=true] .tx{max-height:none}
 .of .g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}.of .box{border:1px solid #e2e8f0;border-radius:10px;padding:8px 12px}.of .box.g{border-color:#86efac;background:#f0fdf4}.of .box.r{border-color:#fca5a5;background:#fef2f2}
 .of .st{display:inline-block;padding:1px 8px;border-radius:99px;font-size:11px;font-weight:700}.of .st.g{background:#dcfce7;color:#166534}.of .st.w{background:#fef3c7;color:#92400e}.of .st.b{background:#fee2e2;color:#991b1b}.of .st.i{background:#e0e7ff;color:#3730a3}
-.of .mono{font-family:Consolas,monospace}.of .mu{color:#64748b;font-size:12px}.of ul.ck{list-style:none;padding:0;margin:4px 0}.of ul.ck li{padding:4px 0;border-bottom:1px dashed #e2e8f0}
+.of .mono{font-family:Consolas,monospace}.of .mu{color:#64748b;font-size:12px}.of ul.of-todo{list-style:none;padding:0;margin:4px 0}.of ul.of-todo li{padding:4px 0;border-bottom:1px dashed #e2e8f0}
 .of details.cd{border:1px solid #e2e8f0;border-radius:10px;margin:6px 0}.of details.cd>summary{cursor:pointer;padding:7px 10px;display:flex;gap:10px;align-items:baseline}.of details.cd>summary b{min-width:58px}.of details.cd .in{padding:4px 12px 10px}
 .of .nos{display:flex;flex-wrap:wrap;gap:4px;margin:4px 0 8px}.of .nos span{min-width:30px;text-align:center;padding:2px 6px;border-radius:6px;font-size:12px;font-weight:700;background:#dcfce7;color:#166534}.of .nos span.x{background:#fee2e2;color:#991b1b}
 .of .ft{padding:10px 18px;font-size:11px;color:#64748b;background:#f8fafc}
@@ -67,7 +67,7 @@ const OneFile = {
       <div><h4>📦 Data In This Case</h4>${this.kv(cnt.map(([k, v]) => [k, fmtNum(v)]))}<h4>💰 Money</h4>${this.kv([['Amount Defrauded', amount ? fmtINR(amount) : ''], ['On Hold / Lien', hold ? fmtINR(hold) : ''], ['Accounts In Trail', acc.length ? fmtNum(acc.length) : ''], ['Mule Accounts (≥60)', mule.length ? fmtNum(mule.length) : ''], ['Layers', comps.length ? Math.max(0, ...comps.map(x => x.layers || 0)) || '' : '']])}</div></div>`);
     /* 3 · what to do */
     const top = acc.slice().sort((a, b) => b.score - a.score || b.inAmt - a.inAmt).slice(0, 10);
-    h += this.sec(++n, '🧭', 'What To Do – Investigation & Analysis', `<ul class="ck">${W.map(w => `<li>${w.status === 'Done' ? '✅' : w.status === 'n/a' ? '➖' : '⏳'} <b>${E(w.title)}</b> ${this.st(w.status)}<div class="mu">${E(w.detail || '')}${w.demand ? ' · From: ' + E(w.demand) : ''}</div></li>`).join('') || '<li class="mu">Import the FIR, case diary and money trail to build the work list.</li>'}</ul>` +
+    h += this.sec(++n, '🧭', 'What To Do – Investigation & Analysis', `<ul class="of-todo">${W.map(w => `<li>${w.status === 'Done' ? '✅' : w.status === 'n/a' ? '➖' : '⏳'} <b>${E(w.title)}</b> ${this.st(w.status)}<div class="mu">${E(w.detail || '')}${w.demand ? ' · From: ' + E(w.demand) : ''}</div></li>`).join('') || '<li class="mu">Import the FIR, case diary and money trail to build the work list.</li>'}</ul>` +
       (top.length ? `<h4>🎯 Suspect Accounts To Act On First</h4>` + this.tbl([['Account', a => `<b class="mono">${E(a.acc)}</b>`], ['Bank', a => E(String(a.bank || '').split(' / ')[0])], ['Name', a => E(String(a.name || '').split(' / ')[0])], ['Layer', a => a.layer || ''], ['Received', a => a.inAmt ? fmtINR(a.inAmt) : ''], ['On Hold', a => a.hold ? fmtINR(a.hold) : ''], ['Risk', a => `<b>${a.score}</b>`]], top) : ''), WP.length ? WP.length + ' pending' : '');
     /* 4 · intermediaries */
     const byBank = [...groupBy(acc, a => (String(a.bank || '').split(' / ')[0] || 'Bank not known').toUpperCase())].map(([b, L2]) => ({ b, n: L2.length, amt: sum(L2, a => a.inAmt || 0), hold: sum(L2, a => a.hold || 0), kyc: L2.filter(a => !(d.kyc || []).some(k => N.acc(k.acc) === N.acc(a.acc))).length })).sort((a, b) => b.amt - a.amt);
@@ -158,7 +158,7 @@ const OneFile = {
     XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(sum), 'Summary');
     $$('details.s', box).forEach((d, i) => { const rows = [], sm = $('summary', d).cloneNode(true); $$('.n, .c', sm).forEach(x => x.parentNode.removeChild(x)); const t = T(sm).replace(/\s+/g, ' ').trim(), cn = $('summary .c', d);
       rows.push([t, cn ? T(cn) : '']); rows.push([]);
-      $$('h4, table, .tx, .box > div:not(.g2), ul.ck > li, ol > li, details.cd > summary, .in > div', $('.b', d)).forEach(x => {
+      $$('h4, table, .tx, .box > div:not(.g2), ul.of-todo > li, ol > li, details.cd > summary, .in > div', $('.b', d)).forEach(x => {
         if (x.closest('table') && x.tagName !== 'TABLE') return;
         if (x.tagName === 'TABLE') { $$('tr', x).forEach(tr => rows.push([...tr.cells].map(td => T(td)))); rows.push([]); }
         else if (x.tagName === 'H4') rows.push([T(x).toUpperCase()]);

@@ -2115,6 +2115,33 @@ html.no-crimeEdit #cdImpM,html.no-crimeEdit #cdScan,html.no-crimeEdit #cdFile,ht
 .pk-t small{color:var(--text-muted);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pk-wait{opacity:.6;pointer-events:none}
 
+/* CCTNS: From Whom – Asked & Received */
+.ag-k{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin:6px 0 10px}
+@media (max-width:1200px){.ag-k{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.ag-kb{display:flex;flex-direction:column;align-items:flex-start;padding:10px 12px;border-radius:12px;cursor:pointer;color:var(--text);border:1px solid color-mix(in srgb,var(--c) 55%,var(--border));background:linear-gradient(135deg,color-mix(in srgb,var(--c) 22%,transparent),transparent)}
+.ag-kb span{font-size:16px}.ag-kb b{font-size:22px;line-height:1.1}.ag-kb small{font-size:11.5px;color:var(--text-muted);font-weight:600}
+.ag-kb.on,.ag-kb:hover{box-shadow:0 0 0 2px var(--c)}
+.ag-cds{display:flex;flex-wrap:wrap;gap:4px}
+.ag-cd{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11.5px;font-weight:700;cursor:pointer;white-space:nowrap;border:1px solid}
+.ag-cd.ask{background:rgba(217,119,6,.15);border-color:rgba(217,119,6,.55);color:#f59e0b}.ag-cd.got{background:rgba(22,163,74,.15);border-color:rgba(22,163,74,.55);color:#22c55e}
+.ag-cd:hover{filter:brightness(1.25);box-shadow:0 0 0 2px currentColor}
+.ag-tip{position:fixed;z-index:9999;max-width:430px;padding:10px 12px;border-radius:10px;background:var(--bg-1,#0f172a);border:1px solid var(--border);box-shadow:0 12px 30px rgba(0,0,0,.45);font-size:12.5px;line-height:1.45;pointer-events:none;color:var(--text)}
+.ag-tip .ag-tx{margin-top:6px;padding-top:6px;border-top:1px dashed var(--border)}.ag-tip i{color:#f59e0b;font-style:normal}
+.ag-tl{margin-top:12px;display:flex;flex-direction:column;gap:8px;max-height:60vh;overflow:auto}
+.ag-ev{border:1px solid var(--border);border-left:4px solid #f59e0b;border-radius:10px;padding:8px 10px}.ag-ev.got{border-left-color:#22c55e}.ag-ev.mark{box-shadow:0 0 0 2px var(--accent)}
+.ag-evh{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.ag-evt{margin-top:6px;font-size:13px;line-height:1.5}
+
+/* CCTNS: CS / FR due badge – BNSS 187 */
+.bn-due{display:inline-flex;align-items:center;gap:7px;padding:4px 12px;border-radius:999px;background:linear-gradient(135deg,#a16207,#eab308 55%,#ca8a04);color:#fff;font-weight:700;font-size:12.5px;border:1px solid #fde047;text-shadow:0 1px 2px rgba(0,0,0,.45);cursor:pointer;vertical-align:middle;box-shadow:0 2px 10px rgba(202,138,4,.4);white-space:nowrap;font-family:inherit}
+.bn-due b{color:#fff}.bn-due small{color:#fff;opacity:.95;font-weight:600;font-size:11px;padding-left:6px;border-left:1px solid rgba(255,255,255,.5)}
+.bn-due.sm{padding:2px 9px;font-size:11.5px;cursor:default}.bn-due.over{border-color:#fca5a5;box-shadow:0 0 0 2px rgba(239,68,68,.5)}.bn-due:hover{filter:brightness(1.08)}
+.bn-dot{width:10px;height:10px;border-radius:50%;flex:none;display:inline-block}
+.bn-dot.g{background:#22c55e;box-shadow:0 0 6px #22c55e,0 0 14px #4ade80;animation:bnBlink 1.1s infinite}
+.bn-dot.r{background:#ef4444;box-shadow:0 0 6px #ef4444,0 0 14px #f87171;animation:bnBlink .6s infinite}
+@keyframes bnBlink{0%,45%{opacity:1;transform:scale(1.1)}55%,100%{opacity:.2;transform:scale(.85)}}
+.bn-info{border:1px solid #ca8a04;border-left:4px solid #eab308;border-radius:10px;padding:8px 12px;margin-bottom:10px}.bn-info ul{margin:6px 0 0 18px;padding:0}.bn-info li{margin:3px 0}
+@media (prefers-reduced-motion:reduce){.bn-dot{animation:none}}
+
 </style>
 </head>
 <body>
@@ -2162,7 +2189,7 @@ html.no-crimeEdit #cdImpM,html.no-crimeEdit #cdScan,html.no-crimeEdit #cdFile,ht
         <div class="hp-feat" style="--fc:#06b6d4"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><div><b>Analytics</b><p>The same mobile, account, IP or e-mail across complaints, banks and platforms.</p></div></div>
         <div class="hp-feat" style="--fc:#eab308"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h5"/></svg></span><div><b>Case File &amp; Notices</b><p>Case reports, notices to banks and platforms, and CSV / PDF exports.</p></div></div>
     </section>
-    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-12 22:47 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
+    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-12 23:03 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
   </div>
 
   <div class="lg-wrap" id="lgWrap" aria-hidden="true">
@@ -13955,8 +13982,8 @@ const CCTNS = {
       const cc = d.cctns || {}, pend = W.filter(w => w.status === 'Pending');
       return ({ id: c.id, name: c.name, fir: c.fir || '', ps: c.ps || '', io: c.io || '', section: c.section || '', status: c.status || 'Pending', complaints: (d.ncrp || []).length, txns: (d.txns || []).length,
         amount: sum(d.ncrp || [], r => +r.amount || 0), cd: (cc.cd || []).length, lastCd: CDX.lastDate(cc.cd), cdLast: CDX.lastNo(cc.cd), cdGap: CDX.gaps(cc.cd), firUp: cc.fir ? 'Yes' : 'No',
-        done: W.filter(w => w.status === 'Done').length, pending: pend.length, pendList: pend.map(w => w.title).join('; '), notices: (cc.notices || []).length, cur: c.id === S.caseId, fin: (c.final || {}).type || '', finNo: (c.final || {}).no || '', finDate: (c.final || {}).date || '', finInfo: c.final ? this.finTxt(c.final) : '', docs: (cc.files || []).length }); };
-      out.push(c.id === S.caseId ? await mk1() : await Vault.sum(c.id, 'cc', 'v1|' + JSON.stringify(c) + '|' + today(), mk1));
+        done: W.filter(w => w.status === 'Done').length, pending: pend.length, pendList: pend.map(w => w.title).join('; '), notices: (cc.notices || []).length, cur: c.id === S.caseId, fin: (c.final || {}).type || '', finNo: (c.final || {}).no || '', finDate: (c.final || {}).date || '', finInfo: c.final ? this.finTxt(c.final) : '', docs: (cc.files || []).length, bn: this.bn(c, d) }); };
+      out.push(c.id === S.caseId ? await mk1() : await Vault.sum(c.id, 'cc', 'v2|' + JSON.stringify(c) + '|' + today(), mk1));
       await new Promise(r => setTimeout(r, 0));
     }
     return out;
@@ -13967,7 +13994,7 @@ const CCTNS = {
     const st = this.st(), c = activeCase(), W = this.work(), F = st.fir ? this.facts(st.fir.text) : null;
     const pend = W.filter(w => w.status === 'Pending'), done = W.filter(w => w.status === 'Done');
     el.innerHTML = `<div class="card cc-all"><div class="d2-hd"><h3>📚 All cases</h3><span class="sub">Search any case, see its work done and pending. Click a row to open that case here.</span></div><div class="kpis kpis-sm" id="ccK"></div><div id="ccAll" class="muted small">Reading your cases…</div></div>
-      <div class="cc-case card"><div class="cc-head"><div><div class="small muted">THIS CASE</div><h3 style="margin:2px 0">${esc(c.name || '')}${c.final ? ` <span class="cc-fin ${(this.FIN[c.final.type] || this.FIN.CS)[2]}" title="${esc(this.finTxt(c.final))}">${c.final.type === 'PPI' ? '📘 CS-PPI' : c.final.type === 'CS' ? '📗 Charge Sheet' : '📕 Final Report'}${c.final.no ? ' No. ' + esc(c.final.no) : ''}${c.final.date ? ' · ' + esc(this.dmy(c.final.date)) : ''}</span>` : ''}</h3><div class="small">${[c.fir && 'FIR ' + c.fir, c.ps && 'PS ' + c.ps, c.section, c.io && 'IO ' + c.io].filter(Boolean).map(esc).join(' · ') || '<span class="muted">Add FIR, PS, sections in Case File & Notices › Case Details – or upload the FIR, they are read from it.</span>'}</div></div>
+      <div class="cc-case card"><div class="cc-head"><div><div class="small muted">THIS CASE</div><h3 style="margin:2px 0">${esc(c.name || '')}${c.final ? ` <span class="cc-fin ${(this.FIN[c.final.type] || this.FIN.CS)[2]}" title="${esc(this.finTxt(c.final))}">${c.final.type === 'PPI' ? '📘 CS-PPI' : c.final.type === 'CS' ? '📗 Charge Sheet' : '📕 Final Report'}${c.final.no ? ' No. ' + esc(c.final.no) : ''}${c.final.date ? ' · ' + esc(this.dmy(c.final.date)) : ''}</span>` : ''} ${this.bnBadge(this.bn(c))}</h3><div class="small">${[c.fir && 'FIR ' + c.fir, c.ps && 'PS ' + c.ps, c.section, c.io && 'IO ' + c.io].filter(Boolean).map(esc).join(' · ') || '<span class="muted">Add FIR, PS, sections in Case File & Notices › Case Details – or upload the FIR, they are read from it.</span>'}</div></div>
         <div class="cc-btns"><button class="btn primary" id="ccFir">📄 Upload FIR</button><button class="btn" id="ccCd">📒 Add case diary part</button><button class="btn" id="ccUp" title="Any document of this case: bank / telecom replies, statements, memos, court orders, photos…">📎 Upload Case related Documents</button><button class="btn cc-cs ${c.final && c.final.type === 'CS' ? 'on' : ''}" id="ccCS" title="Record the Charge Sheet (CS) of this case">📗 CS</button><button class="btn cc-ppi ${c.final && c.final.type === 'PPI' ? 'on' : ''}" id="ccPPI" title="Charge Sheet filed, further investigation pending (PPI)">📘 CS-PPI</button><button class="btn cc-fr ${c.final && c.final.type === 'FR' ? 'on' : ''}" id="ccFR" title="Record the Final Report (FR) of this case">📕 FR</button><button class="btn" id="ccNew">✍ Type a CD entry</button><button class="btn srch" id="ccNt">⚖ Draft BNSS notice</button></div></div>
         <div class="cc-prog"><div class="cc-bar"><i style="width:${Math.round(done.length / Math.max(1, done.length + pend.length) * 100)}%"></i></div><span><b>${done.length}</b> done · <b class="bad-t">${pend.length}</b> pending</span></div></div>
       <div class="grid g2 cc-g">
@@ -14008,6 +14035,7 @@ const CCTNS = {
     $('#ccUp', el).onclick = () => this.docUpload();
     $('#ccCS', el).onclick = () => this.finEdit('CS'); $('#ccPPI', el).onclick = () => this.finEdit('PPI'); $('#ccFR', el).onclick = () => this.finEdit('FR');
     this.docList($('#ccDocs', el));
+    $$('[data-bn]', el).forEach(b => b.onclick = () => this.bnEdit(c));
     // notices list
     if (st.notices.length) Table($('#ccN', el), { rows: st.notices.slice().reverse(), pageSize: 10, exportName: 'notices', columns: [{ key: 'when', label: 'When', render: r => esc(r.when.slice(0, 16).replace('T', ' ')) }, { key: 'name', label: 'Notice' }, { key: 'to', label: 'To' }], onRow: r => { const b = UI.drawer(r.name, `<textarea style="min-height:520px;font-family:Georgia,serif;font-size:14px">${esc(r.text)}</textarea><div class="row" style="margin-top:8px"><button class="btn" id="nP">🖨 Print</button></div>`); $('#nP', b).onclick = () => Reports.printText(r.text); } });
     else $('#ccN', el).innerHTML = '<div class="muted small">No notice saved yet. Use <b>Draft notice</b> on a pending item, or <b>Draft BNSS notice</b> above.</div>';
@@ -14022,12 +14050,38 @@ const CCTNS = {
       $('#ccAll', el).classList.remove('muted', 'small');
       Table($('#ccAll', el), { rows: R, pageSize: 10, sortKey: 'pending', sortDir: -1, exportName: 'all_cases_cctns', onRow: r => { if (!r.cur) switchCase(r.id); },
         columns: [{ key: 'name', label: 'Case', render: r => `<b>${esc(r.name)}</b>${r.cur ? ' <span class="badge info">open</span>' : ''}<div class="small muted">${esc([r.fir && 'FIR ' + r.fir, r.ps, r.section].filter(Boolean).join(' · '))}</div>` },
-          { key: 'status', label: 'Status', render: r => r.fin ? `<span class="cc-fin ${(this.FIN[r.fin] || this.FIN.CS)[2]}">${r.fin === 'PPI' ? 'CS-PPI' : r.fin}${r.finNo ? ' ' + esc(r.finNo) : ''}</span>` : esc(r.status) }, { key: 'complaints', label: 'Complaints', num: true }, { key: 'amount', label: 'Amount', num: true, render: r => r.amount ? fmtINR(r.amount) : '' }, { key: 'firUp', label: 'FIR read' }, { key: 'cd', label: 'CD Parts', num: true }, { key: 'cdLast', label: 'Last CD No.', num: true }, { key: 'lastCd', label: 'Last CD Date' }, { key: 'cdGap', label: 'Missing CD', render: r => r.cdGap ? `<b class="bad-t">${esc(r.cdGap)}</b>` : '' },
+          { key: 'status', label: 'Status', render: r => r.fin ? `<span class="cc-fin ${(this.FIN[r.fin] || this.FIN.CS)[2]}">${r.fin === 'PPI' ? 'CS-PPI' : r.fin}${r.finNo ? ' ' + esc(r.finNo) : ''}</span>` : esc(r.status) }, { key: 'bn', label: 'CS / FR Due (BNSS 187)', sortVal: r => r.bn && r.bn.start ? r.bn.left : 1e9, render: r => this.bnBadge(r.bn, true) }, { key: 'complaints', label: 'Complaints', num: true }, { key: 'amount', label: 'Amount', num: true, render: r => r.amount ? fmtINR(r.amount) : '' }, { key: 'firUp', label: 'FIR read' }, { key: 'cd', label: 'CD Parts', num: true }, { key: 'cdLast', label: 'Last CD No.', num: true }, { key: 'lastCd', label: 'Last CD Date' }, { key: 'cdGap', label: 'Missing CD', render: r => r.cdGap ? `<b class="bad-t">${esc(r.cdGap)}</b>` : '' },
           { key: 'done', label: 'Done', num: true }, { key: 'pending', label: 'Pending', num: true, render: r => r.pending ? `<b class="bad-t" title="${esc(r.pendList)}">${r.pending}</b>` : '0' }, { key: 'notices', label: 'Notices', num: true }] });
     });
   },
 
   /* ---------- CS / FR and case documents ---------- */
+  /* BNSS 187: CS / FR due – 90 days (death / life / 10+ years), 60 days otherwise; default bail after that */
+  HEAVY: /^(64|65|70|71|103|104|105|109|111|113|139|140|143|147|148|149|310|311|312|302|304|307|376|409|467|489A|489B|396|364|364A)$|^(309\((4|6)\)|316\(5\)|66F|118\(2\)|117\(3\)|61\(2\)\(a\))$/i,
+  bn(c, d) {
+    if (!c || (c.final && c.final.type)) return null;
+    const secs = String(c.section || '').replace(/\s+/g, '').match(/\d+[A-Z]?(\(\d+\))*(\([a-z]\))?/gi) || [], heavy = secs.some(t => this.HEAVY.test(t) || this.HEAVY.test(t.replace(/\(.*$/, '')));
+    let fd = c.firDate || ''; if (!fd) try { fd = CDX.iso(CDX.analyse(d || S.data, c).fir.date); } catch (e) { }
+    const start = c.d187 || fd, limit = +c.lim187 || (heavy ? 90 : 60);
+    if (!start) return { start: '', limit, heavy, fd };
+    const el = Math.floor((new Date(today()) - new Date(start)) / 864e5), left = limit - el;
+    return { start, kind: c.d187 ? (c.d187k === 'fir' ? 'FIR date' : 'Arrest / first remand') : 'FIR date', limit, heavy, el, left, fd, pc: limit === 90 ? 60 : 40 };
+  },
+  bnBadge(b, small) {
+    if (!b) return '';
+    if (!b.start) return small ? '<span class="muted small">Set date</span>' : `<button class="bn-due nodate" data-bn title="Set the FIR / arrest date to count the BNSS 187 days"><i class="bn-dot r"></i>CS / FR Due: Set Start Date</button>`;
+    const t = `BNSS 187 – ${b.limit} days (${b.heavy ? 'death / life / 10+ years' : 'other offences'}) from ${b.kind} ${this.dmy(b.start)}. Police custody up to 15 days, in parts, within the first ${b.pc} days. After ${b.limit} days without CS / FR the accused gets default bail.`;
+    return `<${small ? 'span' : 'button'} class="bn-due ${b.left < 0 ? 'over' : ''} ${small ? 'sm' : ''}" ${small ? '' : 'data-bn'} title="${esc(t)}"><i class="bn-dot ${b.left > 10 ? 'g' : 'r'}"></i>${small ? '' : '<b>CS / FR Due:</b> '}${b.left >= 0 ? `${b.left} Days Left` : `Overdue ${-b.left} Days`}<small>Day ${Math.max(0, b.el)} of ${b.limit}</small></${small ? 'span' : 'button'}>`;
+  },
+  bnEdit(c) {
+    const b = this.bn(c) || {};
+    const m = UI.modal('⏳ CS / FR Due – BNSS 187', `<div class="bn-info"><b>BNSS Section 187</b><ul><li><b>90 days</b> – offences punishable with death, life imprisonment or 10 years and more.</li><li><b>60 days</b> – all other offences.</li><li>If the Charge Sheet / Final Report is not filed in time, the accused gets <b>default bail</b>.</li><li>Police custody: up to <b>15 days</b> in total, in parts, within the first <b>40 days</b> (60-day cases) or <b>60 days</b> (90-day cases).</li></ul></div>
+      <div class="map-grid"><label>Count From<select id="bnK"><option value="fir" ${c.d187k !== 'arrest' ? 'selected' : ''}>FIR Date</option><option value="arrest" ${c.d187k === 'arrest' ? 'selected' : ''}>Arrest / First Remand Date</option></select></label>
+      <label>Start Date<input type="date" id="bnD" value="${esc(c.d187 || b.fd || '')}"></label>
+      <label>Limit<select id="bnL"><option value="">Auto – ${b.heavy ? '90' : '60'} days (from sections)</option><option value="60" ${+c.lim187 === 60 ? 'selected' : ''}>60 Days</option><option value="90" ${+c.lim187 === 90 ? 'selected' : ''}>90 Days</option></select></label></div>
+      <p class="small muted">Sections: ${esc(c.section || 'not set')}. Auto limit is worked out from the sections – check and change it if needed.</p>`,
+      [{ label: 'Save', cls: 'primary', onClick: async () => { const k = $('#bnK', m).value, dt = $('#bnD', m).value; if (k === 'fir' && dt === b.fd) { delete c.d187; } else c.d187 = dt; c.d187k = k; c.lim187 = +$('#bnL', m).value || 0; if (!c.d187) delete c.d187k; await saveMeta(); UI.closeModal(); UI.toast('BNSS 187 dates saved'); render(); } }, { label: 'Close', onClick: UI.closeModal }]);
+  },
   dmy(d) { return d && /^\d{4}-\d\d-\d\d/.test(d) ? d.slice(0, 10).split('-').reverse().join('-') : (d || ''); },
   FRT: ['Untraced (accused not found)', 'Mistake of fact', 'Mistake of law', 'False case', 'Civil nature', 'No offence made out', 'Insufficient evidence', 'Other'],
   FIN: { CS: ['📗', 'CS – Charge Sheet', 'cs'], PPI: ['📘', 'CS-PPI – Charge Sheet, Pending Further Investigation', 'ppi'], FR: ['📕', 'FR – Final Report', 'fr'] },
@@ -14440,6 +14494,37 @@ const CDX = {
   /* ---------- page: Case At A Glance ---------- */
   ST: { Received: ['good', '✔ Received'], Pending: ['bad', '⏳ Pending'], Asked: ['warn', '⏳ Asked'], 'Not Asked': ['bad', '✖ Not Asked'] },
   chip(s) { const x = this.ST[s] || ['', s]; return `<span class="cdx-st ${x[0]}">${x[1]}</span>`; },
+  /* From Whom – Asked & Received: live summary, CD chips with hover preview, click for the full record in place */
+  agTable(r, g, el) {
+    const A = r.agencies, box = $('#cdxA', g), pend = A.filter(a => a.status === 'Pending'), old = pend.filter(a => a.age >= 30), cds = a => [...new Set(a.map(e => e.cd))];
+    const sum = [['all', '🏢', 'Agencies / Persons', A.length, '#6366f1'], ['Pending', '⏳', 'Reply Pending', pend.length, '#d97706'], ['old', '🔴', 'Pending 30+ Days', old.length, '#dc2626'], ['Received', '✅', 'Reply Received', A.length - pend.length, '#16a34a'],
+      ['asks', '📨', 'Requests Sent', A.reduce((n, a) => n + a.ask.length, 0), '#0891b2'], ['gots', '📥', 'Replies Recorded', A.reduce((n, a) => n + a.got.length, 0), '#7c3aed']];
+    const st = this._ag || (this._ag = { f: 'all' });
+    box.innerHTML = `<div class="ag-k">${sum.map(([k, i, t, n, c]) => `<button class="ag-kb ${st.f === k ? 'on' : ''}" data-agf="${k}" style="--c:${c}"><span>${i}</span><b>${fmtNum(n)}</b><small>${t}</small></button>`).join('')}</div><div id="cdxAT"></div>`;
+    const rows = A.filter(a => st.f === 'Pending' ? a.status === 'Pending' : st.f === 'Received' ? a.status === 'Received' : st.f === 'old' ? a.status === 'Pending' && a.age >= 30 : true);
+    const chips = (a, act) => cds(a[act]).map(cd => `<span class="ag-cd ${act}" data-agk="${esc(a.key)}" data-act="${act}" data-cd="${cd}">CD ${cd}</span>`).join('') || '<span class="muted">—</span>';
+    Table($('#cdxAT', box), { rows, pageSize: 10, exportName: 'agency_status', onRow: a => this.agOne(a, el), columns: [{ key: 'en', label: 'Agency / Person', render: a => `<b>${esc(a.en)}</b><div class="small muted">${esc(a.hi)}</div>` }, { key: 'status', label: 'Status', sortVal: a => a.status === 'Pending' ? -a.age : 1, render: a => this.chip(a.status) + (a.age ? ` <small class="bad-t">${a.age} days</small>` : '') }, { key: 'ask', label: 'Asked (CD)', sortVal: a => a.ask.length, render: a => `<div class="ag-cds">${chips(a, 'ask')}</div>` }, { key: 'got', label: 'Received (CD)', sortVal: a => a.got.length, render: a => `<div class="ag-cds">${chips(a, 'got')}</div>` }, { key: 'last', label: 'Latest Entry', render: a => `<span class="small">${esc(a.last ? a.last.s : '')}</span>` }],
+      after: c => $$('.ag-cd', c).forEach(x => { const a = A.find(y => y.key === x.dataset.agk), E = a ? a[x.dataset.act].filter(e => String(e.cd) === x.dataset.cd) : [];
+        x.onmouseenter = () => this.agTip(x, a, E); x.onmouseleave = () => this.agTip(null); x.onclick = ev => { ev.stopPropagation(); this.agTip(null); this.agOne(a, el, x.dataset.act + x.dataset.cd); }; }) });
+    $$('[data-agf]', box).forEach(b => b.onclick = () => { st.f = b.dataset.agf === 'asks' || b.dataset.agf === 'gots' ? 'all' : b.dataset.agf; this.agTable(r, g, el); });
+    $$('[data-agf]', box).forEach(b => { const k = b.dataset.agf, L = k === 'all' || k === 'asks' || k === 'gots' ? A : A.filter(a => k === 'old' ? a.status === 'Pending' && a.age >= 30 : a.status === k);
+      b.onmouseenter = () => this.agTip(b, null, null, L); b.onmouseleave = () => this.agTip(null); });
+  },
+  agTip(el, a, E, list) {
+    let t = $('#agTip'); if (!el) { if (t) t.remove(); return; }
+    if (!t) { t = document.createElement('div'); t.id = 'agTip'; t.className = 'ag-tip'; document.body.appendChild(t); }
+    t.innerHTML = list ? `<b>${list.length} agencies / persons</b>${list.slice(0, 8).map(a => `<div>${a.status === 'Pending' ? '⏳' : '✅'} ${esc(a.en)}${a.age ? ` <i>${a.age} d</i>` : ''}</div>`).join('')}${list.length > 8 ? `<div class="muted">+ ${list.length - 8} more – click</div>` : ''}`
+      : `<b>${esc(a.en)}</b> · ${E[0].act === 'ask' ? '📨 Asked' : '📥 Received'} in CD ${E[0].cd}${E[0].date ? ' · ' + esc(this.dmy(E[0].date)) : ''}${E.map(e => `<div class="ag-tx">${esc(e.s)}</div>`).join('')}<div class="muted">Click for the full record</div>`;
+    const r = el.getBoundingClientRect(); t.style.left = Math.min(innerWidth - 440, Math.max(8, r.left)) + 'px'; t.style.top = (r.bottom + 6 + 260 > innerHeight ? Math.max(8, r.top - 6 - t.offsetHeight) : r.bottom + 6) + 'px';
+  },
+  agOne(a, el, mark) {
+    if (!a) return; const E = [...a.ask, ...a.got].sort((x, y) => x.cd - y.cd || (x.act === 'ask' ? -1 : 1));
+    const b = UI.modal('🏢 ' + a.en, `<div class="row" style="gap:8px;flex-wrap:wrap;align-items:center">${this.chip(a.status)}${a.age ? `<b class="bad-t">${a.age} days pending</b>` : ''}<span class="small muted">${esc(a.hi)}</span><span class="spacer"></span><span class="small">📨 Asked <b>${a.ask.length}</b> · 📥 Received <b>${a.got.length}</b></span></div>
+      <div class="ag-tl">${E.map(e => `<div class="ag-ev ${e.act} ${mark === e.act + e.cd ? 'mark' : ''}"><div class="ag-evh"><span class="ag-cd ${e.act}">CD ${e.cd}</span><b>${e.act === 'ask' ? '📨 Asked / Sent' : '📥 Reply Received'}</b><span class="small muted">${esc(this.dmy(e.date) || '')}</span><span class="spacer"></span><button class="btn sm" data-ocd="${e.cd}">📖 Open CD ${e.cd}</button></div><div class="ag-evt">${esc(e.s)}</div></div>`).join('')}</div>
+      ${a.status === 'Pending' && a.nt ? '<p class="small muted">Reply still pending – draft a reminder from 💡 Suggestions To IO.</p>' : ''}`, [{ label: 'Close', onClick: UI.closeModal }]);
+    const m = $('.ag-ev.mark', b); if (m) setTimeout(() => m.scrollIntoView({ block: 'center' }), 50);
+    $$('[data-ocd]', b).forEach(x => x.onclick = () => { const l = (this._m && this._m.r.L || []).find(l => String(l.no) === x.dataset.ocd), sel = $('#ccDoc', el); UI.closeModal(); if (l && sel) { sel.value = 'cd' + l.i; sel.dispatchEvent(new Event('change')); sel.scrollIntoView({ block: 'center' }); } });
+  },
   glance(el) {
     const st = CCTNS.st(), c = activeCase(), r = this.analyse();
     const at = $('.cc-case', el); if (!at) return;
@@ -14464,7 +14549,7 @@ const CDX = {
     Table($('#cdxI', g), { rows: r.items, pageSize: 10, exportName: 'fir_items_status', columns: [{ key: 'type', label: 'Type', render: x => esc(({ mobile: '📱 Mobile', account: '🏦 Account', url: '🌐 Web Link', upi: '💸 UPI', other: '• Other' })[x.type]) }, { key: 'value', label: 'Named In FIR', render: x => `<b class="mono">${esc(x.value)}</b>` }, { key: 'need', label: 'Required' }, { key: 'from', label: 'From Whom' },
       { key: 'status', label: 'Status', render: x => this.chip(x.status) + (x.age ? ` <small class="bad-t">${x.age} days</small>` : '') }, { key: 'kyc', label: 'Received Details', render: x => esc([x.kyc && 'Holder: ' + x.kyc, x.ip && 'IP: ' + x.ip].filter(Boolean).join(' · ') || (x.got ? x.got.s : x.ask ? 'Asked: ' + x.ask.s : '')) }, { key: 'cd', label: 'CD', render: x => x.got ? 'CD ' + x.got.cd : x.ask ? 'CD ' + x.ask.cd : '' },
       { key: 'act', label: '', render: (x, i) => x.status !== 'Received' && x.nt ? `<button class="btn sm srch" data-ni="${esc(x.value)}">Draft Notice</button>` : '' }], onRow: x => typeof Dash2 !== 'undefined' && Dash2.track(x.value) });
-    Table($('#cdxA', g), { rows: r.agencies, pageSize: 10, exportName: 'agency_status', columns: [{ key: 'en', label: 'Agency / Person', render: a => `<b>${esc(a.en)}</b>` }, { key: 'status', label: 'Status', render: a => this.chip(a.status) + (a.age ? ` <small class="bad-t">${a.age} days</small>` : '') }, { key: 'ask', label: 'Asked (CD)', render: a => esc(a.ask.map(e => e.cd).filter((v, i, A) => A.indexOf(v) === i).join(', ')) }, { key: 'got', label: 'Received (CD)', render: a => esc(a.got.map(e => e.cd).filter((v, i, A) => A.indexOf(v) === i).join(', ')) }, { key: 'last', label: 'Latest Entry', render: a => `<span class="small">${esc(a.last ? a.last.s : '')}</span>` }] });
+    this.agTable(r, g, el);
     $('#cdxS', g).innerHTML = r.sugg.length ? r.sugg.map((s, i) => `<div class="cdx-sg"><span>${i + 1}.</span><div class="grow">${esc(s.en)}<div class="small muted">${esc(s.hi)}</div></div>${s.act && s.act.type ? `<button class="btn sm srch" data-sg="${i}">Draft Notice</button>` : ''}</div>`).join('') : '<div class="good-t small">No pending suggestion.</div>';
     $('#cdxSec', g).innerHTML = `<table class="tbl cdx-sec"><thead><tr><th>Section</th><th>Check</th><th>Reason</th></tr></thead><tbody>${r.secs.map(s => `<tr><td><b>${esc(s.sec)}</b>${s.hi ? `<div class="small muted">${esc(s.hi)}</div>` : ''}</td><td>${s.state === 'ok' ? '<span class="cdx-st good">✔ In FIR</span>' : s.state === 'review' ? '<span class="cdx-st warn">? Review</span>' : '<span class="cdx-st bad">＋ Consider Adding</span>'}</td><td class="small">${esc(s.why)}</td></tr>`).join('')}</tbody></table>`;
     Table($('#cdxT', g), { rows: r.L.map(l => ({ l, no: l.no, date: this.dmy(l.prep), file: l.x.file, work: this.cut(l.body, 260) })), pageSize: 10, sortKey: 'no', exportName: 'case_diary_work', columns: [{ key: 'no', label: 'CD No.', num: true, render: x => `<b>${x.no || '?'}</b>${x.l.fileNo && x.l.fileNo !== x.no ? ` <span class="cdx-st warn" title="File name says CD ${x.l.fileNo}">file: ${x.l.fileNo}</span>` : ''}` }, { key: 'date', label: 'Date' }, { key: 'work', label: 'Work Done', render: x => `<span class="small">${esc(x.work)}</span>` }, { key: 'file', label: 'File' }],
@@ -15187,7 +15272,7 @@ const OneFile = {
 .of[contenteditable=true]{outline:3px dashed #f59e0b;outline-offset:4px}.of[contenteditable=true] .tx{max-height:none}
 .of .g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}.of .box{border:1px solid #e2e8f0;border-radius:10px;padding:8px 12px}.of .box.g{border-color:#86efac;background:#f0fdf4}.of .box.r{border-color:#fca5a5;background:#fef2f2}
 .of .st{display:inline-block;padding:1px 8px;border-radius:99px;font-size:11px;font-weight:700}.of .st.g{background:#dcfce7;color:#166534}.of .st.w{background:#fef3c7;color:#92400e}.of .st.b{background:#fee2e2;color:#991b1b}.of .st.i{background:#e0e7ff;color:#3730a3}
-.of .mono{font-family:Consolas,monospace}.of .mu{color:#64748b;font-size:12px}.of ul.ck{list-style:none;padding:0;margin:4px 0}.of ul.ck li{padding:4px 0;border-bottom:1px dashed #e2e8f0}
+.of .mono{font-family:Consolas,monospace}.of .mu{color:#64748b;font-size:12px}.of ul.of-todo{list-style:none;padding:0;margin:4px 0}.of ul.of-todo li{padding:4px 0;border-bottom:1px dashed #e2e8f0}
 .of details.cd{border:1px solid #e2e8f0;border-radius:10px;margin:6px 0}.of details.cd>summary{cursor:pointer;padding:7px 10px;display:flex;gap:10px;align-items:baseline}.of details.cd>summary b{min-width:58px}.of details.cd .in{padding:4px 12px 10px}
 .of .nos{display:flex;flex-wrap:wrap;gap:4px;margin:4px 0 8px}.of .nos span{min-width:30px;text-align:center;padding:2px 6px;border-radius:6px;font-size:12px;font-weight:700;background:#dcfce7;color:#166534}.of .nos span.x{background:#fee2e2;color:#991b1b}
 .of .ft{padding:10px 18px;font-size:11px;color:#64748b;background:#f8fafc}
@@ -15233,7 +15318,7 @@ const OneFile = {
       <div><h4>📦 Data In This Case</h4>${this.kv(cnt.map(([k, v]) => [k, fmtNum(v)]))}<h4>💰 Money</h4>${this.kv([['Amount Defrauded', amount ? fmtINR(amount) : ''], ['On Hold / Lien', hold ? fmtINR(hold) : ''], ['Accounts In Trail', acc.length ? fmtNum(acc.length) : ''], ['Mule Accounts (≥60)', mule.length ? fmtNum(mule.length) : ''], ['Layers', comps.length ? Math.max(0, ...comps.map(x => x.layers || 0)) || '' : '']])}</div></div>`);
     /* 3 · what to do */
     const top = acc.slice().sort((a, b) => b.score - a.score || b.inAmt - a.inAmt).slice(0, 10);
-    h += this.sec(++n, '🧭', 'What To Do – Investigation & Analysis', `<ul class="ck">${W.map(w => `<li>${w.status === 'Done' ? '✅' : w.status === 'n/a' ? '➖' : '⏳'} <b>${E(w.title)}</b> ${this.st(w.status)}<div class="mu">${E(w.detail || '')}${w.demand ? ' · From: ' + E(w.demand) : ''}</div></li>`).join('') || '<li class="mu">Import the FIR, case diary and money trail to build the work list.</li>'}</ul>` +
+    h += this.sec(++n, '🧭', 'What To Do – Investigation & Analysis', `<ul class="of-todo">${W.map(w => `<li>${w.status === 'Done' ? '✅' : w.status === 'n/a' ? '➖' : '⏳'} <b>${E(w.title)}</b> ${this.st(w.status)}<div class="mu">${E(w.detail || '')}${w.demand ? ' · From: ' + E(w.demand) : ''}</div></li>`).join('') || '<li class="mu">Import the FIR, case diary and money trail to build the work list.</li>'}</ul>` +
       (top.length ? `<h4>🎯 Suspect Accounts To Act On First</h4>` + this.tbl([['Account', a => `<b class="mono">${E(a.acc)}</b>`], ['Bank', a => E(String(a.bank || '').split(' / ')[0])], ['Name', a => E(String(a.name || '').split(' / ')[0])], ['Layer', a => a.layer || ''], ['Received', a => a.inAmt ? fmtINR(a.inAmt) : ''], ['On Hold', a => a.hold ? fmtINR(a.hold) : ''], ['Risk', a => `<b>${a.score}</b>`]], top) : ''), WP.length ? WP.length + ' pending' : '');
     /* 4 · intermediaries */
     const byBank = [...groupBy(acc, a => (String(a.bank || '').split(' / ')[0] || 'Bank not known').toUpperCase())].map(([b, L2]) => ({ b, n: L2.length, amt: sum(L2, a => a.inAmt || 0), hold: sum(L2, a => a.hold || 0), kyc: L2.filter(a => !(d.kyc || []).some(k => N.acc(k.acc) === N.acc(a.acc))).length })).sort((a, b) => b.amt - a.amt);
@@ -15324,7 +15409,7 @@ const OneFile = {
     XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(sum), 'Summary');
     $$('details.s', box).forEach((d, i) => { const rows = [], sm = $('summary', d).cloneNode(true); $$('.n, .c', sm).forEach(x => x.parentNode.removeChild(x)); const t = T(sm).replace(/\s+/g, ' ').trim(), cn = $('summary .c', d);
       rows.push([t, cn ? T(cn) : '']); rows.push([]);
-      $$('h4, table, .tx, .box > div:not(.g2), ul.ck > li, ol > li, details.cd > summary, .in > div', $('.b', d)).forEach(x => {
+      $$('h4, table, .tx, .box > div:not(.g2), ul.of-todo > li, ol > li, details.cd > summary, .in > div', $('.b', d)).forEach(x => {
         if (x.closest('table') && x.tagName !== 'TABLE') return;
         if (x.tagName === 'TABLE') { $$('tr', x).forEach(tr => rows.push([...tr.cells].map(td => T(td)))); rows.push([]); }
         else if (x.tagName === 'H4') rows.push([T(x).toUpperCase()]);

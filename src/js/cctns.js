@@ -135,8 +135,8 @@ const CCTNS = {
       const cc = d.cctns || {}, pend = W.filter(w => w.status === 'Pending');
       return ({ id: c.id, name: c.name, fir: c.fir || '', ps: c.ps || '', io: c.io || '', section: c.section || '', status: c.status || 'Pending', complaints: (d.ncrp || []).length, txns: (d.txns || []).length,
         amount: sum(d.ncrp || [], r => +r.amount || 0), cd: (cc.cd || []).length, lastCd: CDX.lastDate(cc.cd), cdLast: CDX.lastNo(cc.cd), cdGap: CDX.gaps(cc.cd), firUp: cc.fir ? 'Yes' : 'No',
-        done: W.filter(w => w.status === 'Done').length, pending: pend.length, pendList: pend.map(w => w.title).join('; '), notices: (cc.notices || []).length, cur: c.id === S.caseId, fin: (c.final || {}).type || '', finNo: (c.final || {}).no || '', finDate: (c.final || {}).date || '', finInfo: c.final ? this.finTxt(c.final) : '', docs: (cc.files || []).length }); };
-      out.push(c.id === S.caseId ? await mk1() : await Vault.sum(c.id, 'cc', 'v1|' + JSON.stringify(c) + '|' + today(), mk1));
+        done: W.filter(w => w.status === 'Done').length, pending: pend.length, pendList: pend.map(w => w.title).join('; '), notices: (cc.notices || []).length, cur: c.id === S.caseId, fin: (c.final || {}).type || '', finNo: (c.final || {}).no || '', finDate: (c.final || {}).date || '', finInfo: c.final ? this.finTxt(c.final) : '', docs: (cc.files || []).length, bn: this.bn(c, d) }); };
+      out.push(c.id === S.caseId ? await mk1() : await Vault.sum(c.id, 'cc', 'v2|' + JSON.stringify(c) + '|' + today(), mk1));
       await new Promise(r => setTimeout(r, 0));
     }
     return out;
@@ -147,7 +147,7 @@ const CCTNS = {
     const st = this.st(), c = activeCase(), W = this.work(), F = st.fir ? this.facts(st.fir.text) : null;
     const pend = W.filter(w => w.status === 'Pending'), done = W.filter(w => w.status === 'Done');
     el.innerHTML = `<div class="card cc-all"><div class="d2-hd"><h3>📚 All cases</h3><span class="sub">Search any case, see its work done and pending. Click a row to open that case here.</span></div><div class="kpis kpis-sm" id="ccK"></div><div id="ccAll" class="muted small">Reading your cases…</div></div>
-      <div class="cc-case card"><div class="cc-head"><div><div class="small muted">THIS CASE</div><h3 style="margin:2px 0">${esc(c.name || '')}${c.final ? ` <span class="cc-fin ${(this.FIN[c.final.type] || this.FIN.CS)[2]}" title="${esc(this.finTxt(c.final))}">${c.final.type === 'PPI' ? '📘 CS-PPI' : c.final.type === 'CS' ? '📗 Charge Sheet' : '📕 Final Report'}${c.final.no ? ' No. ' + esc(c.final.no) : ''}${c.final.date ? ' · ' + esc(this.dmy(c.final.date)) : ''}</span>` : ''}</h3><div class="small">${[c.fir && 'FIR ' + c.fir, c.ps && 'PS ' + c.ps, c.section, c.io && 'IO ' + c.io].filter(Boolean).map(esc).join(' · ') || '<span class="muted">Add FIR, PS, sections in Case File & Notices › Case Details – or upload the FIR, they are read from it.</span>'}</div></div>
+      <div class="cc-case card"><div class="cc-head"><div><div class="small muted">THIS CASE</div><h3 style="margin:2px 0">${esc(c.name || '')}${c.final ? ` <span class="cc-fin ${(this.FIN[c.final.type] || this.FIN.CS)[2]}" title="${esc(this.finTxt(c.final))}">${c.final.type === 'PPI' ? '📘 CS-PPI' : c.final.type === 'CS' ? '📗 Charge Sheet' : '📕 Final Report'}${c.final.no ? ' No. ' + esc(c.final.no) : ''}${c.final.date ? ' · ' + esc(this.dmy(c.final.date)) : ''}</span>` : ''} ${this.bnBadge(this.bn(c))}</h3><div class="small">${[c.fir && 'FIR ' + c.fir, c.ps && 'PS ' + c.ps, c.section, c.io && 'IO ' + c.io].filter(Boolean).map(esc).join(' · ') || '<span class="muted">Add FIR, PS, sections in Case File & Notices › Case Details – or upload the FIR, they are read from it.</span>'}</div></div>
         <div class="cc-btns"><button class="btn primary" id="ccFir">📄 Upload FIR</button><button class="btn" id="ccCd">📒 Add case diary part</button><button class="btn" id="ccUp" title="Any document of this case: bank / telecom replies, statements, memos, court orders, photos…">📎 Upload Case related Documents</button><button class="btn cc-cs ${c.final && c.final.type === 'CS' ? 'on' : ''}" id="ccCS" title="Record the Charge Sheet (CS) of this case">📗 CS</button><button class="btn cc-ppi ${c.final && c.final.type === 'PPI' ? 'on' : ''}" id="ccPPI" title="Charge Sheet filed, further investigation pending (PPI)">📘 CS-PPI</button><button class="btn cc-fr ${c.final && c.final.type === 'FR' ? 'on' : ''}" id="ccFR" title="Record the Final Report (FR) of this case">📕 FR</button><button class="btn" id="ccNew">✍ Type a CD entry</button><button class="btn srch" id="ccNt">⚖ Draft BNSS notice</button></div></div>
         <div class="cc-prog"><div class="cc-bar"><i style="width:${Math.round(done.length / Math.max(1, done.length + pend.length) * 100)}%"></i></div><span><b>${done.length}</b> done · <b class="bad-t">${pend.length}</b> pending</span></div></div>
       <div class="grid g2 cc-g">
@@ -188,6 +188,7 @@ const CCTNS = {
     $('#ccUp', el).onclick = () => this.docUpload();
     $('#ccCS', el).onclick = () => this.finEdit('CS'); $('#ccPPI', el).onclick = () => this.finEdit('PPI'); $('#ccFR', el).onclick = () => this.finEdit('FR');
     this.docList($('#ccDocs', el));
+    $$('[data-bn]', el).forEach(b => b.onclick = () => this.bnEdit(c));
     // notices list
     if (st.notices.length) Table($('#ccN', el), { rows: st.notices.slice().reverse(), pageSize: 10, exportName: 'notices', columns: [{ key: 'when', label: 'When', render: r => esc(r.when.slice(0, 16).replace('T', ' ')) }, { key: 'name', label: 'Notice' }, { key: 'to', label: 'To' }], onRow: r => { const b = UI.drawer(r.name, `<textarea style="min-height:520px;font-family:Georgia,serif;font-size:14px">${esc(r.text)}</textarea><div class="row" style="margin-top:8px"><button class="btn" id="nP">🖨 Print</button></div>`); $('#nP', b).onclick = () => Reports.printText(r.text); } });
     else $('#ccN', el).innerHTML = '<div class="muted small">No notice saved yet. Use <b>Draft notice</b> on a pending item, or <b>Draft BNSS notice</b> above.</div>';
@@ -202,12 +203,38 @@ const CCTNS = {
       $('#ccAll', el).classList.remove('muted', 'small');
       Table($('#ccAll', el), { rows: R, pageSize: 10, sortKey: 'pending', sortDir: -1, exportName: 'all_cases_cctns', onRow: r => { if (!r.cur) switchCase(r.id); },
         columns: [{ key: 'name', label: 'Case', render: r => `<b>${esc(r.name)}</b>${r.cur ? ' <span class="badge info">open</span>' : ''}<div class="small muted">${esc([r.fir && 'FIR ' + r.fir, r.ps, r.section].filter(Boolean).join(' · '))}</div>` },
-          { key: 'status', label: 'Status', render: r => r.fin ? `<span class="cc-fin ${(this.FIN[r.fin] || this.FIN.CS)[2]}">${r.fin === 'PPI' ? 'CS-PPI' : r.fin}${r.finNo ? ' ' + esc(r.finNo) : ''}</span>` : esc(r.status) }, { key: 'complaints', label: 'Complaints', num: true }, { key: 'amount', label: 'Amount', num: true, render: r => r.amount ? fmtINR(r.amount) : '' }, { key: 'firUp', label: 'FIR read' }, { key: 'cd', label: 'CD Parts', num: true }, { key: 'cdLast', label: 'Last CD No.', num: true }, { key: 'lastCd', label: 'Last CD Date' }, { key: 'cdGap', label: 'Missing CD', render: r => r.cdGap ? `<b class="bad-t">${esc(r.cdGap)}</b>` : '' },
+          { key: 'status', label: 'Status', render: r => r.fin ? `<span class="cc-fin ${(this.FIN[r.fin] || this.FIN.CS)[2]}">${r.fin === 'PPI' ? 'CS-PPI' : r.fin}${r.finNo ? ' ' + esc(r.finNo) : ''}</span>` : esc(r.status) }, { key: 'bn', label: 'CS / FR Due (BNSS 187)', sortVal: r => r.bn && r.bn.start ? r.bn.left : 1e9, render: r => this.bnBadge(r.bn, true) }, { key: 'complaints', label: 'Complaints', num: true }, { key: 'amount', label: 'Amount', num: true, render: r => r.amount ? fmtINR(r.amount) : '' }, { key: 'firUp', label: 'FIR read' }, { key: 'cd', label: 'CD Parts', num: true }, { key: 'cdLast', label: 'Last CD No.', num: true }, { key: 'lastCd', label: 'Last CD Date' }, { key: 'cdGap', label: 'Missing CD', render: r => r.cdGap ? `<b class="bad-t">${esc(r.cdGap)}</b>` : '' },
           { key: 'done', label: 'Done', num: true }, { key: 'pending', label: 'Pending', num: true, render: r => r.pending ? `<b class="bad-t" title="${esc(r.pendList)}">${r.pending}</b>` : '0' }, { key: 'notices', label: 'Notices', num: true }] });
     });
   },
 
   /* ---------- CS / FR and case documents ---------- */
+  /* BNSS 187: CS / FR due – 90 days (death / life / 10+ years), 60 days otherwise; default bail after that */
+  HEAVY: /^(64|65|70|71|103|104|105|109|111|113|139|140|143|147|148|149|310|311|312|302|304|307|376|409|467|489A|489B|396|364|364A)$|^(309\((4|6)\)|316\(5\)|66F|118\(2\)|117\(3\)|61\(2\)\(a\))$/i,
+  bn(c, d) {
+    if (!c || (c.final && c.final.type)) return null;
+    const secs = String(c.section || '').replace(/\s+/g, '').match(/\d+[A-Z]?(\(\d+\))*(\([a-z]\))?/gi) || [], heavy = secs.some(t => this.HEAVY.test(t) || this.HEAVY.test(t.replace(/\(.*$/, '')));
+    let fd = c.firDate || ''; if (!fd) try { fd = CDX.iso(CDX.analyse(d || S.data, c).fir.date); } catch (e) { }
+    const start = c.d187 || fd, limit = +c.lim187 || (heavy ? 90 : 60);
+    if (!start) return { start: '', limit, heavy, fd };
+    const el = Math.floor((new Date(today()) - new Date(start)) / 864e5), left = limit - el;
+    return { start, kind: c.d187 ? (c.d187k === 'fir' ? 'FIR date' : 'Arrest / first remand') : 'FIR date', limit, heavy, el, left, fd, pc: limit === 90 ? 60 : 40 };
+  },
+  bnBadge(b, small) {
+    if (!b) return '';
+    if (!b.start) return small ? '<span class="muted small">Set date</span>' : `<button class="bn-due nodate" data-bn title="Set the FIR / arrest date to count the BNSS 187 days"><i class="bn-dot r"></i>CS / FR Due: Set Start Date</button>`;
+    const t = `BNSS 187 – ${b.limit} days (${b.heavy ? 'death / life / 10+ years' : 'other offences'}) from ${b.kind} ${this.dmy(b.start)}. Police custody up to 15 days, in parts, within the first ${b.pc} days. After ${b.limit} days without CS / FR the accused gets default bail.`;
+    return `<${small ? 'span' : 'button'} class="bn-due ${b.left < 0 ? 'over' : ''} ${small ? 'sm' : ''}" ${small ? '' : 'data-bn'} title="${esc(t)}"><i class="bn-dot ${b.left > 10 ? 'g' : 'r'}"></i>${small ? '' : '<b>CS / FR Due:</b> '}${b.left >= 0 ? `${b.left} Days Left` : `Overdue ${-b.left} Days`}<small>Day ${Math.max(0, b.el)} of ${b.limit}</small></${small ? 'span' : 'button'}>`;
+  },
+  bnEdit(c) {
+    const b = this.bn(c) || {};
+    const m = UI.modal('⏳ CS / FR Due – BNSS 187', `<div class="bn-info"><b>BNSS Section 187</b><ul><li><b>90 days</b> – offences punishable with death, life imprisonment or 10 years and more.</li><li><b>60 days</b> – all other offences.</li><li>If the Charge Sheet / Final Report is not filed in time, the accused gets <b>default bail</b>.</li><li>Police custody: up to <b>15 days</b> in total, in parts, within the first <b>40 days</b> (60-day cases) or <b>60 days</b> (90-day cases).</li></ul></div>
+      <div class="map-grid"><label>Count From<select id="bnK"><option value="fir" ${c.d187k !== 'arrest' ? 'selected' : ''}>FIR Date</option><option value="arrest" ${c.d187k === 'arrest' ? 'selected' : ''}>Arrest / First Remand Date</option></select></label>
+      <label>Start Date<input type="date" id="bnD" value="${esc(c.d187 || b.fd || '')}"></label>
+      <label>Limit<select id="bnL"><option value="">Auto – ${b.heavy ? '90' : '60'} days (from sections)</option><option value="60" ${+c.lim187 === 60 ? 'selected' : ''}>60 Days</option><option value="90" ${+c.lim187 === 90 ? 'selected' : ''}>90 Days</option></select></label></div>
+      <p class="small muted">Sections: ${esc(c.section || 'not set')}. Auto limit is worked out from the sections – check and change it if needed.</p>`,
+      [{ label: 'Save', cls: 'primary', onClick: async () => { const k = $('#bnK', m).value, dt = $('#bnD', m).value; if (k === 'fir' && dt === b.fd) { delete c.d187; } else c.d187 = dt; c.d187k = k; c.lim187 = +$('#bnL', m).value || 0; if (!c.d187) delete c.d187k; await saveMeta(); UI.closeModal(); UI.toast('BNSS 187 dates saved'); render(); } }, { label: 'Close', onClick: UI.closeModal }]);
+  },
   dmy(d) { return d && /^\d{4}-\d\d-\d\d/.test(d) ? d.slice(0, 10).split('-').reverse().join('-') : (d || ''); },
   FRT: ['Untraced (accused not found)', 'Mistake of fact', 'Mistake of law', 'False case', 'Civil nature', 'No offence made out', 'Insufficient evidence', 'Other'],
   FIN: { CS: ['📗', 'CS – Charge Sheet', 'cs'], PPI: ['📘', 'CS-PPI – Charge Sheet, Pending Further Investigation', 'ppi'], FR: ['📕', 'FR – Final Report', 'fr'] },

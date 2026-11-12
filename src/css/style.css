@@ -2106,3 +2106,30 @@ html.no-crimeEdit #cdImpM,html.no-crimeEdit #cdScan,html.no-crimeEdit #cdFile,ht
 .pk-i{grid-row:span 2;font-size:30px}.pk-t b{font-size:17px}.pk-n{grid-row:span 2;font-size:30px;font-weight:800;color:var(--c)}
 .pk-t small{color:var(--text-muted);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pk-wait{opacity:.6;pointer-events:none}
+
+/* CCTNS: From Whom – Asked & Received */
+.ag-k{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin:6px 0 10px}
+@media (max-width:1200px){.ag-k{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.ag-kb{display:flex;flex-direction:column;align-items:flex-start;padding:10px 12px;border-radius:12px;cursor:pointer;color:var(--text);border:1px solid color-mix(in srgb,var(--c) 55%,var(--border));background:linear-gradient(135deg,color-mix(in srgb,var(--c) 22%,transparent),transparent)}
+.ag-kb span{font-size:16px}.ag-kb b{font-size:22px;line-height:1.1}.ag-kb small{font-size:11.5px;color:var(--text-muted);font-weight:600}
+.ag-kb.on,.ag-kb:hover{box-shadow:0 0 0 2px var(--c)}
+.ag-cds{display:flex;flex-wrap:wrap;gap:4px}
+.ag-cd{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11.5px;font-weight:700;cursor:pointer;white-space:nowrap;border:1px solid}
+.ag-cd.ask{background:rgba(217,119,6,.15);border-color:rgba(217,119,6,.55);color:#f59e0b}.ag-cd.got{background:rgba(22,163,74,.15);border-color:rgba(22,163,74,.55);color:#22c55e}
+.ag-cd:hover{filter:brightness(1.25);box-shadow:0 0 0 2px currentColor}
+.ag-tip{position:fixed;z-index:9999;max-width:430px;padding:10px 12px;border-radius:10px;background:var(--bg-1,#0f172a);border:1px solid var(--border);box-shadow:0 12px 30px rgba(0,0,0,.45);font-size:12.5px;line-height:1.45;pointer-events:none;color:var(--text)}
+.ag-tip .ag-tx{margin-top:6px;padding-top:6px;border-top:1px dashed var(--border)}.ag-tip i{color:#f59e0b;font-style:normal}
+.ag-tl{margin-top:12px;display:flex;flex-direction:column;gap:8px;max-height:60vh;overflow:auto}
+.ag-ev{border:1px solid var(--border);border-left:4px solid #f59e0b;border-radius:10px;padding:8px 10px}.ag-ev.got{border-left-color:#22c55e}.ag-ev.mark{box-shadow:0 0 0 2px var(--accent)}
+.ag-evh{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.ag-evt{margin-top:6px;font-size:13px;line-height:1.5}
+
+/* CCTNS: CS / FR due badge – BNSS 187 */
+.bn-due{display:inline-flex;align-items:center;gap:7px;padding:4px 12px;border-radius:999px;background:linear-gradient(135deg,#a16207,#eab308 55%,#ca8a04);color:#fff;font-weight:700;font-size:12.5px;border:1px solid #fde047;text-shadow:0 1px 2px rgba(0,0,0,.45);cursor:pointer;vertical-align:middle;box-shadow:0 2px 10px rgba(202,138,4,.4);white-space:nowrap;font-family:inherit}
+.bn-due b{color:#fff}.bn-due small{color:#fff;opacity:.95;font-weight:600;font-size:11px;padding-left:6px;border-left:1px solid rgba(255,255,255,.5)}
+.bn-due.sm{padding:2px 9px;font-size:11.5px;cursor:default}.bn-due.over{border-color:#fca5a5;box-shadow:0 0 0 2px rgba(239,68,68,.5)}.bn-due:hover{filter:brightness(1.08)}
+.bn-dot{width:10px;height:10px;border-radius:50%;flex:none;display:inline-block}
+.bn-dot.g{background:#22c55e;box-shadow:0 0 6px #22c55e,0 0 14px #4ade80;animation:bnBlink 1.1s infinite}
+.bn-dot.r{background:#ef4444;box-shadow:0 0 6px #ef4444,0 0 14px #f87171;animation:bnBlink .6s infinite}
+@keyframes bnBlink{0%,45%{opacity:1;transform:scale(1.1)}55%,100%{opacity:.2;transform:scale(.85)}}
+.bn-info{border:1px solid #ca8a04;border-left:4px solid #eab308;border-radius:10px;padding:8px 12px;margin-bottom:10px}.bn-info ul{margin:6px 0 0 18px;padding:0}.bn-info li{margin:3px 0}
+@media (prefers-reduced-motion:reduce){.bn-dot{animation:none}}
