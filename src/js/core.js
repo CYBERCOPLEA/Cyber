@@ -73,7 +73,7 @@ const S = {
 };
 const emptyCase = () => ({ txns: [], kyc: [], social: [], ncrp: [], caf: [], notes: [], tasks: [], idents: [], imports: [], google: [] });
 let saveTimer = null;
-const isScope = id => /^__(all|fir|ncrp)$/.test(id || '');
+const isScope = id => /^__(all|fir|ncrp|none)$/.test(id || '');
 function saveCase() {
   clearTimeout(saveTimer);
   if (isScope(S.caseId)) { if (typeof AllMode !== 'undefined') AllMode.warn(); Analysis.invalidate(); return; }

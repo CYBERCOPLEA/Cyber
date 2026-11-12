@@ -2107,6 +2107,14 @@ html.no-crimeEdit #cdImpM,html.no-crimeEdit #cdScan,html.no-crimeEdit #cdFile,ht
 .cl-st{margin:10px 0;padding:8px 12px;border-radius:9px;font-size:13px;background:rgba(22,163,74,.12);border:1px solid rgba(22,163,74,.45)}
 .cl-st.old{background:rgba(217,119,6,.12);border-color:rgba(217,119,6,.5)}.cl-st.bad{background:rgba(220,38,38,.1);border-color:rgba(220,38,38,.45)}
 
+/* Choose Data (fast open) */
+.pk-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin:14px 0}
+.pk-t{display:grid;grid-template-columns:auto 1fr auto;grid-template-rows:auto auto;gap:2px 12px;align-items:center;text-align:left;padding:16px 18px;border-radius:16px;cursor:pointer;color:var(--text);border:1px solid color-mix(in srgb,var(--c) 55%,var(--border));background:linear-gradient(135deg,color-mix(in srgb,var(--c) 26%,transparent),transparent 80%);transition:transform .12s,box-shadow .12s}
+.pk-t:hover{transform:translateY(-2px);box-shadow:0 10px 24px -10px var(--c)}
+.pk-i{grid-row:span 2;font-size:30px}.pk-t b{font-size:17px}.pk-n{grid-row:span 2;font-size:30px;font-weight:800;color:var(--c)}
+.pk-t small{color:var(--text-muted);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pk-wait{opacity:.6;pointer-events:none}
+
 </style>
 </head>
 <body>
@@ -2154,7 +2162,7 @@ html.no-crimeEdit #cdImpM,html.no-crimeEdit #cdScan,html.no-crimeEdit #cdFile,ht
         <div class="hp-feat" style="--fc:#06b6d4"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><div><b>Analytics</b><p>The same mobile, account, IP or e-mail across complaints, banks and platforms.</p></div></div>
         <div class="hp-feat" style="--fc:#eab308"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h5"/></svg></span><div><b>Case File &amp; Notices</b><p>Case reports, notices to banks and platforms, and CSV / PDF exports.</p></div></div>
     </section>
-    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-12 00:15 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
+    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-12 22:47 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
   </div>
 
   <div class="lg-wrap" id="lgWrap" aria-hidden="true">
@@ -2456,7 +2464,7 @@ const S = {
 };
 const emptyCase = () => ({ txns: [], kyc: [], social: [], ncrp: [], caf: [], notes: [], tasks: [], idents: [], imports: [], google: [] });
 let saveTimer = null;
-const isScope = id => /^__(all|fir|ncrp)$/.test(id || '');
+const isScope = id => /^__(all|fir|ncrp|none)$/.test(id || '');
 function saveCase() {
   clearTimeout(saveTimer);
   if (isScope(S.caseId)) { if (typeof AllMode !== 'undefined') AllMode.warn(); Analysis.invalidate(); return; }
@@ -5343,7 +5351,7 @@ async function start() {
   $('#main').innerHTML = '<div class="muted" style="padding:40px;font-size:16px">⏳ Opening your cases…</div>'; $('#caseSel').innerHTML = '<option>Opening…</option>';
   S.cases = await DB.get('cases') || []; S.caseId = await DB.get('caseId');
   if (!S.cases.length) { const c = { id: uid(), name: 'Case 1', created: new Date().toISOString(), status: 'Under investigation' }; S.cases.push(c); await DB.set('case:' + c.id, emptyCase()); S.caseId = c.id; }
-  if (isScope(S.caseId) && !AllMode.list(S.caseId).length) S.caseId = S.cases[0].id;
+  if (isScope(S.caseId) && S.caseId !== '__none' && !AllMode.list(S.caseId).length) S.caseId = S.cases[0].id;
   if (!isScope(S.caseId) && !S.cases.some(c => c.id === S.caseId)) S.caseId = S.cases[0].id;
   S.data = isScope(S.caseId) ? await AllMode.lazy(S.caseId) : Object.assign(emptyCase(), await DB.get('case:' + S.caseId) || {});
   await saveMeta(); fillCaseSel();
@@ -16737,6 +16745,44 @@ const Cloud = {
     $$('.cl-go', m).forEach(a => a.onclick = e => { e.preventDefault(); UI.closeModal(); go('settings'); setTimeout(() => { const c = $('#cloudCard'); c && c.scrollIntoView({ behavior: 'smooth' }); }, 400); });
     return r;
   };
+})();
+
+</script>
+<script>
+/* pickdata.js – fast open: after login nothing is loaded. The Dashboard shows a "Choose Data" screen (All Cases / FIR / NCRP /
+   one case) built only from the case list, so the tool opens at once. Choosing loads only that data. */
+'use strict';
+const PickData = {
+  PAGES: /^(dashboard|financial|social|ncrp|analytics|trail|caf|tele|others|search|cctns)$/,
+  on: () => S.caseId === '__none',
+  show(main) {
+    const F = S.cases.filter(c => AllMode.cat(c) === 'fir'), N = S.cases.filter(c => AllMode.cat(c) === 'ncrp'), st = this._st || (this._st = { q: '', f: '' });
+    const tile = (v, i, t, n, c, d) => `<button class="pk-t" data-pk="${v}" style="--c:${c}"><span class="pk-i">${i}</span><b>${t}</b><span class="pk-n">${fmtNum(n)}</span><small>${d}</small></button>`;
+    const q = st.q.toLowerCase(), L = S.cases.filter(c => (!st.f || AllMode.cat(c) === st.f) && (!q || [c.name, c.fir, c.ack, c.ps, c.io, c.section].join(' ').toLowerCase().includes(q)));
+    main.innerHTML = `<div class="hero-card dash-hero"><div class="dash-brand"><span class="ck-wrap db-mark"><i class="ck" aria-hidden="true"></i><span class="emblem emblem-sm" aria-hidden="true"></span></span><div class="db-txt"><div class="db-hi" lang="hi">सुदर्शनास्त्र</div><div class="db-en">SudarshanAshtra</div><div class="db-tag">Cyber Crime Analysis &amp; Tracking</div></div></div><div class="db-sep" aria-hidden="true"></div><div class="grow db-case"><div class="db-lbl">Choose Data</div><h2>What Do You Want To See?</h2><div class="sub2">Nothing is loaded yet, so the tool opens fast. Pick All Cases, FIR Cases, NCRP or one case – only that data is loaded. You can change it any time in the <b>CASE</b> box at the top ↑</div></div></div>
+      <div class="pk-tiles">${S.cases.length > 1 ? tile('__all', '🗂', 'All Cases', S.cases.length, '#6366f1', 'Every case together – analysis at a glance') : ''}${S.cases.length > 1 && F.length ? tile('__fir', '📁', 'FIR Cases', F.length, '#0891b2', 'Cases with an FIR number') : ''}${S.cases.length > 1 && N.length ? tile('__ncrp', '🧾', 'NCRP (Without FIR)', N.length, '#d97706', 'Complaints with no FIR yet') : ''}${S.prevCase && S.cases.some(c => c.id === S.prevCase) ? tile(S.prevCase, '⏮', 'Last Case', 1, '#16a34a', esc(AllMode.caseLabel(S.cases.find(c => c.id === S.prevCase)))) : ''}</div>
+      <div class="card"><div class="row" style="gap:8px;flex-wrap:wrap;align-items:center"><h3 class="grow" style="margin:0">📄 One Case <span class="badge">${fmtNum(L.length)}</span></h3><div class="seg"><button class="btn sm ${!st.f ? 'primary' : ''}" data-pf="">All (${S.cases.length})</button><button class="btn sm ${st.f === 'fir' ? 'primary' : ''}" data-pf="fir">FIR (${F.length})</button><button class="btn sm ${st.f === 'ncrp' ? 'primary' : ''}" data-pf="ncrp">NCRP (${N.length})</button></div><input id="pkQ" placeholder="Find case, FIR, Ack No., PS, IO…" value="${esc(st.q)}" style="max-width:300px"></div>
+        <div class="am-list" style="margin-top:12px">${L.map(c => `<button class="am-c" data-pk="${c.id}"><b>${esc(AllMode.caseLabel(c))}</b><small>${esc([AllMode.cat(c) === 'fir' ? 'FIR case' : 'NCRP – no FIR yet', c.ps, c.io && 'IO ' + c.io, c.final ? (c.final.type === 'PPI' ? 'CS-PPI' : c.final.type) : c.status].filter(Boolean).join(' · '))}</small></button>`).join('') || '<div class="muted">No case matches</div>'}</div></div>`;
+    $$('[data-pk]', main).forEach(b => b.onclick = () => { b.disabled = true; b.classList.add('pk-wait'); switchCase(b.dataset.pk); });
+    $$('[data-pf]', main).forEach(b => b.onclick = () => { st.f = b.dataset.pf; this.show(main); });
+    const qi = $('#pkQ', main); qi.oninput = () => { st.q = qi.value; const p = qi.selectionStart; this.show(main); const n = $('#pkQ', main); n.focus(); n.setSelectionRange(p, p); };
+  }
+};
+(() => {
+  AllMode.SC.__none = ['🏁', 'Choose Data'];
+  const ol = AllMode.list; AllMode.list = function (sc = S.caseId) { return sc === '__none' ? [] : ol.call(this, sc); };
+  const oo = AllMode.options; AllMode.options = function () { return `<option value="__none" ${S.caseId === '__none' ? 'selected' : ''}>🏁 Choose Data…</option>` + oo.apply(this, arguments); };
+  const lz = AllMode.lazy; AllMode.lazy = function (sc) { return sc === '__none' ? Promise.resolve(Object.assign(emptyCase(), { _all: '__none' })) : lz.apply(this, arguments); };
+  const rf = AllMode.refresh; AllMode.refresh = function () { if (S.caseId === '__none') { fillCaseSel(); return render(); } return rf.apply(this, arguments); };
+  const aw = AllMode.warn; AllMode.warn = function () { if (S.caseId === '__none') return UI.toast('Choose a case first – in the CASE box at the top', 4000); return aw.apply(this, arguments); };
+  const r0 = render; render = function () {
+    if (S.caseId === '__none' && PickData.PAGES.test(S.page)) { $$('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.page === S.page)); if (S.page !== 'dashboard') S.page = 'dashboard'; return PickData.show($('#main')); }
+    return r0.apply(this, arguments);
+  };
+  /* every fresh login starts on "Choose Data"; a page refresh keeps the choice */
+  const st0 = start; start = async function () { if (!sessionStorage.getItem('sud-picked')) { S.prevCase = await DB.get('caseId'); if (isScope(S.prevCase)) S.prevCase = null; await DB.set('caseId', '__none'); if (!S.settings.mustChange) S.page = 'dashboard'; } return st0.apply(this, arguments); };
+  const sw = switchCase; switchCase = async function (id) { try { sessionStorage.setItem('sud-picked', id === '__none' ? '' : '1'); } catch (e) { } return sw.apply(this, arguments); };
+  const lk = lock; lock = function () { try { sessionStorage.removeItem('sud-picked'); } catch (e) { } if (S.data && S.caseId && !isScope(S.caseId)) { clearTimeout(saveTimer); DB.set('case:' + S.caseId, S.data).catch(() => { }); } const r = lk.apply(this, arguments); S.data = null; return r; };
 })();
 
 </script>
