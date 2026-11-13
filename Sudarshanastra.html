@@ -2260,6 +2260,15 @@ html.ed-user .nav-bottom,html.ed-user #sidebar [data-page="settings"]{display:no
 .tg-sc{border:1px solid var(--c);background:color-mix(in srgb,var(--c) 14%,transparent);color:inherit;border-radius:999px;padding:3px 10px;font-size:12px;cursor:pointer}.tg-sc b{color:var(--c);margin-left:3px}.tg-sc.on{background:var(--c);color:#fff}.tg-sc.on b{color:#fff}.tg-sc.zero{opacity:.45}
 .tg-sp{display:inline-block;margin:1px 0;padding:0 7px;border-radius:999px;font-size:11px;border:1px solid var(--c);color:var(--c);white-space:nowrap}.tg-ty{font-size:15px}
 #tgT td:nth-child(3){min-width:190px;max-width:250px;white-space:normal}
+.lr-ks{display:flex;flex-wrap:wrap;gap:10px}.lr-k{flex:1 1 0;min-width:120px;display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:10px 14px;border-radius:14px;border:2px solid var(--c);background:color-mix(in srgb,var(--c) 16%,var(--panel,#111));color:inherit;cursor:pointer;text-align:left}
+.lr-k b{font-size:24px;color:var(--c)}.lr-k small{font-size:12px}.lr-k.on{box-shadow:0 0 0 3px color-mix(in srgb,var(--c) 45%,transparent)}.lr-k:hover{transform:translateY(-1px)}
+.lr-ro{display:inline-block;padding:0 7px;border-radius:999px;font-size:11px;font-weight:700;color:#fff;background:#0ea5e9}.lr-ro.EO{background:#0891b2}.lr-ro.IO{background:#2563eb}
+.lr-case{border:1px solid var(--border);border-radius:10px;margin:8px 0;overflow:hidden}.lr-ch{display:flex;gap:8px;align-items:center;padding:8px 12px;background:rgba(99,102,241,.1)}
+.lr-ol{margin:6px 0 10px 30px;padding:0;font-size:13px}.lr-ol li{padding:3px 0;cursor:pointer}.lr-ol li:hover{color:#6366f1}.lr-dt{font-family:monospace;font-size:12px;opacity:.8}
+.tr-wins{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.tr-win{flex:1 1 0;min-width:90px;display:flex;flex-direction:column;align-items:center;padding:8px;border-radius:999px;border:2px solid var(--c);background:color-mix(in srgb,var(--c) 16%,var(--panel,#111));color:inherit;cursor:pointer}.tr-win b{font-size:20px;color:var(--c)}.tr-win small{font-size:11.5px}.tr-win.on{box-shadow:0 0 0 3px color-mix(in srgb,var(--c) 45%,transparent)}
+.tr-cols{display:flex;gap:3px;align-items:flex-end}.tr-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;padding:2px 0;border:1px solid transparent;border-radius:6px;background:none;color:inherit;cursor:pointer;min-width:0}.tr-col:hover,.tr-col.on{border-color:var(--border);background:rgba(99,102,241,.14)}
+.tr-cb{height:70px;width:70%;display:flex;align-items:flex-end}.tr-cb i{display:block;width:100%;background:linear-gradient(#f97316,#e11d48);border-radius:4px 4px 0 0;min-height:1px}.tr-col b{font-size:11px}.tr-col small{font-size:10px;opacity:.75}
+.lr-ro{white-space:nowrap}
 
 </style>
 </head>
@@ -2308,7 +2317,7 @@ html.ed-user .nav-bottom,html.ed-user #sidebar [data-page="settings"]{display:no
         <div class="hp-feat" style="--fc:#06b6d4"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><div><b>Analytics</b><p>The same mobile, account, IP or e-mail across complaints, banks and platforms.</p></div></div>
         <div class="hp-feat" style="--fc:#eab308"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h5"/></svg></span><div><b>Case File &amp; Notices</b><p>Case reports, notices to banks and platforms, and CSV / PDF exports.</p></div></div>
     </section>
-    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-13 13:24 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
+    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-13 13:53 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
   </div>
 
   <div class="lg-wrap" id="lgWrap" aria-hidden="true">
@@ -16891,6 +16900,7 @@ const EO = {
     const doc = b => `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${esc(C.title || 'Enquiry Report')}</title><style>@page{size:A4 ${b.o ? 'portrait' : 'landscape'};margin:1.3cm}body{margin:0;background:#fff}${b.css}</style></head><body>${b.inner}</body></html>`;
     $$('[data-er]', m).forEach(btn => btn.onclick = async () => { await take(); const b = build(), k = btn.dataset.er;
       if (!b.R.length) return UI.toast('No enquiry to report');
+      if (typeof Letters !== 'undefined') Letters.log({ role: 'EO', how: k === 'pdf' ? 'print' : k, title: fn(), html: doc(b), caseTxt: b.R.length === 1 ? 'Enquiry ' + this.caseNo(b.R[0]) : b.R.length + ' Enquiries (EO Report)', subject: 'Enquiry Report – ' + (b.R.length === 1 ? 'SR ' + (b.R[0].sr || '') + ' · ' + this.caseNo(b.R[0]) : b.R.length + ' enquiries') });
       if (k === 'html') UI.download(fn() + '.html', doc(b), 'text/html');
       else if (k === 'word') UI.download(fn() + '.doc', doc(b).replace('<html>', '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word">'), 'application/msword');
       else if (k === 'pdf') { const w = window.open('', '_blank'); if (!w) return UI.toast('Pop-up blocked – allow pop-ups to print'); w.document.write(doc(b).replace('<body>', '<body><button onclick="print()" class="np" style="margin:10px">🖨 Print / Save as PDF</button><style>@media print{.np{display:none}}</style>')); w.document.close(); setTimeout(() => { try { w.print(); } catch (e) { } }, 400); }
@@ -16971,21 +16981,55 @@ const Trend = {
       await new Promise(r => setTimeout(r, 0));
     }
     try { const C = await EO.cfg(); for (const e of await EO.list()) R.push({ src: 'EO', caseId: '', case: [e.type, EO.caseNo(e)].filter(Boolean).join(' '), ack: e.type === 'NCRP' ? e.no : '', fir: e.fir && e.fir.no || '', type: this.type(e.brief + ' ' + (e.notes || '')), cat: (EO.TYPES[e.type] || [])[1] || '', state: '', district: (e.fir && e.fir.district) || '', ps: (e.fir && e.fir.ps) || '', zone: '', inc: 0, rep: this.ts(e.recv), amount: +e.amount || 0, ids: [], io: e.fir && e.fir.io || '', eo: [C.eo, C.desig].filter(Boolean).join(', ') }); } catch (e) { }
+    try { this._tg = await Target.collect(force); } catch (e) { this._tg = []; }
     this._t = Date.now(); return (this._d = R);
   },
+  /* suspects (targets) behind each record: same identifier, or a target found in the same case */
+  link(A) {
+    const T = this._tg || [], V = new Map(), C = new Map(), nv = v => { v = String(v || '').toLowerCase().replace(/\s/g, ''); return /^\+?\d{10,13}$/.test(v) ? v.slice(-10) : v; };
+    T.forEach(t => { [t.acc, ...t.mobile, ...t.upi, ...t.email].forEach(v => { const k = nv(v); if (k) (V.get(k) || V.set(k, []).get(k)).push(t); }); t.cases.forEach(c => (C.get(c.id) || C.set(c.id, []).get(c.id)).push(t)); });
+    A.forEach(r => { const s = new Set(); r.ids.forEach(i => (V.get(nv(i.v)) || []).forEach(t => s.add(t))); if (r.caseId) (C.get(r.caseId) || []).forEach(t => s.add(t)); r.tg = [...s]; });
+  },
+  DOW: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+  PAL: ['#6366f1', '#f97316', '#16a34a', '#0ea5e9', '#e11d48', '#a855f7', '#eab308', '#14b8a6', '#f43f5e', '#64748b'],
+  ring(list, sel, attr, center, sub) {
+    const tot = list.reduce((s, x) => s + x.n, 0) || 1, top = list.slice(0, 9), rest = list.slice(9), C = 90, r1 = 80, r2 = 48; let a0 = -Math.PI / 2;
+    const arc = (v, col, key, n) => { const a1 = a0 + v / tot * Math.PI * 2, big = a1 - a0 > Math.PI ? 1 : 0, p = (r, a) => [C + r * Math.cos(a), C + r * Math.sin(a)].map(x => x.toFixed(2)).join(' ');
+      const d = v >= tot ? `M ${C - r1} ${C} A ${r1} ${r1} 0 1 1 ${C + r1} ${C} A ${r1} ${r1} 0 1 1 ${C - r1} ${C} M ${C - r2} ${C} A ${r2} ${r2} 0 1 0 ${C + r2} ${C} A ${r2} ${r2} 0 1 0 ${C - r2} ${C} Z` : `M ${p(r1, a0)} A ${r1} ${r1} 0 ${big} 1 ${p(r1, a1)} L ${p(r2, a1)} A ${r2} ${r2} 0 ${big} 0 ${p(r2, a0)} Z`;
+      a0 = a1; return `<path d="${d}" fill="${col}" class="jm-arc ${sel === key ? 'on' : ''}" ${key ? `${attr}="${esc(key)}"` : ''} fill-rule="evenodd"><title>${esc(n)}</title></path>`; };
+    return `<div class="jm-ring"><svg viewBox="0 0 180 180" width="180" height="180">${top.map((x, i) => arc(x.n, this.PAL[i], x.k, x.k + ': ' + x.n)).join('')}${rest.length ? arc(rest.reduce((s, x) => s + x.n, 0), '#94a3b8', '', 'Others') : ''}<text x="90" y="86" text-anchor="middle" class="jm-rt">${fmtNum(center)}</text><text x="90" y="104" text-anchor="middle" class="jm-rs">${esc(sub)}</text></svg>
+      <div class="jm-lg">${top.map((x, i) => `<button class="jm-li ${sel === x.k ? 'on' : ''}" ${attr}="${esc(x.k)}"><i style="background:${this.PAL[i]}"></i><span>${esc(x.k)}</span><b>${x.n}</b>${x.e ? `<em>${esc(x.e)}</em>` : ''}</button>`).join('')}${rest.length ? `<div class="small muted">+ ${rest.length} more</div>` : ''}</div></div>`;
+  },
+  cols(list, attr, sel) { const mx = Math.max(1, ...list.map(x => x.n)); return `<div class="tr-cols">${list.map(x => `<button class="tr-col ${String(sel) === String(x.k) ? 'on' : ''}" ${attr}="${x.k}"><span class="tr-cb"><i style="height:${x.n / mx * 100}%"></i></span><b>${x.n || ''}</b><small>${esc(x.l)}</small></button>`).join('')}</div>`; },
   DIMS: [['type', '🧩 Fraud Type'], ['district', '🏙 District / Commissionerate'], ['zone', '🗺 Zone'], ['ps', '🚓 Police Station'], ['ident', '🔎 Identifier'], ['month', '📅 Month (Reporting)'], ['io', '👮 IO / EO'], ['cat', '🗂 NCRP Category']],
   key(r, k) { return k === 'month' ? (r.rep ? new Date(r.rep).toISOString().slice(0, 7) : '') : k === 'io' ? [r.io, r.eo].filter(Boolean).join(' / ') : r[k] || ''; },
-  st() { return this._s || (this._s = { dim: 'type', src: '', type: '', f: null, from: '', to: '' }); },
+  st() { return this._s || (this._s = { dim: 'type', src: '', type: '', f: null, from: '', to: '', db: 'inc', win: '', dow: '', hr: '', sus: null }); },
+  dOf(r) { return this.st().db === 'inc' ? r.inc || 0 : r.rep || 0; },
 
   async page(main) {
-    main.innerHTML = `<div class="page-head"><div class="ph-text"><div class="crumb">Analysis <span>›</span> Trending Crime</div><h2>📊 Trending Crime</h2><div class="ph-desc">Crime trends across all cases, NCRP complaints and EO enquiries – fraud type, district, zone, police station, identifier, incident / reporting date with delay, IO / EO.</div></div></div><div id="trB"><div class="card muted">Reading all cases…</div></div>`;
+    main.innerHTML = `<div class="page-head"><div class="ph-text"><div class="crumb">Analysis <span>›</span> Trending Crime</div><h2>📊 Trending Crime</h2><div class="ph-desc">Crime trends across all cases, NCRP complaints and EO enquiries – fraud type, incident date at a glance (day, hour, last 7 / 30 / 90 days), target / suspect State &amp; District, district, zone, police station, identifier, reporting delay, IO / EO.</div></div></div><div id="trB"><div class="card muted">Reading all cases…</div></div>`;
     const A = await this.collect(); if (S.page !== 'trend') return; this.draw($('#trB', main), A);
   },
   draw(el, A) {
-    Target.tip(null);
-    const st = this.st(), from = st.from ? new Date(st.from).getTime() : 0, to = st.to ? new Date(st.to).getTime() + 864e5 : 0;
-    const base = A.filter(r => (!st.src || r.src === st.src) && (!from || r.rep >= from) && (!to || (r.rep && r.rep < to)));
-    const F = base.filter(r => (!st.type || r.type === st.type) && (!st.f || (st.f.k === 'ident' ? r.ids.some(i => i.v === st.f.v) : this.key(r, st.f.k) === st.f.v)));
+    Target.tip(null); this.tip(null);
+    const st = this.st(), from = st.from ? new Date(st.from).getTime() : 0, to = st.to ? new Date(st.to).getTime() + 864e5 : 0, dOf = r => this.dOf(r); this.link(A);
+    const base = A.filter(r => (!st.src || r.src === st.src) && (!from || dOf(r) >= from) && (!to || (dOf(r) && dOf(r) < to)));
+    const W = { 7: 7, 30: 30, 90: 90, 365: 365 }, hasT = r => { const d = new Date(r.inc); return r.inc && (d.getHours() || d.getMinutes() || d.getSeconds()); };
+    const sus = r => !st.sus || r.tg.some(t => t.state.includes(st.sus.s) && (!st.sus.d || t.district.includes(st.sus.d)));
+    const G0 = base.filter(r => (!st.type || r.type === st.type) && (!st.f || (st.f.k === 'ident' ? r.ids.some(i => i.v === st.f.v) : this.key(r, st.f.k) === st.f.v)) && sus(r));
+    const inc = (r, k) => (k !== 'win' && st.win && !(r.inc && Date.now() - r.inc < W[st.win] * 864e5)) || (k !== 'dow' && st.dow !== '' && !(r.inc && new Date(r.inc).getDay() === +st.dow)) || (k !== 'hr' && st.hr !== '' && !(hasT(r) && new Date(r.inc).getHours() === +st.hr)) ? false : true;
+    const F = G0.filter(r => inc(r));
+    const GI = k => G0.filter(r => inc(r, k));
+    const Iw = GI('win'), Id = GI('dow').filter(r => r.inc), Ih = GI('hr').filter(hasT);
+    const winB = [['7', 'Last 7 Days', '#dc2626'], ['30', 'Last 30 Days', '#f97316'], ['90', 'Last 90 Days', '#eab308'], ['365', 'Last 1 Year', '#16a34a']].map(([k, l, c]) => [k, l, c, Iw.filter(r => r.inc && Date.now() - r.inc < W[k] * 864e5)]);
+    const dowL = this.DOW.map((l, i) => ({ k: i, l, n: Id.filter(r => new Date(r.inc).getDay() === i).length })), hrL = [...Array(24)].map((_, h) => ({ k: h, l: String(h).padStart(2, '0'), n: Ih.filter(r => new Date(r.inc).getHours() === h).length }));
+    const peakD = dowL.slice().sort((a, b) => b.n - a.n)[0], peakH = hrL.slice().sort((a, b) => b.n - a.n)[0];
+    // suspects of the records in view (all filters except the suspect place)
+    const SR = G0.length && st.sus ? base.filter(r => (!st.type || r.type === st.type) && inc(r)) : F, TS = new Set(); SR.forEach(r => r.tg.forEach(t => TS.add(t))); const TL = [...TS];
+    const stC = new Map(); TL.forEach(t => t.state.forEach(s => { const o = stC.get(s) || { k: s, n: 0, t: [] }; o.n++; o.t.push(t); stC.set(s, o); }));
+    const SS = [...stC.values()].sort((a, b) => b.n - a.n).map(x => ({ ...x, e: SR.filter(r => r.tg.some(t => x.t.includes(t))).length + ' records' }));
+    const dsC = new Map(); TL.filter(t => !st.sus || t.state.includes(st.sus.s)).forEach(t => t.district.forEach(d => { const k = (st.sus ? st.sus.s : (t.state[0] || '—')) + '|' + d, o = dsC.get(k) || { k, n: 0, t: [] }; o.n++; o.t.push(t); dsC.set(k, o); }));
+    const DS = [...dsC.values()].sort((a, b) => b.n - a.n).slice(0, 15), dmx = Math.max(1, ...DS.map(x => x.n));
     const now = Date.now(), D30 = 30 * 864e5, amt = F.reduce((s, r) => s + r.amount, 0), dl = F.filter(r => r.inc && r.rep && r.rep >= r.inc).map(r => (r.rep - r.inc) / 1000);
     // per fraud type: count, amount, last 30 days vs the 30 before, last 6 months
     const months = [...Array(6)].map((_, i) => { const d = new Date(); d.setDate(1); d.setMonth(d.getMonth() - 5 + i); return d.toISOString().slice(0, 7); });
@@ -16998,15 +17042,23 @@ const Trend = {
         <div class="seg">${[['', 'All Sources'], ['NCRP', '🧾 NCRP'], ['Case', '📁 Cases'], ['EO', '🕵 EO']].map(([k, l]) => `<button class="btn sm ${st.src === k ? 'primary' : ''}" data-tsrc="${k}">${l}</button>`).join('')}</div>
         <label class="small">From <input type="date" id="trFrom" value="${st.from}"></label><label class="small">To <input type="date" id="trTo" value="${st.to}"></label>${st.type || st.f || st.from || st.to || st.src ? '<button class="btn sm" id="trClr">✖ Clear</button>' : ''}</div>
         <div class="tr-cards">${T.map(t => `<button class="tr-card ${st.type === t.t ? 'on' : ''} ${t.ch > 0 ? 'up' : t.ch < 0 ? 'down' : ''}" data-tty="${esc(t.t)}"><div class="tr-h"><span>${this.icon(t.t)}</span><b>${esc(t.t)}</b></div><div class="tr-n"><b>${fmtNum(t.n)}</b>${spark(t.m)}</div><div class="small">${t.amt ? fmtINR(t.amt) + ' · ' : ''}<span class="tr-ch">${t.ch > 0 ? '▲' : t.ch < 0 ? '▼' : '•'} ${Math.abs(t.ch)}%</span> <span class="muted">(${t.a} vs ${t.b})</span></div></button>`).join('') || '<div class="muted">No records yet – import NCRP complaints or add cases / EO enquiries.</div>'}</div></div>
+      <div class="grid g2"><div class="card tr-inc"><div class="row" style="gap:8px;flex-wrap:wrap;align-items:center"><h3 class="grow" style="margin:0">🕒 Incident Date At A Glance</h3><span class="pill-group"><button data-tdb="inc" class="${st.db === 'inc' ? 'active' : ''}">By Incident Date</button><button data-tdb="rep" class="${st.db === 'rep' ? 'active' : ''}">By Reporting Date</button></span>${st.win || st.dow !== '' || st.hr !== '' ? '<button class="btn sm" id="trIncClr">✖ Clear Time Filter</button>' : ''}</div>
+          <div class="tr-wins">${winB.map(([k, l, c, L]) => `<button class="tr-win ${st.win === k ? 'on' : ''}" data-twin="${k}" style="--c:${c}"><b>${fmtNum(L.length)}</b><small>${l}</small></button>`).join('')}</div>
+          <div class="small" style="margin:8px 0 2px"><b>📆 Day of Week</b> (incident)${peakD && peakD.n ? ` · most on <b>${peakD.l}</b>` : ''}</div>${this.cols(dowL, 'data-tdow', st.dow)}
+          <div class="small" style="margin:8px 0 2px"><b>⏰ Hour of Day</b> (incident, where time is known – ${fmtNum(Ih.length)} records)${peakH && peakH.n ? ` · peak <b>${peakH.l}:00–${peakH.l}:59</b>` : ''}</div>${this.cols(hrL, 'data-thr', st.hr)}
+          <div class="small muted" style="margin-top:6px">Point at a number for the records, click to filter everything on this page.</div></div>
+        <div class="card"><div class="row" style="gap:8px;flex-wrap:wrap;align-items:center"><h3 class="grow" style="margin:0">🎯 Target / Suspect State &amp; District</h3>${st.sus ? `<button class="btn sm" id="trSusClr">✖ ${esc(st.sus.s + (st.sus.d ? ' › ' + st.sus.d : ''))}</button>` : ''}</div>
+          <div class="small muted" style="margin:2px 0 6px">From Target: KYC / bank replies, accused, JMIS – ${fmtNum(TL.length)} suspect${TL.length === 1 ? '' : 's'} behind these records. Point for the suspects, click to filter.</div>
+          ${SS.length ? this.ring(SS, st.sus && st.sus.s, 'data-tss', TL.length, 'Suspects') + `<div class="small" style="margin:10px 0 4px"><b>📍 District wise${st.sus ? ' – ' + esc(st.sus.s) : ' (top 15)'}</b></div><div class="jm-bars">${DS.map(x => { const [s0, d0] = x.k.split('|'); return `<button class="jm-bar ${st.sus && st.sus.d === d0 ? 'on' : ''}" data-tsd="${esc(x.k)}"><span class="jm-bn">${esc(d0)}${st.sus ? '' : `<small>${esc(s0)}</small>`}</span><span class="jm-bt" style="width:${x.n / dmx * 100}%"><i class="p" style="flex:1;background:#e11d48"></i></span><b>${x.n}</b></button>`; }).join('') || '<div class="small muted">No district known for these suspects</div>'}</div>` : '<div class="muted small">No suspect State / District yet – it comes from KYC / bank replies, accused details and JMIS requests (see Analytics › Target).</div>'}</div></div>
       <div class="grid g2"><div class="card"><div class="row" style="gap:6px;flex-wrap:wrap;align-items:center"><h3 class="grow" style="margin:0">Smart Overview</h3><select id="trDim">${this.DIMS.map(([k, l]) => `<option value="${k}" ${st.dim === k ? 'selected' : ''}>${l}</option>`).join('')}</select></div><div class="small muted" style="margin:4px 0 6px">Hover for numbers · click a bar to filter everything below.</div><div id="trBar"></div></div>
-        <div class="card"><h3>📅 Month-Wise (Reporting Date)${st.type ? ' – ' + esc(st.type) : ''}</h3><div id="trLine"></div><h3 style="margin-top:12px">⏱ Reporting Delay</h3><div id="trDl"></div></div></div>
+        <div class="card"><h3>📅 Month-Wise (${st.db === 'inc' ? 'Incident' : 'Reporting'} Date)${st.type ? ' – ' + esc(st.type) : ''}</h3><div id="trLine"></div><h3 style="margin-top:12px">⏱ Reporting Delay</h3><div id="trDl"></div></div></div>
       <div class="card"><div class="row" style="gap:8px;align-items:center"><h3 class="grow" style="margin:0">📋 Records <span class="badge">${fmtNum(F.length)}</span>${st.f ? ` <span class="chip">${esc((this.DIMS.find(d => d[0] === st.f.k) || [])[1] || '')}: ${esc(st.f.v)}</span>` : ''}${st.type ? ` <span class="chip">${esc(st.type)}</span>` : ''}</h3></div><div id="trT" style="margin-top:8px"></div></div>`;
     // overview bars
     const bars = st.dim === 'ident' ? [...groupBy(F.flatMap(r => r.ids.map(i => ({ ...i, r }))), i => i.t + ': ' + i.v)].map(([k, l]) => ({ label: k, value: uniq(l.map(x => x.r.ack || x.r.caseId)).length, sub: 'records with this ' + l[0].t, k: 'ident', v: l[0].v })).filter(x => x.value >= 1)
       : [...groupBy(F, r => this.key(r, st.dim) || '—')].map(([k, l]) => ({ label: st.dim === 'type' ? this.icon(k) + ' ' + k : k, value: l.length, sub: fmtINR(l.reduce((s, r) => s + r.amount, 0)) + ' · ' + uniq(l.map(r => r.ps).filter(Boolean)).slice(0, 3).join(', '), k: st.dim, v: k }));
     bars.sort((a, b) => st.dim === 'month' ? String(b.v).localeCompare(a.v) : b.value - a.value);
     Charts.hbar($('#trBar', el), bars, { max: 15, fmt: v => fmtNum(v) + ' records', onClick: d => { if (d.v === '—') return; if (st.dim === 'type') st.type = st.type === d.v ? '' : d.v; else st.f = st.f && st.f.v === d.v ? null : { k: d.k, v: d.v }; this.draw(el, A); } });
-    const mm = [...groupBy(F.filter(r => r.rep), r => new Date(r.rep).toISOString().slice(0, 7))].sort((a, b) => a[0].localeCompare(b[0])).map(([k, l]) => ({ label: k, value: l.length }));
+    const mm = [...groupBy(F.filter(r => dOf(r)), r => new Date(dOf(r)).toISOString().slice(0, 7))].sort((a, b) => a[0].localeCompare(b[0])).map(([k, l]) => ({ label: k, value: l.length }));
     Charts.line($('#trLine', el), mm, { fmt: v => fmtNum(v) + ' records' });
     const bk = [['Same Day (< 24h)', 0, 1], ['1–3 Days', 1, 3], ['4–7 Days', 3, 7], ['8–30 Days', 7, 30], ['30+ Days', 30, 1e9]].map(([l, a, b]) => ({ label: l, value: dl.filter(x => x / 86400 >= a && x / 86400 < b).length }));
     Charts.vbar($('#trDl', el), dl.length ? bk : [], { fmt: v => fmtNum(v) + ' records' });
@@ -17017,6 +17069,7 @@ const Trend = {
       { key: 'inc', label: 'Incident', sortVal: r => r.inc || 0, render: r => esc(this.fdt(r.inc)), csv: r => this.fdt(r.inc) }, { key: 'rep', label: 'Reporting', sortVal: r => r.rep || 0, render: r => esc(this.fdt(r.rep)), csv: r => this.fdt(r.rep) },
       { key: 'delay', label: 'Delay', sortVal: r => r.inc && r.rep ? r.rep - r.inc : -1, render: r => r.inc && r.rep ? `<span class="mono small">${this.dur((r.rep - r.inc) / 1000)}</span>` : '', csv: r => r.inc && r.rep ? this.dur((r.rep - r.inc) / 1000) : '' },
       { key: 'amount', label: 'Amount', num: true, render: r => r.amount ? fmtINR(r.amount) : '' },
+      { key: 'tg', label: 'Suspect State / District', sortVal: r => (r.tg[0] && r.tg[0].state[0]) || '', csv: r => uniq(r.tg.flatMap(t => t.state.map((s, i) => s + (t.district[i] ? ' / ' + t.district[i] : '')))).join('; '), render: r => `<span class="small">${esc(uniq(r.tg.flatMap(t => t.state)).slice(0, 2).join(', '))}${r.tg.length ? `<div class="muted">${esc(uniq(r.tg.flatMap(t => t.district)).slice(0, 2).join(', '))}</div>` : ''}</span>` },
       { key: 'ids', label: 'Identifiers', sortVal: r => r.ids.length, render: r => `<span class="small">${esc(r.ids.slice(0, 3).map(i => i.v).join(', '))}${r.ids.length > 3 ? ' +' + (r.ids.length - 3) : ''}</span>`, csv: r => r.ids.map(i => i.t + ': ' + i.v).join('; ') },
       { key: 'io', label: 'IO / EO', render: r => esc([r.io, r.eo && 'EO ' + r.eo].filter(Boolean).join(' · ')), csv: r => [r.io, r.eo].filter(Boolean).join(' / ') }] });
     const re = () => this.draw(el, A);
@@ -17025,9 +17078,26 @@ const Trend = {
       const t = T.find(x => x.t === b.dataset.tty); b.title = `${t.t}: ${t.n} records${t.amt ? ' · ' + fmtINR(t.amt) : ''}\nLast 30 days ${t.a} · before that ${t.b}\nMonths ${months.map((m, i) => m.slice(5) + ':' + t.m[i]).join('  ')}\nTop: ${t.top.join(', ')}`; });
     $('#trDim', el).onchange = e => { st.dim = e.target.value; st.f = null; re(); };
     $('#trFrom', el).onchange = e => { st.from = e.target.value; re(); }; $('#trTo', el).onchange = e => { st.to = e.target.value; re(); };
-    if ($('#trClr', el)) $('#trClr', el).onclick = () => { Object.assign(st, { src: '', type: '', f: null, from: '', to: '' }); re(); };
+    if ($('#trClr', el)) $('#trClr', el).onclick = () => { Object.assign(st, { src: '', type: '', f: null, from: '', to: '', win: '', dow: '', hr: '', sus: null }); re(); };
+    const tipR = (b, L, t) => { b.onmouseenter = () => this.tip(b, L, t); b.onmouseleave = () => this.tip(null); };
+    $$('[data-tdb]', el).forEach(b => b.onclick = () => { st.db = b.dataset.tdb; re(); });
+    $$('[data-twin]', el).forEach(b => { const w = winB.find(x => x[0] === b.dataset.twin); tipR(b, w[3], '🕒 ' + w[1]); b.onclick = () => { st.win = st.win === b.dataset.twin ? '' : b.dataset.twin; this.tip(null); re(); }; });
+    $$('[data-tdow]', el).forEach(b => { const i = +b.dataset.tdow; tipR(b, Id.filter(r => new Date(r.inc).getDay() === i), '📆 ' + this.DOW[i]); b.onclick = () => { st.dow = String(st.dow) === String(i) ? '' : String(i); this.tip(null); re(); }; });
+    $$('[data-thr]', el).forEach(b => { const h = +b.dataset.thr; tipR(b, Ih.filter(r => new Date(r.inc).getHours() === h), '⏰ ' + String(h).padStart(2, '0') + ':00–' + String(h).padStart(2, '0') + ':59'); b.onclick = () => { st.hr = String(st.hr) === String(h) ? '' : String(h); this.tip(null); re(); }; });
+    if ($('#trIncClr', el)) $('#trIncClr', el).onclick = () => { Object.assign(st, { win: '', dow: '', hr: '' }); re(); };
+    $$('[data-tss]', el).forEach(b => { const x = SS.find(y => y.k === b.dataset.tss); if (!x) return; b.onmouseenter = () => Target.tip(b, x.t); b.onmouseleave = () => Target.tip(null); b.onclick = () => { st.sus = st.sus && st.sus.s === x.k && !st.sus.d ? null : { s: x.k }; Target.tip(null); re(); }; });
+    $$('[data-tsd]', el).forEach(b => { const x = DS.find(y => y.k === b.dataset.tsd); if (!x) return; const [s0, d0] = x.k.split('|'); b.onmouseenter = () => Target.tip(b, x.t); b.onmouseleave = () => Target.tip(null); b.onclick = () => { st.sus = st.sus && st.sus.d === d0 ? { s: s0 } : { s: s0, d: d0 }; Target.tip(null); re(); }; });
+    if ($('#trSusClr', el)) $('#trSusClr', el).onclick = () => { st.sus = null; re(); };
   }
 };
+Trend.tip = function (b, R, title) {
+  let t = $('#trTip'); if (!b) { if (t) t.remove(); return; }
+  if (!t) { t = document.createElement('div'); t.id = 'trTip'; t.className = 'jm-tip'; document.body.appendChild(t); }
+  const L = R.slice().sort((a, b) => (b.inc || b.rep) - (a.inc || a.rep));
+  t.innerHTML = `<b>${esc(title)} · ${R.length} record${R.length === 1 ? '' : 's'}</b>${L.length ? `<table>${L.slice(0, 8).map(r => `<tr><td>${esc(r.case || '')}</td><td>${this.icon(r.type)} ${esc(r.type)}</td><td>${esc(this.fdt(r.inc))}</td><td>${r.amount ? esc(fmtINR(r.amount)) : ''}</td></tr>`).join('')}</table>${L.length > 8 ? `<div class="small">+ ${L.length - 8} more – click to see all</div>` : '<div class="small">Click to filter</div>'}` : '<div class="small">Nothing here</div>'}`;
+  const r = b.getBoundingClientRect(); t.style.left = Math.max(8, Math.min(innerWidth - 560, r.left)) + 'px'; t.style.top = (r.bottom + 6) + 'px';
+};
+addEventListener('scroll', () => Trend.tip(null), true);
 Pages.trend = main => Trend.page(main);
 
 </script>
@@ -17662,10 +17732,12 @@ if (PAGE_META.cctns) PAGE_META.cctns.group = 'Investigation';
     drop(io, ios, 'ioOpen', () => ['cctns', 'others', 'formats'].includes(S.page));
     ios.insertAdjacentHTML('afterend', mk('eo-item', '🕵', 'EO – Enquiry Officer', 'EO – Enquiry Officer: Enquiries (report, status) and JMIS Notice (Samanvaya CIAR requests)', '#0891b2'));
     const eo = $('.eo-item', nav), eos = $('.eo-subs', nav);
-    eos.innerHTML = `<div class="nav-sub" data-eo="eo" style="--pc:#0891b2"><i></i><span>Enquiry List &amp; Report</span></div><div class="nav-sub" data-eo="jmis" style="--pc:#7c3aed"><i></i><span>JMIS Notice</span></div>`;
+    eos.innerHTML = `<div class="nav-sub" data-eo="eo" style="--pc:#0891b2"><i></i><span>Enquiry List &amp; Report</span></div><div class="nav-sub" data-eo="jmis" style="--pc:#7c3aed"><i></i><span>JMIS Notice</span></div><div class="nav-sub" data-eo="letters" data-lrr="EO" style="--pc:#b45309"><i></i><span>Letter Register (EO)</span></div>`;
+    ios.insertAdjacentHTML('beforeend', `<div class="nav-sub" data-lrr="IO" style="--pc:#b45309"><i></i><span>Letter Register (IO)</span></div>`);
+    $$('[data-lrr]', nav).forEach(n => n.addEventListener('click', e => { e.stopImmediatePropagation(); if (typeof Letters !== 'undefined') Letters.st().role = n.dataset.lrr; S.page === 'letters' ? render() : go('letters'); }, true));
     $$('[data-eo]', eos).forEach(n => n.onclick = () => go(n.dataset.eo));
-    drop(eo, eos, 'eoOpen', () => ['eo', 'jmis'].includes(S.page));
-    { const or2 = render; render = function () { const r = or2.apply(this, arguments); $$('[data-eo]', eos).forEach(n => n.classList.toggle('active', S.page === n.dataset.eo)); return r; }; }
+    drop(eo, eos, 'eoOpen', () => ['eo', 'jmis'].includes(S.page) || (S.page === 'letters' && typeof Letters !== 'undefined' && Letters.st().role === 'EO'));
+    { const or2 = render; render = function () { const r = or2.apply(this, arguments); const lr = typeof Letters !== 'undefined' ? Letters.st().role : ''; $$('[data-eo]', eos).forEach(n => n.classList.toggle('active', S.page === n.dataset.eo && (!n.dataset.lrr || lr === 'EO'))); $$('[data-lrr="IO"]', ios).forEach(n => n.classList.toggle('active', S.page === 'letters' && lr !== 'EO')); return r; }; }
     const or = render; render = function () { const r = or.apply(this, arguments);
       $$('[data-cct]', ios).forEach(n => n.classList.toggle('active', S.page === 'cctns' && (S.sub.cctns || 'diary') === n.dataset.cct));
       $$('[data-cf]', ios).forEach(n => { const [p, s] = n.dataset.cf.split('|'); n.classList.toggle('active', S.page === p && (!s || (S.sub.formats || 'notice') === s)); }); return r; };
@@ -17868,6 +17940,148 @@ const ExportAll = {
 (() => { let q = 0; const run = () => { q = 0; try { ExportAll.scan(); } catch (e) { } };
   const mo = new MutationObserver(() => { if (!q) q = requestAnimationFrame(run); });
   const st = () => mo.observe(document.body, { childList: true, subtree: true }); if (document.body) st(); else document.addEventListener('DOMContentLoaded', st); })();
+
+</script>
+<script>
+/* letters.js – Letter Register for IO / EO: every letter, notice and report made in the tool is kept automatically with date & time,
+   case (FIR / application / complaint), subject, letter no. and whom it was sent to – one view per case or for all cases, like the
+   office "all letters" Word file. Kept on this computer only. */
+'use strict';
+const Letters = {
+  list() { return Off.get('letters', []); },
+  st() { return this._s || (this._s = { role: '', c: '', q: '', from: '', to: '', k: '', view: 'list' }); },
+  H(s) { let h = 0; s = String(s || ''); for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return String(h); },
+  txt(html) { const d = document.createElement('div'); d.innerHTML = String(html || '').replace(/<(script|style)[\s\S]*?<\/\1>/gi, '').replace(/<\/(p|div|h\d|tr|li|table|td|th)>|<br\s*\/?>/gi, '$&\n'); d.querySelectorAll('.np,button').forEach(x => x.remove()); d.querySelectorAll('p,div,br,tr,h1,h2,h3,h4,li').forEach(x => x.insertAdjacentText('afterend', '\n')); return d.textContent.replace(/\n{3,}/g, '\n\n').trim(); },
+  /* read To / Subject / Letter No / Date out of the letter */
+  parse(t) {
+    const L = String(t || '').split('\n').map(x => x.replace(/\*\*/g, '').trim()), o = { to: '', subject: '', ref: '', ldate: '', fir: '' };
+    const ti = L.findIndex(x => /^(to|सेवा\s*में|प्रति)\s*[,:\-]?\s*$/i.test(x));
+    if (ti >= 0) { const a = []; for (let i = ti + 1; i < L.length && a.length < 4; i++) { const x = L[i]; if (!x) { if (a.length) break; continue; } if (/^(subject|sub\.?|विषय|ref|reference|सन्दर्भ|संदर्भ)\b/i.test(x)) break; a.push(x.replace(/[,।]$/, '')); } o.to = a.join(', '); }
+    if (!o.to) { const m = L.find(x => /^(to|सेवा\s*में|प्रति)\s*[,:\-]\s*\S/i.test(x)); if (m) o.to = m.replace(/^(to|सेवा\s*में|प्रति)\s*[,:\-]\s*/i, ''); }
+    const s = L.find(x => /^(subject|sub\.?|विषय)\s*[:\-–—]/i.test(x)); if (s) o.subject = s.replace(/^(subject|sub\.?|विषय)\s*[:\-–—]\s*/i, '');
+    if (!o.subject) { const h = L.find(x => x.length > 8 && x.length < 140 && (/^[A-Z0-9\s\-–()/.,']+$/.test(x) && /[A-Z]{4}/.test(x) || /(notice|report|letter|आख्या|नोटिस|पत्र)/i.test(x))); if (h) o.subject = h; }
+    const r = L.map(x => x.match(/(?:ref\.?\s*no\.?|letter\s*no\.?|पत्रांक|पत्र\s*सं(?:ख्या)?\.?)\s*[:\-]?\s*([^\s,;].{0,60})/i)).find(Boolean); if (r) o.ref = r[1].replace(/\s*(date|dated|दिनांक).*$/i, '').trim();
+    const d = L.map(x => x.match(/(?:^|\s)(?:date|dated|दिनांक)\s*[:\-]?\s*(\d{1,2}[\/.\-]\d{1,2}[\/.\-]\d{2,4})/i)).find(Boolean); if (d) o.ldate = d[1];
+    const f = String(t).match(/(?:FIR|case\s*crime|मु0?\s*अ0?\s*स0?|मुकदमा\s*अपराध)\s*(?:no\.?|number|संख्या)?\s*[:\-]?\s*(\d{1,5}\s*\/\s*\d{2,4})/i); if (f) o.fir = f[1].replace(/\s/g, '');
+    if (o.subject.length > 220) o.subject = o.subject.slice(0, 220) + '…'; if (o.to.length > 220) o.to = o.to.slice(0, 220) + '…';
+    return o;
+  },
+  role() { return /^(eo|jmis)$/.test(S.page) ? 'EO' : 'IO'; },
+  KIND: { print: ['🖨', 'Print / PDF'], word: ['📘', 'Word'], email: ['✉️', 'E-mail'], pdf: ['📕', 'PDF'], html: ['🌐', 'HTML'], xlsx: ['📗', 'Excel'], img: ['🖼', 'Image'], draft: ['💾', 'Saved Draft'], manual: ['✍', 'Entered by Hand'] },
+  /* called by every letter / notice / report maker */
+  async log(o) {
+    try {
+      const text = o.text != null ? String(o.text) : this.txt(o.html); if (!text.trim() || text.trim().length < 20) return;
+      const L = await this.list(), h = this.H(text), now = new Date(), how = o.how || 'print';
+      const old = L.find(x => x.h === h && now - new Date(x.at) < 30 * 6e4);
+      if (old) { if (!old.how.includes(how)) old.how.push(how); old.last = now.toISOString(); await Off.put('letters'); return old; }
+      const P = this.parse(text), c = !isScope(S.caseId) && S.cases.find(x => x.id === S.caseId);
+      const x = { id: uid(), h, at: now.toISOString(), how: [how], role: o.role || this.role(), page: S.page, title: String(o.title || '').replace(/\.(docx?|pdf|html?)$/i, '').replace(/_/g, ' ').trim(),
+        caseId: o.caseId || (o.caseTxt ? '' : c ? c.id : ''), case: o.caseTxt || (c ? (typeof AllMode !== 'undefined' && AllMode.caseLabel ? AllMode.caseLabel(c) : c.name) : ''), fir: P.fir || (!o.caseTxt && c && c.fir) || '',
+        to: o.to || P.to, subject: o.subject || P.subject || String(o.title || '').replace(/[_]/g, ' '), ref: P.ref, ldate: P.ldate, by: this.me(), text: text.slice(0, 60000) };
+      L.push(x); await Off.put('letters'); return x;
+    } catch (e) { }
+  },
+  me() { try { return (typeof Users !== 'undefined' && Users.cur && (Users.cur().name || Users.cur().user)) || ''; } catch (e) { return ''; } },
+  dt(x) { const d = new Date(x); if (isNaN(d)) return ''; const p = n => String(n).padStart(2, '0'); let h = d.getHours(); const ap = h >= 12 ? 'PM' : 'AM'; h = h % 12 || 12; return `${p(d.getDate())}-${p(d.getMonth() + 1)}-${d.getFullYear()} ${p(h)}:${p(d.getMinutes())} ${ap}`; },
+  day(x) { const d = new Date(x); return isNaN(d) ? '' : d.toISOString().slice(0, 10); },
+  base(L, st, skip = '') {
+    const q = st.q.toLowerCase(), t0 = new Date(); t0.setHours(0, 0, 0, 0);
+    const K = { today: x => new Date(x.at) >= t0, week: x => Date.now() - new Date(x.at) < 7 * 864e5, month: x => Date.now() - new Date(x.at) < 30 * 864e5 };
+    return L.filter(x => (skip === 'role' || !st.role || x.role === st.role) && (skip === 'c' || !st.c || (st.c === '_none' ? !x.caseId && !x.case : (x.caseId || x.case) === st.c)) && (skip === 'k' || !st.k || K[st.k](x))
+      && (!st.from || this.day(x.at) >= st.from) && (!st.to || this.day(x.at) <= st.to) && (!q || [x.case, x.fir, x.to, x.subject, x.ref, x.title, x.text, x.by].join(' ').toLowerCase().includes(q)));
+  },
+  async page(el) {
+    this.tip(null); const L = (await this.list()).slice().sort((a, b) => String(b.at).localeCompare(String(a.at))), st = this.st(), B = this.base(L, st);
+    const BK = this.base(L, st, 'k'), t0 = new Date(); t0.setHours(0, 0, 0, 0);
+    const kb = (k, lbl, ic, c, n) => `<button class="lr-k ${st.k === k ? 'on' : ''}" data-lk="${k}" style="--c:${c}"><span>${ic}</span><b>${fmtNum(n)}</b><small>${lbl}</small></button>`;
+    const cases = new Map(); this.base(L, st, 'c').forEach(x => { const k = x.caseId || x.case || '_none'; const o = cases.get(k) || { k, name: x.case || 'No Case Linked', fir: x.fir, n: 0, last: x.at }; o.n++; cases.set(k, o); });
+    const CS = [...cases.values()].sort((a, b) => b.n - a.n);
+    el.innerHTML = `<div class="card"><div class="lr-ks">${kb('', 'All Letters', '📒', '#6366f1', BK.length)}${kb('today', 'Today', '📅', '#16a34a', BK.filter(x => new Date(x.at) >= t0).length)}${kb('week', 'Last 7 Days', '🗓', '#0ea5e9', BK.filter(x => Date.now() - new Date(x.at) < 7 * 864e5).length)}${kb('month', 'Last 30 Days', '📆', '#f97316', BK.filter(x => Date.now() - new Date(x.at) < 30 * 864e5).length)}<button class="lr-k" data-lv="case" style="--c:#be123c"><span>📁</span><b>${fmtNum(CS.length)}</b><small>Cases / Applications</small></button></div>
+      <div class="row" style="gap:8px;flex-wrap:wrap;align-items:flex-end;margin-top:12px">
+        <span class="pill-group">${[['', 'IO + EO'], ['IO', '👮 IO'], ['EO', '🕵 EO']].map(([k, l]) => `<button data-lrole="${k}" class="${st.role === k ? 'active' : ''}">${l}</button>`).join('')}</span>
+        <label class="small">Case / Application<select id="lrC"><option value="">All Cases (${fmtNum(this.base(L, st, 'c').length)})</option>${CS.map(c => `<option value="${esc(c.k)}" ${st.c === c.k ? 'selected' : ''}>${esc(c.name)} (${c.n})</option>`).join('')}</select></label>
+        <label class="small">From<input type="date" id="lrF" value="${esc(st.from)}"></label><label class="small">To<input type="date" id="lrT" value="${esc(st.to)}"></label>
+        <input id="lrQ" class="grow" placeholder="Find subject, sent to, letter no., FIR, words in the letter…" value="${esc(st.q)}">
+        <button class="btn" id="lrClr">✖ Clear</button></div>
+      <div class="row" style="gap:8px;flex-wrap:wrap;margin-top:10px"><span class="pill-group"><button data-lv="list" class="${st.view === 'list' ? 'active' : ''}">📋 Letter List</button><button data-lv="case" class="${st.view === 'case' ? 'active' : ''}">📁 Case Wise</button></span><span class="grow"></span>
+        <button class="btn primary" id="lrOne" title="All the letters shown, one after another with date, time and sent to – like the office Word file">📄 One View – All Letters (${fmtNum(B.length)})</button><button class="btn" id="lrAdd" title="A letter written outside the tool">✍ Add Old Letter</button></div></div>
+      <div class="card" id="lrBody"></div>`;
+    const body = $('#lrBody', el);
+    if (st.view === 'case') {
+      const G = new Map(); B.forEach(x => { const k = x.caseId || x.case || '_none'; (G.get(k) || G.set(k, []).get(k)).push(x); });
+      body.innerHTML = `<h3>📁 Case Wise Letters <span class="badge">${G.size}</span></h3>${[...G].sort((a, b) => b[1].length - a[1].length).map(([k, A]) => `<div class="lr-case"><div class="lr-ch" data-lc="${esc(k)}"><b>${esc(A[0].case || 'No Case Linked')}</b>${A[0].fir ? ` <span class="small muted">FIR ${esc(A[0].fir)}</span>` : ''}<span class="grow"></span><span class="badge">${A.length} letter${A.length > 1 ? 's' : ''}</span><span class="small muted">last ${esc(this.dt(A[0].at))}</span><button class="btn sm" data-lone="${esc(k)}">📄 One View</button></div>
+        <ol class="lr-ol">${A.slice().reverse().map(x => `<li data-lo="${x.id}"><span class="lr-dt">${esc(this.dt(x.at))}</span> <span class="lr-ro ${x.role}">${x.role}</span> <b>${esc(x.subject || x.title || 'Letter')}</b>${x.to ? ` <span class="small">→ ${esc(x.to)}</span>` : ''}</li>`).join('')}</ol></div>`).join('') || '<div class="muted">No letter yet. Letters, notices and reports you print, save as Word / PDF or e-mail from IO / EO pages come here by themselves.</div>'}`;
+      $$('[data-lone]', body).forEach(b => b.onclick = e => { e.stopPropagation(); this.one(B.filter(x => (x.caseId || x.case || '_none') === b.dataset.lone)); });
+    } else {
+      body.innerHTML = `<h3>📋 Letters Sent <span class="badge">${fmtNum(B.length)}</span></h3><div id="lrTb"></div>`;
+      Table($('#lrTb', body), { rows: B, pageSize: 50, exportName: 'letter_register', onRow: x => this.open(x, el), columns: [
+        { key: 'n', label: 'S.No.', nosort: true, csv: x => B.length - B.indexOf(x), render: x => `<b>${B.length - B.indexOf(x)}</b>` },
+        { key: 'at', label: 'Date & Time', sortVal: x => x.at, csv: x => this.dt(x.at), render: x => `<b>${esc(this.dt(x.at))}</b>${x.ldate ? `<div class="small muted">Letter dated ${esc(x.ldate)}</div>` : ''}` },
+        { key: 'role', label: 'By', render: x => `<span class="lr-ro ${x.role}">${x.role}</span>${x.by ? `<div class="small muted">${esc(x.by)}</div>` : ''}` },
+        { key: 'case', label: 'Case / FIR / Application', csv: x => [x.case, x.fir && 'FIR ' + x.fir].filter(Boolean).join(' · '), render: x => `${esc(x.case || '—')}${x.fir ? `<div class="small">FIR ${esc(x.fir)}</div>` : ''}` },
+        { key: 'subject', label: 'Letter / Subject', render: x => `<b>${esc(x.subject || x.title || 'Letter')}</b>${x.title && x.title !== x.subject ? `<div class="small muted">${esc(x.title)}</div>` : ''}` },
+        { key: 'to', label: 'Sent To / For', render: x => `<span class="small">${esc(x.to || '—')}</span>` },
+        { key: 'ref', label: 'Letter No.', render: x => `<span class="mono small">${esc(x.ref || '')}</span>` },
+        { key: 'how', label: 'Made As', csv: x => x.how.map(k => (this.KIND[k] || [, k])[1]).join(', '), render: x => x.how.map(k => `<span title="${(this.KIND[k] || [, k])[1]}">${(this.KIND[k] || ['•'])[0]}</span>`).join(' ') },
+        { key: 'act', label: '', nosort: true, noexport: true, render: x => `<button class="btn sm" data-lo="${x.id}">👁 Open</button>` }] });
+    }
+    $$('[data-lo]', el).forEach(b => b.onclick = e => { e.stopPropagation(); const x = L.find(y => y.id === b.dataset.lo); x && this.open(x, el); });
+    $$('[data-lk]', el).forEach(b => { b.onclick = () => { st.k = st.k === b.dataset.lk && b.dataset.lk ? '' : b.dataset.lk; st.view = 'list'; this.page(el); };
+      b.onmouseenter = () => this.tip(b, this.base(L, Object.assign({}, st, { k: b.dataset.lk }))); b.onmouseleave = () => this.tip(null); });
+    $$('[data-lv]', el).forEach(b => b.onclick = () => { st.view = b.dataset.lv; this.page(el); });
+    $$('[data-lrole]', el).forEach(b => b.onclick = () => { st.role = b.dataset.lrole; this.page(el); });
+    $('#lrC', el).onchange = e => { st.c = e.target.value; this.page(el); };
+    $('#lrF', el).onchange = $('#lrT', el).onchange = () => { st.from = $('#lrF', el).value; st.to = $('#lrT', el).value; this.page(el); };
+    let qt; $('#lrQ', el).oninput = () => { clearTimeout(qt); qt = setTimeout(() => { st.q = $('#lrQ', el).value; this.page(el).then(() => { const q = $('#lrQ', el); q.focus(); q.setSelectionRange(q.value.length, q.value.length); }); }, 350); };
+    $('#lrClr', el).onclick = () => { Object.assign(st, { c: '', q: '', from: '', to: '', k: '' }); this.page(el); };
+    $('#lrOne', el).onclick = () => this.one(B);
+    $('#lrAdd', el).onclick = () => this.edit(null, el);
+  },
+  tip(b, R) {
+    let t = $('#lrTip'); if (!b) { if (t) t.remove(); return; }
+    if (!t) { t = document.createElement('div'); t.id = 'lrTip'; t.className = 'jm-tip'; document.body.appendChild(t); }
+    t.innerHTML = `<b>${esc(b.querySelector('small').textContent)} · ${R.length}</b>${R.length ? `<table>${R.slice(0, 8).map(x => `<tr><td>${esc(this.dt(x.at))}</td><td>${x.role}</td><td>${esc((x.subject || x.title || '').slice(0, 60))}</td><td>${esc((x.to || '').slice(0, 40))}</td></tr>`).join('')}</table>${R.length > 8 ? `<div class="small">+ ${R.length - 8} more – click to see all</div>` : '<div class="small">Click to see the list</div>'}` : '<div class="small">Nothing here</div>'}`;
+    const r = b.getBoundingClientRect(); t.style.left = Math.max(8, Math.min(innerWidth - 560, r.left)) + 'px'; t.style.top = (r.bottom + 6) + 'px';
+  },
+  head(x, i) { return `<table class="lr-h"><tr><th>${i != null ? 'Letter ' + i : 'Letter'}</th><td><b>${esc(x.subject || x.title || '')}</b></td></tr><tr><th>Date &amp; Time</th><td>${esc(this.dt(x.at))}${x.ldate ? ' · letter dated ' + esc(x.ldate) : ''} · ${x.role}${x.by ? ' · ' + esc(x.by) : ''}</td></tr><tr><th>Case / FIR</th><td>${esc([x.case, x.fir && 'FIR ' + x.fir].filter(Boolean).join(' · ') || '—')}</td></tr><tr><th>Sent To / For</th><td>${esc(x.to || '—')}</td></tr>${x.ref ? `<tr><th>Letter No.</th><td>${esc(x.ref)}</td></tr>` : ''}</table>`; },
+  CSS: `.lr-h{border-collapse:collapse;width:100%;margin:0 0 10px;font-family:Arial,sans-serif;font-size:9.5pt}.lr-h th,.lr-h td{border:1px solid #94a3b8;padding:3px 6px;text-align:left;vertical-align:top}.lr-h th{background:#e2e8f0;width:22%}.lr-t{white-space:pre-wrap}.lr-one{page-break-after:always;margin-bottom:26px;padding-bottom:16px;border-bottom:2px dashed #94a3b8}.lr-one:last-child{page-break-after:auto;border:0}`,
+  body(x) { return `<div class="lr-t">${typeof NoticeKit !== 'undefined' && NoticeKit.html ? NoticeKit.html(x.text) : esc(x.text)}</div>`; },
+  one(R) { if (!R.length) return UI.toast('No letter to show');
+    const A = R.slice().sort((a, b) => String(a.at).localeCompare(String(b.at)));
+    ExportAll.open('Letter Register – ' + (new Set(A.map(x => x.case)).size === 1 ? (A[0].case || 'Letters') : 'All Cases') + ' (' + A.length + ')', `<table class="lr-h"><tr><th>S.No.</th><th>Date &amp; Time</th><th>Case / FIR</th><th>Subject</th><th>Sent To / For</th></tr>${A.map((x, i) => `<tr><td>${i + 1}</td><td>${esc(this.dt(x.at))}</td><td>${esc([x.case, x.fir].filter(Boolean).join(' · '))}</td><td>${esc(x.subject || x.title || '')}</td><td>${esc(x.to || '')}</td></tr>`).join('')}</table><div style="page-break-after:always"></div>` + A.map((x, i) => `<div class="lr-one">${this.head(x, i + 1)}${this.body(x)}</div>`).join(''), { css: this.CSS }); },
+  open(x, el) {
+    const m = UI.modal('📒 ' + (x.subject || x.title || 'Letter'), `${this.head(x)}<div class="lr-view">${this.body(x)}</div>`,
+      [{ label: '🗑 Delete', cls: 'danger', onClick: async () => { if (!UI.confirm('Remove this letter from the register?')) return; const L = await this.list(); L.splice(L.findIndex(y => y.id === x.id), 1); await Off.put('letters'); UI.closeModal(); this.page(el); } },
+        { label: '✏ Edit Details', onClick: () => { UI.closeModal(); this.edit(x, el); } },
+        { label: '👁 Preview / Print / Word / PDF', cls: 'primary', onClick: () => ExportAll.open(x.subject || x.title || 'Letter', this.body(x), { bare: true, css: this.CSS }) }]);
+    m.insertAdjacentHTML('afterbegin', `<style>${this.CSS}.lr-view{background:#fff;color:#000;padding:16px;border-radius:8px;max-height:60vh;overflow:auto;font-family:var(--doc-font);font-size:var(--doc-size);line-height:var(--doc-lh)}</style>`);
+  },
+  async edit(x, el) {
+    const L = await this.list(), isNew = !x; x = x ? { ...x } : { id: uid(), at: new Date().toISOString(), how: ['manual'], role: this.st().role || 'IO', text: '' };
+    const loc = new Date(new Date(x.at).getTime() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 16);
+    const m = UI.modal(isNew ? '✍ Add Old Letter' : '✏ Letter Details', `<div class="map-grid"><label>Date &amp; Time Sent<input type="datetime-local" id="lx_at" value="${loc}"></label><label>By<select id="lx_role"><option ${x.role === 'IO' ? 'selected' : ''}>IO</option><option ${x.role === 'EO' ? 'selected' : ''}>EO</option></select></label>
+      <label>Case<select id="lx_case"><option value="">— Not in tool / application —</option>${S.cases.map(c => `<option value="${esc(c.id)}" ${x.caseId === c.id ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}</select></label><label>FIR / Application No.<input id="lx_fir" value="${esc(x.fir || '')}"></label>
+      <label>Subject<input id="lx_subject" value="${esc(x.subject || '')}"></label><label>Sent To / For<input id="lx_to" value="${esc(x.to || '')}"></label><label>Letter No.<input id="lx_ref" value="${esc(x.ref || '')}"></label></div>
+      <label class="small" style="display:block;margin-top:8px">Letter Text<textarea id="lx_text" rows="12" style="width:100%">${esc(x.text || '')}</textarea></label><div class="err" id="lxErr"></div>`,
+      [{ label: 'Cancel', onClick: UI.closeModal }, { label: '💾 Save', cls: 'primary', onClick: async () => {
+        const v = k => $('#lx_' + k, m).value.trim(); if (!v('subject') && !v('text')) return $('#lxErr', m).textContent = 'Enter the subject or the letter text';
+        const P = this.parse(v('text')), c = S.cases.find(y => y.id === v('case'));
+        Object.assign(x, { at: new Date(v('at')).toISOString(), role: v('role'), caseId: c ? c.id : '', case: c ? c.name : (x.caseId ? '' : x.case || ''), fir: v('fir') || P.fir, subject: v('subject') || P.subject, to: v('to') || P.to, ref: v('ref') || P.ref, text: v('text') || v('subject') });
+        x.h = this.H(x.text); const i = L.findIndex(y => y.id === x.id); i >= 0 ? (L[i] = x) : L.push(x); await Off.put('letters'); UI.closeModal(); UI.toast('Letter saved in the register'); this.page(el); } }]);
+  }
+};
+PAGE_META.letters = { group: 'Investigation', title: 'Letter Register', desc: 'Every letter, notice and report you make (print, Word, PDF, e-mail) with date & time, case / FIR / application, subject and whom it was sent to – one view per case or for all cases.', order: ['letters'], names: { letters: '📒 Letter Register' } };
+Pages.letters = main => { const { body } = tabs(main, 'letters', [['letters', '📒 Letter Register']], 'Letter Register'); Letters.page(body); };
+addEventListener('scroll', () => Letters.tip(null), true);
+
+/* every letter maker writes to the register */
+(() => {
+  const np = NoticeKit.print.bind(NoticeKit), ne = NoticeKit.email && NoticeKit.email.bind(NoticeKit), dl = Docx.letter.bind(Docx);
+  NoticeKit.print = function (text, ...a) { Letters.log({ text, how: 'print' }); return np(text, ...a); };
+  if (ne) NoticeKit.email = function (text, ...a) { Letters.log({ text, how: 'email' }); return ne(text, ...a); };
+  Docx.letter = function (text, title, ...a) { Letters.log({ text, title, how: 'word' }); return dl(text, title, ...a); };
+})();
 
 </script>
 <script>

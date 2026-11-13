@@ -253,10 +253,12 @@ if (PAGE_META.cctns) PAGE_META.cctns.group = 'Investigation';
     drop(io, ios, 'ioOpen', () => ['cctns', 'others', 'formats'].includes(S.page));
     ios.insertAdjacentHTML('afterend', mk('eo-item', '🕵', 'EO – Enquiry Officer', 'EO – Enquiry Officer: Enquiries (report, status) and JMIS Notice (Samanvaya CIAR requests)', '#0891b2'));
     const eo = $('.eo-item', nav), eos = $('.eo-subs', nav);
-    eos.innerHTML = `<div class="nav-sub" data-eo="eo" style="--pc:#0891b2"><i></i><span>Enquiry List &amp; Report</span></div><div class="nav-sub" data-eo="jmis" style="--pc:#7c3aed"><i></i><span>JMIS Notice</span></div>`;
+    eos.innerHTML = `<div class="nav-sub" data-eo="eo" style="--pc:#0891b2"><i></i><span>Enquiry List &amp; Report</span></div><div class="nav-sub" data-eo="jmis" style="--pc:#7c3aed"><i></i><span>JMIS Notice</span></div><div class="nav-sub" data-eo="letters" data-lrr="EO" style="--pc:#b45309"><i></i><span>Letter Register (EO)</span></div>`;
+    ios.insertAdjacentHTML('beforeend', `<div class="nav-sub" data-lrr="IO" style="--pc:#b45309"><i></i><span>Letter Register (IO)</span></div>`);
+    $$('[data-lrr]', nav).forEach(n => n.addEventListener('click', e => { e.stopImmediatePropagation(); if (typeof Letters !== 'undefined') Letters.st().role = n.dataset.lrr; S.page === 'letters' ? render() : go('letters'); }, true));
     $$('[data-eo]', eos).forEach(n => n.onclick = () => go(n.dataset.eo));
-    drop(eo, eos, 'eoOpen', () => ['eo', 'jmis'].includes(S.page));
-    { const or2 = render; render = function () { const r = or2.apply(this, arguments); $$('[data-eo]', eos).forEach(n => n.classList.toggle('active', S.page === n.dataset.eo)); return r; }; }
+    drop(eo, eos, 'eoOpen', () => ['eo', 'jmis'].includes(S.page) || (S.page === 'letters' && typeof Letters !== 'undefined' && Letters.st().role === 'EO'));
+    { const or2 = render; render = function () { const r = or2.apply(this, arguments); const lr = typeof Letters !== 'undefined' ? Letters.st().role : ''; $$('[data-eo]', eos).forEach(n => n.classList.toggle('active', S.page === n.dataset.eo && (!n.dataset.lrr || lr === 'EO'))); $$('[data-lrr="IO"]', ios).forEach(n => n.classList.toggle('active', S.page === 'letters' && lr !== 'EO')); return r; }; }
     const or = render; render = function () { const r = or.apply(this, arguments);
       $$('[data-cct]', ios).forEach(n => n.classList.toggle('active', S.page === 'cctns' && (S.sub.cctns || 'diary') === n.dataset.cct));
       $$('[data-cf]', ios).forEach(n => { const [p, s] = n.dataset.cf.split('|'); n.classList.toggle('active', S.page === p && (!s || (S.sub.formats || 'notice') === s)); }); return r; };

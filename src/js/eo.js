@@ -139,6 +139,7 @@ const EO = {
     const doc = b => `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${esc(C.title || 'Enquiry Report')}</title><style>@page{size:A4 ${b.o ? 'portrait' : 'landscape'};margin:1.3cm}body{margin:0;background:#fff}${b.css}</style></head><body>${b.inner}</body></html>`;
     $$('[data-er]', m).forEach(btn => btn.onclick = async () => { await take(); const b = build(), k = btn.dataset.er;
       if (!b.R.length) return UI.toast('No enquiry to report');
+      if (typeof Letters !== 'undefined') Letters.log({ role: 'EO', how: k === 'pdf' ? 'print' : k, title: fn(), html: doc(b), caseTxt: b.R.length === 1 ? 'Enquiry ' + this.caseNo(b.R[0]) : b.R.length + ' Enquiries (EO Report)', subject: 'Enquiry Report – ' + (b.R.length === 1 ? 'SR ' + (b.R[0].sr || '') + ' · ' + this.caseNo(b.R[0]) : b.R.length + ' enquiries') });
       if (k === 'html') UI.download(fn() + '.html', doc(b), 'text/html');
       else if (k === 'word') UI.download(fn() + '.doc', doc(b).replace('<html>', '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word">'), 'application/msword');
       else if (k === 'pdf') { const w = window.open('', '_blank'); if (!w) return UI.toast('Pop-up blocked – allow pop-ups to print'); w.document.write(doc(b).replace('<body>', '<body><button onclick="print()" class="np" style="margin:10px">🖨 Print / Save as PDF</button><style>@media print{.np{display:none}}</style>')); w.document.close(); setTimeout(() => { try { w.print(); } catch (e) { } }, 400); }
