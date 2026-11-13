@@ -27,7 +27,7 @@ const Contacts = {
     el.innerHTML = `<div class="card"><div class="row" style="gap:8px;flex-wrap:wrap;align-items:center"><h3 class="grow" style="margin:0">${ttl} <span class="badge">${fmtNum(V.length)}</span></h3>
 <button class="btn primary" id="ctAdd">➕ Add Contacts</button><button class="btn" id="ctImp" title="Excel / CSV with columns like Category, Company, Name, Designation, Mobile, E-mail">📥 Import Excel</button>
         ${cur === 'police' && Role.admin() ? '<button class="btn" id="ctReg" title="Read the registered users again from your Google Sheet">🔄 Fetch Registered Users</button>' : ''}</div>
-      <div class="lr-ks" style="margin-top:12px">${this.CAT.map(([k, ic, l, c]) => `<button class="lr-k ${cur === k ? 'on' : ''}" data-ctc="${k}" style="--c:${c}"><span>${ic}</span><b>${fmtNum(cnt(k))}</b><small>${l}</small></button>`).join('')}</div>
+      ${cur === 'all' ? `<div class="lr-ks" style="margin-top:12px">${this.CAT.map(([k, ic, l, c]) => `<button class="lr-k ${cur === k ? 'on' : ''}" data-ctc="${k}" style="--c:${c}"><span>${ic}</span><b>${fmtNum(cnt(k))}</b><small>${l}</small></button>`).join('')}</div>` : ''}
       ${cur === 'police' ? `<div class="small muted" style="margin-top:8px">👥 ${R.L.length} registered user(s) of the tool${R.at ? ' · fetched ' + esc(new Date(R.at).toLocaleString('en-IN')) : ''} · plus the police contacts you add.</div>` : ''}</div>
       <div class="card"><div id="ctTb"></div></div>`;
     Table($('#ctTb', el), { rows: V, pageSize: 50, exportName: 'contacts_' + cur, noNd: true, onRow: x => this.edit(x, () => this.page(el, cur)), columns: [
@@ -37,7 +37,10 @@ const Contacts = {
       { key: 'email', label: 'E-mail', render: x => x.email ? String(x.email).split(/[,;\s]+/).filter(Boolean).map(e => `<a href="mailto:${esc(e)}">${esc(e)}</a>`).join('<br>') : '' },
       { key: 'portal', label: 'Portal', render: x => x.portal ? `<a href="${esc(/^https?:/i.test(x.portal) ? x.portal : 'https://' + x.portal)}" target="_blank" rel="noopener">open ↗</a>` : '' },
       { key: 'state', label: 'State / District', csv: x => [x.state, x.district].filter(Boolean).join(', '), render: x => esc([x.district, x.state].filter(Boolean).join(', ')) }, { key: 'note', label: 'Note', render: x => `<span class="small">${esc(x.note || x.status || '')}</span>` }] });
-    $$('[data-ctc]', el).forEach(b => b.onclick = () => go('contacts', b.dataset.ctc));
+    /* Intermediary / Police tab: its kinds in the same line as the tabs */
+    const tb = el.parentElement && $('.tabs', el.parentElement), g2 = grp || (this.CAT.find(x => x[0] === cur) || [])[4];
+    if (tb && tb.classList.contains('tabs') && g2 && g2 !== 'all') { tb.insertAdjacentHTML('beforeend', `<span class="ct-sep">›</span>${this.CAT.filter(x => x[4] === g2).map(([k, ic, l, c]) => `<button class="ct-ch ${cur === k ? 'on' : ''}" data-ctc="${k}" style="--c:${c}">${ic} ${esc(l)} <b>${fmtNum(cnt(k))}</b></button>`).join('')}`); }
+    $$('[data-ctc]', el.parentElement).forEach(b => b.onclick = () => go('contacts', S.sub.contacts === b.dataset.ctc ? (this.c(b.dataset.ctc)[4]) : b.dataset.ctc));
     $('#ctAdd', el).onclick = () => this.edit({ cat: this.CAT.some(x => x[0] === cur) ? cur : grp === 'pol' ? 'police' : 'bank' }, () => this.page(el, cur));
     $('#ctImp', el).onclick = () => this.imp(() => this.page(el, cur));
     if ($('#ctReg', el)) $('#ctReg', el).onclick = async () => { const r = await this.reg(true); UI.toast(r.L.length + ' registered user(s)'); this.page(el, cur); };
@@ -80,14 +83,13 @@ Pages.contacts = main => { if (!Role.can('contacts')) { main.innerHTML = '<div c
 /* sidebar: 📇 Contacts drop-down right after Office Work, then ➕ Add Contacts */
 (() => {
   const nav = $('#sidebar'), ox = nav && $('.offx-subs', nav); if (!ox) return;
-  const SUB = [['all', '📇 All Contacts', '#6366f1'], ['bank', 'Intermediary – Banking', '#2563eb'], ['social', 'Intermediary – Social Media', '#db2777'], ['fintech', 'Intermediary – Fintech / Payment Gateway', '#7c3aed'], ['merchant', 'Intermediary – Merchant', '#ea580c'], ['upi', 'Intermediary – UPI / Wallet', '#16a34a'], ['telecom', 'Intermediary – Telecom', '#0891b2'], ['other', 'Intermediary – Others', '#64748b'], ['police', 'UP Cyber Police', '#1d4ed8']];
-  ox.insertAdjacentHTML('afterend', `<div class="nav-item ct-item" title="Contacts: intermediaries (bank, social media, fintech, merchant, UPI…) and UP Cyber Police" style="--c:#6366f1"><span class="nib">📇</span><span>Contacts</span><span class="nav-chev">▾</span></div><div class="nav-subs ct-subs">${SUB.map(([s, l, c], i) => `<div class="nav-sub" data-ctn="${s}" style="--pc:${c}"><i></i><span>${i + 1}. ${l}</span></div>`).join('')}</div>
-    <div class="nav-item ct-add" title="Add a contact – choose Intermediary / Police category" style="--c:#16a34a"><span class="nib">➕</span><span>Add Contacts</span></div>`);
+  const SUB = [['all', 'All Contacts', '#6366f1'], ['add', '+ Add Contacts', '#16a34a']];
+  ox.insertAdjacentHTML('afterend', `<div class="nav-item ct-item" title="Contacts: intermediaries (bank, social media, fintech, merchant, UPI…) and UP Cyber Police" style="--c:#6366f1"><span class="nib">📇</span><span>Contacts</span><span class="nav-chev">▾</span></div><div class="nav-subs ct-subs">${SUB.map(([s, l, c], i) => `<div class="nav-sub" data-ctn="${s}" style="--pc:${c}" ${s === 'add' ? 'title="Add a contact – choose Intermediary / Police category"' : ''}><i></i><span>${i + 1}. ${l}</span></div>`).join('')}</div>`);
   const it = $('.ct-item', nav), subs = $('.ct-subs', nav), setOpen = on => { S.ctOpen = on; subs.classList.toggle('open', on); it.classList.toggle('open', on); };
   setOpen(false); it.addEventListener('click', e => { e.stopImmediatePropagation(); setOpen(!S.ctOpen); }, true);
-  $$('[data-ctn]', subs).forEach(n => n.onclick = () => go('contacts', n.dataset.ctn));
-  $('.ct-add', nav).addEventListener('click', e => { e.stopImmediatePropagation(); if (!Role.can('contacts')) return Role.deny('add Contacts'); Contacts.edit({ cat: S.page === 'contacts' && Contacts.CAT.some(x => x[0] === S.sub.contacts) ? S.sub.contacts : 'bank' }, () => { if (S.page === 'contacts') render(); else go('contacts', 'all'); }); }, true);
+  $$('[data-ctn]', subs).forEach(n => n.onclick = n.dataset.ctn === 'add' ? null : () => go('contacts', 'all'));
+  $('[data-ctn="add"]', subs).addEventListener('click', e => { e.stopImmediatePropagation(); if (!Role.can('contacts')) return Role.deny('add Contacts'); Contacts.edit({ cat: S.page === 'contacts' && Contacts.CAT.some(x => x[0] === S.sub.contacts) ? S.sub.contacts : 'bank' }, () => { if (S.page === 'contacts') render(); else go('contacts', 'all'); }); }, true);
   const or = render; render = function () { const r = or.apply(this, arguments);
-    $$('[data-ctn]', subs).forEach(n => n.classList.toggle('active', S.page === 'contacts' && (S.sub.contacts || 'all') === n.dataset.ctn));
+    $$('[data-ctn]', subs).forEach(n => n.classList.toggle('active', S.page === 'contacts' && n.dataset.ctn === 'all'));
     const on = S.page === 'contacts'; it.classList.toggle('active', on); if (on && !S.ctOpen) setOpen(true); return r; };
 })();

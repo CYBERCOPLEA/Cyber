@@ -38,7 +38,7 @@ const Plans = {
     if (sub('crime')) { R.add('crime'); if (H.has(this.CDF)) R.add('crimeEdit'); }
     if (['good', 'press', 'duty'].some(sub)) R.add('office');
     if (sub('files')) R.add('upload');
-    R.delete('contacts'); if (!H.has('S:ct-item') && !H.has('S:ct-add')) R.add('contacts');
+    R.delete('contacts'); if (!H.has('S:ct-item')) R.add('contacts');
     return [...R];
   },
   hideNav(hide) {
@@ -48,7 +48,7 @@ const Plans = {
     $$('#sidebar > .nav-group').forEach(g => { let n = g.nextElementSibling, any = false; while (n && !n.classList.contains('nav-group')) { if (n.classList.contains('nav-item') && !n.classList.contains('pl-hide') && getComputedStyle(n).display !== 'none') any = true; n = n.nextElementSibling; } g.classList.toggle('pl-hide', !any); });
   },
   plan() { const L = SUD_ED === 'user' && typeof Users !== 'undefined' ? Users.link() : null; return L && L.plan ? L.plan : null; },
-  SEC: { contacts: 'ct-item', arrest: 'arrest-item', cctns: 'io-item', others: 'io-item', formats: 'io-item', eo: 'eo-item', jmis: 'eo-item' },
+  SEC: { prb: 'analytics', contacts: 'ct-item', arrest: 'arrest-item', cctns: 'io-item', others: 'io-item', formats: 'io-item', eo: 'eo-item', jmis: 'eo-item' },
   blocked(page) { const p = this.plan(), H = p && p.hide || []; return !!(p && page && (H.includes('S:' + page) || (this.SEC[page] && (H.includes('S:' + this.SEC[page]) || (this.SEC[page] === 'eo-item' && H.includes('eo-item|eo:' + page)))))); },
   apply() {
     if (SUD_ED !== 'user') return; const p = this.plan();

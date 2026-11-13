@@ -70,7 +70,7 @@ const NodalM = {
   _ix: null, ix() { if (this._ix) return this._ix; const A = new Map(), K = []; this.list().forEach(x => { if (x.kw) K.push([x.kw.toUpperCase(), x]); else if (x.acc) A.set(this.na(x.acc), x); }); return (this._ix = { A, K }); },
   names: new Map(), // account → names / banks seen (filled by Target, used for keyword match across cases)
   hit(acc, txt) { const { A, K } = this.ix(), a = A.get(this.na(acc)); if (a) return a.type || 'Nodal A/C'; const u = String(txt || this.names.get(String(acc)) || '').toUpperCase(); if (u) for (const [k, x] of K) if (u.includes(k)) return x.type || 'Nodal A/C'; return ''; },
-  async changed() { this._ix = null; await saveMeta(); try { Analysis.invalidate(); } catch (e) { } if (typeof Target !== 'undefined') Target._d = null; render(); },
+  async changed() { this._ix = null; $$('.nm-top, .nm-open').forEach(b => b.textContent = `🏛️ Nodal / Escrow List (${this.list().length})`); await saveMeta(); try { Analysis.invalidate(); } catch (e) { } if (typeof Target !== 'undefined') Target._d = null; render(); },
   parseRows(A) { // rows (arrays) → entries
     let hi = A.findIndex(r => r.some(c => /acc|a\/c|account|खाता/i.test(String(c)))), H = hi >= 0 ? A[hi].map(c => String(c).toLowerCase()) : [];
     const ix = re => H.findIndex(h => re.test(h)), cA = hi >= 0 ? ix(/acc|a\/c|account|खाता/) : 0, cN = hi >= 0 ? ix(/name|holder|नाम/) : 1, cB = hi >= 0 ? ix(/bank/) : 2, cI = hi >= 0 ? ix(/ifsc/) : 3, cT = hi >= 0 ? ix(/type|nodal|escrow/) : 4, cK = hi >= 0 ? ix(/keyword|word/) : -1;
@@ -106,8 +106,13 @@ const NodalM = {
     for (const t of S.data.txns || []) if (t.to_acc && !M2.has(t.to_acc)) { const h = NodalM.hit('', [t.to_name, t.to_bank, t.remarks].join(' ')); if (h) M2.set(t.to_acc, h); }
     for (const k of S.data.kyc || []) if (k.acc && !M2.has(k.acc)) { const h = NodalM.hit('', [k.name, k.bank].join(' ')); if (h) M2.set(k.acc, h); } return M2; }); };
   const td = Target.draw.bind(Target); Target.draw = function (el, T, J) { NodalM.names.clear(); T.forEach(t => NodalM.names.set(String(t.acc), [...t.names, ...t.banks].join(' '))); return td(el, T, J); };
+  /* easy to find: Analytics drop-down item (after Target) + a button in the title of Target, Money Trail, Financial and Dashboard */
+  { const subs = $('.tel-subs'), tg = subs && $('[data-tx="target"]', subs);
+    if (tg) { tg.insertAdjacentHTML('afterend', `<div class="nav-sub" data-nmo="1" style="--pc:#7c3aed" title="Nodal / escrow / payment-gateway accounts you found – matched in every case"><i></i><span>Nodal / Escrow List</span></div>`); const n = $('[data-nmo]', subs); n.dataset.ncI = 99; n.onclick = e => { e.stopPropagation(); NodalM.open(); }; }
+    NodalM.top = () => {
+      if (/^(target|trail|financial|dashboard|analytics)$/.test(S.page)) { const t = $('#main .page-title') || $('#main h2') && $('#main h2').parentElement; if (t && !$('.nm-top', t)) { const x = document.createElement('button'); x.className = 'btn nm-top'; x.type = 'button'; x.title = 'Add nodal / escrow accounts you found – matched in every case, Target and Money Trail'; x.textContent = `🏛️ Nodal / Escrow List (${NodalM.list().length})`; x.onclick = () => NodalM.open(); const sp = $('.spacer', t); sp ? sp.after(x) : t.appendChild(x); } } }; }
   /* a "Nodal / Escrow List" button on every All / Without / With Nodal bar */
-  let q = 0; new MutationObserver(() => { if (q) return; q = requestAnimationFrame(() => { q = 0; $$('.nd-bar').forEach(b => { if (b.querySelector('.nm-open')) return; const x = document.createElement('button'); x.className = 'btn sm nm-open'; x.type = 'button'; x.title = 'Add nodal / escrow accounts you found – matched in every case'; x.textContent = `🏛️ Nodal / Escrow List (${NodalM.list().length})`; x.onclick = () => NodalM.open(); const h = b.querySelector('.nd-h'); h ? b.insertBefore(x, h) : b.appendChild(x); }); }); }).observe(document.body, { childList: true, subtree: true });
+  let q = 0; new MutationObserver(() => { if (q) return; q = requestAnimationFrame(() => { q = 0; NodalM.top(); $$('.nd-bar').forEach(b => { if (b.querySelector('.nm-open')) return; const x = document.createElement('button'); x.className = 'btn sm nm-open'; x.type = 'button'; x.title = 'Add nodal / escrow accounts you found – matched in every case'; x.textContent = `🏛️ Nodal / Escrow List (${NodalM.list().length})`; x.onclick = () => NodalM.open(); const h = b.querySelector('.nd-h'); h ? b.insertBefore(x, h) : b.appendChild(x); }); }); }).observe(document.body, { childList: true, subtree: true });
 }
 
 /* ---------- 3. EO: import existing enquiries (Excel / CSV / Word table) ---------- */

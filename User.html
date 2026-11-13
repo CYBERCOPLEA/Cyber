@@ -2273,7 +2273,11 @@ html.ed-user .nav-bottom,html.ed-user #sidebar [data-page="settings"]{display:no
 .tg-card{position:fixed;z-index:9999;background:var(--surface-1,#0f172a);color:var(--text-primary,#e5e7eb);border:1px solid #6366f1;border-radius:12px;padding:10px 12px;box-shadow:0 12px 32px rgba(0,0,0,.45);font-size:12.5px;max-height:70vh;overflow:auto;pointer-events:none}.tg-card h4{margin:8px 0 3px;font-size:12.5px}.tg-card ol{margin:0 0 0 18px;padding:0}.tg-ch{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:14px;border-bottom:1px solid var(--border);padding-bottom:6px}.tg-cm{color:#e11d48;font-size:11.5px;font-weight:700}.tg-kv{border-collapse:collapse;width:100%;margin-top:6px}.tg-kv th{text-align:left;opacity:.7;font-weight:600;padding:2px 8px 2px 0;width:32%;vertical-align:top}.tg-kv td{padding:2px 0}#tgT tbody td{cursor:pointer}
 .ei-map{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:6px}.ei-map label{display:flex;flex-direction:column;font-size:11.5px;gap:2px}.ei-map label span{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.nm-open{margin-left:8px}
 
-html.no-contacts .ct-item,html.no-contacts .ct-subs,html.no-contacts .ct-add{display:none!important}
+html.no-contacts .ct-item,html.no-contacts .ct-subs{display:none!important}
+
+.tel-subs .pb-n{margin-left:18px;font-size:12px}.tel-subs .pb-n.pb-off{display:none!important}
+.pb-map{background:#0b1220;border-radius:10px;border:1px solid #334155;display:block}.pb-map .pb-grid line{stroke:#1e293b;stroke-width:1}.pb-map circle{stroke:#fff;stroke-width:.8;opacity:.9;cursor:pointer}.pb-map circle:hover{stroke-width:2.5;opacity:1}.pb-map circle.hit{stroke:#fde047;stroke-width:1.6}.pb-map .pb-sc{fill:#94a3b8;font-size:11px}
+.tabs .ct-sep{align-self:center;opacity:.6;font-weight:700;margin:0 2px}.tabs .ct-ch{border:1px solid var(--c);background:color-mix(in srgb,var(--c) 14%,transparent);color:inherit;border-radius:999px;padding:6px 12px;font-size:12.5px;cursor:pointer;white-space:nowrap}.tabs .ct-ch b{margin-left:4px;opacity:.85}.tabs .ct-ch.on{background:var(--c);color:#fff}
 
 </style>
 </head>
@@ -2322,7 +2326,7 @@ html.no-contacts .ct-item,html.no-contacts .ct-subs,html.no-contacts .ct-add{dis
         <div class="hp-feat" style="--fc:#06b6d4"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><div><b>Analytics</b><p>The same mobile, account, IP or e-mail across complaints, banks and platforms.</p></div></div>
         <div class="hp-feat" style="--fc:#eab308"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h5"/></svg></span><div><b>Case File &amp; Notices</b><p>Case reports, notices to banks and platforms, and CSV / PDF exports.</p></div></div>
     </section>
-    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-13 14:27 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
+    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-13 14:48 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
   </div>
 
   <div class="lg-wrap" id="lgWrap" aria-hidden="true">
@@ -18248,7 +18252,7 @@ const NodalM = {
   _ix: null, ix() { if (this._ix) return this._ix; const A = new Map(), K = []; this.list().forEach(x => { if (x.kw) K.push([x.kw.toUpperCase(), x]); else if (x.acc) A.set(this.na(x.acc), x); }); return (this._ix = { A, K }); },
   names: new Map(), // account → names / banks seen (filled by Target, used for keyword match across cases)
   hit(acc, txt) { const { A, K } = this.ix(), a = A.get(this.na(acc)); if (a) return a.type || 'Nodal A/C'; const u = String(txt || this.names.get(String(acc)) || '').toUpperCase(); if (u) for (const [k, x] of K) if (u.includes(k)) return x.type || 'Nodal A/C'; return ''; },
-  async changed() { this._ix = null; await saveMeta(); try { Analysis.invalidate(); } catch (e) { } if (typeof Target !== 'undefined') Target._d = null; render(); },
+  async changed() { this._ix = null; $$('.nm-top, .nm-open').forEach(b => b.textContent = `🏛️ Nodal / Escrow List (${this.list().length})`); await saveMeta(); try { Analysis.invalidate(); } catch (e) { } if (typeof Target !== 'undefined') Target._d = null; render(); },
   parseRows(A) { // rows (arrays) → entries
     let hi = A.findIndex(r => r.some(c => /acc|a\/c|account|खाता/i.test(String(c)))), H = hi >= 0 ? A[hi].map(c => String(c).toLowerCase()) : [];
     const ix = re => H.findIndex(h => re.test(h)), cA = hi >= 0 ? ix(/acc|a\/c|account|खाता/) : 0, cN = hi >= 0 ? ix(/name|holder|नाम/) : 1, cB = hi >= 0 ? ix(/bank/) : 2, cI = hi >= 0 ? ix(/ifsc/) : 3, cT = hi >= 0 ? ix(/type|nodal|escrow/) : 4, cK = hi >= 0 ? ix(/keyword|word/) : -1;
@@ -18284,8 +18288,13 @@ const NodalM = {
     for (const t of S.data.txns || []) if (t.to_acc && !M2.has(t.to_acc)) { const h = NodalM.hit('', [t.to_name, t.to_bank, t.remarks].join(' ')); if (h) M2.set(t.to_acc, h); }
     for (const k of S.data.kyc || []) if (k.acc && !M2.has(k.acc)) { const h = NodalM.hit('', [k.name, k.bank].join(' ')); if (h) M2.set(k.acc, h); } return M2; }); };
   const td = Target.draw.bind(Target); Target.draw = function (el, T, J) { NodalM.names.clear(); T.forEach(t => NodalM.names.set(String(t.acc), [...t.names, ...t.banks].join(' '))); return td(el, T, J); };
+  /* easy to find: Analytics drop-down item (after Target) + a button in the title of Target, Money Trail, Financial and Dashboard */
+  { const subs = $('.tel-subs'), tg = subs && $('[data-tx="target"]', subs);
+    if (tg) { tg.insertAdjacentHTML('afterend', `<div class="nav-sub" data-nmo="1" style="--pc:#7c3aed" title="Nodal / escrow / payment-gateway accounts you found – matched in every case"><i></i><span>Nodal / Escrow List</span></div>`); const n = $('[data-nmo]', subs); n.dataset.ncI = 99; n.onclick = e => { e.stopPropagation(); NodalM.open(); }; }
+    NodalM.top = () => {
+      if (/^(target|trail|financial|dashboard|analytics)$/.test(S.page)) { const t = $('#main .page-title') || $('#main h2') && $('#main h2').parentElement; if (t && !$('.nm-top', t)) { const x = document.createElement('button'); x.className = 'btn nm-top'; x.type = 'button'; x.title = 'Add nodal / escrow accounts you found – matched in every case, Target and Money Trail'; x.textContent = `🏛️ Nodal / Escrow List (${NodalM.list().length})`; x.onclick = () => NodalM.open(); const sp = $('.spacer', t); sp ? sp.after(x) : t.appendChild(x); } } }; }
   /* a "Nodal / Escrow List" button on every All / Without / With Nodal bar */
-  let q = 0; new MutationObserver(() => { if (q) return; q = requestAnimationFrame(() => { q = 0; $$('.nd-bar').forEach(b => { if (b.querySelector('.nm-open')) return; const x = document.createElement('button'); x.className = 'btn sm nm-open'; x.type = 'button'; x.title = 'Add nodal / escrow accounts you found – matched in every case'; x.textContent = `🏛️ Nodal / Escrow List (${NodalM.list().length})`; x.onclick = () => NodalM.open(); const h = b.querySelector('.nd-h'); h ? b.insertBefore(x, h) : b.appendChild(x); }); }); }).observe(document.body, { childList: true, subtree: true });
+  let q = 0; new MutationObserver(() => { if (q) return; q = requestAnimationFrame(() => { q = 0; NodalM.top(); $$('.nd-bar').forEach(b => { if (b.querySelector('.nm-open')) return; const x = document.createElement('button'); x.className = 'btn sm nm-open'; x.type = 'button'; x.title = 'Add nodal / escrow accounts you found – matched in every case'; x.textContent = `🏛️ Nodal / Escrow List (${NodalM.list().length})`; x.onclick = () => NodalM.open(); const h = b.querySelector('.nd-h'); h ? b.insertBefore(x, h) : b.appendChild(x); }); }); }).observe(document.body, { childList: true, subtree: true });
 }
 
 /* ---------- 3. EO: import existing enquiries (Excel / CSV / Word table) ---------- */
@@ -18370,7 +18379,7 @@ const Contacts = {
     el.innerHTML = `<div class="card"><div class="row" style="gap:8px;flex-wrap:wrap;align-items:center"><h3 class="grow" style="margin:0">${ttl} <span class="badge">${fmtNum(V.length)}</span></h3>
 <button class="btn primary" id="ctAdd">➕ Add Contacts</button><button class="btn" id="ctImp" title="Excel / CSV with columns like Category, Company, Name, Designation, Mobile, E-mail">📥 Import Excel</button>
         ${cur === 'police' && Role.admin() ? '<button class="btn" id="ctReg" title="Read the registered users again from your Google Sheet">🔄 Fetch Registered Users</button>' : ''}</div>
-      <div class="lr-ks" style="margin-top:12px">${this.CAT.map(([k, ic, l, c]) => `<button class="lr-k ${cur === k ? 'on' : ''}" data-ctc="${k}" style="--c:${c}"><span>${ic}</span><b>${fmtNum(cnt(k))}</b><small>${l}</small></button>`).join('')}</div>
+      ${cur === 'all' ? `<div class="lr-ks" style="margin-top:12px">${this.CAT.map(([k, ic, l, c]) => `<button class="lr-k ${cur === k ? 'on' : ''}" data-ctc="${k}" style="--c:${c}"><span>${ic}</span><b>${fmtNum(cnt(k))}</b><small>${l}</small></button>`).join('')}</div>` : ''}
       ${cur === 'police' ? `<div class="small muted" style="margin-top:8px">👥 ${R.L.length} registered user(s) of the tool${R.at ? ' · fetched ' + esc(new Date(R.at).toLocaleString('en-IN')) : ''} · plus the police contacts you add.</div>` : ''}</div>
       <div class="card"><div id="ctTb"></div></div>`;
     Table($('#ctTb', el), { rows: V, pageSize: 50, exportName: 'contacts_' + cur, noNd: true, onRow: x => this.edit(x, () => this.page(el, cur)), columns: [
@@ -18380,7 +18389,10 @@ const Contacts = {
       { key: 'email', label: 'E-mail', render: x => x.email ? String(x.email).split(/[,;\s]+/).filter(Boolean).map(e => `<a href="mailto:${esc(e)}">${esc(e)}</a>`).join('<br>') : '' },
       { key: 'portal', label: 'Portal', render: x => x.portal ? `<a href="${esc(/^https?:/i.test(x.portal) ? x.portal : 'https://' + x.portal)}" target="_blank" rel="noopener">open ↗</a>` : '' },
       { key: 'state', label: 'State / District', csv: x => [x.state, x.district].filter(Boolean).join(', '), render: x => esc([x.district, x.state].filter(Boolean).join(', ')) }, { key: 'note', label: 'Note', render: x => `<span class="small">${esc(x.note || x.status || '')}</span>` }] });
-    $$('[data-ctc]', el).forEach(b => b.onclick = () => go('contacts', b.dataset.ctc));
+    /* Intermediary / Police tab: its kinds in the same line as the tabs */
+    const tb = el.parentElement && $('.tabs', el.parentElement), g2 = grp || (this.CAT.find(x => x[0] === cur) || [])[4];
+    if (tb && tb.classList.contains('tabs') && g2 && g2 !== 'all') { tb.insertAdjacentHTML('beforeend', `<span class="ct-sep">›</span>${this.CAT.filter(x => x[4] === g2).map(([k, ic, l, c]) => `<button class="ct-ch ${cur === k ? 'on' : ''}" data-ctc="${k}" style="--c:${c}">${ic} ${esc(l)} <b>${fmtNum(cnt(k))}</b></button>`).join('')}`); }
+    $$('[data-ctc]', el.parentElement).forEach(b => b.onclick = () => go('contacts', S.sub.contacts === b.dataset.ctc ? (this.c(b.dataset.ctc)[4]) : b.dataset.ctc));
     $('#ctAdd', el).onclick = () => this.edit({ cat: this.CAT.some(x => x[0] === cur) ? cur : grp === 'pol' ? 'police' : 'bank' }, () => this.page(el, cur));
     $('#ctImp', el).onclick = () => this.imp(() => this.page(el, cur));
     if ($('#ctReg', el)) $('#ctReg', el).onclick = async () => { const r = await this.reg(true); UI.toast(r.L.length + ' registered user(s)'); this.page(el, cur); };
@@ -18423,16 +18435,263 @@ Pages.contacts = main => { if (!Role.can('contacts')) { main.innerHTML = '<div c
 /* sidebar: 📇 Contacts drop-down right after Office Work, then ➕ Add Contacts */
 (() => {
   const nav = $('#sidebar'), ox = nav && $('.offx-subs', nav); if (!ox) return;
-  const SUB = [['all', '📇 All Contacts', '#6366f1'], ['bank', 'Intermediary – Banking', '#2563eb'], ['social', 'Intermediary – Social Media', '#db2777'], ['fintech', 'Intermediary – Fintech / Payment Gateway', '#7c3aed'], ['merchant', 'Intermediary – Merchant', '#ea580c'], ['upi', 'Intermediary – UPI / Wallet', '#16a34a'], ['telecom', 'Intermediary – Telecom', '#0891b2'], ['other', 'Intermediary – Others', '#64748b'], ['police', 'UP Cyber Police', '#1d4ed8']];
-  ox.insertAdjacentHTML('afterend', `<div class="nav-item ct-item" title="Contacts: intermediaries (bank, social media, fintech, merchant, UPI…) and UP Cyber Police" style="--c:#6366f1"><span class="nib">📇</span><span>Contacts</span><span class="nav-chev">▾</span></div><div class="nav-subs ct-subs">${SUB.map(([s, l, c], i) => `<div class="nav-sub" data-ctn="${s}" style="--pc:${c}"><i></i><span>${i + 1}. ${l}</span></div>`).join('')}</div>
-    <div class="nav-item ct-add" title="Add a contact – choose Intermediary / Police category" style="--c:#16a34a"><span class="nib">➕</span><span>Add Contacts</span></div>`);
+  const SUB = [['all', 'All Contacts', '#6366f1'], ['add', '+ Add Contacts', '#16a34a']];
+  ox.insertAdjacentHTML('afterend', `<div class="nav-item ct-item" title="Contacts: intermediaries (bank, social media, fintech, merchant, UPI…) and UP Cyber Police" style="--c:#6366f1"><span class="nib">📇</span><span>Contacts</span><span class="nav-chev">▾</span></div><div class="nav-subs ct-subs">${SUB.map(([s, l, c], i) => `<div class="nav-sub" data-ctn="${s}" style="--pc:${c}" ${s === 'add' ? 'title="Add a contact – choose Intermediary / Police category"' : ''}><i></i><span>${i + 1}. ${l}</span></div>`).join('')}</div>`);
   const it = $('.ct-item', nav), subs = $('.ct-subs', nav), setOpen = on => { S.ctOpen = on; subs.classList.toggle('open', on); it.classList.toggle('open', on); };
   setOpen(false); it.addEventListener('click', e => { e.stopImmediatePropagation(); setOpen(!S.ctOpen); }, true);
-  $$('[data-ctn]', subs).forEach(n => n.onclick = () => go('contacts', n.dataset.ctn));
-  $('.ct-add', nav).addEventListener('click', e => { e.stopImmediatePropagation(); if (!Role.can('contacts')) return Role.deny('add Contacts'); Contacts.edit({ cat: S.page === 'contacts' && Contacts.CAT.some(x => x[0] === S.sub.contacts) ? S.sub.contacts : 'bank' }, () => { if (S.page === 'contacts') render(); else go('contacts', 'all'); }); }, true);
+  $$('[data-ctn]', subs).forEach(n => n.onclick = n.dataset.ctn === 'add' ? null : () => go('contacts', 'all'));
+  $('[data-ctn="add"]', subs).addEventListener('click', e => { e.stopImmediatePropagation(); if (!Role.can('contacts')) return Role.deny('add Contacts'); Contacts.edit({ cat: S.page === 'contacts' && Contacts.CAT.some(x => x[0] === S.sub.contacts) ? S.sub.contacts : 'bank' }, () => { if (S.page === 'contacts') render(); else go('contacts', 'all'); }); }, true);
   const or = render; render = function () { const r = or.apply(this, arguments);
-    $$('[data-ctn]', subs).forEach(n => n.classList.toggle('active', S.page === 'contacts' && (S.sub.contacts || 'all') === n.dataset.ctn));
+    $$('[data-ctn]', subs).forEach(n => n.classList.toggle('active', S.page === 'contacts' && n.dataset.ctn === 'all'));
     const on = S.page === 'contacts'; it.classList.toggle('active', on); if (on && !S.ctOpen) setOpen(true); return r; };
+})();
+
+</script>
+<script>
+/* pratibimb.js – Analysis › Pratibimb Cases: the Excel sheets that I4C Pratibimb (JCCT portal) generates –
+   Suspect Locations, Cheque Withdrawal Locations, ATM Withdrawal Locations, Suspect Bank Branches, Suspect SIM – POS.
+   Imported on this computer only, matched with Target and every case (common targets), joined into gangs / groups,
+   with at-a-glance rings / bars, an offline point map, hover and click, and one-click Arrest / Notice and Crime Data. */
+'use strict';
+const PRB = {
+  K: [['loc', '📍', 'Suspect Locations', '#dc2626', 'https://jcct-i4c.mha.gov.in/'], ['chq', '🧾', 'Cheque Withdrawal Locations', '#ea580c', 'https://jcct-i4c.mha.gov.in/pages/map_cheque_with.aspx'],
+    ['atm', '🏧', 'ATM Withdrawal Locations', '#7c3aed', 'https://jcct-i4c.mha.gov.in/pages/mapping_atm.aspx'], ['branch', '🏦', 'Suspect Bank Branches', '#2563eb', 'https://jcct-i4c.mha.gov.in/pages/bank_mapping.aspx'],
+    ['pos', '📶', 'Suspect SIM – POS', '#0891b2', 'https://jcct-i4c.mha.gov.in/pages/viewmap.aspx']],
+  k(x) { return this.K.find(y => y[0] === x) || this.K[0]; },
+  /* column heading → field (first that fits, most specific first) */
+  F: [['imei', /imei/], ['ifsc', /ifsc/], ['ncrp', /ncrp|^ack|acknowledg/], ['coord', /coordinat|latlong|latlng/], ['lat', /^lat/], ['lng', /^lon|^lng/], ['branch', /branch/], ['atm', /atm|terminal/], ['chq', /cheque|chq/],
+    ['pos', /pos|retailer|dealer|agent/], ['bank', /bank/], ['acc', /account|^acno|accno|^ac$/], ['mobile', /mobile|msisdn|phone|^sim/], ['addr', /address|addr|^location$|place/], ['time', /time|date/], ['total', /total|noofcomp|^comp/],
+    ['amt', /amount|amt/], ['state', /state/], ['district', /district/], ['ps', /policestation|^ps$|thana/], ['name', /name|holder/]],
+  L: { mobile: 'Mobile', imei: 'IMEI', acc: 'Account', name: 'Name', bank: 'Bank', ifsc: 'IFSC', branch: 'Branch', atm: 'ATM', chq: 'Cheque', pos: 'POS / Agent', amt: 'Amount', addr: 'Address / Location', time: 'Fetch / Txn Time', total: 'Total Complaints', ncrp: 'NCRP Complaints', state: 'State', district: 'District', ps: 'Police Station' },
+  GCAT: ['Group Calling (Same Location)', 'Many SIMs In One Phone (Same IMEI)', 'Mule Account Gang', 'Cash Withdrawal Gang (ATM / Cheque)', 'SIM Seller / POS Gang', 'Sextortion Gang', 'Investment / Task Fraud Gang', 'Other'],
+  st() { return this._s || (this._s = { f: null, q: '' }); },
+  nm: v => String(v || '').replace(/\D/g, '').slice(-10), ni: v => String(v || '').replace(/\D/g, '').slice(0, 15), na: v => String(v || '').toUpperCase().replace(/[^0-9A-Z]/g, ''),
+  async data() { return Off.get('prb', []); },
+  ts(v) { if (v == null || v === '') return 0; if (typeof v === 'number' || /^\d{5}(\.\d+)?$/.test(String(v).trim())) return Math.round((+v - 25569) * 864e5) + new Date().getTimezoneOffset() * 6e4; const t = Trend.ts(v); if (t) return t; const d = Date.parse(String(v).replace(/,/g, ' ')); return isNaN(d) ? 0 : d; },
+  /* one sheet → rows */
+  rows(A, kind, file) {
+    const hi = A.findIndex(r => r.filter(c => this.F.some(([, re]) => re.test(String(c).toLowerCase().replace(/[^a-z0-9]/g, '')))).length >= 2); if (hi < 0) return [];
+    const H = A[hi].map(h => String(h).trim()), M = {}; H.forEach((h, i) => { const n = h.toLowerCase().replace(/[^a-z0-9]/g, ''); const f = this.F.find(([k, re]) => !(k in M) && re.test(n)); if (f) M[f[0]] = i; });
+    /* the sheet's own columns decide its kind; the open tab is used only when the columns don't tell */
+    const auto = 'pos' in M ? 'pos' : 'chq' in M ? 'chq' : 'atm' in M ? 'atm' : 'imei' in M || 'coord' in M ? 'loc' : 'branch' in M || 'ifsc' in M ? 'branch' : ''; kind = auto || kind || 'loc';
+    const out = [];
+    for (const r of A.slice(hi + 1)) { if (!r.some(c => String(c).trim())) continue; const g = k => M[k] != null ? String(r[M[k]] == null ? '' : r[M[k]]).trim() : '';
+      const raw = {}; H.forEach((h, i) => { if (h) raw[h] = String(r[i] == null ? '' : r[i]).trim(); });
+      let lat = parseFloat(g('lat')), lng = parseFloat(g('lng')); const cm = (g('coord') || g('addr')).match(/(-?\d{1,2}\.\d{3,})\s*(?:,|%2C)\s*(-?\d{2,3}\.\d{3,})/i); if ((isNaN(lat) || isNaN(lng)) && cm) { lat = +cm[1]; lng = +cm[2]; }
+      const x = { k: kind, mobile: this.nm(g('mobile')), imei: this.ni(g('imei')), acc: this.na(g('acc')), name: g('name'), bank: g('bank'), ifsc: g('ifsc').toUpperCase(), branch: g('branch'), atm: g('atm'), chq: g('chq'), pos: g('pos'), amt: +g('amt').replace(/[^\d.]/g, '') || 0,
+        addr: g('addr'), time: this.ts(M.time != null ? r[M.time] : ''), total: parseInt(g('total')) || 0, acks: (g('ncrp').match(/\d{10,}/g) || []), state: g('state'), district: g('district'), ps: g('ps'), lat: isNaN(lat) ? null : lat, lng: isNaN(lng) ? null : lng, raw, file };
+      if (x.mobile.length < 10) x.mobile = ''; if (x.imei.length < 14) x.imei = ''; if (x.acc.length < 6) x.acc = '';
+      if (!x.mobile && !x.imei && !x.acc && !x.atm && !x.branch && !x.pos && x.lat == null) continue;
+      if (!x.total && x.acks.length) x.total = x.acks.length;
+      x.h = sha256(unescape(encodeURIComponent(kind + '|' + JSON.stringify(raw)))).slice(0, 20); out.push(x); }
+    return out;
+  },
+  async imp(kind, done) {
+    const i = document.createElement('input'); i.type = 'file'; i.multiple = true; i.accept = '.xlsx,.xls,.csv,.ods';
+    i.onchange = async () => { const D = await this.data(); let a = 0, s = 0; const by = {};
+      for (const f of i.files) { try { const wb = /\.csv$/i.test(f.name) ? XLSX.read(await f.text(), { type: 'string', raw: true }) : XLSX.read(new Uint8Array(await f.arrayBuffer()), { type: 'array' });
+        for (const sn of wb.SheetNames) for (const x of this.rows(XLSX.utils.sheet_to_json(wb.Sheets[sn], { header: 1, defval: '', raw: true }), kind, f.name)) {
+          if (D.some(y => y.h === x.h)) { s++; continue; } D.push({ id: uid(), at: new Date().toISOString(), ...x }); a++; by[x.k] = (by[x.k] || 0) + 1; } } catch (e) { UI.toast('Could not read ' + f.name + ': ' + e.message, 6000); } }
+      await Off.put('prb'); this._ix = null;
+      UI.toast(a ? `🛰 ${a} row(s) imported – ${Object.entries(by).map(([k, n]) => this.k(k)[2] + ' ' + n).join(', ')}${s ? ` · ${s} already there` : ''}` : s ? 'All rows were already imported' : 'No Pratibimb rows found – check the sheet has Mobile / IMEI / Account / Coordinates columns', 6000); done && done(); };
+    i.click();
+  },
+  ids(r) { const o = []; if (r.mobile) o.push(['📱', 'm:' + r.mobile, r.mobile]); if (r.imei) o.push(['📟', 'i:' + r.imei.slice(0, 14), r.imei]); if (r.acc) o.push(['🏦', 'a:' + r.acc, r.acc]); r.acks.forEach(k => o.push(['🧾', 'k:' + k, k])); return o; },
+  /* links: Target (all cases) and NCRP complaints in cases */
+  async ix(force) {
+    if (this._ix && !force && Date.now() - this._ixt < 60000) return this._ix;
+    const V = new Map(), add = (k, v) => { if (!k) return; const a = V.get(k) || V.set(k, []).get(k); if (!a.some(y => y.key === v.key)) a.push(v); };
+    try { for (const t of await Target.collect()) { const v = { key: 'T|' + t.key, l: '🎯 ' + t.acc, cases: t.cases, t };
+      if (t.type === 'account') add('a:' + this.na(t.acc), v); t.mobile.forEach(m => add('m:' + this.nm(m), v)); (t.imei || []).forEach(m => add('i:' + this.ni(m).slice(0, 14), v)); if (t.type === 'mobile') add('m:' + this.nm(t.acc), v); } } catch (e) { }
+    try { for (const r of await Trend.collect()) { if (r.ack) String(r.ack).split(/[,;\s]+/).filter(Boolean).forEach(k => add('k:' + k, { key: 'C|' + r.caseId + '|' + k, l: '📁 ' + (r.case || 'Case'), cases: [{ id: r.caseId, name: r.case }] }));
+      (r.ids || []).forEach(i => { const v = { key: 'C|' + r.caseId, l: '📁 ' + (r.case || 'Case'), cases: [{ id: r.caseId, name: r.case }] }; if (/^\d{10,12}$/.test(String(i.v).replace(/\D/g, ''))) add('m:' + this.nm(i.v), v); }); } } catch (e) { }
+    this._ixt = Date.now(); return (this._ix = V);
+  },
+  hits(r, V) { const s = new Map(); this.ids(r).forEach(([, k]) => (V.get(k) || []).forEach(v => s.set(v.key, v))); return [...s.values()]; },
+  /* gangs: rows joined by the same mobile, IMEI, account, NCRP complaint or the same spot (~100 m) */
+  gangs(D) {
+    const P = D.map((_, i) => i), f = i => P[i] === i ? i : (P[i] = f(P[i])), u = (a, b) => { a = f(a); b = f(b); if (a !== b) P[a] = b; }, K = new Map(), why = new Map();
+    D.forEach((r, i) => { const ks = this.ids(r).map(x => x[1]); if (r.lat != null && (r.k === 'loc' || r.k === 'pos')) ks.push('g:' + r.lat.toFixed(3) + ',' + r.lng.toFixed(3)); if (r.atm) ks.push('t:' + this.na(r.atm));
+      ks.forEach(k => { if (K.has(k)) { u(i, K.get(k)); why.set(k, (why.get(k) || 1) + 1); } else K.set(k, i); }); });
+    const G = new Map(); D.forEach((r, i) => { const g = f(i); (G.get(g) || G.set(g, []).get(g)).push(r); });
+    return [...G.values()].map(R => { const m = [...new Set(R.map(r => r.mobile).filter(Boolean))], im = [...new Set(R.map(r => r.imei).filter(Boolean))], ac = [...new Set(R.map(r => r.acc).filter(Boolean))], ak = [...new Set(R.flatMap(r => r.acks))];
+      if (m.length + ac.length < 2 && !(im.length && m.length > 1)) return null;
+      const ks = new Set(R.flatMap(r => { const a = this.ids(r).map(x => x[1]); if (r.lat != null && (r.k === 'loc' || r.k === 'pos')) a.push('g:' + r.lat.toFixed(3) + ',' + r.lng.toFixed(3)); if (r.atm) a.push('t:' + this.na(r.atm)); return a; }).filter(k => (why.get(k) || 0) > 1));
+      const rs = [...new Set([...ks].map(k => ({ m: '📱 Same Mobile', i: '📟 Same IMEI (Many SIMs)', a: '🏦 Same Account', k: '🧾 Same Complaint', g: '📍 Same Spot (Group Calling)', t: '🏧 Same ATM' }[k[0]])))];
+      const key = [...m, ...ac].sort()[0], auto = rs.some(x => /IMEI/.test(x)) ? this.GCAT[1] : rs.some(x => /Spot/.test(x)) ? this.GCAT[0] : rs.some(x => /ATM/.test(x)) || R.some(r => r.k === 'atm' || r.k === 'chq') ? this.GCAT[3] : R.some(r => r.k === 'pos') ? this.GCAT[4] : ac.length ? this.GCAT[2] : this.GCAT[7];
+      return { key, R, m, im, ac, ak, rs, auto, comp: R.reduce((s, r) => s + (r.total || 0), 0), kinds: [...new Set(R.map(r => r.k))] }; }).filter(Boolean).sort((a, b) => b.R.length - a.R.length || b.comp - a.comp);
+  },
+  async meta() { return Off.get('prbGang', {}); },
+  gl(g, M) { const o = M[g.key] || {}; return { cat: o.cat || g.auto, name: o.name || '', note: o.note || '' }; },
+  /* ---------- page ---------- */
+  async page(main) {
+    const { cur, body } = tabs(main, 'prb', [['glance', '📊 At A Glance'], ...this.K.map(([k, ic, l]) => [k, ic + ' ' + l]), ['gang', '👥 Gangs / Groups']], '🛰 Pratibimb Cases');
+    body.innerHTML = '<div class="card muted">Reading Pratibimb data and matching with every case…</div>';
+    const D = await this.data(), V = await this.ix(), G = this.gangs(D), M = await this.meta(); if (S.page !== 'prb') return;
+    D.forEach(r => { r._h = this.hits(r, V); }); const gOf = new Map(); G.forEach((g, i) => g.R.forEach(r => gOf.set(r.id, i))); this._G = G; this._gOf = gOf;
+    if (cur === 'glance') return this.glance(body, D, G, M);
+    if (cur === 'gang') return this.gangPage(body, G, M);
+    return this.kind(body, cur, D.filter(r => r.k === cur), G, M);
+  },
+  bar(list, attr, col) { const mx = Math.max(1, ...list.map(x => x.n)); return `<div class="jm-bars">${list.map(x => `<button class="jm-bar" ${attr}="${esc(x.k)}"><span class="jm-bn">${esc(x.l || x.k)}</span><span class="jm-bt" style="width:${x.n / mx * 100}%"><i class="u" style="flex:1;${col ? 'background:' + col : ''}"></i></span><b>${x.n}</b></button>`).join('') || '<div class="small muted">—</div>'}</div>`; },
+  cnt(R, f) { const m = new Map(); R.forEach(r => [].concat(f(r)).filter(Boolean).forEach(v => m.set(v, (m.get(v) || 0) + 1))); return [...m].map(([k, n]) => ({ k, n })).sort((a, b) => b.n - a.n); },
+  area(r) { return r.district || r.state || (r.lat != null ? 'Grid ' + r.lat.toFixed(2) + ', ' + r.lng.toFixed(2) : '') || '—'; },
+  glance(el, D, G, M) {
+    const st = this.st(), com = this.common(D);
+    el.innerHTML = `<div class="card"><div class="row" style="gap:8px;flex-wrap:wrap;align-items:center"><h3 class="grow" style="margin:0">📊 Pratibimb At A Glance <span class="small muted">imported on this computer only</span></h3><button class="btn primary" id="pbImp" title="Any Pratibimb Excel – the kind is found from its columns">📥 Import Pratibimb Excel</button></div>
+      <div class="lr-ks" style="margin-top:12px">${this.K.map(([k, ic, l, c]) => `<button class="lr-k" data-pbk="${k}" style="--c:${c}"><span>${ic}</span><b>${fmtNum(D.filter(r => r.k === k).length)}</b><small>${l}</small></button>`).join('')}
+        <button class="lr-k" data-pbk="common" style="--c:#be123c"><span>🎯</span><b>${fmtNum(com.length)}</b><small>Common Targets (In Cases / 2+ Sheets)</small></button><button class="lr-k" data-pbk="gang" style="--c:#0f766e"><span>👥</span><b>${fmtNum(G.length)}</b><small>Gangs / Groups</small></button></div></div>
+      ${D.length ? `<div class="grid g2"><div class="card"><h3>🗂 Rows By Sheet</h3>${Trend.ring(this.K.map(([k, , l]) => ({ k: l, n: D.filter(r => r.k === k).length })).filter(x => x.n), '', 'data-pbr', D.length, 'rows')}</div>
+        <div class="card"><h3>🗺 By District / Area <span class="small muted">hover · click</span></h3>${Trend.ring(this.cnt(D, r => this.area(r)), '', 'data-pba', D.length, 'rows')}</div>
+        <div class="card"><h3>📱 Most Repeated Mobile / IMEI / Account</h3>${this.bar(this.cnt(D, r => this.ids(r).filter(x => x[0] !== '🧾').map(x => x[0] + ' ' + x[2])).filter(x => x.n > 1).slice(0, 12), 'data-pbi', '#dc2626')}</div>
+        <div class="card"><h3>👥 Gangs By Category</h3>${this.bar(this.cnt(G, g => this.gl(g, M).cat).slice(0, 10), 'data-pbg', '#0f766e')}</div></div>
+      <div class="card"><h3>🎯 Common Targets <span class="badge">${com.length}</span> <span class="small muted">in your cases / Target, or in 2+ Pratibimb sheets – act on these first</span></h3><div id="pbCom"></div></div>` : '<div class="card muted">No Pratibimb sheet yet. On the I4C Pratibimb page press the Excel button, then import the file here (or in its own tab above).</div>'}`;
+    $('#pbImp', el).onclick = () => this.imp('', () => render());
+    $$('[data-pbk]', el).forEach(b => b.onclick = () => { if (b.dataset.pbk === 'common') { $('#pbCom', el) && $('#pbCom', el).scrollIntoView({ behavior: 'smooth' }); return; } S.sub.prb = b.dataset.pbk; render(); });
+    const R = k => D.filter(r => r.k === (this.K.find(x => x[2] === k) || [])[0]);
+    this.hov(el, '[data-pbr]', b => R(b.dataset.pbr), b => { S.sub.prb = this.K.find(x => x[2] === b.dataset.pbr)[0]; render(); });
+    this.hov(el, '[data-pba]', b => D.filter(r => this.area(r) === b.dataset.pba), b => { const r = D.find(r => this.area(r) === b.dataset.pba); this.st().f = { t: 'area', v: b.dataset.pba }; S.sub.prb = r ? r.k : 'loc'; render(); });
+    this.hov(el, '[data-pbi]', b => D.filter(r => this.ids(r).some(x => x[0] + ' ' + x[2] === b.dataset.pbi)), b => this.who(b.dataset.pbi.replace(/^\S+\s/, ''), D));
+    this.hov(el, '[data-pbg]', b => G.filter(g => this.gl(g, M).cat === b.dataset.pbg).flatMap(g => g.R), b => { st.gc = b.dataset.pbg; S.sub.prb = 'gang'; render(); });
+    if ($('#pbCom', el)) this.comTable($('#pbCom', el), com, D);
+  },
+  common(D) { const m = new Map(); D.forEach(r => this.ids(r).filter(x => x[0] !== '🧾').forEach(([ic, k, v]) => { const o = m.get(k) || m.set(k, { k, ic, v, R: [], kinds: new Set(), hits: new Map() }).get(k); o.R.push(r); o.kinds.add(r.k); r._h.forEach(h => o.hits.set(h.key, h)); }));
+    return [...m.values()].filter(o => o.hits.size || o.kinds.size > 1).map(o => ({ ...o, kinds: [...o.kinds], hits: [...o.hits.values()], comp: o.R.reduce((s, r) => s + (r.total || 0), 0) })).sort((a, b) => b.hits.length - a.hits.length || b.kinds.length - a.kinds.length || b.comp - a.comp); },
+  comTable(el, com, D) {
+    Table(el, { rows: com, pageSize: 25, exportName: 'pratibimb_common_targets', noNd: true, onRow: o => this.who(o.v, D), columns: [
+      { key: 'v', label: 'Target', render: o => `${o.ic} <b class="mono">${esc(o.v)}</b>` }, { key: 'kinds', label: 'Found In Sheets', sortVal: o => o.kinds.length, csv: o => o.kinds.map(k => this.k(k)[2]).join(', '), render: o => o.kinds.map(k => { const x = this.k(k); return `<span class="tg-sp" style="--c:${x[3]}">${x[1]} ${esc(x[2])}</span>`; }).join(' ') },
+      { key: 'hits', label: 'In Your Cases / Target', sortVal: o => o.hits.length, csv: o => o.hits.map(h => h.l).join('; '), render: o => o.hits.length ? o.hits.slice(0, 4).map(h => `<div class="small">${esc(h.l)}${h.cases ? ' · ' + esc(h.cases.map(c => c.name).slice(0, 2).join(', ')) : ''}</div>`).join('') : '<span class="muted">—</span>' },
+      { key: 'R', label: 'Rows', sortVal: o => o.R.length, csv: o => o.R.length, render: o => o.R.length }, { key: 'comp', label: 'Complaints', num: true }] });
+  },
+  /* hover = preview list, click = action */
+  hov(el, sel, rows, click) { $$(sel, el).forEach(b => { b.onmouseenter = () => this.tip(b, rows(b)); b.onmouseleave = () => this.tip(null); b.onclick = e => { e.stopPropagation(); this.tip(null); click(b); }; }); },
+  line(r) { return [r.mobile && '📱 ' + r.mobile, r.imei && '📟 ' + r.imei, r.acc && '🏦 ' + r.acc, r.atm && '🏧 ' + r.atm, r.branch && '🏛 ' + r.branch, r.pos && '📶 ' + r.pos].filter(Boolean).join(' · ') || (r.lat != null ? r.lat + ', ' + r.lng : ''); },
+  tip(b, R, title) {
+    let t = $('#pbTip'); if (!b) { if (t) t.remove(); return; }
+    if (!t) { t = document.createElement('div'); t.id = 'pbTip'; t.className = 'jm-tip'; document.body.appendChild(t); }
+    t.innerHTML = `<b>${esc(title || (b.getAttribute && (b.querySelector('span:not(.jm-bt)') || b).textContent.trim().slice(0, 60)) || '')} · ${R.length} row(s)</b>${R.length ? `<table>${R.slice(0, 8).map(r => `<tr><td>${this.k(r.k)[1]}</td><td>${esc(this.line(r))}</td><td>${r.total ? r.total + ' comp.' : ''}</td><td>${esc(this.area(r))}</td></tr>`).join('')}</table>${R.length > 8 ? `<div class="small">+ ${R.length - 8} more – click to see all</div>` : '<div class="small">Click to open</div>'}` : ''}`;
+    const r = b.getBoundingClientRect(); t.style.left = Math.max(8, Math.min(innerWidth - 540, r.left)) + 'px'; const h = t.offsetHeight; t.style.top = (r.bottom + 6 + h > innerHeight ? Math.max(8, r.top - h - 6) : r.bottom + 6) + 'px';
+  },
+  /* one sheet kind */
+  kind(el, k, R0, G, M) {
+    const st = this.st(), [, ic, l, c, url] = this.k(k), f = st.f && st.f.k === k ? st.f : (st.f = null);
+    const R = f ? R0.filter(r => f.t === 'area' ? this.area(r) === f.v : f.t === 'id' ? this.ids(r).some(x => x[2] === f.v) : f.t === 'cell' ? r.lat != null && r.lat.toFixed(2) + ',' + r.lng.toFixed(2) === f.v : true) : R0;
+    const has = fk => R0.some(r => fk === 'ncrp' ? r.acks.length : r[fk]), um = new Set(R.map(r => r.mobile).filter(Boolean)).size, ui = new Set(R.map(r => r.imei).filter(Boolean)).size, ua = new Set(R.map(r => r.acc).filter(Boolean)).size;
+    const comp = R.reduce((s, r) => s + (r.total || 0), 0), hit = R.filter(r => r._h.length).length, ing = R.filter(r => this._gOf.has(r.id)).length;
+    el.innerHTML = `<div class="card"><div class="row" style="gap:8px;flex-wrap:wrap;align-items:center"><h3 class="grow" style="margin:0">${ic} ${esc(l)} <span class="badge">${fmtNum(R.length)}</span></h3>
+        <a class="btn" href="${url}" target="_blank" rel="noopener" title="Opens the I4C Pratibimb page (your JCCT login) – press its Excel button, then import the file here">🌐 Open In I4C Pratibimb ↗</a><button class="btn primary" id="pbImp">📥 Import ${esc(l)} Excel</button>${R0.length ? '<button class="btn danger" id="pbClr" title="Remove this sheet\'s rows from this computer">🗑 Clear</button>' : ''}</div>
+      ${f ? `<div class="row" style="gap:6px;margin-top:8px"><span class="tg-sp" style="--c:${c}">Showing: ${esc(f.t === 'cell' ? 'Spot ' + f.v : f.v)}</span><button class="btn sm" id="pbFx">✖ Show All</button></div>` : ''}
+      <div class="lr-ks" style="margin-top:12px">${[['📄', R.length, 'Rows', c], ['📱', um, 'Unique Mobiles', '#dc2626'], ['📟', ui, 'Unique IMEIs', '#7c3aed'], ['🏦', ua, 'Unique Accounts', '#2563eb'], ['🧾', comp, 'Complaints Linked', '#ea580c'], ['🎯', hit, 'Matched In Your Cases / Target', '#be123c'], ['👥', ing, 'In A Gang / Group', '#0f766e']].filter((x, i) => i < 1 || x[1] || i >= 4).map(([i, n, t, cc]) => `<div class="lr-k" style="--c:${cc};cursor:default"><span>${i}</span><b>${fmtNum(n)}</b><small>${t}</small></div>`).join('')}</div></div>
+      ${R0.length ? `<div class="grid g2"><div class="card"><h3>🗺 Point Map <span class="small muted">offline · hover a point · click for actions · bigger = more complaints</span></h3><div id="pbMap"></div></div>
+        <div class="card"><h3>🔥 Hotspots <span class="small muted">same ~1 km area – click to filter</span></h3>${this.bar(this.cnt(R0.filter(r => r.lat != null), r => r.lat.toFixed(2) + ',' + r.lng.toFixed(2)).slice(0, 10).map(x => ({ ...x, l: this.spot(R0, x.k) })), 'data-pbc', c)}</div>
+        <div class="card"><h3>🗂 By District / Area</h3>${Trend.ring(this.cnt(R0, r => this.area(r)), f && f.t === 'area' ? f.v : '', 'data-pba', R0.length, 'rows')}</div>
+        <div class="card"><h3>🔁 Repeated Mobile / IMEI / Account</h3>${this.bar(this.cnt(R0, r => this.ids(r).filter(x => x[0] !== '🧾').map(x => x[2])).filter(x => x.n > 1).slice(0, 12), 'data-pbi', '#dc2626')}</div></div>
+      <div class="card"><div id="pbTb"></div></div>` : `<div class="card muted">No ${esc(l)} sheet yet. Press <b>🌐 Open In I4C Pratibimb</b>, set the dates / State / District, press its Excel button, then <b>📥 Import</b> the file here.</div>`}`;
+    $('#pbImp', el).onclick = () => this.imp(k, () => render());
+    if ($('#pbClr', el)) $('#pbClr', el).onclick = async () => { if (!UI.confirm(`Remove all ${R0.length} ${l} rows from this computer?`)) return; const D = await this.data(); Off.D.prb = D.filter(r => r.k !== k); await Off.put('prb'); st.f = null; render(); };
+    if ($('#pbFx', el)) $('#pbFx', el).onclick = () => { st.f = null; render(); };
+    if (!R0.length) return;
+    this.hov(el, '[data-pbc]', b => R0.filter(r => r.lat != null && r.lat.toFixed(2) + ',' + r.lng.toFixed(2) === b.dataset.pbc), b => { st.f = { k, t: 'cell', v: b.dataset.pbc }; render(); });
+    this.hov(el, '[data-pba]', b => R0.filter(r => this.area(r) === b.dataset.pba), b => { st.f = f && f.v === b.dataset.pba ? null : { k, t: 'area', v: b.dataset.pba }; render(); });
+    this.hov(el, '[data-pbi]', b => R0.filter(r => this.ids(r).some(x => x[2] === b.dataset.pbi)), b => { st.f = { k, t: 'id', v: b.dataset.pbi }; render(); });
+    this.map($('#pbMap', el), R, c);
+    const F = ['mobile', 'imei', 'acc', 'name', 'bank', 'ifsc', 'branch', 'atm', 'chq', 'pos', 'amt'].filter(has);
+    Table($('#pbTb', el), { rows: R, pageSize: 50, exportName: 'pratibimb_' + k, noNd: true, onRow: r => this.card(r), columns: [
+      ...F.map(fk => ({ key: fk, label: this.L[fk], num: fk === 'amt', render: r => fk === 'amt' ? (r.amt ? fmtINR(r.amt) : '') : `<span class="${/mobile|imei|acc|ifsc/.test(fk) ? 'mono' : ''}">${esc(r[fk] || '')}</span>` })),
+      { key: 'addr', label: 'Location', csv: r => [r.lat != null ? r.lat + ',' + r.lng : '', r.addr].filter(Boolean).join(' '), render: r => `${r.lat != null ? `<a href="https://www.google.com/maps?q=${r.lat},${r.lng}" target="_blank" rel="noopener" onclick="event.stopPropagation()">📍 ${r.lat.toFixed(5)}, ${r.lng.toFixed(5)}</a>` : ''}${r.addr && !/^https?:/i.test(r.addr) ? `<div class="small">${esc(r.addr.slice(0, 90))}</div>` : ''}${r.district || r.state ? `<div class="small muted">${esc([r.district, r.state].filter(Boolean).join(', '))}</div>` : ''}` },
+      { key: 'time', label: 'Fetch / Txn Time', sortVal: r => r.time, csv: r => r.time ? new Date(r.time).toLocaleString('en-IN') : '', render: r => r.time ? esc(new Date(r.time).toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })) : '' },
+      { key: 'total', label: 'Complaints', num: true, render: r => `<b>${r.total || ''}</b>${r.acks.length ? `<div class="small mono">${esc(r.acks.slice(0, 2).join(', '))}${r.acks.length > 2 ? ' +' + (r.acks.length - 2) : ''}</div>` : ''}` },
+      { key: 'hit', label: 'In Your Cases', sortVal: r => r._h.length, csv: r => r._h.map(h => h.l).join('; '), render: r => r._h.length ? r._h.slice(0, 2).map(h => `<div class="small"><b>${esc(h.l)}</b></div>`).join('') : '<span class="muted">—</span>' },
+      { key: 'gang', label: 'Gang / Group', sortVal: r => this._gOf.has(r.id) ? 1 : 0, csv: r => this._gOf.has(r.id) ? 'G' + (this._gOf.get(r.id) + 1) : '', render: r => this._gOf.has(r.id) ? `<span class="tg-sp" style="--c:#0f766e">👥 G${this._gOf.get(r.id) + 1} · ${esc(this.gl(this._G[this._gOf.get(r.id)], M).cat.split(' (')[0])}</span>` : '' }] });
+  },
+  spot(R, cell) { const r = R.find(r => r.lat != null && r.lat.toFixed(2) + ',' + r.lng.toFixed(2) === cell); return (r && (r.district || (r.addr && !/^https?:/i.test(r.addr) ? r.addr.slice(0, 40) : ''))) || '📍 ' + cell; },
+  /* offline point map: no map tiles are fetched, nothing leaves the computer */
+  map(el, R, col) {
+    const P = R.filter(r => r.lat != null && Math.abs(r.lat) <= 90 && Math.abs(r.lng) <= 180); if (!P.length) { el.innerHTML = '<div class="small muted">No coordinates in these rows.</div>'; return; }
+    const W = 640, H = 380, pad = 18, la = P.map(r => r.lat), lo = P.map(r => r.lng), y0 = Math.min(...la), y1 = Math.max(...la), x0 = Math.min(...lo), x1 = Math.max(...lo), sp = Math.max(y1 - y0, (x1 - x0) * H / W, 0.002);
+    const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2, k = (H - 2 * pad) / sp, X = v => W / 2 + (v - cx) * k, Y = v => H / 2 - (v - cy) * k;
+    const cell = 0.01, Gd = new Map(); P.forEach(r => { const g = Math.floor(r.lat / cell) + ',' + Math.floor(r.lng / cell); Gd.set(g, (Gd.get(g) || 0) + 1); }); const gm = Math.max(1, ...Gd.values());
+    const heat = [...Gd].map(([g, n]) => { const [a, b] = g.split(',').map(Number), s = cell * k; return s > 3 ? `<rect x="${X(b * cell).toFixed(1)}" y="${Y((a + 1) * cell).toFixed(1)}" width="${s.toFixed(1)}" height="${s.toFixed(1)}" fill="${col}" opacity="${(0.06 + 0.3 * n / gm).toFixed(2)}"/>` : ''; }).join('');
+    const grid = [...Array(5)].map((_, i) => { const yy = pad + i * (H - 2 * pad) / 4, xx = pad + i * (W - 2 * pad) / 4; return `<line x1="0" x2="${W}" y1="${yy}" y2="${yy}"/><line y1="0" y2="${H}" x1="${xx}" x2="${xx}"/>`; }).join('');
+    el.innerHTML = `<svg class="pb-map" viewBox="0 0 ${W} ${H}" width="100%"><g class="pb-grid">${grid}</g>${heat}${P.map(r => `<circle data-pbp="${r.id}" cx="${X(r.lng).toFixed(1)}" cy="${Y(r.lat).toFixed(1)}" r="${(3 + Math.min(6, Math.log2(1 + (r.total || 1)) * 1.6)).toFixed(1)}" fill="${r._h.length ? '#be123c' : this._gOf.has(r.id) ? '#0f766e' : col}" class="${r._h.length ? 'hit' : ''}"/>`).join('')}
+      <text x="${W - 6}" y="${H - 6}" text-anchor="end" class="pb-sc">${(sp * 111).toFixed(sp * 111 < 10 ? 1 : 0)} km tall · ${P.length} points</text></svg>
+      <div class="small muted" style="margin-top:4px"><span style="color:#be123c">●</span> in your cases / Target · <span style="color:#0f766e">●</span> in a gang / group · <span style="color:${col}">●</span> other · darker squares = more points in that ~1 km</div>`;
+    const I = new Map(P.map(r => [r.id, r]));
+    $$('[data-pbp]', el).forEach(c => { const r = I.get(c.dataset.pbp); c.onmouseenter = () => this.pt(c, r); c.onmouseleave = () => this.tip(null); c.onclick = () => { this.tip(null); this.card(r); }; });
+  },
+  pt(b, r) { this.tip(b, [], ''); const t = $('#pbTip'); if (!t) return;
+    t.innerHTML = `<b>${this.k(r.k)[1]} ${esc(this.k(r.k)[2])}</b><table>${Object.entries(r.raw).slice(0, 12).map(([h, v]) => `<tr><td>${esc(h)}</td><td>${esc(String(v).slice(0, 80))}</td></tr>`).join('')}</table>${r._h.length ? `<div>${esc(r._h.map(h => h.l).slice(0, 3).join(' · '))}</div>` : ''}${this._gOf.has(r.id) ? `<div>👥 Gang / Group G${this._gOf.get(r.id) + 1}</div>` : ''}<div class="small">Click for actions</div>`; },
+  /* everything about one identifier across all sheets */
+  who(v, D) { const R = D.filter(r => this.ids(r).some(x => x[2] === v)); if (R.length === 1) return this.card(R[0]);
+    const m = UI.modal('🔎 ' + v + ' – in Pratibimb', `<div id="pbW"></div>`, [{ label: '🔎 Track Everywhere', onClick: () => { UI.closeModal(); typeof Dash2 !== 'undefined' && Dash2.track(v); } }, { label: 'Close', onClick: UI.closeModal }]);
+    Table($('#pbW', m), { rows: R, pageSize: 20, noNd: true, onRow: r => this.card(r), columns: [{ key: 'k', label: 'Sheet', render: r => `${this.k(r.k)[1]} ${esc(this.k(r.k)[2])}` }, { key: 'line', label: 'Details', render: r => esc(this.line(r)) }, { key: 'area', label: 'Area', render: r => esc(this.area(r)) }, { key: 'total', label: 'Complaints', num: true }] }); },
+  card(r) {
+    const gi = this._gOf && this._gOf.get(r.id), g = gi != null ? this._G[gi] : null;
+    UI.modal(`${this.k(r.k)[1]} ${this.k(r.k)[2]} – ${this.line(r).slice(0, 60)}`, `<table class="tg-kv">${Object.entries(r.raw).map(([h, v]) => `<tr><th>${esc(h)}</th><td>${/^https?:\/\//i.test(v) ? `<a href="${esc(v)}" target="_blank" rel="noopener">${esc(v.slice(0, 80))} ↗</a>` : esc(v)}</td></tr>`).join('')}</table>
+      ${r._h.length ? `<h4>🎯 In Your Cases / Target</h4>${r._h.map(h => `<div class="small">• <b>${esc(h.l)}</b>${h.cases ? ' – ' + esc(h.cases.map(c => c.name).join(', ')) : ''}</div>`).join('')}` : '<div class="small muted" style="margin-top:8px">Not seen in your cases yet.</div>'}
+      ${g ? `<h4>👥 Gang / Group G${gi + 1} – ${esc(g.rs.join(', '))}</h4><div class="small">${g.m.length} mobile(s) · ${g.im.length} IMEI · ${g.ac.length} account(s) · ${g.comp} complaint(s)</div>` : ''}`,
+      [{ label: '🚔 Add To Arrest / Notice', cls: 'primary', onClick: () => this.toArrest([r], g) }, { label: '🗃 Add To Master Crime Data', onClick: () => this.toCrime([r]) },
+        ...(r.mobile || r.acc ? [{ label: '🔎 Track Everywhere', onClick: () => { UI.closeModal(); typeof Dash2 !== 'undefined' && Dash2.track(r.mobile || r.acc); } }] : []),
+        ...(r.lat != null ? [{ label: '🗺 Google Maps ↗', onClick: () => open(`https://www.google.com/maps?q=${r.lat},${r.lng}`, '_blank', 'noopener') }] : []), { label: 'Close', onClick: UI.closeModal }]);
+  },
+  async toArrest(R, g) {
+    const L = await Arrest.list(), r = R[0], mob = R.map(x => x.mobile).filter(Boolean), dup = mob.length && L.find(a => [a.mobile, a.mobile2].map(this.nm).some(m => m && mob.includes(m)));
+    if (dup) { UI.closeModal(); UI.toast('Already in Arrest / Notice as ' + dup.name); return Arrest.edit(dup, () => render()); }
+    const cs = (r._h.find(h => h.cases && h.cases.length) || {}).cases, x = { id: 'A' + uid(), added: new Date().toISOString(), upd: new Date().toISOString(), sr: String(Math.max(0, ...L.map(y => +y.sr || 0)) + 1), rel: 'S/O', status: 'wanted',
+      name: 'Unknown – Pratibimb ' + (r.mobile || r.acc || r.imei || ''), mobile: mob[0] || '', mobile2: mob[1] || '', presAddr: [r.addr && !/^https?:/i.test(r.addr) ? r.addr : '', r.lat != null ? 'Location ' + r.lat + ', ' + r.lng : ''].filter(Boolean).join(' · '), state: r.state, district: r.district,
+      caseId: cs && cs[0] && cs[0].id || '', role: g ? 'Gang member – ' + this.gl(g, await this.meta()).cat : this.k(r.k)[2], social: [r.acc && 'A/c ' + r.acc + (r.ifsc ? ' ' + r.ifsc : ''), r.imei && 'IMEI ' + r.imei].filter(Boolean).join('\n'),
+      notes: 'From I4C Pratibimb (' + this.k(r.k)[2] + ')' + (r.acks.length ? ' · NCRP ' + r.acks.join(', ') : '') + (r.time ? ' · seen ' + new Date(r.time).toLocaleString('en-IN') : ''), recovery: [] };
+    L.push(x); await Off.put('accused'); UI.closeModal(); UI.toast('🚔 Added to Arrest / Notice – fill the name and details'); Arrest.edit(x, () => render());
+  },
+  async toCrime(R) { const C = await Off.get('crime', []); let n = 0;
+    for (const r of R) for (const [t, v] of [['mobile', r.mobile], ['imei', r.imei], ['account', r.acc]]) if (v && !C.some(c => c.type === t && String(c.value) === v)) { C.push({ id: uid(), type: t, value: v, name: r.name || '', source: 'I4C Pratibimb – ' + this.k(r.k)[2], added: new Date().toISOString(), amount: r.amt || '', remarks: [r.acks.length && 'NCRP ' + r.acks.join(', '), r.lat != null && r.lat + ',' + r.lng].filter(Boolean).join(' · ') }); n++; }
+    await Off.put('crime'); UI.closeModal(); UI.toast(n ? `🗃 ${n} added to Master Crime Data` : 'Already in Master Crime Data'); },
+  /* gangs / groups */
+  async gangPage(el, G, M) {
+    const st = this.st(), cats = EditList.items('prb-gcat', this.GCAT), V = st.gc ? G.filter(g => this.gl(g, M).cat === st.gc) : G;
+    el.innerHTML = `<div class="card"><div class="row" style="gap:8px;flex-wrap:wrap;align-items:center"><h3 class="grow" style="margin:0">👥 Gangs / Groups <span class="badge">${V.length}</span></h3>${st.gc ? `<span class="tg-sp" style="--c:#0f766e">${esc(st.gc)}</span><button class="btn sm" id="pbGx">✖ All Categories</button>` : ''}</div>
+      <p class="small muted" style="margin:6px 0 0">Rows that share a mobile, IMEI (many SIMs in one phone), account, NCRP complaint, ATM or the same spot (~100 m – group calling) are joined into one group. Give each a category and a name; the categories list is yours to edit.</p>
+      ${G.length ? `<div class="grid g2" style="margin-top:10px"><div>${Trend.ring(this.cnt(G, g => this.gl(g, M).cat), st.gc || '', 'data-pbg', G.length, 'groups')}</div><div>${this.bar(this.cnt(G, g => g.rs).slice(0, 8), 'data-pbw', '#0f766e')}</div></div>` : ''}</div>
+      <div class="card"><div id="pbGT"></div></div>`;
+    if ($('#pbGx', el)) $('#pbGx', el).onclick = () => { st.gc = ''; render(); };
+    this.hov(el, '[data-pbg]', b => G.filter(g => this.gl(g, M).cat === b.dataset.pbg).flatMap(g => g.R), b => { st.gc = st.gc === b.dataset.pbg ? '' : b.dataset.pbg; render(); });
+    this.hov(el, '[data-pbw]', b => G.filter(g => g.rs.includes(b.dataset.pbw)).flatMap(g => g.R), () => { });
+    Table($('#pbGT', el), { rows: V, pageSize: 25, exportName: 'pratibimb_gangs', noNd: true, onRow: g => this.gang(g, M, cats), columns: [
+      { key: 'id', label: 'Group', sortVal: g => G.indexOf(g), csv: g => 'G' + (G.indexOf(g) + 1), render: g => { const o = this.gl(g, M); return `<b>👥 G${G.indexOf(g) + 1}</b>${o.name ? ' ' + esc(o.name) : ''}<div><span class="tg-sp" style="--c:#0f766e">${esc(o.cat)}</span></div>`; } },
+      { key: 'rs', label: 'Joined By', csv: g => g.rs.join(', '), render: g => g.rs.map(x => `<div class="small">${esc(x)}</div>`).join('') },
+      { key: 'm', label: 'Mobiles', sortVal: g => g.m.length, csv: g => g.m.join(' '), render: g => `<b>${g.m.length}</b> <span class="small mono">${esc(g.m.slice(0, 4).join(', '))}${g.m.length > 4 ? ' …' : ''}</span>` },
+      { key: 'im', label: 'IMEIs', sortVal: g => g.im.length, csv: g => g.im.join(' '), render: g => g.im.length ? `<b>${g.im.length}</b> <span class="small mono">${esc(g.im.slice(0, 2).join(', '))}</span>` : '' },
+      { key: 'ac', label: 'Accounts', sortVal: g => g.ac.length, csv: g => g.ac.join(' '), render: g => g.ac.length ? `<b>${g.ac.length}</b> <span class="small mono">${esc(g.ac.slice(0, 2).join(', '))}</span>` : '' },
+      { key: 'kinds', label: 'Sheets', csv: g => g.kinds.map(k => this.k(k)[2]).join(', '), render: g => g.kinds.map(k => this.k(k)[1]).join(' ') }, { key: 'comp', label: 'Complaints', num: true },
+      { key: 'hit', label: 'In Your Cases', sortVal: g => g.R.filter(r => r._h.length).length, csv: g => [...new Set(g.R.flatMap(r => r._h.map(h => h.l)))].join('; '), render: g => { const h = [...new Set(g.R.flatMap(r => r._h.map(h => h.l)))]; return h.length ? `<span class="small"><b>${esc(h.slice(0, 2).join(', '))}</b>${h.length > 2 ? ' +' + (h.length - 2) : ''}</span>` : '<span class="muted">—</span>'; } }] });
+  },
+  gang(g, M, cats) {
+    const o = this.gl(g, M), i = this._G.indexOf(g);
+    const m = UI.modal(`👥 Gang / Group G${i + 1}`, `<div class="map-grid" style="grid-template-columns:1fr 1fr"><label>Category<select id="pbGc">${[...new Set([...cats, o.cat])].map(c => `<option ${c === o.cat ? 'selected' : ''}>${esc(c)}</option>`).join('')}</select></label><label>Gang Name<input id="pbGn" value="${esc(o.name)}" placeholder="e.g. Loni Group Calling Gang"></label><label style="grid-column:1/-1">Note<input id="pbGo" value="${esc(o.note)}" placeholder="kingpin, hideout, modus operandi…"></label></div>
+      <div class="small" style="margin:6px 0">Joined by: <b>${esc(g.rs.join(', '))}</b> · ${g.comp} complaint(s)</div><div id="pbGR"></div>`,
+      [{ label: '🚔 Add All To Arrest / Notice', onClick: async () => { for (const mo of g.m.length ? g.m : [g.ac[0]]) { const r = g.R.find(x => x.mobile === mo || x.acc === mo); if (r) { const L = await Arrest.list(); if (!L.some(a => this.nm(a.mobile) === r.mobile && r.mobile)) { await this.toArrest([r], g); UI.closeModal(); } } } UI.toast('🚔 Gang members added to Arrest / Notice'); go('arrest'); } },
+        { label: '🗃 All To Master Crime Data', onClick: () => this.toCrime(g.R) }, { label: 'Close', onClick: UI.closeModal },
+        { label: '💾 Save', cls: 'primary', onClick: async () => { M[g.key] = { cat: $('#pbGc', m).value, name: $('#pbGn', m).value.trim(), note: $('#pbGo', m).value.trim() }; await Off.put('prbGang'); UI.closeModal(); UI.toast('👥 Saved'); render(); } }]);
+    EditList.attach($('#pbGc', m), 'prb-gcat', this.GCAT, 'Gang Categories');
+    Table($('#pbGR', m), { rows: g.R, pageSize: 15, noNd: true, onRow: r => this.card(r), columns: [{ key: 'k', label: 'Sheet', render: r => this.k(r.k)[1] + ' ' + esc(this.k(r.k)[2]) }, { key: 'line', label: 'Mobile / IMEI / Account', render: r => esc(this.line(r)) }, { key: 'area', label: 'Area', render: r => esc(this.area(r)) }, { key: 'total', label: 'Complaints', num: true }] });
+  }
+};
+PAGE_META.prb = { group: 'Analysis', title: 'Pratibimb Cases', desc: 'I4C Pratibimb sheets – suspect locations, cheque / ATM withdrawal locations, suspect bank branches and SIM – POS – matched with every case, joined into gangs, kept on this computer.', order: ['glance', ...PRB.K.map(x => x[0]), 'gang'], names: Object.fromEntries([['glance', '📊 At A Glance'], ...PRB.K.map(x => [x[0], x[1] + ' ' + x[2]]), ['gang', '👥 Gangs / Groups']]) };
+Pages.prb = main => PRB.page(main);
+addEventListener('scroll', () => PRB.tip(null), true);
+/* Analytics drop-down: "Pratibimb Cases" (with its 5 sheets) just above Target */
+(() => {
+  const subs = $('.tel-subs'), tg = subs && $('[data-tx="target"]', subs); if (!tg) return;
+  tg.insertAdjacentHTML('beforebegin', `<div class="nav-sub pb-h" data-tx="prb" style="--pc:#dc2626" title="I4C Pratibimb: suspect locations, cheque / ATM withdrawals, bank branches, SIM – POS"><i></i><span>Pratibimb Cases ▸</span></div>${PRB.K.map(([k, , l, c]) => `<div class="nav-sub pb-n" data-pbn="${k}" style="--pc:${c}"><i></i><span>${l}</span></div>`).join('')}`);
+  const num = () => { let i = 0; $$('.nav-sub', subs).forEach(n => { const s = $('span', n); if (!s || n.classList.contains('pb-n') || n.classList.contains('nc-edit')) return; s.textContent = (++i) + '. ' + s.textContent.replace(/^\d+\.\s*/, ''); }); }; num();
+  const h = $('.pb-h', subs), show = on => { S.pbOpen = on; $$('.pb-n', subs).forEach(n => n.classList.toggle('pb-off', !on)); const s = $('span', h); s.textContent = s.textContent.replace(/[▸▾]/, on ? '▾' : '▸'); }; show(false);
+  h.onclick = e => { e.stopPropagation(); if (S.page === 'prb') show(!S.pbOpen); else { show(true); S.sub.prb = 'glance'; go('prb'); } };
+  $$('.pb-n', subs).forEach(n => n.onclick = e => { e.stopPropagation(); S.sub.prb = n.dataset.pbn; go('prb', n.dataset.pbn); });
+  /* the menu keeps its items in their first-seen order: give every item its place as it now stands, so the 5 sheets stay under Pratibimb Cases */
+  const keep = () => { let at = h; $$('.pb-n', subs).forEach(n => { if (at.nextElementSibling !== n) at.after(n); at = n; }); $$('.nav-sub', subs).forEach((n, i) => { n.dataset.ncI = i; }); }; keep();
+  const r0 = render; render = function () { const r = r0.apply(this, arguments); const on = S.page === 'prb'; if ($$('.pb-n', subs).some((n, i, a) => (i ? a[i - 1] : h).nextElementSibling !== n)) keep();
+    h.classList.toggle('active', on); $$('.pb-n', subs).forEach(n => n.classList.toggle('active', on && S.sub.prb === n.dataset.pbn)); if (on && !S.pbOpen) show(true);
+    if (on) { const it = $('.nav-item[data-page="analytics"]'); if (it) it.classList.add('active'); if (!subs.classList.contains('open')) { subs.classList.add('open'); it && it.classList.add('open'); S.telOpen = true; } } return r; };
 })();
 
 </script>
@@ -18924,7 +19183,7 @@ const Plans = {
     if (sub('crime')) { R.add('crime'); if (H.has(this.CDF)) R.add('crimeEdit'); }
     if (['good', 'press', 'duty'].some(sub)) R.add('office');
     if (sub('files')) R.add('upload');
-    R.delete('contacts'); if (!H.has('S:ct-item') && !H.has('S:ct-add')) R.add('contacts');
+    R.delete('contacts'); if (!H.has('S:ct-item')) R.add('contacts');
     return [...R];
   },
   hideNav(hide) {
@@ -18934,7 +19193,7 @@ const Plans = {
     $$('#sidebar > .nav-group').forEach(g => { let n = g.nextElementSibling, any = false; while (n && !n.classList.contains('nav-group')) { if (n.classList.contains('nav-item') && !n.classList.contains('pl-hide') && getComputedStyle(n).display !== 'none') any = true; n = n.nextElementSibling; } g.classList.toggle('pl-hide', !any); });
   },
   plan() { const L = SUD_ED === 'user' && typeof Users !== 'undefined' ? Users.link() : null; return L && L.plan ? L.plan : null; },
-  SEC: { contacts: 'ct-item', arrest: 'arrest-item', cctns: 'io-item', others: 'io-item', formats: 'io-item', eo: 'eo-item', jmis: 'eo-item' },
+  SEC: { prb: 'analytics', contacts: 'ct-item', arrest: 'arrest-item', cctns: 'io-item', others: 'io-item', formats: 'io-item', eo: 'eo-item', jmis: 'eo-item' },
   blocked(page) { const p = this.plan(), H = p && p.hide || []; return !!(p && page && (H.includes('S:' + page) || (this.SEC[page] && (H.includes('S:' + this.SEC[page]) || (this.SEC[page] === 'eo-item' && H.includes('eo-item|eo:' + page)))))); },
   apply() {
     if (SUD_ED !== 'user') return; const p = this.plan();
