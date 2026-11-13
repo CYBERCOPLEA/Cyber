@@ -2215,3 +2215,5 @@ html.no-crimeEdit #cdImpM,html.no-crimeEdit #cdScan,html.no-crimeEdit #cdFile,ht
 .pl-subs .pl-full{color:#f59e0b;font-weight:600}
 
 html.ed-user .nav-bottom,html.ed-user #sidebar [data-page="settings"]{display:none!important}
+
+.er-tb{display:flex;flex-wrap:wrap;gap:4px;align-items:center;margin:0 0 8px;padding:6px;border:1px solid var(--border);border-radius:8px;background:var(--panel2,rgba(255,255,255,.04))}.er-tb .btn.sm{min-width:30px;justify-content:center}.er-sep{width:1px;height:22px;background:var(--border);margin:0 3px}.er-col{display:inline-flex;align-items:center;gap:3px;font-size:12px;flex-direction:row}.er-col input{width:26px;height:22px;padding:0;border:0;background:none}.eor.er-editing{outline:2px dashed #3b82f6;outline-offset:6px;cursor:text}

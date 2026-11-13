@@ -97,7 +97,7 @@ const EO = {
   /* ---------- enquiry report ---------- */
   html(rows, one, C, cf) {
     const D = DocFont.get(), off = cf.office || Off.OFFICE, tot = rows.reduce((s, r) => s + (+r.amount || 0), 0), c = k => rows.filter(r => r.status === k).length;
-    const sig = `<div class="sig"><b>(${esc(C.eo || '____________')})</b><br>${esc(C.desig || 'Enquiry Officer')}${C.mobile ? '<br>Mobile: ' + esc(C.mobile) : ''}<br>${esc(off)}</div>`;
+    const sig = `<div class="sig"><b>(${esc(C.eo || '____________')})</b><br>${esc(C.desig || 'Enquiry Officer')}<br>${esc(off)}${C.mobile ? '<br>Mobile: ' + esc(C.mobile) : ''}</div>`;
     let body;
     if (one) {
       const r = one, kv = [['SR No.', r.sr], ['Type', (this.TYPES[r.type] || this.TYPES.COMP)[1]], ['Case / Complaint No.', this.caseNo(r)], ['Victim', r.victim], ['Victim Mobile', r.mobile], ['Fraud Amount', this.inr(r.amount)], ['Complaint Received', this.dmy(r.recv)], ['Report Sent / Closed', this.dmy(r.sent)], ['Status', this.stTxt(r)]].filter(x => x[1]);
@@ -112,16 +112,25 @@ const EO = {
   },
   async report(rows, el, one) {
     const C = await this.cfg(), cf = await Off.cfg(), L = await this.list();
-    const m = UI.modal('📄 Enquiry Report', `<div class="map-grid"><label>Report For<select id="erS"><option value="v">Shown in the list (${rows.length})</option><option value="a">All enquiries (${L.length})</option><option value="p">Pending only (${L.filter(r => r.status === 'Pending').length})</option>${L.map(r => `<option value="o${esc(r.id)}" ${one && one.id === r.id ? 'selected' : ''}>One: SR ${esc(r.sr || '')} · ${esc(this.caseNo(r))} · ${esc(r.victim || '')}</option>`).join('')}</select></label>
+    const m = UI.modal('📄 Enquiry Report', `<div class="map-grid"><label>Report For<select id="erS"><option value="v">Shown in the list (${rows.length})</option><option value="a">All enquiries (${L.length})</option><option value="p">Pending only (${L.filter(r => r.status === 'Pending').length})</option><option value="c" ${one ? 'selected' : ''}>Particular Case</option></select></label>
+      <label id="erCw" class="${one ? '' : 'hidden'}">Choose Case<select id="erC">${L.length ? L.map(r => `<option value="${esc(r.id)}" ${one && one.id === r.id ? 'selected' : ''}>SR ${esc(r.sr || '')} · ${esc(this.caseNo(r))}${r.victim ? ' · ' + esc(r.victim) : ''}</option>`).join('') : '<option value="">No enquiry yet</option>'}</select></label>
       <label>Report Title<input id="erT" value="${esc(C.title || 'Enquiry Report')}"></label><label>EO Name<input id="erN" value="${esc(C.eo || '')}"></label><label>Designation<input id="erD" value="${esc(C.desig || '')}"></label></div>
       <div id="erF"></div><details class="eo-hd"><summary>🖼 Header & Logo</summary><div id="erH"></div></details>
-      <div class="row" style="gap:6px;flex-wrap:wrap;margin:8px 0"><button class="btn" data-er="html">🌐 HTML</button><button class="btn" data-er="pdf">🖨 PDF / Print</button><button class="btn" data-er="word">📘 Word</button><button class="btn" data-er="xlsx">📗 Excel</button><button class="btn" data-er="img">🖼 Image</button></div>
+      <div class="row" style="gap:6px;flex-wrap:wrap;margin:8px 0"><button class="btn" data-er="html">🌐 HTML</button><button class="btn" data-er="pdf">🖨 PDF / Print</button><button class="btn" data-er="word">📘 Word</button><button class="btn" data-er="xlsx">📗 Excel</button><button class="btn" data-er="img">🖼 Image</button><button class="btn" id="erEd" data-nov title="Edit the whole report – header, title, table, signature">✏ Edit</button></div>
+      <div id="erTb" class="er-tb hidden"></div>
       <div class="eo-sheet" id="erV"></div>`, [{ label: 'Close', onClick: UI.closeModal }]);
     $('#erF', m).innerHTML = DocFont.bar(); DocFont.bind($('.df-bar', m));
-    const pick = () => { const s = $('#erS', m).value; return s === 'v' ? [rows, null] : s === 'a' ? [L, null] : s === 'p' ? [L.filter(r => r.status === 'Pending'), null] : (o => [[o], o])(L.find(r => 'o' + r.id === s)); };
+    const pick = () => { const s = $('#erS', m).value; if (s === 'c') { const o = L.find(r => r.id === $('#erC', m).value); return o ? [[o], o] : [[], null]; } return s === 'v' ? [rows, null] : s === 'a' ? [L, null] : [L.filter(r => r.status === 'Pending'), null]; };
     const take = async () => { const t = $('#erT', m).value.trim(), nm = $('#erN', m).value.trim(), dg = $('#erD', m).value.trim(); if (t !== C.title || nm !== C.eo || dg !== C.desig) { Object.assign(C, { title: t, eo: nm, desig: dg }); await Off.put('eocfg'); } };
-    const build = () => { const [R, o] = pick(); return Object.assign(this.html(R, o, C, cf), { R, o }); };
-    const draw = () => { const b = build(); $('#erV', m).innerHTML = `<style>${b.css}</style>${b.inner}`; };
+    let edited = false;
+    const build = () => { const [R, o] = pick(), b = Object.assign(this.html(R, o, C, cf), { R, o }); const v = $('#erV .eor', m); if (edited && v) { const c = v.cloneNode(true); c.removeAttribute('contenteditable'); b.inner = c.outerHTML; } return b; };
+    const draw = () => { if (edited && !UI.confirm('Your edits in the report will be replaced by the fresh report. Continue?')) return; edited = false; const b = build(); $('#erV', m).innerHTML = `<style>${b.css}</style>${b.inner}`; edMode(false); };
+    const edMode = on => { const v = $('#erV .eor', m), tb = $('#erTb', m), eb = $('#erEd', m); if (!v) return; v.contentEditable = on ? 'true' : 'false'; v.classList.toggle('er-editing', on); tb.classList.toggle('hidden', !on); eb.classList.toggle('primary', on); eb.textContent = on ? '✔ Done Editing' : '✏ Edit'; if (on) v.focus(); };
+    this.editBar($('#erTb', m), () => $('#erV .eor', m), () => { edited = true; }, () => { edited = false; draw(); });
+    $('#erEd', m).onclick = () => { const v = $('#erV .eor', m); edMode(!(v && v.isContentEditable)); };
+    $('#erV', m).addEventListener('input', () => { edited = true; });
+    $('#erS', m).addEventListener('change', () => $('#erCw', m).classList.toggle('hidden', $('#erS', m).value !== 'c'));
+    $('#erC', m).onchange = draw;
     Off.headEditor($('#erH', m), cf, draw);
     ['erS', 'erT', 'erN', 'erD'].forEach(id => $('#' + id, m).addEventListener('input', () => { take(); draw(); }));
     $('#erS', m).onchange = draw; $$('.df-bar select', m).forEach(s => s.addEventListener('change', () => setTimeout(draw, 50)));
@@ -137,6 +146,31 @@ const EO = {
         const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'Enquiries'); XLSX.writeFile(wb, fn() + '.xlsx'); }
       else if (k === 'img') { btn.disabled = true; try { await this.png(b, fn() + '.png'); } catch (e) { UI.toast('Could not make the image: ' + e.message); } btn.disabled = false; }
       UI.toast('Report ready'); });
+  },
+  /* formatting bar for an editable report (also usable by other report windows) */
+  editBar(tb, root, changed, reset) {
+    const B = [['bold', '<b>B</b>', 'Bold'], ['italic', '<i>I</i>', 'Italic'], ['underline', '<u>U</u>', 'Underline'], ['strikeThrough', '<s>S</s>', 'Strike Through'], ['|'],
+      ['dline', '<span style="border-bottom:3px double currentColor">U̳</span>', 'Double Underline'], ['hr', '―', 'Insert Line'], ['box', '▭', 'Put In A Box (Border)'], ['shade', '▦', 'Shaded Box'], ['|'],
+      ['justifyLeft', '⯇', 'Align Left'], ['justifyCenter', '≡', 'Align Center'], ['justifyRight', '⯈', 'Align Right'], ['justifyFull', '☰', 'Justify'], ['|'],
+      ['insertUnorderedList', '• List', 'Bullets'], ['insertOrderedList', '1. List', 'Numbering'], ['indent', '→', 'Indent'], ['outdent', '←', 'Outdent'], ['|'],
+      ['h', 'H', 'Heading'], ['bigger', 'A+', 'Bigger Text'], ['smaller', 'A−', 'Smaller Text'], ['removeFormat', '⌫', 'Clear Formatting'], ['undo', '↶', 'Undo'], ['redo', '↷', 'Redo']];
+    tb.innerHTML = B.map(([k, l, t]) => k === '|' ? '<span class="er-sep"></span>' : `<button type="button" class="btn sm" data-ex="${k}" title="${t}" data-nov>${l}</button>`).join('') +
+      '<label class="er-col" title="Text Colour">A <input type="color" data-col="foreColor" value="#c00000"></label><label class="er-col" title="Highlight">🖍 <input type="color" data-col="hiliteColor" value="#ffff00"></label>' +
+      '<button type="button" class="btn sm" data-ex="reset" title="Throw away edits and make the report again" data-nov>↺ Fresh Report</button><span class="small muted" style="margin-left:6px">Click anywhere in the report and type. Header, title, table and signature can all be changed.</span>';
+    const sel = () => { const s = getSelection(); return s.rangeCount && root() && root().contains(s.anchorNode) ? s : null; };
+    const wrap = css => { const s = sel(); if (!s) return UI.toast('Select some text in the report first'); const r = s.getRangeAt(0), d = document.createElement(css.startsWith('div') ? 'div' : 'span'); d.setAttribute('style', css.replace(/^(div|span)\|/, '')); d.appendChild(r.extractContents()); if (!d.textContent.trim()) d.textContent = 'Text'; r.insertNode(d); s.removeAllRanges(); changed(); };
+    tb.addEventListener('mousedown', e => { if (e.target.closest('[data-ex]')) e.preventDefault(); });
+    $$('[data-ex]', tb).forEach(b => b.onclick = () => { const k = b.dataset.ex;
+      if (k === 'reset') return reset();
+      if (k === 'hr') document.execCommand('insertHTML', false, '<hr style="border:0;border-top:1.5px solid #000;margin:8px 0">');
+      else if (k === 'dline') wrap('span|border-bottom:3px double #000');
+      else if (k === 'box') wrap('div|border:1.5px solid #000;padding:6px 8px;margin:6px 0');
+      else if (k === 'shade') wrap('div|border:1px solid #000;background:#eef1f7;padding:6px 8px;margin:6px 0');
+      else if (k === 'h') document.execCommand('formatBlock', false, 'h4');
+      else if (k === 'bigger' || k === 'smaller') wrap('span|font-size:' + (k === 'bigger' ? '1.2em' : '.85em'));
+      else document.execCommand(k, false, null);
+      changed(); });
+    $$('[data-col]', tb).forEach(i => i.onchange = () => { if (!sel()) return UI.toast('Select some text in the report first'); document.execCommand('styleWithCSS', false, true); document.execCommand(i.dataset.col, false, i.value); changed(); });
   },
   async png(b, name) {
     const W = b.o ? 900 : 1300, box = document.createElement('div');
