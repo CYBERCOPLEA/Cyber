@@ -16,7 +16,16 @@ const Polish = {
     const m = $('#bvMenu'); if (!m) return; const dpr = window.devicePixelRatio || 1, W = Math.round(screen.width * dpr), H = Math.round(screen.height * dpr);
     m.innerHTML = `<div class="bv-hd">Screen resolution for the best view</div>` + this.RES.map(r => `<button type="button" class="bv-o${r[2] ? ' rec' : ''}${r[0] === W && r[1] === H ? ' cur' : ''}" data-w="${r[0]}" data-h="${r[1]}"><span>${r[0]} × ${r[1]}</span>${r[2] ? '<em>Recommended</em>' : ''}${r[0] === W && r[1] === H ? '<small>Your screen</small>' : ''}</button>`).join('')
       + `<div class="bv-ft" id="bvNote">Your screen now: <b>${W} × ${H}</b> at ${Math.round(dpr * 100)}% scale. <b>1920 × 1080</b> with Scale 100% or 125% shows every page best.</div>`;
-    $$('.bv-o', m).forEach(b => b.onclick = e => { e.stopPropagation(); $$('.bv-o', m).forEach(x => x.classList.toggle('on', x === b)); $('#bvNote', m).innerHTML = `To use <b>${b.dataset.w} × ${b.dataset.h}</b>: Windows <b>Settings › System › Display › Display resolution</b> → choose ${b.dataset.w} × ${b.dataset.h}${b.classList.contains('rec') ? '' : ' (Recommended: 1920 × 1080)'}. Keep <b>Scale</b> at 100% or 125%. The tool itself keeps its own size.`; });
+    const z0 = Polish.bvGet(); if (z0) $$('.bv-o', m).forEach(x => x.classList.toggle('on', +x.dataset.w === z0.w && +x.dataset.h === z0.h));
+    m.insertAdjacentHTML('beforeend', `<button type="button" class="bv-o bv-def${z0 ? '' : ' on'}" data-w="0" data-h="0"><span>↺ Default (fit this screen)</span></button>`);
+    $$('.bv-o', m).forEach(b => b.onclick = e => { e.stopPropagation(); $$('.bv-o', m).forEach(x => x.classList.toggle('on', x === b)); const w = +b.dataset.w, h = +b.dataset.h; Polish.bvSet(w ? { w, h } : null);
+      $('#bvNote', m).innerHTML = w ? `The tool now shows its pages as on a <b>${w} × ${h}</b> screen (only inside SudarshanAshtra; Windows is not changed). Choose <b>↺ Default</b> to go back.` : 'The tool is back to its normal size for this screen.'; });
+  },
+  /* For Best View: lay the tool out as on the chosen screen (CSS zoom on this page only; Windows is not touched) */
+  bvGet() { try { return JSON.parse(localStorage.getItem('sud-bv') || 'null'); } catch (e) { return null; } },
+  bvSet(v) { try { v ? localStorage.setItem('sud-bv', JSON.stringify(v)) : localStorage.removeItem('sud-bv'); } catch (e) { } this.bvApply(); },
+  bvApply() { const v = this.bvGet(), r = document.documentElement; if (!v || !v.w) { r.style.zoom = ''; r.classList.remove('bv-z'); return; }
+    const z = Math.max(.5, Math.min(2, screen.width / v.w)), on = Math.abs(z - 1) >= .01; r.style.zoom = on ? String(+z.toFixed(3)) : ''; r.classList.toggle('bv-z', on);
   },
   /* 📑 Report / Export (dashboard): All Cases or one case, as PDF, Word, Excel or HTML */
   report() {
@@ -27,17 +36,20 @@ const Polish = {
       <label class="rx-o"><input type="radio" name="rxS" value="one" ${isScope(S.caseId) ? '' : 'checked'}><span><b>📄 Particular Case</b><small>Full case report: details, summary, complaints, layer-wise trail, suspect accounts, flow chart</small></span></label>
       <select id="rxC">${real.map(c => `<option value="${esc(c.id)}" ${c.id === cur ? 'selected' : ''}>${esc(AllMode && AllMode.caseLabel ? AllMode.caseLabel(c) : c.name)}</option>`).join('')}</select>
       <div class="rx-h">2 · Format</div><div class="rx-f">${[['pdf', '📕 PDF'], ['word', '📘 Word'], ['excel', '📗 Excel'], ['html', '🌐 HTML']].map(f => `<button class="btn" data-rx="${f[0]}">${f[1]}</button>`).join('')}</div>
+      <div class="rx-h">3 · Language</div><div class="rx-lang">${Object.entries(ExpLang.L).map(([k, v]) => `<label class="rx-o" style="padding:6px 12px"><input type="radio" name="rxL" value="${k}" ${k === ExpLang.get() ? 'checked' : ''}><span><b>${k === 'en' ? '🇬🇧' : k === 'hi' ? '🇮🇳' : '🌐'} ${v}</b></span></label>`).join('')}</div>
       <div class="small muted" id="rxMsg">PDF opens the print window – choose <b>Save as PDF</b>. Everything is made on this computer.</div></div>`, [{ label: 'Close', onClick: UI.closeModal }]);
     const sel = $('#rxC', b), sync = () => { sel.disabled = $('input[name=rxS]:checked', b).value !== 'one'; }; $$('input[name=rxS]', b).forEach(r => r.onchange = sync); sync();
-    $$('[data-rx]', b).forEach(x => x.onclick = async () => { const f = x.dataset.rx, one = $('input[name=rxS]:checked', b).value === 'one', id = sel.value; $$('[data-rx]', b).forEach(y => { y.disabled = true; }); $('#rxMsg', b).textContent = '⏳ Preparing…';
+    $$('[data-rx]', b).forEach(x => x.onclick = async () => { const f = x.dataset.rx, one = $('input[name=rxS]:checked', b).value === 'one', id = sel.value; ExpLang.set($('input[name=rxL]:checked', b).value); $$('[data-rx]', b).forEach(y => { y.disabled = true; }); $('#rxMsg', b).textContent = '⏳ Preparing…';
       try { await (one ? this.oneCase(id, f) : this.allCases(f)); UI.closeModal(); } catch (e) { console.warn('report', e); $('#rxMsg', b).textContent = '❌ ' + e.message; $$('[data-rx]', b).forEach(y => { y.disabled = false; }); } });
   },
   async oneCase(id, f) {
     if (id !== S.caseId) await switchCase(id);
     if (f === 'pdf') return CaseReport.pdf(true);
-    if (f === 'word') return CaseReport.word();
-    const m = CaseReport.model(), im = await CaseReport.images(), h = CaseReport.html(m, im), t = 'Case Report ' + ((activeCase() || {}).fir || (activeCase() || {}).name || '');
+    const L = ExpLang.get();
+    if (f === 'word' && L === 'en') return CaseReport.word();
+    const m = CaseReport.model(), im = await CaseReport.images(), h = ExpLang.html(CaseReport.html(m, im), L), t = 'Case Report ' + ((activeCase() || {}).fir || (activeCase() || {}).name || '');
     if (f === 'html') return UI.download(ExportAll.fname(t, 'html'), h, 'text/html');
+    if (f === 'word') return ExportAll.word(h, t);
     const d = document.createElement('div'); d.innerHTML = new DOMParser().parseFromString(h, 'text/html').body.innerHTML; ExportAll.excel(d, t);
   },
   async allCases(f) {
@@ -53,9 +65,14 @@ const Polish = {
     const body = `<div class="xm">${R.length} case(s) · made ${e(new Date().toLocaleString('en-IN'))}</div>` + tbl;
     const doc = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${t}</title><style>${ExportAll.CSS}</style></head><body><h2>${t}</h2>${body}</body></html>`;
     if (f === 'pdf') return ExportAll.open(t, body, { print: true });
-    if (f === 'word') return ExportAll.word(doc, t);
-    if (f === 'html') return UI.download(ExportAll.fname(t, 'html'), doc, 'text/html');
-    const d = document.createElement('div'); d.innerHTML = tbl; ExportAll.excel(d, t);
+    const L = ExpLang.get();
+    if (f === 'word') return ExportAll.word(ExpLang.html(doc, L), t);
+    if (f === 'html') return UI.download(ExportAll.fname(t, 'html'), ExpLang.html(doc, L), 'text/html');
+    const d = document.createElement('div'); d.innerHTML = tbl; ExpLang.apply(d, L); ExportAll.excel(d, t);
+  },
+  topIcons() {
+    const dc = $('#btnDelCase'); if (dc && !dc.classList.contains('ic-only')) { dc.classList.add('ic-only'); dc.textContent = '🗑'; dc.title = 'Delete Case Data – remove a case and all its data from this computer (asks for your password; keeps a backup file)'; dc.setAttribute('aria-label', 'Delete Case Data'); }
+    const u = $('#dkUpd'); if (u && !u.querySelector('.upd-ic')) { const t = u.textContent.replace(/^[\s⬆↑]+/, '').trim() || 'Update'; u.innerHTML = '<span class="upd-ic" aria-hidden="true"></span><span>' + esc(t) + '</span>'; }
   },
   async refresh() {
     const b = $('#btnRefresh'); if (b) b.classList.add('spin');
@@ -87,6 +104,7 @@ const Polish = {
       if (tb && act && /import|upload|files/i.test(act.textContent) && !tb.querySelector(':scope > .imp-off')) tb.insertAdjacentHTML('afterbegin', Polish.OFF);
       /* dashboard: 📑 Report / Export in place of Case report / Refresh */
       if (S.page === 'dashboard') { ['#dReport', '#adRe'].forEach(q => { const x = $(q); if (x && !x.dataset.rx) { x.dataset.rx = '1'; x.innerHTML = '📑 Report / Export'; x.className = 'btn rx-btn'; x.title = 'Report of all cases or one case – PDF, Word, Excel or HTML'; x.onclick = e => { e.stopImmediatePropagation(); Polish.report(); }; } }); }
+      Polish.topIcons();
       const tip = $('#dxTip'); if (tip) tip.classList.remove('on');   // no leftover hover box from the page before
       const rf = $('#btnRefresh'), th = $('#btnTheme'); if (rf && th && rf.nextElementSibling !== th) th.before(rf);
       /* chosen case: green with white text */
@@ -110,3 +128,12 @@ const Polish = {
     const ob = Plans.badge; Plans.badge = function (k, to, today) { const h = ob.apply(this, arguments), d = Polish.daysLeft(to, today); return d != null && d < 10 ? h.replace('class="pl-b"', 'class="pl-b pl-soon" title="' + Math.max(0, d) + ' days left"') : h; };
   }
 })();
+
+/* Update button text is rewritten by the EXE every few minutes: keep the cloud icon */
+(() => { let q = 0; new MutationObserver(() => { if (q) return; q = requestAnimationFrame(() => { q = 0; try { Polish.topIcons(); } catch (e) { } }); }).observe(document.getElementById('topbar') || document.body, { childList: true, subtree: true, characterData: true }); })();
+
+/* dashboard ✏ Edit: open the case details */
+document.addEventListener('click', e => { const a = e.target.closest('[data-cbedit]'); if (!a) return; e.preventDefault(); try { CaseBox.open(S.caseId === '__all' ? undefined : S.caseId); } catch (x) { console.warn(x); } });
+
+/* For Best View choice is kept on this computer */
+try { Polish.bvApply(); } catch (e) { }

@@ -2489,3 +2489,46 @@ html.ed-user:not(.ed-desk) #xtAdd{display:none!important}
 /* EXE: tiny NEW badge on the Update button when a new version is waiting */
 #dkUpd{position:relative;overflow:visible}
 #dkUpd.dk-new::after{content:'NEW';position:absolute;top:-7px;right:-6px;padding:1px 4px;border-radius:6px;background:#dc2626;color:#fff;font-size:8.5px;font-weight:800;letter-spacing:.4px;line-height:1.2;box-shadow:0 0 0 2px var(--bg,#0b1220);pointer-events:none;animation:none}
+
+/* ===== 13-11 late: home header lines aligned, police badge dot free, logo 15% smaller ===== */
+.hp-kicker{width:max-content;max-width:100%;font-size:clamp(14px,1.2vw,19px);padding-right:22px}
+.hp-kicker .pk-t{flex:0 1 auto;min-width:0}
+.hp-kicker .sir.r{margin-left:12px;flex:none}
+/* the four lines next to the logo share one width */
+.hp-brand>div{display:inline-flex!important;flex-direction:column;align-items:stretch;width:max-content}
+.hp-brand>div>b{display:flex;justify-content:space-between;align-items:baseline;gap:14px;font-size:1.12em}
+.hp-brand>div>small{display:block;text-align:justify;text-align-last:justify;letter-spacing:2.6px!important}
+.hp-by.hp-one{display:flex!important;justify-content:space-between;font-size:11px!important;letter-spacing:.35px!important;padding:3px 10px!important;margin-top:6px}
+.hp-by.hp-one i{margin:0 2px}
+.hp-onehi{max-width:none;text-align:justify;text-align-last:justify;font-size:14.5px}
+/* big shield logo on the home page: 15% smaller */
+.hp-art .emblem-big{height:min(42.5vh,450px)}
+.hp-art .chakra-big{width:min(60vh,709px)}
+@media (max-width:1000px){.hp-art .emblem-big{height:min(34vh,323px)}}
+/* Delete Case Data: icon only */
+#btnDelCase.ic-only{width:36px;height:32px;padding:0;display:inline-flex;align-items:center;justify-content:center;font-size:17px}
+/* Update: cloud icon */
+.upd-ic{display:inline-block;width:20px;height:20px;flex:none;vertical-align:-4px;background:center/contain no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='c' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%237dd3fc'/%3E%3Cstop offset='1' stop-color='%232563eb'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M9 25h15.5a6 6 0 0 0 .9-11.9A8.5 8.5 0 0 0 9.1 11.2 7 7 0 0 0 9 25z' fill='url(%23c)'/%3E%3Cpath d='M16 13.5v8.5M12.5 18.5 16 22l3.5-3.5' fill='none' stroke='%23fff' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")}
+#dkUpd{display:inline-flex;align-items:center;gap:6px}
+/* Report / Export language */
+.rx-lang{display:flex;gap:8px;flex-wrap:wrap}
+
+/* dashboard current case: ✏ Edit link */
+.db-edit{margin-left:6px;font-weight:700;color:#2563eb;text-decoration:none;white-space:nowrap;cursor:pointer}
+.db-edit:hover{text-decoration:underline}
+html:not([data-theme="light"]) .db-edit{color:#93c5fd}
+/* day theme login: dark readable text in the boxes, solid Restricted Access box */
+html[data-theme="light"] #loginForm input,html[data-theme="light"] #mdBody form input:not([type=checkbox]):not([type=radio]){color:#0f172a!important;caret-color:#0f172a}
+html[data-theme="light"] #loginForm input::placeholder{color:#64748b!important;opacity:1}
+html[data-theme="light"] .rx-note:not(.rx-home){background:linear-gradient(90deg,#991b1b,#1f2937 55%)!important;color:#f8fafc!important}
+html[data-theme="light"] .rx-note:not(.rx-home) *:not(.rx-tag):not(.rx-tag *){color:#f8fafc!important}
+/* 📨 Generate Notices */
+.ng-btn{background:linear-gradient(135deg,#0ea5e9,#2563eb)!important;color:#fff!important;border:0!important;font-weight:700}
+.ng-h{font-weight:800;font-size:12px;letter-spacing:.6px;text-transform:uppercase;color:var(--muted,#64748b);margin:10px 0 6px}
+.ng-cats{display:flex;gap:8px;flex-wrap:wrap}
+.ng-c{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:999px;border:1.5px solid rgba(100,116,139,.45);background:rgba(100,116,139,.12);color:inherit;font-weight:700;cursor:pointer}
+.ng-c.on{background:#2563eb;border-color:#2563eb;color:#fff}
+.ng-c .ng-g{width:16px;height:16px}
+.ng-f{display:grid;grid-template-columns:2fr 1.3fr 1.3fr .8fr;gap:10px}
+.ng-f label{display:flex;flex-direction:column;gap:4px;font-size:12.5px;font-weight:600}
+@media (max-width:1100px){.ng-f{grid-template-columns:1fr 1fr}}
