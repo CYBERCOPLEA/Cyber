@@ -204,13 +204,14 @@ const ExeLic = {
   setupUrl() { return (S.settings && S.settings.exeSetupUrl) || 'https://drive.google.com/file/d/1n601SQf1vr2OmqlduABBrDc88Rcmvjjk/view?usp=sharing'; },
   setupInfo() {
     const u = this.setupUrl();
-    const txt = u => `SudarshanAshtra Desktop (Windows 10 / 11, 64-bit)\nDownload the setup: ${u}\n(It installs without internet.)\nAfter installing, open SudarshanAshtra, fill your name and posting, and send the Request Code to the SudarshanAshtra Super Admin.`;
-    const b = UI.modal('⬇ Setup Download Link', `<p>Upload <b>SudarshanAshtra-Setup.exe</b> to your Google Drive, share it as <b>“Anyone with the link”</b>, and paste that link here once. New users get this link (it can also go on a pen drive – it installs without internet).</p>
+    const txt = u => `SudarshanAshtra Desktop${this._setupVer ? ' – version ' + this._setupVer : ''} (Windows 10 / 11, 64-bit)\nDownload the setup: ${u}\n(It installs without internet.)\nAfter installing, open SudarshanAshtra, fill your name and posting, and send the Request Code to the SudarshanAshtra Super Admin.`;
+    const b = UI.modal('⬇ Setup Download Link', `<p>Upload <b>SudarshanAshtra-Setup.exe</b> to your Google Drive (for a new version: right-click the file in Drive › File information › Manage versions › Upload new version, so the link stays the same), share it as <b>“Anyone with the link”</b>, and paste that link here once. New users get this link (it can also go on a pen drive – it installs without internet).</p>
       <label class="small" style="display:block;font-weight:600">Your Google Drive link of the setup<input id="exSu" placeholder="https://drive.google.com/file/d/…" value="${esc(u)}" style="width:100%;margin-top:4px" data-nov></label><div class="err" id="exSuE"></div>
       <textarea readonly rows="5" id="exSuT" style="width:100%;margin-top:8px">${esc(u ? txt(u) : '')}</textarea>`,
       [{ label: '💾 Save Link', onClick: async () => { const v = $('#exSu', b).value.trim(); if (v && !/^https:\/\/(drive|docs)\.google\.com\//.test(v)) { $('#exSuE', b).textContent = 'Paste the Google Drive share link (it starts with https://drive.google.com/)'; return; } S.settings.exeSetupUrl = v; await this.save(); $('#exSuE', b).textContent = ''; $('#exSuT', b).value = v ? txt(v) : ''; UI.toast(v ? '💾 Setup link saved' : 'Link removed'); } },
         { label: '📋 Copy Message', cls: 'primary', onClick: async () => { const v = $('#exSu', b).value.trim(); if (!v) { $('#exSuE', b).textContent = 'Paste your Google Drive link first'; return; } try { await navigator.clipboard.writeText(txt(v)); UI.toast('Copied – paste it in WhatsApp / e-mail'); } catch (e) { UI.toast('Copy failed'); } } },
         { label: 'Done', onClick: UI.closeModal }]);
+    fetch('desktop/latest.json?t=' + Date.now()).then(r => r.json()).then(j => { if (j && j.shell && j.shell !== this._setupVer) { this._setupVer = j.shell; const t = $('#exSuT', b), v = $('#exSu', b); if (t && v && v.value.trim()) t.value = txt(v.value.trim()); } }).catch(() => { });
   },
   /* pull "last seen" from the Google Sheet (version 16) */
   /* ---------- 🔔 licence requests that new EXE users send online (Google script version 17, sheet "EXE Requests") ---------- */

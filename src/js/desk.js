@@ -20,7 +20,7 @@ const Desk = {
     const t = Plans.t(p.tier), l = this.left(); c.style.setProperty('--c', l <= 7 ? '#dc2626' : t[2]);
     c.className = 'pl-tm' + (l <= 7 ? ' low' : l <= 15 ? ' mid' : ''); c.innerHTML = `${t[1]} · <b>${l} day${l === 1 ? '' : 's'}</b>`; c.title = 'Licence valid till ' + ExeLic.dmy(p.to) + ' – click for details';
     const pt = $('#plTimer'); if (pt) pt.remove();
-    if (this._newBuild) $('#dkUpd').classList.add('dk-new');
+    this.updBtn();
   },
   /* ---------- login screen: own password on this computer ---------- */
   note() {
@@ -31,13 +31,16 @@ const Desk = {
       <span class="small muted" style="display:block;margin-top:6px">${set ? 'Enter your password for this computer.' : '<b>First time:</b> choose your own password (at least 6 characters) and remember it.'}</span>
       ${set ? '<a href="#" id="dkForgot" class="small" style="display:block;margin-top:8px;color:var(--accent)">Forgot password? Use your licence key ›</a>' : ''}`;
     if ($('#dkForgot')) $('#dkForgot').onclick = e => { e.preventDefault(); this.forgot(); };
+    this.blockNote();
   },
   ask(title, html) {
     return new Promise(res => { const b = UI.modal(title, html + '<div class="err" id="dkErr"></div>', [{ label: 'Cancel', onClick: () => { UI.closeModal(); res(null); } }, { label: 'OK', cls: 'primary', onClick: () => res(b) }]); });
   },
   async setPw(pw) { S.settings.user = this.lic().lid; S.settings.salt = uid(); S.settings.hash = hashPass(pw, S.settings.salt); S.settings.mustChange = false; S.settings.deskSet = 1; await DB.set('settings', S.settings); },
   async onSubmit(e) {
-    if (e.target.id !== 'loginForm' || Users._pass) return;
+    if (e.target.id !== 'loginForm') return;
+    if (this.overdue()) { e.preventDefault(); e.stopImmediatePropagation(); $('#lgErr').textContent = '⬆ First update SudarshanAshtra to the latest version, then log in.'; if (!$('#dkMust')) this.blockNote(); return; }
+    if (Users._pass) return;
     $('#lgUser').value = this.lic().lid;
     if (S.settings.deskSet) return;                      // normal check by the tool (password on this computer)
     e.preventDefault(); e.stopImmediatePropagation();
@@ -90,14 +93,73 @@ const Desk = {
           if (S.caseId && !isScope(S.caseId) && S.data) await DB.set('case:' + S.caseId, S.data);
           $('#dkPr', b).textContent = '⏳ Downloading…'; $$('#mdFoot button').forEach(x => { x.disabled = true; });
           const x = await D.applyUpdate(); if (!x.ok) { $('#dkPr', b).textContent = '❌ ' + x.err; $$('#mdFoot button').forEach(y => { y.disabled = false; }); return; }
-          $('#dkPr', b).textContent = '✅ Updated – restarting…'; setTimeout(() => location.reload(), 800);
+          if (!r.shellNew) localStorage.removeItem(this.UPD_K); $('#dkPr', b).textContent = '✅ Updated – restarting…'; setTimeout(() => location.reload(), 800);
         } }]);
     }
     const sh = $('#dkSh'); if (sh) sh.onclick = e => { e.preventDefault(); D.open(r.shellUrl); };
   },
-  async bg() {   // quiet check once after start: light up the Update button
-    try { const r = await window.SudDesk.checkUpdate(); if (r && (r.newer || r.shellNew)) { this._newBuild = 1; const u = $('#dkUpd'); if (u) { u.classList.add('dk-new'); u.textContent = '⬆ Update ●'; } } } catch (e) { }
+  /* ---------- new version: 3 days to update, then logged out and login only after the update ---------- */
+  UPD_K: 'sud-upd', GRACE: 3 * 864e5,
+  pend() {   // { since, kind } while a newer version is waiting for THIS build / setup
+    let s; try { s = JSON.parse(localStorage.getItem(this.UPD_K) || 'null'); } catch (e) { s = null; }
+    const D = window.SudDesk; if (!s || !s.since || s.cur !== D.build || s.shellCur !== D.shell) return null; return s;
+  },
+  dueAt() { const s = this.pend(); return s ? s.since + this.GRACE : 0; },
+  overdue() { const d = this.dueAt(); return !!d && Date.now() >= d; },
+  daysLeftUpd() { const d = this.dueAt(); return d ? Math.max(0, Math.ceil((d - Date.now()) / 864e5)) : 0; },
+  dueTxt() { const d = this.dueAt(); return d ? new Date(d).toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : ''; },
+  async chkUpd() {   // online check; offline keeps the last state (the 3 days keep running)
+    const D = window.SudDesk; let r; try { r = await D.checkUpdate(); } catch (e) { return; } if (!r || r.err) return;
+    this._upd = r;
+    if (r.newer || r.shellNew) {
+      const old = this.pend();
+      localStorage.setItem(this.UPD_K, JSON.stringify({ since: old ? old.since : Date.now(), cur: D.build, shellCur: D.shell, v: r.newer ? r.latest : '', shell: r.shellNew || '', url: r.shellUrl || '' }));
+    } else localStorage.removeItem(this.UPD_K);
+    this.updBtn();
+  },
+  updBtn() {
+    const u = $('#dkUpd'); if (!u) return; const p = this.pend();
+    u.classList.toggle('dk-new', !!p); u.classList.toggle('dk-blink', !!p);
+    u.textContent = p ? '⬆ Update Now' : '⬆ Update';
+    u.title = p ? `A new version is ready – update by ${this.dueTxt()}` : 'Check for a newer SudarshanAshtra and install it';
+  },
+  async enforce(atStart) {
+    const p = this.pend(); if (!p || $('#app').classList.contains('hidden')) return;
+    if (this.overdue()) {
+      if (S.caseId && !isScope(S.caseId) && S.data) { try { await DB.set('case:' + S.caseId, S.data); } catch (e) { } }
+      lock(); setTimeout(() => this.note(), 80); return;
+    }
+    if (atStart || !this._flashed) {
+      this._flashed = 1; const n = this.daysLeftUpd();
+      UI.modal('🆕 New Version Of SudarshanAshtra', `<div class="dk-flash"><p><b>A new version is ready.</b> Please update now – it takes about a minute and your cases stay as they are.</p>
+        <p>You have <b>${n} day${n === 1 ? '' : 's'}</b> left to update (by <b>${esc(this.dueTxt())}</b>). After that you will be logged out and can log in again only after updating.</p></div>`,
+        [{ label: 'Later', onClick: UI.closeModal }, { label: '⬆ Update Now', cls: 'primary', onClick: () => { UI.closeModal(); this.update(); } }]);
+    }
+  },
+  /* the login screen after the 3 days: update first, then log in */
+  blockNote() {
+    const f = $('#lgFirst'), p = this.pend(); if (!f || !p || !this.overdue()) return;
+    f.insertAdjacentHTML('beforeend', `<div class="dk-must"><b>⬆ Update first.</b> A new version of SudarshanAshtra came out and the 3 days to update are over. Update to the latest version, then log in.<div id="dkMsg" class="small" style="margin-top:6px"></div><button type="button" class="btn sm primary" id="dkMust" style="margin-top:6px">⬆ Update Now</button></div>`);
+    $('#dkMust').onclick = () => this.mustUpdate();
+  },
+  async mustUpdate() {
+    const D = window.SudDesk, m = $('#dkMsg'), b = $('#dkMust'), say = t => { if (m) m.textContent = t; };
+    b.disabled = true; say('⏳ Checking for the new version… (needs internet)');
+    await this.chkUpd(); const r = this._upd, p = this.pend();
+    if (!r) { b.disabled = false; return say('❌ No internet – connect and press Update Now again.'); }
+    if (!p) { say('✔ You already have the latest version – log in now.'); setTimeout(() => location.reload(), 900); return; }
+    if (r.newer) {
+      say('⏳ Downloading the new version…'); const x = await D.applyUpdate();
+      if (!x.ok) { b.disabled = false; return say('❌ ' + x.err); }
+      if (!r.shellNew) { localStorage.removeItem(this.UPD_K); say('✅ Updated – restarting…'); setTimeout(() => location.reload(), 800); return; }
+    }
+    b.disabled = false; say('A new setup is needed: download it, install it over the old one (your data stays), then open SudarshanAshtra again.');
+    D.open(r.shellUrl || p.url);
+  },
+  async bg() {   // online check after start and every 30 minutes: blink the Update button, flash, log out after 3 days
+    await this.chkUpd(); this.enforce(false);
   }
+
 };
 
 /* ---------- wiring (EXE only) ---------- */
@@ -113,7 +175,7 @@ const Desk = {
   Users.ownPw = () => Desk.chPw();
   if (typeof Recovery !== 'undefined') Recovery._reminded = true;   // no Settings in the EXE – the licence key resets the password
   Plans.timer = () => Desk.chip();
-  const os = start; start = async function () { Users.link(); Role.apply(); Plans.apply(); const r = await os.apply(this, arguments); Desk.chip(); if (!Desk._bg) { Desk._bg = 1; setTimeout(() => Desk.bg(), 8000); } const l = Desk.left(); if (l <= 7) setTimeout(() => UI.toast(`⚠ Your licence ends in ${l} day${l === 1 ? '' : 's'} (${ExeLic.dmy(Desk.lic().to)}). Ask the SudarshanAshtra Super Admin to extend it.`, 9000), 2500); return r; };
+  const os = start; start = async function () { Users.link(); Role.apply(); Plans.apply(); const r = await os.apply(this, arguments); Desk.chip(); Desk.enforce(true); if (!Desk._bg) { Desk._bg = 1; setTimeout(() => Desk.bg(), 8000); setInterval(() => Desk.bg(), 30 * 60e3); } const l = Desk.left(); if (l <= 7) setTimeout(() => UI.toast(`⚠ Your licence ends in ${l} day${l === 1 ? '' : 's'} (${ExeLic.dmy(Desk.lic().to)}). Ask the SudarshanAshtra Super Admin to extend it.`, 9000), 2500); return r; };
   const ra = Role.apply.bind(Role); Role.apply = function () { if (S.settings) Users.link(); const r = ra(); const b = $('#roleBadge'); if (b && Desk.lic()) { b.textContent = '👤 ' + (Desk.lic().n || 'User'); b.title = 'My licence'; } return r; };
   document.addEventListener('click', e => { if (e.target.closest && e.target.closest('#lgForgot')) { e.preventDefault(); e.stopImmediatePropagation(); Desk.forgot(); } }, true);
 })();

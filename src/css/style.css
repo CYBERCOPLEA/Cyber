@@ -2331,3 +2331,9 @@ html.ed-desk #topbar{gap:7px}
 @keyframes exRing{0%,86%,100%{transform:rotate(0)}89%{transform:rotate(-14deg)}93%{transform:rotate(12deg)}97%{transform:rotate(-6deg)}}
 .ex-rqt tr.ex-rq{cursor:pointer}.ex-rqt tr.ex-rq:hover td{background:var(--surface-3)}
 @media (max-width:1500px){html.role-admin #topbar{gap:7px}#exBell{margin-right:0;padding:4px 7px}}
+
+/* EXE: new version waiting – Update button blinks; must-update box on the login screen */
+#dkUpd.dk-blink{animation:dkp 1.6s ease-in-out infinite,dkb 1s steps(2,start) infinite}
+@keyframes dkb{to{visibility:visible;opacity:.45}}
+.dk-must{margin-top:10px;padding:10px 12px;border-radius:10px;border:1px solid #f59e0b;background:rgba(245,158,11,.12);font-size:13px;line-height:1.45}
+.dk-flash p{margin:6px 0}
