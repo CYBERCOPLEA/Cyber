@@ -12,8 +12,8 @@ const Plans = {
   dmy(d) { return d ? d.split('-').reverse().join('-') : ''; },
   mins(m) { m = Math.max(0, Math.round(m)); return m >= 60 ? Math.floor(m / 60) + ' h ' + String(m % 60).padStart(2, '0') + ' min' : m + ' min'; },
   msg(r) {
-    if (r.notyet) return '⏳ Your access starts on ' + this.dmy(r.notyet) + '. Contact the Super Admin (Vijay Tomar).';
-    if (r.expired) return '⌛ Your access period ended on ' + this.dmy(r.expired) + '. Contact the Super Admin (Vijay Tomar) to extend it.';
+    if (r.notyet) return '⏳ Your access starts on ' + this.dmy(r.notyet) + '. Contact the SudarshanAshtra Super Admin.';
+    if (r.expired) return '⌛ Your access period ended on ' + this.dmy(r.expired) + '. Contact the SudarshanAshtra Super Admin to extend it.';
     if (r.outhours) return '🕘 You can use the tool only between ' + r.tf + ' and ' + r.tt + ' (India time). Please log in again in that time.';
     if (r.timeup) return '⏰ Your time for today (' + this.hrs(r.h) + ') is over. You can log in again tomorrow, or ask the Super Admin for more time.';
     return '';
@@ -183,7 +183,7 @@ const Plans = {
     return r;
   };
   if (SUD_ED === 'user') {
-    const og = go; go = function (page, sub) { if (Plans.blocked(page)) { const p = Plans.plan(); UI.toast('🔒 Not part of your ' + Plans.t(p.tier)[1] + ' plan. Ask the Super Admin (Vijay Tomar).', 5000); return; } return og(page, sub); };
+    const og = go; go = function (page, sub) { if (Plans.blocked(page)) { const p = Plans.plan(); UI.toast('🔒 Not part of your ' + Plans.t(p.tier)[1] + ' plan. Ask the SudarshanAshtra Super Admin.', 5000); return; } return og(page, sub); };
     setInterval(() => Plans.timer(), 1000);
     const obs = new MutationObserver(() => { if (Plans._busy || !Plans.plan()) return; clearTimeout(Plans._mt); Plans._mt = setTimeout(() => Plans.apply(), 60); });
     const hook = () => { const s = $('#sidebar'); if (s) obs.observe(s, { childList: true, subtree: true }); }; if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', hook); else hook();

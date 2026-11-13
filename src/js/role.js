@@ -1,5 +1,5 @@
 /* role.js – two links, two editions:
-   Sudarshanastra.html = Super Admin (Vijay Tomar). It opens only on a computer where the private Super Admin key file was loaded once.
+   Sudarshanastra.html = SudarshanAshtra Super Admin. It opens only on a computer where the private Super Admin key file was loaded once.
    User.html           = Users. Login is checked online against the Super Admin's Google Sheet (users.js); each user has the rights
                          the Super Admin gave (Role.RIGHTS). Users have no Settings page. */
 'use strict';
@@ -22,7 +22,7 @@ const Role = {
   defRights() { return this.RIGHTS.filter(r => r[3]).map(r => r[0]); },
   rights() { const l = S.settings && S.settings.link; return l && l.rights != null ? String(l.rights).split(',').map(s => s.trim()).filter(Boolean) : this.defRights(); },
   can(k) { return this.admin() || this.rights().includes(k); },
-  deny(what) { UI.toast('🔒 Only the Super Admin (Vijay Tomar) can ' + (what || 'change this') + '. Ask him if you need it.', 5000); },
+  deny(what) { UI.toast('🔒 Only the SudarshanAshtra Super Admin can ' + (what || 'change this') + '. Ask the Super Admin if you need it.', 5000); },
   apply() {
     const a = this.admin(), H = document.documentElement; H.classList.toggle('role-user', !a); H.classList.toggle('role-admin', a); H.classList.toggle('ed-user', this.user());
     for (const [k] of this.RIGHTS) H.classList.toggle('no-' + k, !this.can(k));
@@ -62,7 +62,7 @@ const Role = {
   const po = Pages.offx;
   Pages.offx = main => {
     const ok = Object.keys(TABR).filter(t => Role.can(TABR[t]));
-    if (!ok.length) { main.innerHTML = '<div class="card" style="margin:20px"><h3>🔒 Office Work</h3><p class="muted">The Super Admin has not given you Office Work. Ask Vijay Tomar if you need it.</p></div>'; return; }
+    if (!ok.length) { main.innerHTML = '<div class="card" style="margin:20px"><h3>🔒 Office Work</h3><p class="muted">The Super Admin has not given you Office Work. Ask the SudarshanAshtra Super Admin if you need it.</p></div>'; return; }
     if (!ok.includes(S.sub.offx || 'crime')) S.sub.offx = ok[0];
     po(main); Object.keys(TABR).filter(t => !ok.includes(t)).forEach(t => { const x = $(`.tab[data-t="${t}"]`, main); if (x) x.remove(); });
   };
@@ -85,7 +85,7 @@ const Role = {
     orig(main);
     const a = Role.admin(), card = document.createElement('div'); card.className = 'card'; card.id = 'roleCard';
     card.innerHTML = `<h3>👑 Super Admin</h3>
-      <div class="sub">This link is for the Super Admin (Vijay Tomar) only. Users use their own <b>User link</b>, made in Super Admin Control, where you give each user a login, rights and access.</div>
+      <div class="sub">This link is for the SudarshanAshtra Super Admin only. Users use their own <b>User link</b>, made in Super Admin Control, where you give each user a login, rights and access.</div>
       ${a ? `<div class="row" style="gap:8px;flex-wrap:wrap"><span class="badge good">Super Admin on This Computer</span><span class="spacer"></span><button class="btn primary" id="saCtl">👥 Open Super Admin Control</button></div>`
         : `<div class="row" style="gap:8px;flex-wrap:wrap"><span class="badge">Not Super Admin</span><span class="spacer"></span><label class="btn" style="cursor:pointer">🔑 Load Super Admin Key File<input type="file" id="saFile" accept=".txt,.key,.sakey,text/plain" hidden></label><input type="password" id="saKey" placeholder="or paste the key" style="max-width:260px"><button class="btn primary" id="saGo">Open Super Admin</button><span class="err" id="saErr"></span></div>`}`;
     const v = $('#vaultCard', main) || main.querySelector('.grid'); if (v) v.parentNode.insertBefore(card, v.nextSibling); else main.appendChild(card);

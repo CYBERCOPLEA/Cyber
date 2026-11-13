@@ -62,7 +62,7 @@ const Desk = {
     UI.modal('🖥 My Licence', `<div class="ua-head"><span class="ua-av">${esc((p.n || '?').slice(0, 1).toUpperCase())}</span><div><b>${esc([p.rk, p.n].filter(Boolean).join(' '))}</b><div class="small muted">${esc([p.ps, p.dist, p.st].filter(Boolean).join(', '))}</div></div><span class="spacer"></span>${Plans.badge(p.tier)}</div>
       <table class="tbl ad-kv" style="margin-top:10px"><tr><th>Licence ID</th><td class="mono"><b>${esc(p.lid)}</b> · issue #${p.seq}</td></tr><tr><th>Valid</th><td>${ExeLic.dmy(p.from)} → <b>${ExeLic.dmy(p.to)}</b> · <b>${l} day${l === 1 ? '' : 's'} left</b></td></tr>
       <tr><th>This Computer</th><td class="mono">${esc(D.mid)}</td></tr><tr><th>Last Online Check</th><td>${D.state && D.state.chk ? Users.dt(D.state.chk) : '— (works offline)'}</td></tr><tr><th>Version</th><td>build ${esc(D.build || '?')} · setup ${esc(D.shell || '?')}</td></tr><tr><th>Sections</th><td class="small">${shown || '—'}</td></tr></table>
-      <p class="small muted" style="margin-top:10px">Your case data stays only on this computer. To extend the licence, change category or move to a new computer, contact the Super Admin (Vijay Tomar).</p>`,
+      <p class="small muted" style="margin-top:10px">Your case data stays only on this computer. To extend the licence, change category or move to a new computer, contact the SudarshanAshtra Super Admin.</p>`,
       [{ label: '🔄 Check Licence Online', onClick: async () => { UI.toast('⏳ Checking…'); const r = await D.checkOnline(); UI.toast(r.msg || (r.ok ? '✔ Licence is fine' : 'Could not check'), 6000); if (r.reload) location.reload(); } },
         { label: '🔑 Enter New Licence Key', onClick: () => this.newKey() }, { label: '🔑 Change My Password', onClick: () => this.chPw() }, { label: 'Close', onClick: UI.closeModal }]);
   },
@@ -113,7 +113,7 @@ const Desk = {
   Users.ownPw = () => Desk.chPw();
   if (typeof Recovery !== 'undefined') Recovery._reminded = true;   // no Settings in the EXE – the licence key resets the password
   Plans.timer = () => Desk.chip();
-  const os = start; start = async function () { Users.link(); Role.apply(); Plans.apply(); const r = await os.apply(this, arguments); Desk.chip(); if (!Desk._bg) { Desk._bg = 1; setTimeout(() => Desk.bg(), 8000); } const l = Desk.left(); if (l <= 7) setTimeout(() => UI.toast(`⚠ Your licence ends in ${l} day${l === 1 ? '' : 's'} (${ExeLic.dmy(Desk.lic().to)}). Ask the Super Admin (Vijay Tomar) to extend it.`, 9000), 2500); return r; };
+  const os = start; start = async function () { Users.link(); Role.apply(); Plans.apply(); const r = await os.apply(this, arguments); Desk.chip(); if (!Desk._bg) { Desk._bg = 1; setTimeout(() => Desk.bg(), 8000); } const l = Desk.left(); if (l <= 7) setTimeout(() => UI.toast(`⚠ Your licence ends in ${l} day${l === 1 ? '' : 's'} (${ExeLic.dmy(Desk.lic().to)}). Ask the SudarshanAshtra Super Admin to extend it.`, 9000), 2500); return r; };
   const ra = Role.apply.bind(Role); Role.apply = function () { if (S.settings) Users.link(); const r = ra(); const b = $('#roleBadge'); if (b && Desk.lic()) { b.textContent = '👤 ' + (Desk.lic().n || 'User'); b.title = 'My licence'; } return r; };
   document.addEventListener('click', e => { if (e.target.closest && e.target.closest('#lgForgot')) { e.preventDefault(); e.stopImmediatePropagation(); Desk.forgot(); } }, true);
 })();
