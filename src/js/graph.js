@@ -132,7 +132,7 @@ const Graph = {
       }
       gC.innerHTML = colsOf().map(([k, list]) => { const left = n => n.x - (isMind ? n.w / 2 : n.r), bw = isMind ? 132 : 104, lc = isMind ? LPAL[k % LPAL.length] : C.border;
         const x = vert ? Math.min(...list.map(left)) - bw / 2 - 24 : list.reduce((a, n) => a + n.x, 0) / list.length, y = vert ? list.reduce((a, n) => a + n.y, 0) / list.length : Math.min(...list.map(n => n.y)) - (isMind ? 56 : 48);
-        return `<g data-col="${k}" style="cursor:move"><rect x="${x - bw / 2}" y="${y - (isMind ? 19 : 16)}" width="${bw}" height="${isMind ? 30 : 24}" rx="${isMind ? 15 : 12}" fill="${C.surface}" stroke="${lc}" stroke-width="${isMind ? 2 : 1}"/><text x="${x}" y="${y + 1}" text-anchor="middle" font-size="${isMind ? 15 : 12}" font-weight="700" fill="${C.text}">${k === 0 ? 'Victim' : 'Layer ' + k} · ${list.length}</text></g>`; }).join('');
+        return `<g data-col="${k}" style="cursor:move"><rect x="${x - bw / 2}" y="${y - (isMind ? 19 : 16)}" width="${bw}" height="${isMind ? 30 : 24}" rx="${isMind ? 15 : 12}" fill="${C.surface}" stroke="${lc}" stroke-width="${isMind ? 2 : 1}"/><text x="${x}" y="${y + 1}" text-anchor="middle" font-size="${isMind ? 15 : 12}" font-weight="700" fill="${C.text}">${opt.ringName ? ringName(k) : k === 0 ? 'Victim' : 'Layer ' + k} · ${list.length}</text></g>`; }).join('');
     };
     const redraw = moved => {
       moved.forEach(n => nodeEl(n).setAttribute('transform', `translate(${n.x},${n.y})`));
