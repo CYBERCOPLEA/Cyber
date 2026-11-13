@@ -18,8 +18,8 @@ button.pri{background:#2563eb;border-color:#2563eb}button.ok{background:#16a34a;
 @media(max-width:820px){.cols{grid-template-columns:1fr}}
 </style></head>
 <body><div class="box">
-  <div class="hd"><img src="emblem.png" alt=""><div><h1>SudarshanAshtra Desktop <span class="hi" lang="hi">सुदर्शनास्त्र</span></h1><small>Cyber Crime Analysis &amp; Tracking · works offline · licence from the Super Admin (Vijay Tomar)</small></div></div>
-  <div id="why" class="why info">Welcome! This computer needs a licence once. Fill your details, send the Request Code to the Super Admin, then paste the licence key he sends you.</div>
+  <div class="hd"><img src="emblem.png" alt=""><div><h1>SudarshanAshtra Desktop <span class="hi" lang="hi">सुदर्शनास्त्र</span></h1><small>Cyber Crime Analysis &amp; Tracking · works offline · licence from the SudarshanAshtra Super Admin</small></div></div>
+  <div id="why" class="why info">Welcome! This computer needs a licence once. Fill your details, send the Request Code to the Super Admin, then paste the licence key you receive.</div>
   <div class="cols">
     <div class="card"><h2>① Ask For A Licence</h2><p>Your computer's Machine ID:</p><div class="mid" id="mid">…</div>
       <div class="g2"><div><label>Name *</label><input id="n"></div><div><label>Rank / Post</label><input id="rk"></div>
@@ -27,7 +27,7 @@ button.pri{background:#2563eb;border-color:#2563eb}button.ok{background:#16a34a;
         <div><label>State</label><input id="st" list="states"></div><div><label>Mobile</label><input id="mob" inputmode="tel"></div></div>
       <button class="pri" id="mk">📋 Copy Request Code</button><button id="wa">🟢 Send On WhatsApp</button>
       <textarea id="req" rows="3" readonly placeholder="Your Request Code appears here" style="margin-top:8px"></textarea>
-      <div class="muted">Send the Request Code to the Super Admin (Vijay Tomar) by WhatsApp / e-mail.</div></div>
+      <div class="muted">Send the Request Code to the SudarshanAshtra Super Admin by WhatsApp / e-mail.</div></div>
     <div class="card"><h2>② Activate</h2><p>Paste the licence key from the Super Admin, or load the <b>.lic</b> file.</p>
       <textarea id="key" rows="7" placeholder="SADL1.…"></textarea>
       <label class="btn" style="width:auto">📂 Load .lic File<input type="file" id="kf" accept=".lic,.txt" hidden></label><button class="ok" id="act">✅ Activate</button><button id="chk" style="display:none">🔄 Check Online Again</button>
@@ -43,11 +43,11 @@ const dmy = d => d ? d.split('-').reverse().join('-') : '';
 $('#mid').textContent = D.mid; $('#ver').textContent = 'Setup ' + D.shell + ' · build ' + D.build;
 try { const o = JSON.parse(localStorage.getItem('sud-req') || '{}'); F.forEach(k => { if (o[k]) $('#' + k).value = o[k]; }); } catch (e) { }
 const p = D.plic, W = {
-  expired: ['bad', `⌛ Your licence ended on <b>${dmy(p && p.to)}</b>. Ask the Super Admin (Vijay Tomar) to extend it – then paste the new key, or press “Check Online Again” if he has extended it online.`],
+  expired: ['bad', `⌛ Your licence ended on <b>${dmy(p && p.to)}</b>. Ask the SudarshanAshtra Super Admin to extend it – then paste the new key, or press “Check Online Again” if it has been extended online.`],
   notyet: ['', `⏳ Your licence starts on <b>${dmy(p && p.from)}</b>. Please open SudarshanAshtra again on that day.`],
-  Suspended: ['bad', '⏸ Your licence has been <b>suspended</b> by the Super Admin (Vijay Tomar). Contact him. When he resumes it, press “Check Online Again”.'],
-  Deleted: ['bad', '🗑 Your licence has been <b>deleted</b> by the Super Admin (Vijay Tomar). Contact him for a new licence.'],
-  moved: ['bad', '🖥 Your licence was moved to another computer by the Super Admin. Ask him for a key for this computer.'],
+  Suspended: ['bad', '⏸ Your licence has been <b>suspended</b> by the SudarshanAshtra Super Admin. Contact the Super Admin. When it is resumed, press “Check Online Again”.'],
+  Deleted: ['bad', '🗑 Your licence has been <b>deleted</b> by the SudarshanAshtra Super Admin. Ask for a new licence.'],
+  moved: ['bad', '🖥 Your licence was moved to another computer by the Super Admin. Ask for a key for this computer.'],
   machine: ['bad', '🖥 The licence on this computer was made for another computer. Ask the Super Admin for a key for this Machine ID.'],
   clock: ['bad', '🕘 The date / time of this computer looks wrong (it is earlier than when SudarshanAshtra was last used). Set the correct date and time in Windows and open SudarshanAshtra again, or press “Check Online Again”.'],
   tamper: ['bad', '⚠ The licence file on this computer was changed or damaged. Paste your licence key again.'],

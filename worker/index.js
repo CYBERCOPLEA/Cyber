@@ -75,7 +75,7 @@ function gateForm(next, err) {
 <label for="i">User ID</label><input id="i" name="id" required autocomplete="username" autofocus>
 <label for="p">Password</label><input id="p" name="pw" type="password" required autocomplete="current-password">
 ${err ? `<div class="e">${esc(err)}</div>` : ''}<button type="submit">Open SudarshanAshtra</button></form>
-<div class="n">Use the <b>User ID</b> and <b>password</b> given by the Super Admin (Vijay Tomar). Forgot it? Ask him to reset it.</div>
+<div class="n">Use the <b>User ID</b> and <b>password</b> given by the SudarshanAshtra Super Admin. Forgot it? Ask the SudarshanAshtra Super Admin to reset it.</div>
 <script>document.getElementById('h').value=location.hash.slice(0,600)</script>`, err ? 401 : 200);
 }
 
@@ -91,7 +91,7 @@ async function doLogin(req, env) {
   } catch (e) { return gateForm(next, 'Could not reach the Super Admin\'s server. Try again in a minute.'); }
   if (!j || !j.ok) return gateForm(next, (j && j.err) || 'Wrong User ID or password.');
   const r = j.r || {};
-  if (r.off) return gateForm(next, '⛔ Your access has been switched off by the Super Admin. Contact Vijay Tomar.');
+  if (r.off) return gateForm(next, '⛔ Your access has been switched off by the Super Admin. Contact the SudarshanAshtra Super Admin.');
   if (!r.tok || !r.user) return gateForm(next, 'Wrong User ID or password.');
   const t = await ticket(env, r.user.id);
   /* hand the fresh login to the tool in this tab, so it can skip asking again (read once by User.html) */

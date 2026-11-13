@@ -183,7 +183,7 @@ const ExeLic = {
     draw();
   },
   share(r, title) {
-    const txt = `SudarshanAshtra Desktop – your licence\nName: ${[r.rank, r.name].filter(Boolean).join(' ')}\nCategory: ${Plans.t(r.tier)[1].replace(/^\S+ /, '')}\nValid: ${this.dmy(r.from)} to ${this.dmy(r.to)}\nComputer: ${r.mid}\n\nOpen SudarshanAshtra on that computer › paste this key › Activate:\n\n${r.key}\n\n– Super Admin, Vijay Tomar`;
+    const txt = `SudarshanAshtra Desktop – your licence\nName: ${[r.rank, r.name].filter(Boolean).join(' ')}\nCategory: ${Plans.t(r.tier)[1].replace(/^\S+ /, '')}\nValid: ${this.dmy(r.from)} to ${this.dmy(r.to)}\nComputer: ${r.mid}\n\nOpen SudarshanAshtra on that computer › paste this key › Activate:\n\n${r.key}\n\n– SudarshanAshtra Super Admin`;
     const b = UI.modal(title || '🔑 Licence Key – ' + r.name, `<table class="tbl ad-kv"><tr><th>Licence</th><td><b class="mono">${esc(r.lid)}</b> · issue #${r.seq}</td></tr><tr><th>User</th><td><b>${esc([r.rank, r.name].filter(Boolean).join(' '))}</b> <span class="small muted">${esc(r.ps || '')}</span></td></tr><tr><th>Category</th><td>${Plans.badge(r.tier)}</td></tr><tr><th>Valid</th><td><b>${this.dmy(r.from)} → ${this.dmy(r.to)}</b></td></tr><tr><th>Computer</th><td class="mono">${esc(r.mid)}</td></tr></table>
       <textarea readonly class="mono ex-key" rows="5">${esc(r.key)}</textarea>
       <p class="small muted">Works only on that one computer. Send it by WhatsApp / e-mail, or send the .lic file. ${r.sync === 'ok' ? '🟢 Also saved in your Google Sheet – an online EXE picks up changes by itself.' : ''}</p>`,
@@ -202,7 +202,7 @@ const ExeLic = {
   setupUrl() { return (S.settings && S.settings.exeSetupUrl) || 'https://drive.google.com/file/d/1n601SQf1vr2OmqlduABBrDc88Rcmvjjk/view?usp=sharing'; },
   setupInfo() {
     const u = this.setupUrl();
-    const txt = u => `SudarshanAshtra Desktop (Windows 10 / 11, 64-bit)\nDownload the setup: ${u}\n(It installs without internet.)\nAfter installing, open SudarshanAshtra, fill your name and posting, and send the Request Code to the Super Admin (Vijay Tomar).`;
+    const txt = u => `SudarshanAshtra Desktop (Windows 10 / 11, 64-bit)\nDownload the setup: ${u}\n(It installs without internet.)\nAfter installing, open SudarshanAshtra, fill your name and posting, and send the Request Code to the SudarshanAshtra Super Admin.`;
     const b = UI.modal('⬇ Setup Download Link', `<p>Upload <b>SudarshanAshtra-Setup.exe</b> to your Google Drive, share it as <b>“Anyone with the link”</b>, and paste that link here once. New users get this link (it can also go on a pen drive – it installs without internet).</p>
       <label class="small" style="display:block;font-weight:600">Your Google Drive link of the setup<input id="exSu" placeholder="https://drive.google.com/file/d/…" value="${esc(u)}" style="width:100%;margin-top:4px" data-nov></label><div class="err" id="exSuE"></div>
       <textarea readonly rows="5" id="exSuT" style="width:100%;margin-top:8px">${esc(u ? txt(u) : '')}</textarea>`,

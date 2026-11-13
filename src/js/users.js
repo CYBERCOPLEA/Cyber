@@ -48,7 +48,7 @@ const Users = {
     if (fg) fg.parentNode.classList.add('hidden');
     const lb = $('label[for="lgUser"]'); if (lb) lb.textContent = 'User ID';
     const L = this.link();
-    f.innerHTML = `<span class="lg-sa">👤 Log in with the <b>User ID</b> and <b>password</b> given by the Super Admin (Vijay Tomar).</span>
+    f.innerHTML = `<span class="lg-sa">👤 Log in with the <b>User ID</b> and <b>password</b> given by the SudarshanAshtra Super Admin.</span>
       <span class="small muted" style="display:block;margin-top:6px">Forgot your password? Ask the Super Admin to reset it.</span>
       ${L && L.url ? '' : `<a href="#" id="lgJoinT" class="small" style="display:block;margin-top:8px;color:var(--accent)">First time on this computer and login does not work? ›</a>
       <span id="lgJoinB" class="hidden" style="display:block;margin-top:6px"><span class="small">Open the personal link the Super Admin sent you once – or paste that link here:</span>
@@ -71,7 +71,7 @@ const Users = {
       return err(x.net ? 'Internet is needed to check your account (last checked ' + this.dt(L.okAt) + '). Connect and try again.' : x.message);
     }
     btn.disabled = false;
-    if (r.off) { L.status = 'Off'; await DB.set('settings', S.settings); return err('⛔ Your access has been switched off by the Super Admin' + (r.at ? ' on ' + this.dt(r.at) : '') + '. Contact Vijay Tomar.'); }
+    if (r.off) { L.status = 'Off'; await DB.set('settings', S.settings); return err('⛔ Your access has been switched off by the Super Admin' + (r.at ? ' on ' + this.dt(r.at) : '') + '. Contact the SudarshanAshtra Super Admin.'); }
     if (Vault.on() && !Vault.key && !(await Vault.unlock(pw))) {
       const old = await this.askOld(); if (!old) return err('Your password was reset, so enter your old password once to open the case data kept on this computer.');
       await Vault.rewrap(pw);
@@ -96,9 +96,9 @@ const Users = {
     this._tb = 1;
     try {
       const r = await this.post(L.url, { fn: 'ustat', id: L.id, tok: L.tok });
-      if (r.off) { L.status = 'Off'; return this.out('⛔ Your access has been switched off by the Super Admin' + (r.at ? ' on ' + this.dt(r.at) : '') + '. Contact Vijay Tomar.'); }
+      if (r.off) { L.status = 'Off'; return this.out('⛔ Your access has been switched off by the Super Admin' + (r.at ? ' on ' + this.dt(r.at) : '') + '. Contact the SudarshanAshtra Super Admin.'); }
       if (r.kicked) return this.out('Your login was reset by the Super Admin or used on another computer. Please log in again.');
-      if (r.gone) { L.url = L.url; return this.out('Your User ID was changed or removed by the Super Admin. Ask Vijay Tomar for your new login.'); }
+      if (r.gone) { L.url = L.url; return this.out('Your User ID was changed or removed by the Super Admin. Ask the SudarshanAshtra Super Admin for your new login.'); }
       const u = r.user, ch = u.rights !== L.rights;
       Object.assign(L, { id: u.id, name: u.name, rank: u.rank, ps: u.ps, rights: u.rights, status: u.status, okAt: Date.now() }); await DB.set('settings', S.settings);
       if (ch) { Role.apply(); render(); UI.toast('🛡 The Super Admin changed your rights', 5000); }
@@ -109,7 +109,7 @@ const Users = {
     const b = UI.modal('👤 My Account', `<div class="ua-head"><span class="ua-av">${esc((L.name || L.id || '?').slice(0, 1).toUpperCase())}</span><div><b>${esc([L.rank, L.name].filter(Boolean).join(' ') || L.id || 'User')}</b><div class="small muted">${esc(L.ps || '')}</div></div><span class="spacer"></span><span class="badge ${L.status === 'Off' ? 'bad' : 'good'}">${L.status === 'Off' ? '⛔ Switched Off' : '✅ Active'}</span></div>
       <table class="tbl ad-kv" style="margin-top:10px"><tr><th>User ID</th><td><b>${esc(L.id || '—')}</b></td></tr><tr><th>Last Login</th><td>${this.dt(L.lastLogin)}</td></tr><tr><th>Last Checked With Super Admin</th><td>${this.dt(L.okAt)}</td></tr></table>
       <h4 style="margin:14px 0 6px">🛡 My Rights</h4><div class="ua-rights">${Role.RIGHTS.map(([k, t, d]) => `<div class="ua-r ${R.includes(k) ? 'on' : ''}"><span>${R.includes(k) ? '✅' : '🚫'}</span><div><b>${esc(t)}</b><small>${esc(d)}</small></div></div>`).join('')}</div>
-      <p class="small muted" style="margin-top:10px">Rights, User ID and password resets are given by the Super Admin (Vijay Tomar). Your case data stays on this computer; only your login is checked online.</p>`,
+      <p class="small muted" style="margin-top:10px">Rights, User ID and password resets are given by the SudarshanAshtra Super Admin. Your case data stays on this computer; only your login is checked online.</p>`,
       [{ label: '🔑 Change My Password', cls: 'primary', onClick: () => this.ownPw('', false) }, { label: '🔄 Check Now', onClick: async () => { await this.tick(); if (!$('#app').classList.contains('hidden')) this.account(); } }, { label: 'Close', onClick: UI.closeModal }]);
     return b;
   },
@@ -134,7 +134,7 @@ PAGE_META.sadmin = { group: 'Super Admin', title: 'Super Admin Control', desc: '
 Pages.sadmin = main => {
   if (!Role.admin()) { main.innerHTML = '<div class="card" style="margin:20px">🔒 Super Admin only.</div>'; return; }
   const st = Users._st || (Users._st = { tab: 'users', q: '', f: '' });
-  main.innerHTML = `<div class="hero-card sa-hero"><div class="sa-crown">👑</div><div class="grow"><div class="db-lbl">Super Admin</div><h2>Super Admin Control</h2><div class="sub2">Vijay Tomar · give each user a login, choose their rights, switch access on or off, reset passwords – every change is kept with date &amp; time.</div></div>
+  main.innerHTML = `<div class="hero-card sa-hero"><div class="sa-crown">👑</div><div class="grow"><div class="db-lbl">Super Admin</div><h2>Super Admin Control</h2><div class="sub2">SudarshanAshtra Super Admin · give each user a login, choose their rights, switch access on or off, reset passwords – every change is kept with date &amp; time.</div></div>
       <div class="sa-links"><div class="small muted">🔗 User link (send to users)</div><code>${esc(Users.USER_URL)}</code><div class="small muted" style="margin-top:4px">👑 Your link (Super Admin only)</div><code>${esc(Users.ADMIN_URL)}</code></div></div>
     <div id="saConn"></div><div id="saKpi" class="sa-kpis"></div>
     <div class="card"><div class="row" style="gap:8px;flex-wrap:wrap;align-items:center"><div class="seg"><button class="btn sm ${st.tab === 'users' ? 'primary' : ''}" data-tb="users">👥 Users</button><button class="btn sm ${st.tab === 'log' ? 'primary' : ''}" data-tb="log">📜 Activity Log</button><button class="btn sm ${st.tab === 'rights' ? 'primary' : ''}" data-tb="rights">🛡 What Users Can Do</button></div><span class="spacer"></span>
@@ -192,7 +192,7 @@ Object.assign(Users, {
   },
   share(u, pw, title) {
     const L = this._liveUrl, link = this.joinUrl(L, u.id);
-    const txt = `SudarshanAshtra – your login\nOpen this link (Chrome / Edge): ${link}\nUser ID: ${u.id}${pw ? `\nTemporary password: ${pw}\nYou will be asked to set your own password at the first login.` : ''}\n– Super Admin, Vijay Tomar`;
+    const txt = `SudarshanAshtra – your login\nOpen this link (Chrome / Edge): ${link}\nUser ID: ${u.id}${pw ? `\nTemporary password: ${pw}\nYou will be asked to set your own password at the first login.` : ''}\n– SudarshanAshtra Super Admin`;
     const b = UI.modal(title || '🔗 Send This To The User', `${pw ? '<div class="note warn"><b>The password is shown only now.</b> It is kept scrambled – nobody, not even you, can read it later. If it is lost, use 🔑 Reset Password.</div>' : ''}
       <table class="tbl ad-kv" style="margin-top:10px"><tr><th>User Link</th><td><code style="word-break:break-all">${esc(link)}</code></td></tr><tr><th>User ID</th><td><b class="mono" style="font-size:16px">${esc(u.id)}</b></td></tr>${pw ? `<tr><th>Temporary Password</th><td><b class="mono" style="font-size:18px;letter-spacing:1px">${esc(pw)}</b></td></tr>` : ''}</table>
       <p class="small muted">Send it to the user personally (WhatsApp / SMS). The link connects their computer to you; the password lets them in.</p>`,
@@ -250,7 +250,7 @@ Object.assign(Users, {
   const m = location.hash.match(/#join=([^&]+)/);
   if (m) { const o = Users.parse(decodeURIComponent(m[1])); if (o) localStorage.setItem('sud-join', JSON.stringify(o)); history.replaceState(null, '', location.pathname + location.search); }
   document.addEventListener('submit', e => { Users.onSubmit(e); }, true);
-  document.addEventListener('click', e => { if (SUD_ED === 'user' && e.target.closest && e.target.closest('#lgForgot')) { e.preventDefault(); e.stopImmediatePropagation(); UI.toast('Ask the Super Admin (Vijay Tomar) to reset your password', 6000); } }, true);
+  document.addEventListener('click', e => { if (SUD_ED === 'user' && e.target.closest && e.target.closest('#lgForgot')) { e.preventDefault(); e.stopImmediatePropagation(); UI.toast('Ask the SudarshanAshtra Super Admin to reset your password', 6000); } }, true);
   const sl = showLogin; showLogin = function (on = true) { const r = sl.apply(this, arguments); if (on) (async () => { try { const j = JSON.parse(localStorage.getItem('sud-join') || 'null'); if (j && S.settings) { localStorage.removeItem('sud-join'); await Users.useJoin(j); $('#lgUser').value = j.i; } } catch (e) { }
       /* Cloudflare door hand-off: the door already checked the User ID + password; take the Super Admin link from it (no join link needed).
          The password itself never comes through, so it is asked once more here – it also opens the case data kept on this computer. */

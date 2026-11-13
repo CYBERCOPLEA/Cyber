@@ -77,7 +77,7 @@ const Contacts = {
   }
 };
 PAGE_META.contacts = { group: 'Office', title: 'Contacts', desc: 'Intermediaries (bank, social media, fintech / payment gateway, merchant, UPI, telecom) and UP Cyber Police – nodal officers, e-mails, portals and phone numbers in one place.', order: ['all', 'int', 'pol', ...Contacts.CAT.map(x => x[0])], names: Object.fromEntries([['all', '📇 All'], ['int', '🏢 Intermediary'], ['pol', '👮 Police / Govt.'], ...Contacts.CAT.map(x => [x[0], x[1] + ' ' + x[2]])]) };
-Pages.contacts = main => { if (!Role.can('contacts')) { main.innerHTML = '<div class="card" style="margin:20px"><h3>🔒 Contacts</h3><p class="muted">The Super Admin has not given you Contacts. Ask Vijay Tomar if you need it.</p></div>'; return; }
+Pages.contacts = main => { if (!Role.can('contacts')) { main.innerHTML = '<div class="card" style="margin:20px"><h3>🔒 Contacts</h3><p class="muted">The Super Admin has not given you Contacts. Ask the SudarshanAshtra Super Admin if you need it.</p></div>'; return; }
   const sb = S.sub.contacts || 'all', c = Contacts.CAT.find(x => x[0] === sb), { cur, body } = tabs(main, 'contacts', [['all', '📇 All'], ['int', '🏢 Intermediary'], ['pol', '👮 Police / Govt.']], 'Contacts');
   if (c) { $$('.tab', main).forEach(t => t.classList.toggle('active', t.dataset.t === c[4])); } Contacts.page(body, c ? sb : cur); };
 /* sidebar: 📇 Contacts drop-down right after Office Work, then ➕ Add Contacts */
