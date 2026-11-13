@@ -17,8 +17,8 @@ const Desk = {
   chip() {
     const p = this.lic(), rb = $('#roleBadge') || $('#btnTheme'); if (!p || !rb || $('#app').classList.contains('hidden')) return;
     let c = $('#dkLic'); if (!c) { rb.insertAdjacentHTML('beforebegin', '<span id="dkLic" class="pl-tm"></span><button class="btn sm" id="dkUpd" title="Check for a newer SudarshanAshtra and install it">⬆ Update</button>'); c = $('#dkLic'); c.onclick = () => this.account(); $('#dkUpd').onclick = () => this.update(); }
-    const t = Plans.t(p.tier), l = this.left(); c.style.setProperty('--c', l <= 10 ? '#dc2626' : t[2]);
-    c.className = 'pl-tm' + (l <= 10 ? ' low' : l <= 15 ? ' mid' : ''); c.innerHTML = `${t[1]} · <b>${l} day${l === 1 ? '' : 's'}</b>`; c.title = 'Licence valid till ' + ExeLic.dmy(p.to) + ' – click for details';
+    const t = Plans.t(p.tier), l = this.left(); c.style.removeProperty('--c');
+    c.className = 'pl-tm dk-chip' + (l <= 10 ? ' dk-low' : ''); c.innerHTML = `<i class="dk-dot"></i>${t[1]} · <b>${l} day${l === 1 ? '' : 's'}</b>`; c.title = 'Licence valid till ' + ExeLic.dmy(p.to) + ' – click for details';
     const pt = $('#plTimer'); if (pt) pt.remove();
     this.updBtn();
   },
@@ -27,15 +27,23 @@ const Desk = {
     const f = $('#lgFirst'), p = this.lic(); if (!f || !p || !S.settings) return;
     const set = !!S.settings.deskSet, fg = $('#lgForgot'); if (fg) fg.parentNode.classList.add('hidden');
     $('#lgUser').value = p.lid; $('#lgUser').readOnly = true; const lb = $('label[for="lgUser"]'); if (lb) lb.textContent = 'Licence ID';
+    const l = this.left();
     f.innerHTML = `<span class="lg-sa">🖥 <b>${esc([p.rk, p.n].filter(Boolean).join(' '))}</b> · ${Plans.badge(p.tier)} · valid till <b>${ExeLic.dmy(p.to)}</b></span>
-      <span class="small muted" style="display:block;margin-top:6px">${set ? 'Enter your password for this computer.' : '<b>First time:</b> choose your own password (at least 6 characters) and remember it.'}</span>
+      <div class="dk-cd ${l <= 10 ? 'dk-low' : ''}"><i class="dk-dot"></i><span>⏳ <b id="dkCd">${this.cdText()}</b> left on your licence</span>${l <= 5 ? '<button type="button" class="btn sm dk-rn" id="dkRenew">🔄 Renew Licence</button>' : ''}</div>
+      <span class="small muted" style="display:block;margin-top:6px">${set ? 'Enter your password for this computer.' : '<b>First time:</b> choose your own password and remember it. ' + this.PW_RULE + '.'}</span>
       ${set ? '<a href="#" id="dkForgot" class="small" style="display:block;margin-top:8px;color:var(--accent)">Forgot password?</a>' : ''}`;
     if ($('#dkForgot')) $('#dkForgot').onclick = e => { e.preventDefault(); this.forgot(); };
+    if ($('#dkRenew')) $('#dkRenew').onclick = () => this.renew();
+    clearInterval(this._cdT); this._cdT = setInterval(() => { const x = $('#dkCd'); if (!x) return clearInterval(this._cdT); x.textContent = this.cdText(); }, 1000);
     this.blockNote();
   },
   ask(title, html) {
     return new Promise(res => { const b = UI.modal(title, html + '<div class="err" id="dkErr"></div>', [{ label: 'Cancel', onClick: () => { UI.closeModal(); res(null); } }, { label: 'OK', cls: 'primary', onClick: () => res(b) }]); });
   },
+  /* password rules: letters + numbers + a symbol, 6 to 32 characters */
+  PW_RULE: 'Use 6 to 32 characters with letters, numbers and a symbol (like @ # $ ! _)',
+  pwBad(pw) { pw = String(pw || ''); if (pw.length < 6 || pw.length > 32 || !/[A-Za-z]/.test(pw) || !/\d/.test(pw) || !/[^A-Za-z0-9]/.test(pw)) return this.PW_RULE; return ''; },
+  pwSame(pw) { return !!(S.settings && S.settings.hash && hashPass(pw, S.settings.salt) === S.settings.hash); },
   async setPw(pw) { S.settings.user = this.lic().lid; S.settings.salt = uid(); S.settings.hash = hashPass(pw, S.settings.salt); S.settings.mustChange = false; S.settings.deskSet = 1; await DB.set('settings', S.settings); },
   async onSubmit(e) {
     if (e.target.id !== 'loginForm') return;
@@ -44,7 +52,7 @@ const Desk = {
     $('#lgUser').value = this.lic().lid;
     if (S.settings.deskSet) return;                      // normal check by the tool (password on this computer)
     e.preventDefault(); e.stopImmediatePropagation();
-    const pw = $('#lgPass').value; if (pw.length < 6) { $('#lgErr').textContent = 'Choose a password of at least 6 characters'; return; }
+    const pw = $('#lgPass').value; if (this.pwBad(pw)) { $('#lgErr').textContent = this.pwBad(pw); return; }
     const b = await this.ask('🔑 Confirm Your Password', '<p class="small">Type the same password again. You will need it every time you open SudarshanAshtra.</p><input type="password" id="dkPw2">');
     if (!b) return; if ($('#dkPw2', b).value !== pw) { UI.closeModal(); $('#lgErr').textContent = 'The two passwords were not the same – try again'; return; }
     UI.closeModal(); await this.setPw(pw); $('#lgErr').textContent = ''; Users.pass();
@@ -90,9 +98,9 @@ const Desk = {
   },
   newPw(title) {
     return new Promise(res => {
-      const b = UI.modal(title || '🔑 Choose A New Password', '<div class="map-grid" style="grid-template-columns:1fr"><div class="f"><label>New Password (at least 6)</label><input type="password" id="dkN1"></div><div class="f"><label>Again</label><input type="password" id="dkN2"></div></div><div class="err" id="dkFe"></div>',
+      const b = UI.modal(title || '🔑 Choose A New Password', '<div class="map-grid" style="grid-template-columns:1fr"><div class="f"><label>New Password</label><input type="password" id="dkN1" maxlength="32"><div class="small muted">' + this.PW_RULE + '</div></div><div class="f"><label>Again</label><input type="password" id="dkN2"></div></div><div class="err" id="dkFe"></div>',
         [{ label: 'Cancel', onClick: () => { UI.closeModal(); res(null); } }, { label: 'Save New Password', cls: 'primary', onClick: async () => {
-          const n1 = $('#dkN1', b).value; if (n1.length < 6) return $('#dkFe', b).textContent = 'At least 6 characters'; if (n1 !== $('#dkN2', b).value) return $('#dkFe', b).textContent = 'The two passwords are not the same';
+          const n1 = $('#dkN1', b).value; if (this.pwBad(n1)) return $('#dkFe', b).textContent = this.pwBad(n1); if (this.pwSame(n1)) return $('#dkFe', b).textContent = 'The new password cannot be your old password'; if (n1 !== $('#dkN2', b).value) return $('#dkFe', b).textContent = 'The two passwords are not the same';
           await this.setPw(n1); UI.closeModal(); res(1);
         } }]);
     });
@@ -120,6 +128,29 @@ const Desk = {
         } }]);
     };
   },
+  /* time left till the end of the last valid day (India time) */
+  cdText() {
+    const p = this.lic(); if (!p) return ''; const end = Date.parse(p.to + 'T23:59:59+05:30'), ms = Math.max(0, end - Date.now());
+    const d = Math.floor(ms / 864e5), h = Math.floor(ms / 36e5) % 24, m = Math.floor(ms / 6e4) % 60, sc = Math.floor(ms / 1e3) % 60, z = n => String(n).padStart(2, '0');
+    return `${d} day${d === 1 ? '' : 's'} ${z(h)}:${z(m)}:${z(sc)}`;
+  },
+  /* 🔄 renewal request with the payment details – reaches the Super Admin's 🔔 bell (needs internet) */
+  renew() {
+    const p = this.lic(); if (!p) return; const em = this.email();
+    const b = UI.modal('🔄 Renew My Licence', `<p class="small">Pay the renewal amount as told by the SudarshanAshtra team, then fill the payment details below. Your request goes to the SudarshanAshtra Super Admin, who extends your licence. <b>Needs internet.</b></p>
+      <p class="small">Now: ${Plans.badge(p.tier)} · valid till <b>${ExeLic.dmy(p.to)}</b> · ${this.left()} day(s) left</p>
+      <div class="map-grid" style="grid-template-columns:1fr 1fr"><div class="f"><label>Transaction ID / UTR *</label><input id="dkTx" maxlength="60" data-nov></div><div class="f"><label>Transaction Date *</label><input type="date" id="dkTd" value="${ExeLic.istToday()}" data-nov></div>
+      <div class="f"><label>Amount Paid (₹) *</label><input id="dkTa" inputmode="decimal" maxlength="12" data-nov></div><div class="f"><label>Validity Wanted (days) *</label><select id="dkTv">${[30, 90, 180, 365].map(d => `<option value="${d}" ${d === 365 ? 'selected' : ''}>${d} days</option>`).join('')}</select></div></div><div class="err" id="dkTe"></div>`,
+      [{ label: 'Cancel', onClick: UI.closeModal }, { label: '📨 Send Renewal Request', cls: 'primary', onClick: async () => {
+        const say = t => { $('#dkTe', b).innerHTML = t; }, pay = { txn: $('#dkTx', b).value.trim(), dt: $('#dkTd', b).value, amt: $('#dkTa', b).value.trim(), days: $('#dkTv', b).value };
+        if (!/^[A-Za-z0-9\-\/ ]{4,60}$/.test(pay.txn)) return say('Type the Transaction ID / UTR from your payment');
+        if (!pay.dt || pay.dt > ExeLic.istToday()) return say('Choose the date of the payment');
+        if (!(+pay.amt > 0)) return say('Type the amount you paid');
+        say('⏳ Sending…');
+        try { await this.gs({ fn: 'lreq', type: 'renew', lid: p.lid, pay, r: { mid: window.SudDesk.mid, n: p.n, rk: p.rk, ps: p.ps, dist: p.dist, st: p.st, mob: p.mob, em }, build: window.SudDesk.build }); UI.closeModal(); UI.toast('✔ Renewal request sent. When the Super Admin extends it, your licence updates by itself (or you get a new key).', 9000); }
+        catch (e) { const t = `SudarshanAshtra – licence renewal\nName: ${[p.rk, p.n].filter(Boolean).join(' ')}\nLicence ID: ${p.lid}\nMachine ID: ${window.SudDesk.mid}\nTransaction ID: ${pay.txn}\nDate: ${pay.dt}\nAmount: ₹${pay.amt}\nValidity: ${pay.days} days`; say(`❌ ${esc(e.message)}<br><span class="small">Send this by WhatsApp instead:</span><textarea readonly rows="6" style="width:100%">${esc(t)}</textarea>`); }
+      } }]);
+  },
   /* ---------- My Licence ---------- */
   account() {
     const p = this.lic(), D = window.SudDesk, l = this.left(), H = new Set(p.hide || []), tr = Plans.tree();
@@ -129,7 +160,7 @@ const Desk = {
       <tr><th>E-mail</th><td>${this.email() ? esc(this.email()) : '<span class="muted">— (add one for password reset)</span>'}</td></tr><tr><th>This Computer</th><td class="mono">${esc(D.mid)}</td></tr><tr><th>Last Online Check</th><td>${D.state && D.state.chk ? Users.dt(D.state.chk) : '— (works offline)'}</td></tr><tr><th>Version</th><td>build ${esc(D.build || '?')} · setup ${esc(D.shell || '?')}</td></tr><tr><th>Sections</th><td class="small">${shown || '—'}</td></tr></table>
       <p class="small muted" style="margin-top:10px">Your case data stays only on this computer. To extend the licence, change category or move to a new computer, contact the SudarshanAshtra Super Admin.</p>`,
       [{ label: '🔄 Check Licence Online', onClick: async () => { UI.toast('⏳ Checking…'); const r = await D.checkOnline(); UI.toast(r.msg || (r.ok ? '✔ Licence is fine' : 'Could not check'), 6000); if (r.reload) location.reload(); } },
-        { label: '🔑 Enter New Licence Key', onClick: () => this.newKey() }, { label: '🔑 Change My Password', onClick: () => this.chPw() }, { label: '📧 E-mail', onClick: () => this.addEmail() }, { label: 'Close', onClick: UI.closeModal }]);
+        ...(l <= 5 ? [{ label: '🔄 Renew Licence', cls: 'primary', onClick: () => this.renew() }] : []), { label: '🔑 Enter New Licence Key', onClick: () => this.newKey() }, { label: '🔑 Change My Password', onClick: () => this.chPw() }, { label: '📧 E-mail', onClick: () => this.addEmail() }, { label: 'Close', onClick: UI.closeModal }]);
   },
   newKey() {
     const b = UI.modal('🔑 Enter New Licence Key', '<p class="small">Paste the new key from the Super Admin, or load the .lic file.</p><textarea id="dkNk" rows="4" class="mono" style="width:100%"></textarea><label class="btn sm" style="cursor:pointer;margin-top:6px">📂 Load .lic File<input type="file" id="dkNf" accept=".lic,.txt" hidden></label><div class="err" id="dkNe"></div>',
@@ -137,9 +168,9 @@ const Desk = {
     $('#dkNf', b).onchange = async e => { const f = e.target.files[0]; if (f) $('#dkNk', b).value = await f.text(); };
   },
   chPw() {
-    const b = UI.modal('🔑 Change My Password', '<div class="map-grid" style="grid-template-columns:1fr"><div class="f"><label>Old Password</label><input type="password" id="dkO"></div><div class="f"><label>New Password (at least 6)</label><input type="password" id="dkP1"></div><div class="f"><label>Again</label><input type="password" id="dkP2"></div></div><div class="err" id="dkPe"></div>',
+    const b = UI.modal('🔑 Change My Password', '<div class="map-grid" style="grid-template-columns:1fr"><div class="f"><label>Old Password</label><input type="password" id="dkO"></div><div class="f"><label>New Password</label><input type="password" id="dkP1" maxlength="32"><div class="small muted">' + this.PW_RULE + '</div></div><div class="f"><label>Again</label><input type="password" id="dkP2"></div></div><div class="err" id="dkPe"></div>',
       [{ label: 'Cancel', onClick: UI.closeModal }, { label: 'Save', cls: 'primary', onClick: async () => { const e = t => { $('#dkPe', b).textContent = t; }, n = $('#dkP1', b).value;
-        if (hashPass($('#dkO', b).value, S.settings.salt) !== S.settings.hash) return e('Old password is not right'); if (n.length < 6) return e('At least 6 characters'); if (n !== $('#dkP2', b).value) return e('Not the same');
+        if (hashPass($('#dkO', b).value, S.settings.salt) !== S.settings.hash) return e('Old password is not right'); if (this.pwBad(n)) return e(this.pwBad(n)); if (this.pwSame(n)) return e('The new password cannot be your old password'); if (n !== $('#dkP2', b).value) return e('Not the same');
         await this.setPw(n); Sess.save(); UI.closeModal(); UI.toast('✔ Password changed'); } }]);
   },
   /* ---------- ⬆ Update ---------- */
@@ -219,8 +250,12 @@ const Desk = {
     D.open(r.shellUrl || p.url);
   },
   async bg() {   // online check after start and every 30 minutes: blink the Update button, flash, log out after 3 days
-    await this.chkUpd(); this.enforce(false);
-    try { const r = await window.SudDesk.checkOnline(); if (r && r.reload) { UI.toast('🔄 ' + (r.msg || 'The Super Admin changed your licence') + ' – reloading…', 5000); if (S.caseId && !isScope(S.caseId) && S.data) await DB.set('case:' + S.caseId, S.data); setTimeout(() => location.reload(), 2500); } } catch (e) { }
+    if (!this._updAt || Date.now() - this._updAt > 29 * 60e3) { this._updAt = Date.now(); await this.chkUpd(); this.enforce(false); }
+    await this.licChk();
+  },
+  async licChk() {   // Super Admin changes (rights, days, category, suspend) – checked every 5 minutes while online
+    if (this._lcBusy || navigator.onLine === false) return; this._lcBusy = 1; this._lcAt = Date.now();
+    try { const r = await window.SudDesk.checkOnline(); if (r && r.reload) { UI.toast('🔄 ' + (r.msg || 'The Super Admin changed your licence') + ' – reloading…', 5000); if (S.caseId && !isScope(S.caseId) && S.data) await DB.set('case:' + S.caseId, S.data); setTimeout(() => location.reload(), 2500); } } catch (e) { } finally { this._lcBusy = 0; }
   }
 
 };
@@ -238,7 +273,7 @@ const Desk = {
   Users.ownPw = () => Desk.chPw();
   if (typeof Recovery !== 'undefined') Recovery._reminded = true;   // no Settings in the EXE – the licence key resets the password
   Plans.timer = () => Desk.chip();
-  const os = start; start = async function () { Users.link(); Role.apply(); Plans.apply(); const r = await os.apply(this, arguments); Desk.chip(); Desk.enforce(true); if (!Desk._bg) { Desk._bg = 1; setTimeout(() => Desk.bg(), 8000); setInterval(() => Desk.bg(), 30 * 60e3); } const l = Desk.left(); if (l <= 10) setTimeout(() => UI.toast(`⚠ Your licence ends in ${l} day${l === 1 ? '' : 's'} (${ExeLic.dmy(Desk.lic().to)}). Ask the SudarshanAshtra Super Admin to extend it.`, 9000), 2500); return r; };
+  const os = start; start = async function () { Users.link(); Role.apply(); Plans.apply(); const r = await os.apply(this, arguments); Desk.chip(); Desk.enforce(true); if (!Desk._bg) { Desk._bg = 1; setTimeout(() => Desk.bg(), 8000); setInterval(() => Desk.bg(), 5 * 60e3); window.addEventListener('focus', () => { if (Date.now() - (Desk._lcAt || 0) > 60e3) Desk.licChk(); }); } const l = Desk.left(); if (l <= 10) setTimeout(() => UI.toast(`⚠ Your licence ends in ${l} day${l === 1 ? '' : 's'} (${ExeLic.dmy(Desk.lic().to)}).${l <= 5 ? ' Click your licence box › 🔄 Renew Licence.' : ' Ask the SudarshanAshtra Super Admin to extend it.'}`, 9000), 2500); return r; };
   const ra = Role.apply.bind(Role); Role.apply = function () { if (S.settings) Users.link(); const r = ra(); const b = $('#roleBadge'); if (b && Desk.lic()) { b.textContent = '👤 ' + (Desk.lic().n || 'User'); b.title = 'My licence'; } return r; };
   document.addEventListener('click', e => { if (e.target.closest && e.target.closest('#lgForgot')) { e.preventDefault(); e.stopImmediatePropagation(); Desk.forgot(); } }, true);
 })();

@@ -157,19 +157,26 @@ const ExeLic = {
       UI.closeModal(); this.draw(main); this.share(n, isNew ? '✅ Licence Made – Send This To ' + n.name : '🔑 New Licence Key – ' + n.name);
     };
   },
-  extend(r, main) {
-    const base = r.to >= this.istToday() ? r.to : this.istToday();
+  extend(r, main, q) {
+    const base = r.to >= this.istToday() ? r.to : this.istToday(), qd = q && +q.days > 0 ? +q.days : 0;
     const b = UI.modal('⏩ Extend / Renew – ' + r.name, `<p>Now valid <b>${this.dmy(r.from)} → ${this.dmy(r.to)}</b> ${this.stBadge(r)}</p>
       <div class="row" style="gap:6px;flex-wrap:wrap;margin:8px 0">${[30, 90, 180, 365].map(d => `<button class="btn sm" data-ed="${d}">+ ${d} days</button>`).join('')}</div>
-      <div class="ex-grid"><label>New Valid To<input type="date" id="exNT" value="${esc(this.addDays(base, 89))}"></label><label>Category<select id="exET">${this.TIERS.map(t => `<option value="${t}" ${t === r.tier ? 'selected' : ''}>${Plans.t(t)[1]}</option>`).join('')}</select></label></div>
+      <div class="ex-grid"><label>New Valid To<input type="date" id="exNT" value="${esc(this.addDays(base, qd || 90))}"></label><label>Category<select id="exET">${this.TIERS.map(t => `<option value="${t}" ${t === r.tier ? 'selected' : ''}>${Plans.t(t)[1]}</option>`).join('')}</select></label></div>
+      <div class="ex-pay"><b>💳 Payment</b> <span class="small muted">${q ? 'sent by the user with the renewal request – check it, then extend' : '(optional – fill it if the user paid)'}</span>
+        <div class="ex-grid"><label>Transaction ID / UTR<input id="exPx" value="${esc(q ? q.txn || '' : '')}" maxlength="60" data-nov></label><label>Transaction Date<input type="date" id="exPd" value="${esc(q ? q.tdt || '' : '')}" data-nov></label>
+        <label>Amount (₹)<input id="exPa" value="${esc(q ? q.amt || '' : '')}" inputmode="decimal" data-nov></label><label>Validity Days<input type="number" id="exPv" min="1" max="3650" value="${qd || ''}" data-nov></label></div></div>
       <p class="small muted">Days are added after ${r.to >= this.istToday() ? 'the present end date' : 'today (the licence has ended)'}. If the user's EXE is online it gets the new date by itself; otherwise send the new key.</p><div class="err" id="exEE"></div>`,
       [{ label: 'Cancel', onClick: UI.closeModal }, { label: '⏩ Extend & Make New Key', cls: 'primary', onClick: async () => {
         const t = $('#exNT', b).value; if (!t || t < r.from) return $('#exEE', b).textContent = 'Choose a date after Valid From';
-        const old = r.to, ot = r.tier; r.to = t; r.tier = $('#exET', b).value; if (r.status !== 'Active') { r.status = 'Active'; }
-        try { await this.issue(r, 'Extended', this.dmy(old) + ' → ' + this.dmy(t) + (ot !== r.tier ? ', category ' + r.tier : '')); } catch (x) { r.to = old; return $('#exEE', b).textContent = '❌ ' + x.message; }
+        const pay = { txn: $('#exPx', b).value.trim(), dt: $('#exPd', b).value, amt: $('#exPa', b).value.trim(), days: +$('#exPv', b).value || this.daysBetween(base, t) };
+        const old = r.to, ot = r.tier, os = r.status; r.to = t; r.tier = $('#exET', b).value; if (r.status !== 'Active') { r.status = 'Active'; }
+        try { await this.issue(r, 'Extended', this.dmy(old) + ' → ' + this.dmy(t) + (ot !== r.tier ? ', category ' + r.tier : '') + (pay.txn ? ', txn ' + pay.txn : '')); } catch (x) { r.to = old; r.tier = ot; r.status = os; return $('#exEE', b).textContent = '❌ ' + x.message; }
+        if (pay.txn || pay.amt) { (r.pay = r.pay || []).push({ txn: pay.txn, dt: pay.dt, amt: pay.amt, days: pay.days, to: t, at: new Date().toISOString(), req: q ? 1 : 0 }); await this.save(); }
+        if (q) { this.reqGone(q.mid, 'Renewal'); Users.admin('reqset', { mid: q.mid, status: 'Done', type: 'Renewal' }).catch(() => { }); }
         UI.closeModal(); this.draw(main); this.share(r, '⏩ Extended – New Key For ' + r.name);
       } }]);
-    $$('[data-ed]', b).forEach(x => x.onclick = () => { $('#exNT', b).value = this.addDays(base, +x.dataset.ed); });
+    $$('[data-ed]', b).forEach(x => x.onclick = () => { $('#exNT', b).value = this.addDays(base, +x.dataset.ed); $('#exPv', b).value = x.dataset.ed; });
+    $('#exPv', b).oninput = () => { const d = +$('#exPv', b).value; if (d > 0) $('#exNT', b).value = this.addDays(base, d); };
   },
   defsEdit(main) {
     const D = this.defs(); let cur = this.st.dt || 'normal';
@@ -198,6 +205,7 @@ const ExeLic = {
   },
   one(r, main) {
     const b = UI.modal('🖥 ' + [r.rank, r.name].filter(Boolean).join(' '), `<table class="tbl ad-kv"><tr><th>Licence</th><td class="mono"><b>${esc(r.lid)}</b> · issue #${r.seq}</td></tr><tr><th>Status</th><td>${this.stBadge(r)}</td></tr><tr><th>Category</th><td>${Plans.badge(r.tier)}</td></tr><tr><th>Valid</th><td>${this.dmy(r.from)} → <b>${this.dmy(r.to)}</b></td></tr><tr><th>Posting</th><td>${esc([r.ps, r.dist, r.st].filter(Boolean).join(', ') || '—')}</td></tr><tr><th>Mobile</th><td>${esc(r.mob || '—')}</td></tr><tr><th>Computer</th><td class="mono">${esc(r.mid)}</td></tr><tr><th>Last Seen Online</th><td>${r.seen ? Users.dt(r.seen) + (r.build ? ' · build ' + esc(r.build) : '') : '—'}</td></tr><tr><th>Extra Rights</th><td>${(r.xr || []).map(k => esc((this.XR.find(z => z[0] === k) || [k, k])[1])).join(', ') || '—'}</td></tr><tr><th>Hidden Sections</th><td>${(r.hide || []).length || 'none'}</td></tr></table>
+      <h4 style="margin:12px 0 6px">💳 Payments &amp; Renewals</h4>${(r.pay || []).length ? `<div class="tbl-wrap"><table class="tbl ex-payt"><thead><tr><th>#</th><th>Transaction ID</th><th>Transaction Date</th><th>Amount (₹)</th><th>Validity Days</th><th>Valid Till</th><th>Entered On</th></tr></thead><tbody>${r.pay.map((x, i) => `<tr><td>${i + 1}</td><td class="mono">${esc(x.txn || '—')}</td><td>${x.dt ? this.dmy(x.dt) : '—'}</td><td>${esc(x.amt || '—')}</td><td>${esc(String(x.days || '—'))}</td><td>${x.to ? this.dmy(x.to) : '—'}</td><td class="small">${Users.dt(x.at)}</td></tr>`).join('')}</tbody><tfoot><tr><th colspan="3">Total</th><th>₹${fmtNum(r.pay.reduce((a, x) => a + (+String(x.amt).replace(/[^\d.]/g, '') || 0), 0))}</th><th>${fmtNum(r.pay.reduce((a, x) => a + (+x.days || 0), 0))}</th><th colspan="2"></th></tr></tfoot></table></div>` : '<span class="muted small">No payments entered yet. They are added when you press ⏩ Extend (from a 🔄 Renewal request or by typing them).</span>'}
       <h4 style="margin:12px 0 6px">📜 History</h4><div class="ex-hist">${(r.hist || []).map(h => `<div><span class="small muted">${Users.dt(h.at)}</span> <b>${esc(h.act)}</b> <span class="small">${esc(h.det)}</span></div>`).join('') || '<span class="muted small">—</span>'}</div>`,
       [{ label: '🔑 Key', onClick: () => this.share(r) }, { label: '🔓 Password Reset Code', onClick: () => this.resetCode(r) }, { label: '⏩ Extend', onClick: () => this.extend(r, main) }, { label: '✏ Change', onClick: () => this.edit(r, main) }, { label: 'Close', onClick: UI.closeModal }]);
     return b;
@@ -252,7 +260,7 @@ const ExeLic = {
       }).sort((x, y) => (y.at || '').localeCompare(x.at || ''));
       const old = new Set(this.reqs().map(q => q.mid + '|' + q.at + '|' + (q.type || ''))), fresh = a.filter(q => !old.has(q.mid + '|' + q.at + '|' + (q.type || '')));
       this.reqKeep(a);
-      if (fresh.length && this._reqSeen) UI.toast(`🔔 ${fresh.length === 1 ? (fresh[0].n || 'A user') + ' is asking for ' + (fresh[0].type === 'Password Reset' ? 'a password reset code' : 'an EXE licence') : fresh.length + ' new EXE requests'} – click the bell`, 7000);
+      if (fresh.length && this._reqSeen) UI.toast(`🔔 ${fresh.length === 1 ? (fresh[0].n || 'A user') + ' is asking for ' + (fresh[0].type === 'Password Reset' ? 'a password reset code' : fresh[0].type === 'Renewal' ? 'a licence renewal' : 'an EXE licence') : fresh.length + ' new EXE requests'} – click the bell`, 7000);
       this._reqSeen = 1;
     } catch (e) { this._reqWhy = /Unknown request|op/i.test(e.message) ? 'old' : 'err'; }
     finally { this._reqBusy = 0; this.bell(); }
@@ -273,10 +281,10 @@ const ExeLic = {
         : w === 'err' ? '<div class="note warn">Could not reach your Google Sheet just now (no internet?). This is the last list.</div>' : '';
     const rows = a.map((q, i) => `<tr class="ex-rq" data-i="${i}" title="Open Super Admin Control › EXE Users with these details filled in">
       <td><b>${esc([q.rk, q.n].filter(Boolean).join(' ') || '—')}</b><div class="small muted">${esc([q.ps, q.dist, q.st].filter(Boolean).join(', '))}</div></td>
-      <td class="mono">${esc(q.mob || '')}${q.em ? `<div class="small">${esc(q.em)} ${q.emv ? '<span class="good" title="E-mail checked by OTP">✔</span>' : '<span class="muted" title="E-mail not checked">?</span>'}</div>` : ''}</td><td class="mono small">${esc(q.mid)}${q.type === 'Password Reset' ? `<div><span class="badge warn">🔑 Password Reset · ${esc(q.lid || '')}</span></div>` : ''}</td>
+      <td class="mono">${esc(q.mob || '')}${q.em ? `<div class="small">${esc(q.em)} ${q.emv ? '<span class="good" title="E-mail checked by OTP">✔</span>' : '<span class="muted" title="E-mail not checked">?</span>'}</div>` : ''}</td><td class="mono small">${esc(q.mid)}${q.type === 'Password Reset' ? `<div><span class="badge warn">🔑 Password Reset · ${esc(q.lid || '')}</span></div>` : ''}${q.type === 'Renewal' ? `<div><span class="badge good">🔄 Renewal · ${esc(q.lid || '')}</span></div><div class="small">💳 ${esc(q.txn || '—')} · ${esc(q.tdt ? this.dmy(q.tdt) : '')} · ₹${esc(q.amt || '—')} · ${esc(q.days || '—')} days</div>` : ''}</td>
       <td class="small">${esc(this.reqWhen(q.at))}${q.times > 1 ? ` <span class="badge" title="The user pressed Send ${q.times} times">${q.times}×</span>` : ''}</td>
-      <td style="white-space:nowrap">${q.type === 'Password Reset' ? '<button class="btn sm primary" data-a="rst">🔑 Send Reset Code</button>' : '<button class="btn sm primary" data-a="add">➕ Add User</button>'} <button class="btn sm" data-a="no" title="Remove this request (no licence)">✖</button></td></tr>`).join('');
-    const b = UI.modal('🔔 EXE Requests – New Licences And Password Resets', `${note}${a.length
+      <td style="white-space:nowrap">${q.type === 'Password Reset' ? '<button class="btn sm primary" data-a="rst">🔑 Send Reset Code</button>' : q.type === 'Renewal' ? '<button class="btn sm primary" data-a="ext">⏩ Extend</button>' : '<button class="btn sm primary" data-a="add">➕ Add User</button>'} <button class="btn sm" data-a="no" title="Remove this request (no licence)">✖</button></td></tr>`).join('');
+    const b = UI.modal('🔔 EXE Requests – New Licences, Renewals And Password Resets', `${note}${a.length
       ? `<p class="small muted">Click a user to open Super Admin Control › 🖥 EXE Users with Name, Rank, Posting, District, State, Mobile, Machine ID and Request Code filled in. Choose the category and days, then make the licence.</p>
         <div class="tbl-wrap"><table class="tbl ex-rqt"><thead><tr><th>User</th><th>Mobile</th><th>Machine ID</th><th>Asked On</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`
       : '<p>No new requests right now.</p><p class="small muted">When a new user fills the form on the EXE’s first screen and presses <b>📨 Send Request</b>, the request shows here with a red number on the bell.</p>'}`,
@@ -287,6 +295,7 @@ const ExeLic = {
         ev.stopPropagation(); if (!UI.confirm(`Remove the request of ${q.n || q.mid}? (No licence is made.)`)) return;
         this.reqGone(q.mid, q.type || 'Licence'); Users.admin('reqset', { mid: q.mid, status: 'Dismissed', type: q.type || 'Licence' }).catch(() => { }); this.reqOpen(); return;
       }
+      if (q.type === 'Renewal') { const r = this.list().find(o => o.lid === q.lid && o.status !== 'Deleted') || this.list().find(o => o.mid === q.mid && o.status !== 'Deleted'); if (!r) return UI.toast('No licence for this computer in your register'); UI.closeModal(); Users._plTab = 0; Users._exTab = 1; go('sadmin'); setTimeout(() => this.extend(r, $('#main'), q), 350); return; }
       if (q.type === 'Password Reset') { const r = this.list().find(o => o.lid === q.lid && o.mid === q.mid) || this.list().find(o => o.mid === q.mid && o.status !== 'Deleted'); if (!r) return UI.toast('No licence for this computer in your register'); this.resetCode(r, q); return; }
       this.reqAdd(q);
     });
