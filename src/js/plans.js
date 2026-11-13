@@ -38,6 +38,7 @@ const Plans = {
     if (sub('crime')) { R.add('crime'); if (H.has(this.CDF)) R.add('crimeEdit'); }
     if (['good', 'press', 'duty'].some(sub)) R.add('office');
     if (sub('files')) R.add('upload');
+    R.delete('contacts'); if (!H.has('S:ct-item') && !H.has('S:ct-add')) R.add('contacts');
     return [...R];
   },
   hideNav(hide) {
@@ -47,7 +48,7 @@ const Plans = {
     $$('#sidebar > .nav-group').forEach(g => { let n = g.nextElementSibling, any = false; while (n && !n.classList.contains('nav-group')) { if (n.classList.contains('nav-item') && !n.classList.contains('pl-hide') && getComputedStyle(n).display !== 'none') any = true; n = n.nextElementSibling; } g.classList.toggle('pl-hide', !any); });
   },
   plan() { const L = SUD_ED === 'user' && typeof Users !== 'undefined' ? Users.link() : null; return L && L.plan ? L.plan : null; },
-  SEC: { arrest: 'arrest-item', cctns: 'io-item', others: 'io-item', formats: 'io-item', eo: 'eo-item', jmis: 'eo-item' },
+  SEC: { contacts: 'ct-item', arrest: 'arrest-item', cctns: 'io-item', others: 'io-item', formats: 'io-item', eo: 'eo-item', jmis: 'eo-item' },
   blocked(page) { const p = this.plan(), H = p && p.hide || []; return !!(p && page && (H.includes('S:' + page) || (this.SEC[page] && (H.includes('S:' + this.SEC[page]) || (this.SEC[page] === 'eo-item' && H.includes('eo-item|eo:' + page)))))); },
   apply() {
     if (SUD_ED !== 'user') return; const p = this.plan();
@@ -188,7 +189,7 @@ const Plans = {
     const hook = () => { const s = $('#sidebar'); if (s) obs.observe(s, { childList: true, subtree: true }); }; if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', hook); else hook();
     const rr = Role.rights; Role.rights = function () { const r = rr.apply(this, arguments), p = Plans.plan(); return p ? Plans.rightsOf(r.join(','), p) : r; };
     const po = Pages.offx; Pages.offx = function (main) { const p = Plans.plan(), H = new Set(p && p.hide || []), hid = t => H.has('offx-item|ox:offx|' + t);
-      const ok = ['crime', 'good', 'press', 'duty', 'files'].filter(t => !hid(t)); if (p && ok.length && hid(S.sub.offx || 'crime')) S.sub.offx = ok[0];
+      const ok = ['crime', 'daily', 'good', 'press', 'duty', 'files'].filter(t => !hid(t)); if (p && ok.length && hid(S.sub.offx || 'crime')) S.sub.offx = ok[0];
       const r = po.apply(this, arguments); if (p) $$('.tab[data-t]', main).forEach(x => { if (hid(x.dataset.t)) x.remove(); }); return r; };
     const ra = Role.apply; Role.apply = function () { const r = ra.apply(this, arguments); setTimeout(() => Plans.apply(), 0); return r; };
     const acc = Users.account; Users.account = function () { const r = acc.apply(this, arguments); const p = Plans.plan(), b = $('#mdBody');

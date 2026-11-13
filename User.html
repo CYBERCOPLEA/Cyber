@@ -2269,6 +2269,11 @@ html.ed-user .nav-bottom,html.ed-user #sidebar [data-page="settings"]{display:no
 .tr-cols{display:flex;gap:3px;align-items:flex-end}.tr-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;padding:2px 0;border:1px solid transparent;border-radius:6px;background:none;color:inherit;cursor:pointer;min-width:0}.tr-col:hover,.tr-col.on{border-color:var(--border);background:rgba(99,102,241,.14)}
 .tr-cb{height:70px;width:70%;display:flex;align-items:flex-end}.tr-cb i{display:block;width:100%;background:linear-gradient(#f97316,#e11d48);border-radius:4px 4px 0 0;min-height:1px}.tr-col b{font-size:11px}.tr-col small{font-size:10px;opacity:.75}
 .lr-ro{white-space:nowrap}
+.jm-cdl{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;border:2px solid #7c3aed;background:rgba(124,58,237,.14);font-size:12px}.jm-cdl input{width:64px;padding:2px 6px;text-align:center;font-weight:700}.jm-pc.c{background:#ede9fe;color:#4c1d95;border-color:#7c3aed}
+.tg-card{position:fixed;z-index:9999;background:var(--surface-1,#0f172a);color:var(--text-primary,#e5e7eb);border:1px solid #6366f1;border-radius:12px;padding:10px 12px;box-shadow:0 12px 32px rgba(0,0,0,.45);font-size:12.5px;max-height:70vh;overflow:auto;pointer-events:none}.tg-card h4{margin:8px 0 3px;font-size:12.5px}.tg-card ol{margin:0 0 0 18px;padding:0}.tg-ch{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:14px;border-bottom:1px solid var(--border);padding-bottom:6px}.tg-cm{color:#e11d48;font-size:11.5px;font-weight:700}.tg-kv{border-collapse:collapse;width:100%;margin-top:6px}.tg-kv th{text-align:left;opacity:.7;font-weight:600;padding:2px 8px 2px 0;width:32%;vertical-align:top}.tg-kv td{padding:2px 0}#tgT tbody td{cursor:pointer}
+.ei-map{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:6px}.ei-map label{display:flex;flex-direction:column;font-size:11.5px;gap:2px}.ei-map label span{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.nm-open{margin-left:8px}
+
+html.no-contacts .ct-item,html.no-contacts .ct-subs,html.no-contacts .ct-add{display:none!important}
 
 </style>
 </head>
@@ -2317,7 +2322,7 @@ html.ed-user .nav-bottom,html.ed-user #sidebar [data-page="settings"]{display:no
         <div class="hp-feat" style="--fc:#06b6d4"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><div><b>Analytics</b><p>The same mobile, account, IP or e-mail across complaints, banks and platforms.</p></div></div>
         <div class="hp-feat" style="--fc:#eab308"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h5"/></svg></span><div><b>Case File &amp; Notices</b><p>Case reports, notices to banks and platforms, and CSV / PDF exports.</p></div></div>
     </section>
-    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-13 13:53 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
+    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-13 14:27 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
   </div>
 
   <div class="lg-wrap" id="lgWrap" aria-hidden="true">
@@ -16661,14 +16666,14 @@ $('#nb').onclick=()=>{if(!confirm('Start a new empty batch? The submitted batch 
   }
 };
 
-PAGE_META.offx = { group: 'Office', title: 'Office Work', desc: 'Crime data of all cases, good work, press notes, duty chart and office files – the same in every case, kept on this computer.', order: ['crime', 'good', 'press', 'duty', 'files'], names: { good: '🏅 Good Work', press: '📰 Press Note', crime: '🗃 Crime Data', duty: '📅 Duty Chart', files: '⬆ Upload +' } };
-Pages.offx = main => { const { cur, body } = tabs(main, 'offx', [['crime', '🗃 Crime Data'], ['good', '🏅 Good Work'], ['press', '📰 Press Note'], ['duty', '📅 Duty Chart'], ['files', '⬆ Upload +']], 'Office Work');
-  ({ good: () => Off.good(body), press: () => Off.press(body), crime: () => Off.crime(body), duty: () => Off.duty(body), files: () => Off.filesPage(body) }[cur] || (() => Off.good(body)))(); };
+PAGE_META.offx = { group: 'Office', title: 'Office Work', desc: 'Crime data of all cases, good work, press notes, duty chart and office files – the same in every case, kept on this computer.', order: ['crime', 'daily', 'good', 'press', 'duty', 'files'], names: { good: '🏅 Good Work', press: '📰 Press Note', crime: '🗃 Master Crime Data', daily: '📅 Daily Crime', duty: '📅 Duty Chart', files: '⬆ Upload +' } };
+Pages.offx = main => { const { cur, body } = tabs(main, 'offx', [['crime', '🗃 Master Crime Data'], ['daily', '📅 Daily Crime'], ['good', '🏅 Good Work'], ['press', '📰 Press Note'], ['duty', '📅 Duty Chart'], ['files', '⬆ Upload +']], 'Office Work');
+  ({ good: () => Off.good(body), press: () => Off.press(body), crime: () => Off.crime(body), daily: () => Daily.page(body), duty: () => Off.duty(body), files: () => Off.filesPage(body) }[cur] || (() => Off.good(body)))(); };
 
 /* sidebar: OFFICE drop-down (Search in Local Drive moves inside it) */
 (() => {
   const nav = $('#sidebar'), ls = nav && $('.nav-item[data-page="lsearch"]', nav); if (!ls) return;
-  const SUB = [['lsearch', '', 'Search in Local Drive', '#6366f1'], ['offx', 'crime', 'Crime Data', '#ef4444'], ['offx', 'good', 'Good Work', '#eab308'], ['offx', 'press', 'Press Note', '#ec4899'], ['offx', 'duty', 'Duty Chart', '#22c55e'], ['offx', 'files', 'Upload +', '#06b6d4']];
+  const SUB = [['lsearch', '', 'Search in Local Drive', '#6366f1'], ['offx', 'crime', 'Master Crime Data', '#ef4444'], ['offx', 'daily', 'Daily Crime', '#f43f5e'], ['offx', 'good', 'Good Work', '#eab308'], ['offx', 'press', 'Press Note', '#ec4899'], ['offx', 'duty', 'Duty Chart', '#22c55e'], ['offx', 'files', 'Upload +', '#06b6d4']];
   ls.insertAdjacentHTML('beforebegin', `<div class="nav-item offx-item" title="Office work: local search, good work, press note, crime data, duty chart, files" style="--c:#14b8a6"><span class="nib">🏢</span><span>Office Work</span><span class="nav-chev">▾</span></div><div class="nav-subs offx-subs">${SUB.map(([p, s, l, c], i) => `<div class="nav-sub" data-ox="${p}|${s}" style="--pc:${c}"><i></i><span>${i + 1}. ${l}</span></div>`).join('')}</div>`);
   ls.style.display = 'none';
   const it = $('.offx-item', nav), subs = $('.offx-subs', nav), setOpen = on => { S.oxOpen = on; subs.classList.toggle('open', on); it.classList.toggle('open', on); };
@@ -17205,7 +17210,7 @@ const Target = {
       <div id="tgT" style="margin-top:10px"></div></div>`;
     Table($('#tgT', el), { rows: F, pageSize: 25, exportName: 'targets', onRow: t => this.open(t, J, () => this.draw(el, T, J)), columns: [
       { key: 'jm', label: 'JMIS Notice', sortVal: t => this.sOf(J, t), csv: t => this.JS[this.sOf(J, t)][1] + (J[t.acc] && J[t.acc].date ? ' · ' + J[t.acc].date : ''), render: t => { const s = this.JS[this.sOf(J, t)]; return `<span class="eo-st" style="--c:${s[2]}">${s[0]} ${s[1]}</span>${J[t.acc] && J[t.acc].date ? `<div class="small muted">${esc(EO.dmy(J[t.acc].date))}</div>` : ''}`; } },
-      { key: 'acc', label: 'Target', sortVal: t => t.type + t.acc, csv: t => this.TY[t.type][1] + ': ' + t.acc, render: t => `<span class="tg-ty" title="${this.TY[t.type][1]}">${this.TY[t.type][0]}</span> <b class="mono">${esc(t.acc)}</b>${common(t) ? ' <span class="tg-c" title="Common target">🔗</span>' : ''}${t.person ? `<div class="small">👤 ${esc(t.person)}</div>` : ''}${t.arrest ? `<div class="small">⛓ ${esc(t.arrest)}</div>` : ''}<div class="small muted">${esc(t.layers.join(' '))}</div>` },
+      { key: 'acc', label: 'Target', sortVal: t => t.type + t.acc, csv: t => this.TY[t.type][1] + ': ' + t.acc, render: t => `<span class="tg-ty" data-tk="${esc(t.key)}">${this.TY[t.type][0]}</span> <b class="mono">${esc(t.acc)}</b>${common(t) ? ' <span class="tg-c" title="Common target">🔗</span>' : ''}${t.person ? `<div class="small">👤 ${esc(t.person)}</div>` : ''}${t.arrest ? `<div class="small">⛓ ${esc(t.arrest)}</div>` : ''}<div class="small muted">${esc(t.layers.join(' '))}</div>` },
       { key: 'src', label: 'Found In', sortVal: t => t.src.length, csv: t => t.src.join('; '), render: t => t.src.map(s => { const c = (this.SRC.find(x => x[0] === s) || [, '#64748b'])[1]; return `<span class="tg-sp" style="--c:${c}">${esc(s)}</span>`; }).join(' ') },
       { key: 'ifsc', label: 'IFSC', csv: t => t.ifsc.join('; '), render: t => `<span class="mono small">${j(t.ifsc, 1)}</span>` },
       { key: 'bank', label: 'Bank', csv: t => t.banks.join('; '), render: t => j(t.banks, 1) },
@@ -17224,6 +17229,11 @@ const Target = {
       { key: 'cases', label: 'Cases / Complaints / References', sortVal: t => t.score, csv: t => t.cases.map(c => c.name).join('; ') + ' | ' + t.acks.join('; ') + ' | ' + t.refs.join('; '), render: t => `<b class="${t.cases.length > 1 ? 'bad-t' : ''}">${t.cases.length}</b> case${t.cases.length === 1 ? '' : 's'} · <b>${t.acks.length}</b> compl.${t.refs.length ? ` · <b>${t.refs.length}</b> ref.` : ''}${t.links.length ? `<div class="small">🔗 ${t.links.length} linked target${t.links.length > 1 ? 's' : ''}</div>` : ''}` },
       { key: 'amt', label: 'Amount', num: true, render: t => t.amt ? fmtINR(t.amt) : '' }] });
     const re = () => this.draw(el, T, J);
+    /* live pop-up: point at any cell of a target row */
+    const KM = new Map(F.map(t => [t.key, t])), tb = $('#tgT', el); let hv = null;
+    tb.onmouseover = e => { const td = e.target.closest('td'), tr = td && td.closest('tbody tr'); if (!tr) return; const k = tr.querySelector('[data-tk]'), t = k && KM.get(k.dataset.tk); if (!t) return;
+      const th = tr.closest('table').querySelectorAll('thead th')[td.cellIndex], col = th ? th.textContent.trim().replace(/[▲▼]/g, '').trim() : ''; const id = t.key + '|' + col; if (hv === id) return; hv = id; this.card(td, t, J, col); };
+    tb.onmouseleave = () => { hv = null; this.card(null); };
     $$('[data-tgf]', el).forEach(b => { b.onclick = () => { st.f = b.dataset.tgf; st.c = false; re(); }; b.onmouseenter = () => this.tip(b, T.filter(t => !b.dataset.tgf || this.sOf(J, t) === b.dataset.tgf)); b.onmouseleave = () => this.tip(null); });
     $$('[data-tgc]', el).forEach(b => { b.onclick = () => { st.c = !st.c; st.f = ''; re(); }; b.onmouseenter = () => this.tip(b, T.filter(common)); b.onmouseleave = () => this.tip(null); });
     $$('[data-tgs]', el).forEach(b => { b.onclick = () => { st.src = st.src === b.dataset.tgs ? '' : b.dataset.tgs; re(); }; b.onmouseenter = () => this.tip(b, T.filter(t => t.src.includes(b.dataset.tgs))); b.onmouseleave = () => this.tip(null); });
@@ -17231,6 +17241,23 @@ const Target = {
     const qi = $('#tgQ', el); qi.onchange = () => { st.q = qi.value; re(); };
     $('#tgRe', el).onclick = async () => { $('#tgRe', el).disabled = true; const T2 = await this.collect(true); this.draw(el, T2, J); };
     $('#tgImp', el).onclick = () => this.imp(J, re);
+  },
+  /* the live pop-up card for one target; col = the column pointed at */
+  card(td, t, J, col) {
+    let c = $('#tgCard'); if (!td) { if (c) c.remove(); return; }
+    if (!c) { c = document.createElement('div'); c.id = 'tgCard'; c.className = 'tg-card'; document.body.appendChild(c); }
+    const s = this.JS[this.sOf(J || {}, t)], li = (a, n = 12) => a.length ? `<ol>${a.slice(0, n).map(x => `<li>${esc(x)}</li>`).join('')}</ol>${a.length > n ? `<div class="small muted">+ ${a.length - n} more – click the row for all</div>` : ''}` : '<div class="small muted">—</div>';
+    const kv = (k, a) => a && a.length ? `<tr><th>${k}</th><td>${esc(a.slice(0, 6).join(', '))}${a.length > 6 ? ` <i>+${a.length - 6}</i>` : ''}</td></tr>` : '';
+    const hd = `<div class="tg-ch"><span>${this.TY[t.type][0]}</span><b class="mono">${esc(t.acc)}</b>${this.common(t) ? '<span class="tg-cm">🔗 Common</span>' : ''}<span class="eo-st" style="--c:${s[2]}">${s[0]} ${s[1]}</span></div>`;
+    let body;
+    if (/^state$/i.test(col)) body = `<h4>🗺 States (${t.state.length})</h4>${li(t.state, 20)}`;
+    else if (/^district$/i.test(col)) body = `<h4>📍 Districts (${t.district.length})</h4>${li(t.district, 20)}`;
+    else if (/found in/i.test(col)) body = `<h4>📂 Found In (${t.src.length})</h4><div>${t.src.map(x => { const cc = (this.SRC.find(y => y[0] === x) || [, '#64748b'])[1]; return `<span class="tg-sp" style="--c:${cc}">${esc(x)}</span>`; }).join(' ')}</div><h4>📁 Cases (${t.cases.length})</h4>${li(t.cases.map(x => x.name), 8)}<h4>🔖 References – EO / JMIS / FIR (${t.refs.length})</h4>${li(t.refs, 10)}${t.acks.length ? `<h4>🧾 Complaints (${t.acks.length})</h4>${li(t.acks, 8)}` : ''}`;
+    else body = `<table class="tg-kv">${kv('Holder / Name', t.names)}${kv('Bank', t.banks)}${kv('IFSC', t.ifsc)}${kv('Mobile', t.mobile)}${kv('E-mail', t.email)}${kv('UPI', t.upi)}${kv('PAN', t.pan)}${kv('Aadhaar', t.aadhaar)}${kv('IMEI', t.imei)}${kv('Other', t.other)}${kv('State', t.state)}${kv('District', t.district)}${kv('Found In', t.src)}${kv('Cases', t.cases.map(x => x.name))}${kv('References', t.refs)}${kv('Complaints', t.acks)}${kv('Linked Targets', t.links)}${t.amt ? `<tr><th>Amount</th><td>${esc(fmtINR(t.amt))}</td></tr>` : ''}${t.utr.length ? `<tr><th>UTR Trail</th><td>${t.utr.length} transfer${t.utr.length > 1 ? 's' : ''}</td></tr>` : ''}</table>`;
+    c.innerHTML = hd + body + '<div class="small muted" style="margin-top:6px">Click the row for the complete view, JMIS status and 🔎 Track Everywhere</div>';
+    const r = td.getBoundingClientRect(), w = Math.min(520, innerWidth - 16); c.style.width = w + 'px';
+    c.style.left = Math.max(8, Math.min(innerWidth - w - 8, r.left)) + 'px'; const below = r.bottom + 6, h = c.offsetHeight;
+    c.style.top = (below + h > innerHeight - 8 && r.top - h - 6 > 8 ? r.top - h - 6 : Math.min(below, Math.max(8, innerHeight - h - 8))) + 'px';
   },
   tip(el, list) {
     let t = $('#agTip'); if (!el) { if (t) t.remove(); return; }
@@ -17258,6 +17285,7 @@ const Target = {
   }
 };
 Pages.target = main => Target.page(main);
+addEventListener('scroll', () => Target.card(null), true);
 
 /* Analytics drop-down: Trending Crime above CDR Analysis, Target after SMS Analysis */
 (() => {
@@ -17293,6 +17321,7 @@ const JMIS = {
   stOf(r) { return (r.dir === 'raised' ? r.tState : r.fState) || '—'; },
   dsOf(r) { return (r.dir === 'raised' ? r.tDist : r.fDist) || '—'; },
   SL: { p10: 'Pending up to 10 days', p10x: 'Pending more than 10 days' },
+  cd() { const v = parseInt(localStorage.getItem('sud-jmcd'), 10); return isNaN(v) ? '' : v; }, // your own delay days
   list() { return Off.get('jmis', []); },
   /* ---------- dates ---------- */
   dt(x) { if (!x) return ''; const d = new Date(x); if (isNaN(d)) return String(x); const p = n => String(n).padStart(2, '0'); let h = d.getHours(); const ap = h >= 12 ? 'PM' : 'AM'; h = h % 12 || 12; return `${p(d.getDate())}-${p(d.getMonth() + 1)}-${d.getFullYear()} ${p(h)}:${p(d.getMinutes())} ${ap}`; },
@@ -17320,7 +17349,7 @@ const JMIS = {
   caseOf(r) { const k = this.firKey(r.fir); if (!k || typeof S === 'undefined' || !S.cases) return null; return S.cases.find(c => this.firKey((c.fir || '') + (/\/\d{4}/.test(c.fir || '') ? '' : '/' + (c.year || ''))) === k) || null; },
   inRange(r, st) { const d = (r.reqAt || '').slice(0, 10); return (!st.from || d >= st.from) && (!st.to || d <= st.to); },
   base(L, st) { const q = (st.q || '').toLowerCase(); return L.filter(r => this.inRange(r, st) && (!st.state || this.stOf(r) === st.state) && (!st.dist || this.dsOf(r) === st.dist) && (!q || [r.reqId, r.type, r.fir, r.status, r.fState, r.fDist, r.fPS, r.tState, r.tDist, r.tPS, r.sp, r.spMail, r.brief, r.det, r.resp].join(' ').toLowerCase().includes(q))); },
-  pick(B, dir, s) { return B.filter(r => (!dir || r.dir === dir) && (!s || (s === 'old' ? this.old(r) : s === 'p10' ? r.status === 'Pending' && this.pdays(r) <= this.PD : s === 'p10x' ? r.status === 'Pending' && this.pdays(r) > this.PD : r.status === s))); },
+  pick(B, dir, s) { return B.filter(r => (!dir || r.dir === dir) && (!s || (s === 'old' ? this.old(r) : s === 'p10' ? r.status === 'Pending' && this.pdays(r) <= this.PD : s === 'p10x' ? r.status === 'Pending' && this.pdays(r) > this.PD : s === 'pcd' ? r.status === 'Pending' && this.pdays(r) > this.cd() : r.status === s))); },
 
   /* ---------- page ---------- */
   async page(el) {
@@ -17330,7 +17359,8 @@ const JMIS = {
       return `<div class="jm-card" style="--c:${c}"><div class="jm-ch"><span class="jm-ic">${ic}</span><div><h3>${t}</h3><div class="small">${sub}</div></div></div>
         <div class="jm-bs">${bub(dir, '', 'Total Request', '#6366f1')}${bub(dir, 'Completed', 'Completed Request', '#16a34a')}${bub(dir, 'Under Processing', 'Under Processing Request', '#2563eb')}${bub(dir, 'Pending', 'Pending Request', '#f97316')}${bub(dir, 'old', `Open ${this.OLD}+ Days`, '#dc2626')}</div>
         ${(() => { const PP = this.pick(B, dir, 'Pending'); if (!PP.length) return ''; const g = this.pick(B, dir, 'p10').length, rr = this.pick(B, dir, 'p10x').length, mx = Math.max(...PP.map(r => this.pdays(r) || 0));
-          return `<div class="jm-pd"><span>⏳ Pending Days</span><button class="jm-pc g ${st.dir === dir && st.s === 'p10' ? 'on' : ''}" data-jd="${dir}" data-js="p10" data-tt="${this.SL.p10}"><b>${fmtNum(g)}</b> up to ${this.PD} days</button><button class="jm-pc r ${st.dir === dir && st.s === 'p10x' ? 'on' : ''}" data-jd="${dir}" data-js="p10x" data-tt="${this.SL.p10x}"><b>${fmtNum(rr)}</b> more than ${this.PD} days</button><span class="small">Oldest: <b class="${mx > this.PD ? 'jm-red' : 'jm-grn'}">${mx} days</b></span></div>`; })()}
+          const cd = this.cd(), cn = cd === '' ? 0 : this.pick(B, dir, 'pcd').length; this.SL.pcd = 'Pending more than ' + cd + ' days';
+          return `<div class="jm-pd"><span>⏳ Pending Days</span><label class="jm-cdl" title="Type any number of days – see how many requests are pending longer than that"><span>Check Delay</span><input type="number" min="0" max="3650" class="jm-cd" value="${cd}" placeholder="Days" data-nov><span>Days</span></label>${cd === '' ? '' : `<button class="jm-pc c ${st.dir === dir && st.s === 'pcd' ? 'on' : ''}" data-jd="${dir}" data-js="pcd" data-tt="${this.SL.pcd}"><b>${fmtNum(cn)}</b> more than ${cd} days</button>`}<button class="jm-pc g ${st.dir === dir && st.s === 'p10' ? 'on' : ''}" data-jd="${dir}" data-js="p10" data-tt="${this.SL.p10}"><b>${fmtNum(g)}</b> up to ${this.PD} days</button><button class="jm-pc r ${st.dir === dir && st.s === 'p10x' ? 'on' : ''}" data-jd="${dir}" data-js="p10x" data-tt="${this.SL.p10x}"><b>${fmtNum(rr)}</b> more than ${this.PD} days</button><span class="small">Oldest: <b class="${mx > this.PD ? 'jm-red' : 'jm-grn'}">${mx} days</b></span></div>`; })()}
         <div class="jm-cf small">${P.length ? `Done: <b>${P.length ? Math.round(P.filter(r => r.status === 'Completed').length / P.length * 100) : 0}%</b>${avg.length ? ` · Average time to complete: <b>${this.dur(avg.reduce((a, b) => a + b, 0) / avg.length)}</b>` : ''}` : 'No request yet'}</div></div>`; };
     const SD = this.pick(B, st.sd, ''), sdOK = SD.length || !B.length ? st.sd : (st.sd = st.sd === 'raised' ? 'received' : 'raised'), SDR = this.pick(B, sdOK, '');
     const rows = this.pick(B, st.dir, st.s).sort((a, b) => String(b.reqAt).localeCompare(String(a.reqAt)));
@@ -17356,6 +17386,8 @@ const JMIS = {
       { key: 'resp', label: 'Completed By / Response', csv: r => [r.compBy, r.compMob, r.resp].filter(Boolean).join(' | '), render: r => `${r.compBy ? `<b>${esc(r.compBy)}</b>${r.compMob ? `<div class="small">📞 ${esc(r.compMob)}</div>` : ''}` : ''}${r.endorse ? `<div class="small muted">SP/DCP Endorsed: ${esc(r.endorse)}</div>` : ''}<div class="jm-tx">${esc(r.resp || '')}</div>` },
       { key: 'act', label: 'Status', nosort: true, noexport: true, render: r => `<select class="jm-sel" data-jid="${esc(r.id)}" data-nov>${Object.keys(this.ST).map(k => `<option ${k === r.status ? 'selected' : ''}>${k}</option>`).join('')}</select>` }] });
     /* hover: live preview of the requests behind a bubble */
+    $$('.jm-cd', el).forEach(i => { i.onclick = e => e.stopPropagation(); i.onchange = () => { const v = i.value.trim(); if (v === '' || isNaN(+v)) localStorage.removeItem('sud-jmcd'); else localStorage.setItem('sud-jmcd', String(Math.max(0, Math.round(+v)))); if (st.s === 'pcd') st.s = v === '' ? '' : 'pcd'; this.page(el); };
+      i.onkeydown = e => { if (e.key === 'Enter') i.blur(); }; });
     $$('.jm-b, .jm-pc', el).forEach(b => { b.onmouseenter = e => this.tip(b, this.pick(B, b.dataset.jd, b.dataset.js)); b.onmouseleave = () => this.tip(null);
       b.onclick = () => { const same = st.dir === b.dataset.jd && st.s === b.dataset.js; Object.assign(st, same ? { dir: '', s: '' } : { dir: b.dataset.jd, s: b.dataset.js }); this.tip(null); this.page(el).then(() => { const x = $('#jmList', el); x && x.scrollIntoView({ behavior: 'smooth', block: 'start' }); }); }; });
     const toList = () => { const x = $('#jmList', el); x && x.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
@@ -18085,6 +18117,326 @@ addEventListener('scroll', () => Letters.tip(null), true);
 
 </script>
 <script>
+/* daily.js – Office Work › Daily Crime: everything that came in on one day (today by default) across the whole tool –
+   NCRP complaints, FIRs, Master Crime Data entries, EO enquiries, JMIS requests and letters sent – with a 7-day line. */
+'use strict';
+const Daily = {
+  st() { return this._s || (this._s = { d: '', k: '' }); },
+  ymd(t) { if (!t) return ''; const d = new Date(t); if (isNaN(d)) return ''; const p = n => String(n).padStart(2, '0'); return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`; },
+  dmy(s) { return s ? s.split('-').reverse().join('-') : ''; },
+  hm(t) { const d = new Date(t); if (isNaN(d) || !(d.getHours() || d.getMinutes())) return ''; return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); },
+  K: [['ncrp', '🧾', 'NCRP Complaints', '#f97316'], ['fir', '📁', 'FIR / Cases', '#2563eb'], ['crime', '🗃', 'Master Crime Data Entries', '#ef4444'], ['eo', '🕵', 'EO Enquiries', '#0891b2'], ['jmis', '📨', 'JMIS Requests', '#7c3aed'], ['letters', '📒', 'Letters Sent', '#b45309']],
+  /* every dated item in the tool → { k, day, t, title, sub, amount } */
+  async all(force) {
+    if (this._d && !force && Date.now() - this._t < 60000) return this._d;
+    const R = [];
+    try { for (const r of await Trend.collect(force)) { if (r.src === 'EO') continue; const t = r.rep || r.inc; if (!t) continue;
+      R.push({ k: r.src === 'NCRP' ? 'ncrp' : 'fir', t, title: (r.src === 'NCRP' ? 'Ack ' + (r.ack || '') : r.case || '') + (r.fir ? ' · FIR ' + r.fir : ''), sub: [Trend.icon(r.type) + ' ' + r.type, r.district, r.ps].filter(Boolean).join(' · '), amount: r.amount || 0, caseId: r.caseId, case: r.case, type: r.type }); } } catch (e) { }
+    try { for (const r of await Off.get('crime', [])) if (r.added && !r.auto) R.push({ k: 'crime', t: new Date(r.added).getTime(), title: (Off.ct(r.type)[2] || '') + ' ' + r.value, sub: [Off.ct(r.type)[1], r.name, r.case, r.source].filter(Boolean).join(' · '), amount: +r.amount || 0 }); } catch (e) { }
+    try { for (const e of await EO.list()) { const t = Trend.ts(e.recv); if (t) R.push({ k: 'eo', t, title: 'SR ' + (e.sr || '') + ' · ' + EO.caseNo(e), sub: [e.victim, String(e.brief || '').slice(0, 80), e.status].filter(Boolean).join(' · '), amount: +e.amount || 0 }); } } catch (e) { }
+    try { for (const r of await JMIS.list()) { const t = r.reqAt && new Date(r.reqAt).getTime(); if (t) R.push({ k: 'jmis', t, title: (r.reqId || '') + (r.fir ? ' · FIR ' + r.fir : ''), sub: [r.dir === 'raised' ? '📤 Raised to ' + (r.tState || '') : '📥 Received from ' + (r.fState || ''), r.status].filter(Boolean).join(' · '), amount: 0 }); } } catch (e) { }
+    try { for (const x of await Letters.list()) R.push({ k: 'letters', t: new Date(x.at).getTime(), title: x.subject || x.title || 'Letter', sub: [x.role, x.case, x.to && '→ ' + x.to].filter(Boolean).join(' · '), amount: 0 }); } catch (e) { }
+    R.forEach(r => r.day = this.ymd(r.t)); this._t = Date.now(); return (this._d = R);
+  },
+  async page(el) {
+    const st = this.st(); if (!st.d) st.d = this.ymd(Date.now());
+    el.innerHTML = '<div class="card muted">Reading the whole tool…</div>';
+    const A = await this.all(), D = A.filter(r => r.day === st.d), L = st.k ? D.filter(r => r.k === st.k) : D;
+    const days = [...Array(7)].map((_, i) => { const d = new Date(st.d + 'T12:00'); d.setDate(d.getDate() - 6 + i); return this.ymd(d); });
+    const wk = days.map(d => ({ d, n: A.filter(r => r.day === d).length })), mx = Math.max(1, ...wk.map(x => x.n)), amt = D.reduce((s, r) => s + (r.k === 'ncrp' || r.k === 'fir' || r.k === 'eo' ? r.amount : 0), 0);
+    const shift = n => { const d = new Date(st.d + 'T12:00'); d.setDate(d.getDate() + n); st.d = this.ymd(d); st.k = ''; this.page(el); };
+    el.innerHTML = `<div class="card"><div class="row" style="gap:8px;flex-wrap:wrap;align-items:center"><h3 class="grow" style="margin:0">📅 Daily Crime – ${esc(this.dmy(st.d))} <span class="small muted">${new Date(st.d + 'T12:00').toLocaleDateString('en-IN', { weekday: 'long' })}</span></h3>
+        <button class="btn" id="dyP">◀ Previous Day</button><input type="date" id="dyD" value="${esc(st.d)}"><button class="btn" id="dyN">Next Day ▶</button><button class="btn" id="dyT">Today</button><button class="btn primary" id="dyR" title="Daily crime report of this day – preview, then Print / PDF / Word / Excel">📄 Daily Report</button></div>
+      <div class="lr-ks" style="margin-top:12px"><button class="lr-k ${!st.k ? 'on' : ''}" data-dk="" style="--c:#6366f1"><span>📊</span><b>${fmtNum(D.length)}</b><small>All Entries Of The Day</small></button>${this.K.map(([k, ic, l, c]) => `<button class="lr-k ${st.k === k ? 'on' : ''}" data-dk="${k}" style="--c:${c}"><span>${ic}</span><b>${fmtNum(D.filter(r => r.k === k).length)}</b><small>${l}</small></button>`).join('')}<div class="lr-k" style="--c:#16a34a;cursor:default"><span>₹</span><b style="font-size:18px">${fmtINR(amt)}</b><small>Fraud Amount Reported</small></div></div>
+      <div class="small" style="margin:12px 0 4px"><b>Last 7 Days</b> – click a day</div><div class="tr-cols dy-wk">${wk.map(x => `<button class="tr-col ${x.d === st.d ? 'on' : ''}" data-dd="${x.d}"><span class="tr-cb"><i style="height:${x.n / mx * 100}%"></i></span><b>${x.n}</b><small>${esc(this.dmy(x.d).slice(0, 5))}</small></button>`).join('')}</div></div>
+      <div class="card"><h3>📋 ${st.k ? esc(this.K.find(x => x[0] === st.k)[2]) : 'All Entries'} <span class="badge">${fmtNum(L.length)}</span></h3><div id="dyTb"></div></div>`;
+    Table($('#dyTb', el), { rows: L, pageSize: 50, exportName: 'daily_crime_' + st.d, sortKey: 't', sortDir: -1, onRow: r => { if (r.caseId && r.caseId !== S.caseId) switchCase(r.caseId); }, columns: [
+      { key: 'k', label: 'Type', csv: r => this.K.find(x => x[0] === r.k)[2], render: r => { const x = this.K.find(y => y[0] === r.k); return `<span class="tg-sp" style="--c:${x[3]}">${x[1]} ${esc(x[2])}</span>`; } },
+      { key: 't', label: 'Time', sortVal: r => r.t, csv: r => this.hm(r.t), render: r => esc(this.hm(r.t) || '—') },
+      { key: 'title', label: 'Entry', render: r => `<b>${esc(r.title)}</b>` }, { key: 'sub', label: 'Details', render: r => `<span class="small">${esc(r.sub)}</span>` },
+      { key: 'amount', label: 'Amount', num: true, render: r => r.amount ? fmtINR(r.amount) : '' }] });
+    $$('[data-dk]', el).forEach(b => { b.onclick = () => { st.k = b.dataset.dk; this.page(el); }; b.onmouseenter = () => this.tip(b, b.dataset.dk ? D.filter(r => r.k === b.dataset.dk) : D); b.onmouseleave = () => this.tip(null); });
+    $$('[data-dd]', el).forEach(b => { b.onclick = () => { st.d = b.dataset.dd; st.k = ''; this.tip(null); this.page(el); }; b.onmouseenter = () => this.tip(b, A.filter(r => r.day === b.dataset.dd), this.dmy(b.dataset.dd)); b.onmouseleave = () => this.tip(null); });
+    $('#dyP', el).onclick = () => shift(-1); $('#dyN', el).onclick = () => shift(1); $('#dyT', el).onclick = () => { st.d = this.ymd(Date.now()); st.k = ''; this.page(el); };
+    $('#dyD', el).onchange = e => { if (e.target.value) { st.d = e.target.value; st.k = ''; this.page(el); } };
+    $('#dyR', el).onclick = () => this.report(st.d, D, amt);
+  },
+  tip(b, R, title) {
+    let t = $('#dyTip'); if (!b) { if (t) t.remove(); return; }
+    if (!t) { t = document.createElement('div'); t.id = 'dyTip'; t.className = 'jm-tip'; document.body.appendChild(t); }
+    t.innerHTML = `<b>${esc(title || b.querySelector('small').textContent)} · ${R.length}</b>${R.length ? `<table>${R.slice(0, 8).map(r => `<tr><td>${this.K.find(x => x[0] === r.k)[1]}</td><td>${esc(this.hm(r.t))}</td><td>${esc(r.title.slice(0, 60))}</td><td>${r.amount ? esc(fmtINR(r.amount)) : ''}</td></tr>`).join('')}</table>${R.length > 8 ? `<div class="small">+ ${R.length - 8} more – click to see all</div>` : '<div class="small">Click to see the list</div>'}` : '<div class="small">Nothing on this day</div>'}`;
+    const r = b.getBoundingClientRect(); t.style.left = Math.max(8, Math.min(innerWidth - 560, r.left)) + 'px'; t.style.top = (r.bottom + 6) + 'px';
+  },
+  report(d, D, amt) {
+    const sec = this.K.map(([k, ic, l]) => { const L = D.filter(r => r.k === k).sort((a, b) => a.t - b.t); return `<h3>${ic} ${esc(l)} (${L.length})</h3>${L.length ? `<table><tr><th>S.No.</th><th>Time</th><th>Entry</th><th>Details</th><th>Amount</th></tr>${L.map((r, i) => `<tr><td>${i + 1}</td><td>${esc(this.hm(r.t))}</td><td>${esc(r.title)}</td><td>${esc(r.sub)}</td><td>${r.amount ? esc(fmtINR(r.amount)) : ''}</td></tr>`).join('')}</table>` : '<p>Nil</p>'}`; }).join('');
+    ExportAll.open('Daily Crime Report – ' + this.dmy(d), `<table><tr>${this.K.map(x => `<th>${esc(x[2])}</th>`).join('')}<th>Fraud Amount</th></tr><tr>${this.K.map(x => `<td><b>${D.filter(r => r.k === x[0]).length}</b></td>`).join('')}<td><b>${esc(fmtINR(amt))}</b></td></tr></table>${sec}`);
+  }
+};
+addEventListener('scroll', () => Daily.tip(null), true);
+
+</script>
+<script>
+/* bulk.js – feeding the tool in bulk, one place each:
+   1. Letter Register: fetches letters already in the tool (notice drafts, CCTNS notices, 35(3) notices) and imports old letters
+      (Word / PDF / text / scans) into an existing or new case through the ONE Import window.
+   2. Nodal / Escrow master list: accounts or names found during investigation – added once, matched in every case, Target and trail.
+   3. EO: import existing enquiries from Excel / CSV / Word table, columns matched, checked and previewed before saving. */
+'use strict';
+
+/* ---------- 1. Letter Register: fetch from the whole tool + import old letters ---------- */
+Object.assign(Letters, {
+  async put(o) { // a letter with its own date (old letter / fetched)
+    const text = String(o.text || '').trim(); if (text.length < 20) return null;
+    const L = await this.list(), h = this.H(text); if (L.some(x => x.h === h)) return null;
+    const P = this.parse(text), c = o.caseId && S.cases.find(x => x.id === o.caseId);
+    let at = o.at; if (!at && P.ldate) { const t = Trend.ts(P.ldate); if (t) at = new Date(t + 10 * 36e5).toISOString(); }
+    const x = { id: uid(), h, at: at || new Date().toISOString(), how: [o.how || 'import'], role: o.role || 'IO', page: o.page || 'import', title: String(o.title || '').replace(/\.(docx?|pdf|odt|rtf|txt|jpe?g|png)$/i, ''),
+      caseId: c ? c.id : '', case: c ? (AllMode.caseLabel ? AllMode.caseLabel(c) : c.name) : (o.caseTxt || ''), fir: P.fir || (c && c.fir) || '', to: o.to || P.to, subject: o.subject || P.subject || o.title || 'Letter', ref: P.ref, ldate: P.ldate, by: o.by || '', text: text.slice(0, 60000), src: o.src || '' };
+    L.push(x); return x;
+  },
+  /* letters already made in the tool before the register existed */
+  async harvest() {
+    let n = 0; const one = async (c, d) => {
+      for (const x of d.drafts || []) if (await this.put({ text: x.text, at: x.updated || x.created, caseId: c.id, title: x.name, how: 'draft', src: 'Notice Draft' })) n++;
+      for (const x of ((d.cctns || {}).notices || [])) if (await this.put({ text: x.text, at: x.when, caseId: c.id, title: x.name, to: x.to, how: 'draft', src: 'CCTNS Notice' })) n++; };
+    for (const c of S.cases) { try { const d = c.id === S.caseId && S.data && !isScope(S.caseId) ? S.data : await DB.get('case:' + c.id); if (d) await one(c, d); } catch (e) { } await new Promise(r => setTimeout(r, 0)); }
+    try { for (const a of await Off.get('accused', [])) for (const [k, t] of Object.entries(a.notice || {})) if (await this.put({ text: t, at: a.noticeDate ? a.noticeDate + 'T10:00' : a.at, caseId: a.caseId, title: (/c/.test(k) ? 'Compliance Report 35(3) – ' : 'Notice 35(3) BNSS – ') + a.name, how: 'draft', src: 'Arrest / Notice 35(3)' })) n++; } catch (e) { }
+    if (n) await Off.put('letters'); S.settings.lrHarv = 2; saveMeta(); return n;
+  },
+  importOld() { Hub.open({ hint: 'letter', title: 'Old Letters → Letter Register', fresh: true, mode: 'old' }); }
+});
+{ const pg = Letters.page.bind(Letters);
+  Letters.page = async function (el) {
+    if (S.settings.lrHarv !== 2) { el.innerHTML = '<div class="card muted">Fetching letters from the whole tool…</div>'; await this.harvest(); }
+    await pg(el);
+    const add = $('#lrAdd', el); if (add) { add.insertAdjacentHTML('beforebegin', `<button class="btn primary" id="lrImp" title="Old letters (Word / PDF / scan / text) – choose the case or make a new one, then drop the files">📥 Import Old Letters</button><button class="btn" id="lrFetch" title="Read every case, notice draft, CCTNS notice and 35(3) notice again">🔄 Fetch From Whole Tool</button>`);
+      $('#lrImp', el).onclick = () => this.importOld(); $('#lrFetch', el).onclick = async () => { const n = await this.harvest(); UI.toast(n ? n + ' letter(s) added from the tool' : 'No new letter found in the tool'); this.page(el); }; }
+    /* analysis: month-wise and to whom */
+    const st = this.st(), L = this.base(await this.list(), st), body = $('#lrBody', el); if (!body || !L.length) return;
+    const ms = [...Array(12)].map((_, i) => { const d = new Date(); d.setDate(1); d.setMonth(d.getMonth() - 11 + i); return d.toISOString().slice(0, 7); });
+    const mn = ms.map(m => ({ k: m, l: new Date(m + '-01T12:00').toLocaleDateString('en-IN', { month: 'short' }), n: L.filter(x => String(x.at).slice(0, 7) === m).length })), mx = Math.max(1, ...mn.map(x => x.n));
+    const to = new Map(); L.forEach(x => { const k = (x.to || '—').split(',')[0].trim().slice(0, 60) || '—'; to.set(k, (to.get(k) || 0) + 1); }); const TT = [...to].sort((a, b) => b[1] - a[1]).slice(0, 10), tmx = Math.max(1, ...TT.map(x => x[1]));
+    body.insertAdjacentHTML('beforebegin', `<div class="grid g2"><div class="card"><h3>📆 Letters Month-Wise <span class="small muted">last 12 months – click a month</span></h3><div class="tr-cols">${mn.map(x => `<button class="tr-col" data-lm="${x.k}"><span class="tr-cb"><i style="height:${x.n / mx * 100}%"></i></span><b>${x.n || ''}</b><small>${x.l}</small></button>`).join('')}</div></div>
+      <div class="card"><h3>📮 Sent To / For <span class="small muted">top 10 – click to see those letters</span></h3><div class="jm-bars">${TT.map(([k, n]) => `<button class="jm-bar" data-lto="${esc(k)}"><span class="jm-bn">${esc(k)}</span><span class="jm-bt" style="width:${n / tmx * 100}%"><i class="u" style="flex:1"></i></span><b>${n}</b></button>`).join('')}</div></div></div>`);
+    $$('[data-lm]', el).forEach(b => { const R = L.filter(x => String(x.at).slice(0, 7) === b.dataset.lm); b.onmouseenter = () => this.tip(b, R); b.onmouseleave = () => this.tip(null);
+      b.onclick = () => { const [y, m] = b.dataset.lm.split('-'); st.from = b.dataset.lm + '-01'; st.to = b.dataset.lm + '-' + String(new Date(+y, +m, 0).getDate()).padStart(2, '0'); st.view = 'list'; this.tip(null); this.page(el); }; });
+    $$('[data-lto]', el).forEach(b => { const R = L.filter(x => ((x.to || '—').split(',')[0].trim().slice(0, 60) || '—') === b.dataset.lto); b.onmouseenter = () => this.tip(b, R); b.onmouseleave = () => this.tip(null);
+      b.onclick = () => { st.q = b.dataset.lto === '—' ? '' : b.dataset.lto; st.view = 'list'; this.tip(null); this.page(el); }; });
+  };
+  const tp = Letters.tip.bind(Letters); Letters.tip = function (b, R) { if (b && !b.querySelector('small')) { const s = document.createElement('small'); s.className = 'hidden'; s.textContent = b.textContent.trim().slice(0, 60); b.appendChild(s); } return tp(b, R); };
+}
+/* the ONE import window learns "Old Letter" */
+Hub.K.letter = ['📒', 'Old Letter → Letter Register'];
+{ const dt = Hub.detect.bind(Hub); Hub.detect = async function (q) { if (this.st.hint === 'letter' && /\.(pdf|docx?|odt|rtf|txt|html?|jpe?g|png|webp|bmp)$/i.test(q.f.name)) return 'letter'; return dt(q); };
+  const rn = Hub.run.bind(Hub); Hub.run = async function () {
+    const s = this.st, L = (s.Q || []).filter(q => q.kind === 'letter' && !q.ok);
+    if (L.length && !s.busy) {
+      const tid = await this.target(); if (!tid) return; let n = 0;
+      for (const q of L) { let t = ''; try { t = await CDX.readFile(q.f, () => null); } catch (e) { q.res = 'Error: ' + e.message; continue; }
+        const x = await Letters.put({ text: t, caseId: isScope(S.caseId) ? '' : S.caseId, title: q.f.name, at: Letters.parse(t).ldate ? '' : (q.f.lastModified ? new Date(q.f.lastModified).toISOString() : ''), how: 'import', role: Letters.st().role || 'IO', src: 'Imported' });
+        q.ok = 1; q.res = x ? '📒 In Letter Register' + (x.subject ? ' – ' + x.subject.slice(0, 50) : '') : (t.trim() ? 'Already in the register' : '⚠ no text found'); if (x) n++; this.redraw(); }
+      await Off.put('letters'); if (!s.Q.some(q => !q.ok && q.kind !== 'skip')) { s.done = true; s.log = `✔ ${n} old letter(s) added to the Letter Register.`; this.draw(); if (S.page === 'letters') render(); return; }
+    }
+    return rn();
+  }; }
+
+/* ---------- 2. Nodal / Escrow master list ---------- */
+const NodalM = {
+  TYPES: ['Nodal A/C', 'Escrow A/C', 'Payment Gateway', 'Wallet / Pool A/C', 'Aggregator / Merchant', 'Crypto Exchange', 'Other'],
+  list() { return S.settings.nodalMaster || (S.settings.nodalMaster = []); },
+  na(a) { return String(a || '').toUpperCase().replace(/[^0-9A-Z]/g, ''); },
+  _ix: null, ix() { if (this._ix) return this._ix; const A = new Map(), K = []; this.list().forEach(x => { if (x.kw) K.push([x.kw.toUpperCase(), x]); else if (x.acc) A.set(this.na(x.acc), x); }); return (this._ix = { A, K }); },
+  names: new Map(), // account → names / banks seen (filled by Target, used for keyword match across cases)
+  hit(acc, txt) { const { A, K } = this.ix(), a = A.get(this.na(acc)); if (a) return a.type || 'Nodal A/C'; const u = String(txt || this.names.get(String(acc)) || '').toUpperCase(); if (u) for (const [k, x] of K) if (u.includes(k)) return x.type || 'Nodal A/C'; return ''; },
+  async changed() { this._ix = null; await saveMeta(); try { Analysis.invalidate(); } catch (e) { } if (typeof Target !== 'undefined') Target._d = null; render(); },
+  parseRows(A) { // rows (arrays) → entries
+    let hi = A.findIndex(r => r.some(c => /acc|a\/c|account|खाता/i.test(String(c)))), H = hi >= 0 ? A[hi].map(c => String(c).toLowerCase()) : [];
+    const ix = re => H.findIndex(h => re.test(h)), cA = hi >= 0 ? ix(/acc|a\/c|account|खाता/) : 0, cN = hi >= 0 ? ix(/name|holder|नाम/) : 1, cB = hi >= 0 ? ix(/bank/) : 2, cI = hi >= 0 ? ix(/ifsc/) : 3, cT = hi >= 0 ? ix(/type|nodal|escrow/) : 4, cK = hi >= 0 ? ix(/keyword|word/) : -1;
+    const out = []; for (const r of A.slice(hi + 1)) { const g = i => i >= 0 ? String(r[i] == null ? '' : r[i]).trim() : ''; const acc = g(cA).replace(/\s/g, ''), kw = g(cK);
+      if (!/\d{6,}|^[A-Z0-9]{8,}$/i.test(acc) && !kw) continue; const t = g(cT); out.push({ acc: kw ? '' : acc, kw, name: g(cN), bank: g(cB), ifsc: g(cI).toUpperCase(), type: this.TYPES.find(x => t && x.toLowerCase().startsWith(t.toLowerCase().slice(0, 4))) || (t || 'Nodal A/C') }); }
+    return out; },
+  merge(E) { const L = this.list(); let a = 0, u = 0; for (const e of E) { const o = L.find(x => (e.kw ? x.kw && x.kw.toUpperCase() === e.kw.toUpperCase() : x.acc && this.na(x.acc) === this.na(e.acc))); if (o) { Object.keys(e).forEach(k => { if (e[k]) o[k] = e[k]; }); u++; } else { L.push({ id: uid(), added: new Date().toISOString(), ...e }); a++; } } return { a, u }; },
+  seen(x) { const T = (typeof Target !== 'undefined' && Target._d) || []; return T.filter(t => x.kw ? [...t.names, ...t.banks].join(' ').toUpperCase().includes(x.kw.toUpperCase()) : this.na(t.acc) === this.na(x.acc)).reduce((s, t) => s + t.cases.length, 0); },
+  open() {
+    const L = this.list(), draw = () => {
+      const m = UI.modal('🏛️ Nodal / Escrow Accounts – Master List', `<div class="note">Add every nodal / escrow / payment-gateway / wallet pool account you find during investigation – once. Every case, Target, Money Trail and account list then shows it as <b>With Nodal ~ Escrow</b> (ask it for the next beneficiary), so the own / mule accounts stand out. Kept on this computer.</div>
+        <div class="map-grid"><label>Account No.<input id="nmA" placeholder="e.g. 50200012345678"></label><label>…or Name Word <span class="small muted">(matches any account whose name has it)</span><input id="nmK" placeholder="e.g. RAZORPAY, CASHFREE, PAYU"></label><label>Name / Holder<input id="nmN"></label><label>Bank<input id="nmB"></label><label>IFSC<input id="nmI"></label><label>Type<select id="nmT">${this.TYPES.map(t => `<option>${t}</option>`).join('')}</select></label></div>
+        <div class="row" style="gap:8px;margin:8px 0;flex-wrap:wrap"><button class="btn primary" id="nmAdd">➕ Add</button><button class="btn" id="nmFile">📥 Import Excel / CSV</button><span class="small muted">or paste rows copied from Excel (Account, Name, Bank, IFSC, Type):</span></div>
+        <textarea id="nmP" rows="3" placeholder="Paste here – one account per line" style="width:100%"></textarea><div class="row" style="justify-content:flex-end;margin-top:4px"><button class="btn" id="nmPaste">✔ Add Pasted Rows</button></div>
+        <h4 style="margin:12px 0 6px">📋 List <span class="badge">${L.length}</span></h4><div id="nmTb"></div>`, [{ label: 'Close', onClick: UI.closeModal }]);
+      Table($('#nmTb', m), { rows: L.slice().reverse(), pageSize: 20, exportName: 'nodal_escrow_master', noNd: true, columns: [
+        { key: 'acc', label: 'Account / Name Word', csv: x => x.acc || 'word: ' + x.kw, render: x => x.acc ? `<b class="mono">${esc(x.acc)}</b>` : `<span class="tg-sp" style="--c:#7c3aed">word</span> <b>${esc(x.kw)}</b>` },
+        { key: 'name', label: 'Name' }, { key: 'bank', label: 'Bank' }, { key: 'ifsc', label: 'IFSC' }, { key: 'type', label: 'Type' },
+        { key: 'seen', label: 'In Cases', sortVal: x => this.seen(x), csv: x => this.seen(x), render: x => { const n = this.seen(x); return n ? `<b>${n}</b>` : '<span class="muted">—</span>'; } },
+        { key: 'added', label: 'Added', render: x => esc(String(x.added || '').slice(0, 10)) },
+        { key: 'del', label: '', nosort: true, noexport: true, render: x => `<button class="btn sm danger" data-nmd="${x.id}">🗑</button>` }] });
+      const done = async (r, msg) => { await this.changed(); UI.toast(msg || `${r.a} added · ${r.u} updated`); draw(); };
+      $('#nmAdd', m).onclick = () => { const v = k => $('#' + k, m).value.trim(), acc = v('nmA').replace(/\s/g, ''), kw = v('nmK'); if (!acc && !kw) return UI.toast('Type the account no. or a name word');
+        if (acc && !/^[0-9A-Z]{6,20}$/i.test(acc)) return UI.toast('Account No. – 6 to 20 letters / digits'); done(this.merge([{ acc: kw ? '' : acc, kw: acc ? '' : kw, name: v('nmN'), bank: v('nmB'), ifsc: v('nmI').toUpperCase(), type: v('nmT') }])); };
+      $('#nmPaste', m).onclick = () => { const A = $('#nmP', m).value.split(/\r?\n/).filter(x => x.trim()).map(l => l.split(/\t|,|;/)); const E = this.parseRows(A); if (!E.length) return UI.toast('No account found in the pasted rows'); done(this.merge(E)); };
+      $('#nmFile', m).onclick = () => { const i = document.createElement('input'); i.type = 'file'; i.accept = '.xlsx,.xls,.csv,.ods'; i.onchange = async () => { const f = i.files[0]; if (!f) return; try { const wb = /\.csv$/i.test(f.name) ? XLSX.read(await f.text(), { type: 'string', raw: true }) : XLSX.read(new Uint8Array(await f.arrayBuffer()), { type: 'array' }); let E = []; wb.SheetNames.forEach(sn => E = E.concat(this.parseRows(XLSX.utils.sheet_to_json(wb.Sheets[sn], { header: 1, defval: '', raw: false })))); if (!E.length) return UI.toast('No account column found'); done(this.merge(E)); } catch (e) { UI.toast('Could not read: ' + e.message); } }; i.click(); };
+      $$('[data-nmd]', m).forEach(b => b.onclick = () => { const i = L.findIndex(x => x.id === b.dataset.nmd); if (i < 0 || !UI.confirm('Remove from the Nodal / Escrow list?')) return; L.splice(i, 1); done({ a: 0, u: 0 }, 'Removed'); });
+    }; draw();
+  }
+};
+{ const of0 = Nodal.of.bind(Nodal); Nodal.of = acc => NodalM.hit(acc) || of0(acc);
+  const mp = Nodal.map.bind(Nodal); Nodal.map = function () { const M = mp(); if (!NodalM.ix().K.length) return M; return Analysis.cached('nodalkw', () => { const M2 = new Map(M);
+    for (const t of S.data.txns || []) if (t.to_acc && !M2.has(t.to_acc)) { const h = NodalM.hit('', [t.to_name, t.to_bank, t.remarks].join(' ')); if (h) M2.set(t.to_acc, h); }
+    for (const k of S.data.kyc || []) if (k.acc && !M2.has(k.acc)) { const h = NodalM.hit('', [k.name, k.bank].join(' ')); if (h) M2.set(k.acc, h); } return M2; }); };
+  const td = Target.draw.bind(Target); Target.draw = function (el, T, J) { NodalM.names.clear(); T.forEach(t => NodalM.names.set(String(t.acc), [...t.names, ...t.banks].join(' '))); return td(el, T, J); };
+  /* a "Nodal / Escrow List" button on every All / Without / With Nodal bar */
+  let q = 0; new MutationObserver(() => { if (q) return; q = requestAnimationFrame(() => { q = 0; $$('.nd-bar').forEach(b => { if (b.querySelector('.nm-open')) return; const x = document.createElement('button'); x.className = 'btn sm nm-open'; x.type = 'button'; x.title = 'Add nodal / escrow accounts you found – matched in every case'; x.textContent = `🏛️ Nodal / Escrow List (${NodalM.list().length})`; x.onclick = () => NodalM.open(); const h = b.querySelector('.nd-h'); h ? b.insertBefore(x, h) : b.appendChild(x); }); }); }).observe(document.body, { childList: true, subtree: true });
+}
+
+/* ---------- 3. EO: import existing enquiries (Excel / CSV / Word table) ---------- */
+Object.assign(EO, {
+  IMPF: [['sr', 'SR No.', /^(s\.?\s*no|sr|sl|क्र)/i], ['type', 'Type', /type|प्रकार|category/i], ['no', 'Complaint / Ack / Case No.', /ack|complaint\s*no|case\s*no|शिकायत\s*सं|application\s*no|appl|^no\.?$/i], ['year', 'Year', /year|वर्ष/i],
+    ['victim', 'Victim / Applicant', /victim|complainant|applicant|पीड़ित|आवेदक|शिकायतकर्ता|^name/i], ['mobile', 'Victim Mobile', /mobile|phone|contact|मोबाइल/i], ['amount', 'Fraud Amount', /amount|राशि|₹|rs\.?$/i],
+    ['recv', 'Received Date', /receiv|प्राप्त|complaint\s*date|date\s*of\s*complaint|^date$|दिनांक/i], ['brief', 'Short Details', /brief|detail|fact|subject|nature|विवरण|विषय|घटना/i], ['status', 'Status', /status|स्थिति|result/i],
+    ['sent', 'Report Sent / Closed Date', /sent|close|disposal|निस्तारण|report\s*date/i], ['notes', 'Closing Notes', /remark|note|finding|टिप्पणी|action/i], ['firno', 'FIR No.', /fir/i], ['ps', 'Police Station', /police\s*station|^ps$|थाना/i], ['io', 'IO Name', /^io|investigat|विवेचक/i]],
+  async rowsOf(f) {
+    if (/\.(xlsx?|xlsb|ods|csv)$/i.test(f.name)) { const wb = /\.csv$/i.test(f.name) ? XLSX.read(await f.text(), { type: 'string', raw: true }) : XLSX.read(new Uint8Array(await f.arrayBuffer()), { type: 'array', cellDates: true });
+      let best = []; wb.SheetNames.forEach(sn => { const A = XLSX.utils.sheet_to_json(wb.Sheets[sn], { header: 1, defval: '', raw: false, dateNF: 'dd/mm/yyyy' }); if (A.length > best.length) best = A; }); return best; }
+    if (/\.(docx|odt)$/i.test(f.name)) { const files = await GReply.unzip(await f.arrayBuffer()), d = files.find(x => /document\.xml$|content\.xml$/.test(x.name)); if (!d) return [];
+      const x = await d.text(), un = s => s.replace(/<w:tab\/>/g, ' ').replace(/<\/w:p>/g, '\n').replace(/<[^>]+>/g, '').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/&amp;/g, '&').trim();
+      let best = []; (x.match(/<w:tbl>[\s\S]*?<\/w:tbl>|<table:table [\s\S]*?<\/table:table>/g) || []).forEach(t => { const R = (t.match(/<w:tr[ >][\s\S]*?<\/w:tr>|<table:table-row[\s\S]*?<\/table:table-row>/g) || []).map(r => (r.match(/<w:tc>[\s\S]*?<\/w:tc>|<table:table-cell[\s\S]*?<\/table:table-cell>/g) || []).map(un)); if (R.length > best.length) best = R; });
+      if (best.length) return best; return (await NoticeKit.readAny(f)).split('\n').filter(l => l.includes('\t')).map(l => l.split('\t')); }
+    return (await NoticeKit.readAny(f)).split('\n').filter(l => /\t|\|/.test(l)).map(l => l.split(/\t|\|/));
+  },
+  mapOf(H) { const M = {}; H.forEach((h, i) => { h = String(h).trim(); if (!h) return; const hit = this.IMPF.find(([k, , re]) => !(k in M) && re.test(h)); if (hit) M[hit[0]] = i; }); return M; },
+  rowTo(r, M) {
+    const g = k => M[k] != null ? String(r[M[k]] == null ? '' : r[M[k]]).trim() : '', d = v => { const t = Trend.ts(v); return t ? new Date(t + 6 * 36e5).toISOString().slice(0, 10) : ''; };
+    const no = g('no').replace(/\s+/g, ''), ty = g('type'), st = g('status'), err = [];
+    const x = { sr: g('sr'), type: /fir/i.test(ty) ? 'FIR' : /ncrp|1930|ack/i.test(ty) || /^\d{14}$/.test(no) ? 'NCRP' : /comp|appl|शिकायत|प्रार्थना/i.test(ty) ? 'COMP' : (g('firno') ? 'FIR' : 'COMP'), no, year: (g('year').match(/(19|20)\d\d/) || [String(new Date().getFullYear())])[0],
+      victim: g('victim'), mobile: g('mobile').replace(/\D/g, '').slice(-10), amount: String(+g('amount').replace(/[^\d.]/g, '') || ''), recv: d(g('recv')), brief: g('brief'), notes: g('notes'), sent: d(g('sent')),
+      status: /fir/i.test(st) || g('firno') ? 'FIR' : /close|dispos|निस्तार|बंद|समाप्त|file/i.test(st) ? 'Close' : 'Pending', fir: { no: g('firno'), ps: g('ps'), io: g('io') } };
+    if (!x.no && !x.victim) err.push('no Complaint No. or Victim');
+    if (g('mobile') && !/^[6-9]\d{9}$/.test(x.mobile)) err.push('mobile not 10 digits');
+    if (g('recv') && !x.recv) err.push('received date not read');
+    if (g('amount') && !x.amount) err.push('amount not a number');
+    return { x, err };
+  },
+  importPick(el) {
+    const m = UI.modal('📥 Import Existing Enquiries (Excel / CSV / Word)', `<p class="small">Pick the enquiry register you already keep – Excel / CSV, or a Word file with a table. Columns are matched by their heading (you can change it), every row is checked, and nothing is saved until you press Import. Rows with the same Type + Complaint No. + Year update the old entry.</p>
+      <label>File<input type="file" id="eiF" accept=".xlsx,.xls,.csv,.ods,.docx,.odt,.txt"></label><div id="eiP" style="margin-top:10px"></div>`,
+      [{ label: 'Close', onClick: UI.closeModal }, { label: '📥 Import', cls: 'primary', onClick: () => this._imp && this._imp() }]);
+    $('#eiF', m).onchange = async () => { const f = $('#eiF', m).files[0]; if (!f) return; const P = $('#eiP', m); P.innerHTML = '<div class="muted">Reading…</div>';
+      let A = []; try { A = await this.rowsOf(f); } catch (e) { P.innerHTML = '❌ ' + esc(e.message); return; }
+      const hi = A.findIndex(r => Object.keys(this.mapOf(r)).length >= 3); if (hi < 0) { P.innerHTML = '❌ Could not find a heading row (Complaint No., Victim, Mobile, Date…) in this file.'; return; }
+      const H = A[hi].map(h => String(h).trim()), data = A.slice(hi + 1).filter(r => r.some(c => String(c).trim())); let M = this.mapOf(H);
+      const show = () => { const R = data.map(r => this.rowTo(r, M)), bad = R.filter(r => r.err.length).length;
+        P.innerHTML = `<div class="ei-map">${H.map((h, i) => `<label><span>${esc(h || 'Column ' + (i + 1))}</span><select data-ei="${i}"><option value="">— skip —</option>${this.IMPF.map(([k, l]) => `<option value="${k}" ${M[k] === i ? 'selected' : ''}>${l}</option>`).join('')}</select></label>`).join('')}</div>
+          <div class="small" style="margin:8px 0"><b>${R.length}</b> rows · <span class="${bad ? 'bad-t' : ''}">${bad} with a problem</span> (still imported – fix later in the list)</div>
+          <div class="tbl-wrap" style="max-height:300px"><table class="tbl"><thead><tr><th>#</th><th>Type</th><th>No. / Year</th><th>Victim</th><th>Mobile</th><th>Amount</th><th>Received</th><th>Status</th><th>Check</th></tr></thead><tbody>${R.slice(0, 200).map(({ x, err }, i) => `<tr><td>${i + 1}</td><td>${x.type}</td><td>${esc(x.no)}/${x.year}</td><td>${esc(x.victim)}</td><td>${esc(x.mobile)}</td><td>${x.amount ? fmtINR(+x.amount) : ''}</td><td>${esc(this.dmy(x.recv))}</td><td>${x.status}</td><td>${err.length ? `<span class="bad-t">⚠ ${esc(err.join(', '))}</span>` : '✔'}</td></tr>`).join('')}</tbody></table></div>`;
+        $$('[data-ei]', P).forEach(s => s.onchange = () => { const i = +s.dataset.ei; Object.keys(M).forEach(k => { if (M[k] === i) delete M[k]; }); if (s.value) M[s.value] = i; show(); });
+        this._imp = async () => { const L = await this.list(); let a = 0, u = 0, sr = Math.max(0, ...L.map(y => +y.sr || 0));
+          for (const { x } of R) { const o = x.no && L.find(y => y.type === x.type && String(y.no) === x.no && String(y.year) === x.year);
+            if (o) { Object.keys(x).forEach(k => { if (k === 'fir') { o.fir = o.fir || {}; Object.keys(x.fir).forEach(j => { if (x.fir[j]) o.fir[j] = x.fir[j]; }); } else if (x[k]) o[k] = x[k]; }); u++; }
+            else { L.push({ id: uid(), ...x, sr: x.sr || String(++sr), at: new Date().toISOString() }); a++; } }
+          await Off.put('eo'); UI.closeModal(); UI.toast(`📥 ${a} enquiries added · ${u} updated`, 5000); this.page(el); }; };
+      show(); };
+  }
+});
+{ const pg = EO.page.bind(EO); EO.page = async function (el) { const r = await pg(el); const a = $('#eoAdd', el); if (a && !$('#eoImp', el)) { a.insertAdjacentHTML('afterend', '<button class="btn" id="eoImp" title="Your existing enquiry register – Excel / CSV / Word table">📥 Import Enquiries</button>'); $('#eoImp', el).onclick = () => this.importPick(el); } return r; }; }
+
+</script>
+<script>
+/* contacts.js – Office › Contacts: Intermediaries (Banking, Social Media, Fintech / Payment Gateway, Merchant, UPI, Telecom, Others)
+   and UP Cyber Police (the tool's registered users + police contacts you add). One list, kept on this computer. */
+'use strict';
+const Contacts = {
+  CAT: [['bank', '🏦', 'Banking', '#2563eb', 'int'], ['social', '🌐', 'Social Media', '#db2777', 'int'], ['fintech', '💳', 'Fintech / Payment Gateway', '#7c3aed', 'int'], ['merchant', '🛒', 'Merchant / E-Commerce', '#ea580c', 'int'],
+    ['upi', '📲', 'UPI / Wallet', '#16a34a', 'int'], ['telecom', '📡', 'Telecom', '#0891b2', 'int'], ['crypto', '🪙', 'Crypto Exchange', '#ca8a04', 'int'], ['other', '📁', 'Other Intermediary', '#64748b', 'int'],
+    ['police', '👮', 'UP Cyber Police', '#1d4ed8', 'pol'], ['opolice', '🚓', 'Other State Police / Agency', '#475569', 'pol'], ['gov', '🏛️', 'Govt. Office / Court', '#0f766e', 'pol']],
+  GRP: { int: '🏢 Intermediary', pol: '👮 Police / Govt.' },
+  F: [['org', 'Company / Office', 'e.g. Demo Bank Ltd'], ['name', 'Name', 'Nodal / Grievance Officer name'], ['desig', 'Designation', 'Nodal Officer, SHO, Inspector…'], ['mobile', 'Mobile / Phone'], ['email', 'E-mail'], ['portal', 'Portal / Website', 'LE request portal link'], ['address', 'Address'], ['state', 'State'], ['district', 'District'], ['note', 'Note']],
+  c(k) { return this.CAT.find(x => x[0] === k) || this.CAT[7]; },
+  async list() { return Off.get('contacts', []); },
+  /* the tool's registered users = UP Cyber Police (Super Admin link reads them from his own Google Sheet; kept here as a snapshot) */
+  async reg(force) {
+    let snap = await Off.get('contactsReg', { at: '', L: [] });
+    if (Role.admin() && typeof Users !== 'undefined') {
+      let d = Users._data; if ((!d || force)) { try { const lv = await Users.live(); if (lv.url && lv.key) d = Users._data = await Users.admin('list', { log: 1 }); } catch (e) { } }
+      if (d && d.users) { snap = { at: new Date().toISOString(), L: d.users.map(u => ({ id: 'u:' + u.id, cat: 'police', reg: 1, name: u.name || u.id, desig: u.rank || '', org: u.ps || '', mobile: u.mobile || '', status: u.status || '' })) }; Off.D.contactsReg = snap; await Off.put('contactsReg'); }
+    } else { const l = S.settings && S.settings.link; if (l && l.id && !snap.L.some(x => x.id === 'u:' + l.id)) snap = { ...snap, L: [...snap.L, { id: 'u:' + l.id, cat: 'police', reg: 1, name: l.name || l.id, desig: l.rank || '', org: l.ps || '', mobile: l.mobile || '' }] }; }
+    return snap;
+  },
+  st() { return this._s || (this._s = { q: '' }); },
+  async page(el, cur) {
+    const st = this.st(), L = await this.list(), R = await this.reg(), A = [...L, ...R.L.filter(r => !L.some(x => x.regOf === r.id))];
+    const grp = this.CAT.find(x => x[0] === cur) ? null : cur; // 'all' | 'int' | 'pol'
+    let V = cur === 'all' ? A : grp ? A.filter(x => this.c(x.cat)[4] === grp) : A.filter(x => x.cat === cur);
+    const cnt = k => A.filter(x => x.cat === k).length, ttl = cur === 'all' ? '📇 All Contacts' : grp ? this.GRP[grp] : this.c(cur)[1] + ' ' + this.c(cur)[2];
+    el.innerHTML = `<div class="card"><div class="row" style="gap:8px;flex-wrap:wrap;align-items:center"><h3 class="grow" style="margin:0">${ttl} <span class="badge">${fmtNum(V.length)}</span></h3>
+<button class="btn primary" id="ctAdd">➕ Add Contacts</button><button class="btn" id="ctImp" title="Excel / CSV with columns like Category, Company, Name, Designation, Mobile, E-mail">📥 Import Excel</button>
+        ${cur === 'police' && Role.admin() ? '<button class="btn" id="ctReg" title="Read the registered users again from your Google Sheet">🔄 Fetch Registered Users</button>' : ''}</div>
+      <div class="lr-ks" style="margin-top:12px">${this.CAT.map(([k, ic, l, c]) => `<button class="lr-k ${cur === k ? 'on' : ''}" data-ctc="${k}" style="--c:${c}"><span>${ic}</span><b>${fmtNum(cnt(k))}</b><small>${l}</small></button>`).join('')}</div>
+      ${cur === 'police' ? `<div class="small muted" style="margin-top:8px">👥 ${R.L.length} registered user(s) of the tool${R.at ? ' · fetched ' + esc(new Date(R.at).toLocaleString('en-IN')) : ''} · plus the police contacts you add.</div>` : ''}</div>
+      <div class="card"><div id="ctTb"></div></div>`;
+    Table($('#ctTb', el), { rows: V, pageSize: 50, exportName: 'contacts_' + cur, noNd: true, onRow: x => this.edit(x, () => this.page(el, cur)), columns: [
+      { key: 'cat', label: 'Category', csv: x => this.c(x.cat)[2], render: x => { const c = this.c(x.cat); return `<span class="tg-sp" style="--c:${c[3]}">${c[1]} ${esc(c[2])}</span>${x.reg ? ' <span class="small muted" title="Registered user of the tool">👤 user</span>' : ''}`; } },
+      { key: 'org', label: 'Company / Office', render: x => `<b>${esc(x.org || '')}</b>` }, { key: 'name', label: 'Name' }, { key: 'desig', label: 'Designation' },
+      { key: 'mobile', label: 'Mobile', render: x => x.mobile ? `<a href="tel:${esc(x.mobile)}">${esc(x.mobile)}</a>` : '' },
+      { key: 'email', label: 'E-mail', render: x => x.email ? String(x.email).split(/[,;\s]+/).filter(Boolean).map(e => `<a href="mailto:${esc(e)}">${esc(e)}</a>`).join('<br>') : '' },
+      { key: 'portal', label: 'Portal', render: x => x.portal ? `<a href="${esc(/^https?:/i.test(x.portal) ? x.portal : 'https://' + x.portal)}" target="_blank" rel="noopener">open ↗</a>` : '' },
+      { key: 'state', label: 'State / District', csv: x => [x.state, x.district].filter(Boolean).join(', '), render: x => esc([x.district, x.state].filter(Boolean).join(', ')) }, { key: 'note', label: 'Note', render: x => `<span class="small">${esc(x.note || x.status || '')}</span>` }] });
+    $$('[data-ctc]', el).forEach(b => b.onclick = () => go('contacts', b.dataset.ctc));
+    $('#ctAdd', el).onclick = () => this.edit({ cat: this.CAT.some(x => x[0] === cur) ? cur : grp === 'pol' ? 'police' : 'bank' }, () => this.page(el, cur));
+    $('#ctImp', el).onclick = () => this.imp(() => this.page(el, cur));
+    if ($('#ctReg', el)) $('#ctReg', el).onclick = async () => { const r = await this.reg(true); UI.toast(r.L.length + ' registered user(s)'); this.page(el, cur); };
+  },
+  /* ➕ Add / ✏ Edit – choose the category first */
+  edit(x, done) {
+    const isNew = !x.id || x.reg, o = x.reg ? { ...x, id: '', reg: 0, regOf: x.id } : { ...x };
+    const opt = g => this.CAT.filter(c => c[4] === g).map(([k, ic, l]) => `<option value="${k}" ${o.cat === k ? 'selected' : ''}>${ic} ${l}</option>`).join('');
+    const m = UI.modal(x.id && !x.reg ? '✏ Edit Contact' : '➕ Add Contacts', `<div class="map-grid" style="grid-template-columns:1fr 1fr"><label>Category<select id="ctC"><optgroup label="🏢 Intermediary">${opt('int')}</optgroup><optgroup label="👮 Police / Govt.">${opt('pol')}</optgroup></select></label>
+      ${this.F.map(([k, l, ph]) => `<label>${l}<input id="ct_${k}" value="${esc(o[k] || '')}" placeholder="${esc(ph || '')}"></label>`).join('')}</div><div class="err" id="ctErr"></div>`,
+      [...(x.id && !x.reg ? [{ label: '🗑 Delete', cls: 'danger', onClick: async () => { if (!UI.confirm('Delete this contact?')) return; const L = await this.list(), i = L.findIndex(y => y.id === x.id); if (i >= 0) L.splice(i, 1); await Off.put('contacts'); UI.closeModal(); done && done(); } }] : []),
+        { label: 'Cancel', onClick: UI.closeModal }, { label: '💾 Save', cls: 'primary', onClick: async () => {
+          const v = k => $('#ct_' + k, m).value.trim(), y = { cat: $('#ctC', m).value }; this.F.forEach(([k]) => y[k] = v(k));
+          if (!y.org && !y.name) return $('#ctErr', m).textContent = 'Type the Company / Office or the Name';
+          if (y.email && !/^[^@\s]+@[^@\s]+\.[^@\s]+([,;\s]+[^@\s]+@[^@\s]+\.[^@\s]+)*$/.test(y.email)) return $('#ctErr', m).textContent = 'E-mail does not look right';
+          const L = await this.list(); if (x.id && !x.reg) Object.assign(L.find(z => z.id === x.id) || {}, y, { at: new Date().toISOString() }); else L.push({ id: uid(), ...y, regOf: o.regOf || undefined, added: new Date().toISOString() });
+          await Off.put('contacts'); UI.closeModal(); UI.toast('📇 Contact saved'); done && done(); } }]);
+    if (isNew) $('#ct_org', m).focus();
+  },
+  imp(done) {
+    const i = document.createElement('input'); i.type = 'file'; i.accept = '.xlsx,.xls,.csv,.ods';
+    i.onchange = async () => { const f = i.files[0]; if (!f) return; try {
+      const wb = /\.csv$/i.test(f.name) ? XLSX.read(await f.text(), { type: 'string', raw: true }) : XLSX.read(new Uint8Array(await f.arrayBuffer()), { type: 'array' }); const L = await this.list(); let a = 0, u = 0;
+      const RX = { cat: /categ|type|प्रकार/i, org: /company|bank|office|org|platform|intermediar|कंपनी|कार्यालय/i, name: /^name|officer|नाम/i, desig: /desig|post|rank|पद/i, mobile: /mobile|phone|contact|मोबाइल/i, email: /mail/i, portal: /portal|web|url|link/i, address: /addr|पता/i, state: /state|राज्य/i, district: /district|जनपद|जिला/i, note: /note|remark|टिप्पणी/i };
+      for (const sn of wb.SheetNames) { const A = XLSX.utils.sheet_to_json(wb.Sheets[sn], { header: 1, defval: '', raw: false }); const hi = A.findIndex(r => r.filter(c => Object.values(RX).some(re => re.test(String(c)))).length >= 2); if (hi < 0) continue;
+        const M = {}; A[hi].forEach((h, j) => { const k = Object.keys(RX).find(k => !(k in M) && RX[k].test(String(h))); if (k) M[k] = j; });
+        for (const r of A.slice(hi + 1)) { const y = {}; Object.keys(this.F.reduce((o, [k]) => (o[k] = 1, o), {})).forEach(k => y[k] = M[k] != null ? String(r[M[k]] || '').trim() : ''); if (!y.org && !y.name) continue;
+          const ct = String(M.cat != null ? r[M.cat] : '').toLowerCase(), hay = ct + ' ' + y.org.toLowerCase();
+          y.cat = (this.CAT.find(c => ct && c[2].toLowerCase().includes(ct.split(/[\s/]/)[0])) || [])[0] || (/bank/.test(hay) ? 'bank' : /police|thana|cyber cell/.test(hay) ? 'police' : /meta|facebook|instagram|whatsapp|google|youtube|telegram|twitter|x corp|snap|social/.test(hay) ? 'social' : /razorpay|cashfree|payu|gateway|fintech|ccavenue|billdesk/.test(hay) ? 'fintech' : /upi|paytm|phonepe|gpay|wallet|mobikwik/.test(hay) ? 'upi' : /airtel|jio|vodafone|vi |bsnl|telecom/.test(hay) ? 'telecom' : /amazon|flipkart|merchant|myntra|meesho/.test(hay) ? 'merchant' : /crypto|binance|wazirx|coin/.test(hay) ? 'crypto' : 'other');
+          const o = L.find(z => z.org.toLowerCase() === y.org.toLowerCase() && (z.name || '').toLowerCase() === y.name.toLowerCase());
+          if (o) { Object.keys(y).forEach(k => { if (y[k]) o[k] = y[k]; }); u++; } else { L.push({ id: uid(), ...y, added: new Date().toISOString() }); a++; } } }
+      if (!a && !u) return UI.toast('No Company / Name column found in the file'); await Off.put('contacts'); UI.toast(`📇 ${a} added · ${u} updated`, 4000); done && done(); } catch (e) { UI.toast('Could not read: ' + e.message); } };
+    i.click();
+  }
+};
+PAGE_META.contacts = { group: 'Office', title: 'Contacts', desc: 'Intermediaries (bank, social media, fintech / payment gateway, merchant, UPI, telecom) and UP Cyber Police – nodal officers, e-mails, portals and phone numbers in one place.', order: ['all', 'int', 'pol', ...Contacts.CAT.map(x => x[0])], names: Object.fromEntries([['all', '📇 All'], ['int', '🏢 Intermediary'], ['pol', '👮 Police / Govt.'], ...Contacts.CAT.map(x => [x[0], x[1] + ' ' + x[2]])]) };
+Pages.contacts = main => { if (!Role.can('contacts')) { main.innerHTML = '<div class="card" style="margin:20px"><h3>🔒 Contacts</h3><p class="muted">The Super Admin has not given you Contacts. Ask Vijay Tomar if you need it.</p></div>'; return; }
+  const sb = S.sub.contacts || 'all', c = Contacts.CAT.find(x => x[0] === sb), { cur, body } = tabs(main, 'contacts', [['all', '📇 All'], ['int', '🏢 Intermediary'], ['pol', '👮 Police / Govt.']], 'Contacts');
+  if (c) { $$('.tab', main).forEach(t => t.classList.toggle('active', t.dataset.t === c[4])); } Contacts.page(body, c ? sb : cur); };
+/* sidebar: 📇 Contacts drop-down right after Office Work, then ➕ Add Contacts */
+(() => {
+  const nav = $('#sidebar'), ox = nav && $('.offx-subs', nav); if (!ox) return;
+  const SUB = [['all', '📇 All Contacts', '#6366f1'], ['bank', 'Intermediary – Banking', '#2563eb'], ['social', 'Intermediary – Social Media', '#db2777'], ['fintech', 'Intermediary – Fintech / Payment Gateway', '#7c3aed'], ['merchant', 'Intermediary – Merchant', '#ea580c'], ['upi', 'Intermediary – UPI / Wallet', '#16a34a'], ['telecom', 'Intermediary – Telecom', '#0891b2'], ['other', 'Intermediary – Others', '#64748b'], ['police', 'UP Cyber Police', '#1d4ed8']];
+  ox.insertAdjacentHTML('afterend', `<div class="nav-item ct-item" title="Contacts: intermediaries (bank, social media, fintech, merchant, UPI…) and UP Cyber Police" style="--c:#6366f1"><span class="nib">📇</span><span>Contacts</span><span class="nav-chev">▾</span></div><div class="nav-subs ct-subs">${SUB.map(([s, l, c], i) => `<div class="nav-sub" data-ctn="${s}" style="--pc:${c}"><i></i><span>${i + 1}. ${l}</span></div>`).join('')}</div>
+    <div class="nav-item ct-add" title="Add a contact – choose Intermediary / Police category" style="--c:#16a34a"><span class="nib">➕</span><span>Add Contacts</span></div>`);
+  const it = $('.ct-item', nav), subs = $('.ct-subs', nav), setOpen = on => { S.ctOpen = on; subs.classList.toggle('open', on); it.classList.toggle('open', on); };
+  setOpen(false); it.addEventListener('click', e => { e.stopImmediatePropagation(); setOpen(!S.ctOpen); }, true);
+  $$('[data-ctn]', subs).forEach(n => n.onclick = () => go('contacts', n.dataset.ctn));
+  $('.ct-add', nav).addEventListener('click', e => { e.stopImmediatePropagation(); if (!Role.can('contacts')) return Role.deny('add Contacts'); Contacts.edit({ cat: S.page === 'contacts' && Contacts.CAT.some(x => x[0] === S.sub.contacts) ? S.sub.contacts : 'bank' }, () => { if (S.page === 'contacts') render(); else go('contacts', 'all'); }); }, true);
+  const or = render; render = function () { const r = or.apply(this, arguments);
+    $$('[data-ctn]', subs).forEach(n => n.classList.toggle('active', S.page === 'contacts' && (S.sub.contacts || 'all') === n.dataset.ctn));
+    const on = S.page === 'contacts'; it.classList.toggle('active', on); if (on && !S.ctOpen) setOpen(true); return r; };
+})();
+
+</script>
+<script>
 /* icons.js – colour icons for the whole tool, embedded so it works offline.
    Colour icons: Microsoft Fluent Emoji (flat), MIT licence, (c) Microsoft Corporation – https://github.com/microsoft/fluentui-emoji
    Brand logos: Simple Icons, CC0 – https://simpleicons.org (logos are trademarks of their owners, shown only to name the platform).
@@ -18174,7 +18526,8 @@ const Role = {
     ['office', '🏢 Office Work', 'Good Work, Press Note, Duty Chart', 1],
     ['upload', '⬆ Office Upload +', 'Keep office files in Upload +', 0],
     ['lists', '✏ Edit / Reorder Lists', 'Change drop-down lists and menus', 0],
-    ['delcase', '🗑 Delete Case Data', 'Remove own cases from own computer', 1]],
+    ['delcase', '🗑 Delete Case Data', 'Remove own cases from own computer', 1],
+    ['contacts', '📇 Contacts', 'See and add Contacts – Intermediary, UP Cyber Police', 1]],
   user() { return SUD_ED === 'user'; },
   admin() { if (SUD_ED === 'user') return false; if (this._a === null) { const k = localStorage.getItem(this.K) || ''; this._a = !!k && sha256('SA|' + k) === this.H; } return this._a; },
   take(txt) { const m = String(txt || '').match(/\b[0-9a-f]{64}\b/i); const k = m ? m[0].toLowerCase() : ''; if (!k || sha256('SA|' + k) !== this.H) return false; localStorage.setItem(this.K, k); this._a = true; this.apply(); return true; },
@@ -18217,7 +18570,7 @@ const Role = {
   for (const [f, w, sa] of [['formMake', 'make data forms'], ['formImport', 'import form files'], ['liveOpen', 'use the Live Data Form', 1], ['cdImport', 'import files']]) {
     const o = Off[f]; if (o) Off[f] = function (...a) { return (sa ? Role.admin() : Role.can('crimeEdit')) ? o.apply(this, a) : Role.deny(w); };
   }
-  const TABR = { crime: 'crime', eo: 'office', good: 'office', press: 'office', duty: 'office', files: 'upload' };
+  const TABR = { crime: 'crime', daily: 'crime', eo: 'office', good: 'office', press: 'office', duty: 'office', files: 'upload' };
   const ofp = Off.filesPage; if (ofp) Off.filesPage = function (...a) { return Role.can('upload') ? ofp.apply(this, a) : Role.deny('use Office Upload +'); };
   const po = Pages.offx;
   Pages.offx = main => {
@@ -18571,6 +18924,7 @@ const Plans = {
     if (sub('crime')) { R.add('crime'); if (H.has(this.CDF)) R.add('crimeEdit'); }
     if (['good', 'press', 'duty'].some(sub)) R.add('office');
     if (sub('files')) R.add('upload');
+    R.delete('contacts'); if (!H.has('S:ct-item') && !H.has('S:ct-add')) R.add('contacts');
     return [...R];
   },
   hideNav(hide) {
@@ -18580,7 +18934,7 @@ const Plans = {
     $$('#sidebar > .nav-group').forEach(g => { let n = g.nextElementSibling, any = false; while (n && !n.classList.contains('nav-group')) { if (n.classList.contains('nav-item') && !n.classList.contains('pl-hide') && getComputedStyle(n).display !== 'none') any = true; n = n.nextElementSibling; } g.classList.toggle('pl-hide', !any); });
   },
   plan() { const L = SUD_ED === 'user' && typeof Users !== 'undefined' ? Users.link() : null; return L && L.plan ? L.plan : null; },
-  SEC: { arrest: 'arrest-item', cctns: 'io-item', others: 'io-item', formats: 'io-item', eo: 'eo-item', jmis: 'eo-item' },
+  SEC: { contacts: 'ct-item', arrest: 'arrest-item', cctns: 'io-item', others: 'io-item', formats: 'io-item', eo: 'eo-item', jmis: 'eo-item' },
   blocked(page) { const p = this.plan(), H = p && p.hide || []; return !!(p && page && (H.includes('S:' + page) || (this.SEC[page] && (H.includes('S:' + this.SEC[page]) || (this.SEC[page] === 'eo-item' && H.includes('eo-item|eo:' + page)))))); },
   apply() {
     if (SUD_ED !== 'user') return; const p = this.plan();
@@ -18721,7 +19075,7 @@ const Plans = {
     const hook = () => { const s = $('#sidebar'); if (s) obs.observe(s, { childList: true, subtree: true }); }; if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', hook); else hook();
     const rr = Role.rights; Role.rights = function () { const r = rr.apply(this, arguments), p = Plans.plan(); return p ? Plans.rightsOf(r.join(','), p) : r; };
     const po = Pages.offx; Pages.offx = function (main) { const p = Plans.plan(), H = new Set(p && p.hide || []), hid = t => H.has('offx-item|ox:offx|' + t);
-      const ok = ['crime', 'good', 'press', 'duty', 'files'].filter(t => !hid(t)); if (p && ok.length && hid(S.sub.offx || 'crime')) S.sub.offx = ok[0];
+      const ok = ['crime', 'daily', 'good', 'press', 'duty', 'files'].filter(t => !hid(t)); if (p && ok.length && hid(S.sub.offx || 'crime')) S.sub.offx = ok[0];
       const r = po.apply(this, arguments); if (p) $$('.tab[data-t]', main).forEach(x => { if (hid(x.dataset.t)) x.remove(); }); return r; };
     const ra = Role.apply; Role.apply = function () { const r = ra.apply(this, arguments); setTimeout(() => Plans.apply(), 0); return r; };
     const acc = Users.account; Users.account = function () { const r = acc.apply(this, arguments); const p = Plans.plan(), b = $('#mdBody');

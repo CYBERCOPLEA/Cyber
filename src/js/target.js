@@ -101,7 +101,7 @@ const Target = {
       <div id="tgT" style="margin-top:10px"></div></div>`;
     Table($('#tgT', el), { rows: F, pageSize: 25, exportName: 'targets', onRow: t => this.open(t, J, () => this.draw(el, T, J)), columns: [
       { key: 'jm', label: 'JMIS Notice', sortVal: t => this.sOf(J, t), csv: t => this.JS[this.sOf(J, t)][1] + (J[t.acc] && J[t.acc].date ? ' · ' + J[t.acc].date : ''), render: t => { const s = this.JS[this.sOf(J, t)]; return `<span class="eo-st" style="--c:${s[2]}">${s[0]} ${s[1]}</span>${J[t.acc] && J[t.acc].date ? `<div class="small muted">${esc(EO.dmy(J[t.acc].date))}</div>` : ''}`; } },
-      { key: 'acc', label: 'Target', sortVal: t => t.type + t.acc, csv: t => this.TY[t.type][1] + ': ' + t.acc, render: t => `<span class="tg-ty" title="${this.TY[t.type][1]}">${this.TY[t.type][0]}</span> <b class="mono">${esc(t.acc)}</b>${common(t) ? ' <span class="tg-c" title="Common target">🔗</span>' : ''}${t.person ? `<div class="small">👤 ${esc(t.person)}</div>` : ''}${t.arrest ? `<div class="small">⛓ ${esc(t.arrest)}</div>` : ''}<div class="small muted">${esc(t.layers.join(' '))}</div>` },
+      { key: 'acc', label: 'Target', sortVal: t => t.type + t.acc, csv: t => this.TY[t.type][1] + ': ' + t.acc, render: t => `<span class="tg-ty" data-tk="${esc(t.key)}">${this.TY[t.type][0]}</span> <b class="mono">${esc(t.acc)}</b>${common(t) ? ' <span class="tg-c" title="Common target">🔗</span>' : ''}${t.person ? `<div class="small">👤 ${esc(t.person)}</div>` : ''}${t.arrest ? `<div class="small">⛓ ${esc(t.arrest)}</div>` : ''}<div class="small muted">${esc(t.layers.join(' '))}</div>` },
       { key: 'src', label: 'Found In', sortVal: t => t.src.length, csv: t => t.src.join('; '), render: t => t.src.map(s => { const c = (this.SRC.find(x => x[0] === s) || [, '#64748b'])[1]; return `<span class="tg-sp" style="--c:${c}">${esc(s)}</span>`; }).join(' ') },
       { key: 'ifsc', label: 'IFSC', csv: t => t.ifsc.join('; '), render: t => `<span class="mono small">${j(t.ifsc, 1)}</span>` },
       { key: 'bank', label: 'Bank', csv: t => t.banks.join('; '), render: t => j(t.banks, 1) },
@@ -120,6 +120,11 @@ const Target = {
       { key: 'cases', label: 'Cases / Complaints / References', sortVal: t => t.score, csv: t => t.cases.map(c => c.name).join('; ') + ' | ' + t.acks.join('; ') + ' | ' + t.refs.join('; '), render: t => `<b class="${t.cases.length > 1 ? 'bad-t' : ''}">${t.cases.length}</b> case${t.cases.length === 1 ? '' : 's'} · <b>${t.acks.length}</b> compl.${t.refs.length ? ` · <b>${t.refs.length}</b> ref.` : ''}${t.links.length ? `<div class="small">🔗 ${t.links.length} linked target${t.links.length > 1 ? 's' : ''}</div>` : ''}` },
       { key: 'amt', label: 'Amount', num: true, render: t => t.amt ? fmtINR(t.amt) : '' }] });
     const re = () => this.draw(el, T, J);
+    /* live pop-up: point at any cell of a target row */
+    const KM = new Map(F.map(t => [t.key, t])), tb = $('#tgT', el); let hv = null;
+    tb.onmouseover = e => { const td = e.target.closest('td'), tr = td && td.closest('tbody tr'); if (!tr) return; const k = tr.querySelector('[data-tk]'), t = k && KM.get(k.dataset.tk); if (!t) return;
+      const th = tr.closest('table').querySelectorAll('thead th')[td.cellIndex], col = th ? th.textContent.trim().replace(/[▲▼]/g, '').trim() : ''; const id = t.key + '|' + col; if (hv === id) return; hv = id; this.card(td, t, J, col); };
+    tb.onmouseleave = () => { hv = null; this.card(null); };
     $$('[data-tgf]', el).forEach(b => { b.onclick = () => { st.f = b.dataset.tgf; st.c = false; re(); }; b.onmouseenter = () => this.tip(b, T.filter(t => !b.dataset.tgf || this.sOf(J, t) === b.dataset.tgf)); b.onmouseleave = () => this.tip(null); });
     $$('[data-tgc]', el).forEach(b => { b.onclick = () => { st.c = !st.c; st.f = ''; re(); }; b.onmouseenter = () => this.tip(b, T.filter(common)); b.onmouseleave = () => this.tip(null); });
     $$('[data-tgs]', el).forEach(b => { b.onclick = () => { st.src = st.src === b.dataset.tgs ? '' : b.dataset.tgs; re(); }; b.onmouseenter = () => this.tip(b, T.filter(t => t.src.includes(b.dataset.tgs))); b.onmouseleave = () => this.tip(null); });
@@ -127,6 +132,23 @@ const Target = {
     const qi = $('#tgQ', el); qi.onchange = () => { st.q = qi.value; re(); };
     $('#tgRe', el).onclick = async () => { $('#tgRe', el).disabled = true; const T2 = await this.collect(true); this.draw(el, T2, J); };
     $('#tgImp', el).onclick = () => this.imp(J, re);
+  },
+  /* the live pop-up card for one target; col = the column pointed at */
+  card(td, t, J, col) {
+    let c = $('#tgCard'); if (!td) { if (c) c.remove(); return; }
+    if (!c) { c = document.createElement('div'); c.id = 'tgCard'; c.className = 'tg-card'; document.body.appendChild(c); }
+    const s = this.JS[this.sOf(J || {}, t)], li = (a, n = 12) => a.length ? `<ol>${a.slice(0, n).map(x => `<li>${esc(x)}</li>`).join('')}</ol>${a.length > n ? `<div class="small muted">+ ${a.length - n} more – click the row for all</div>` : ''}` : '<div class="small muted">—</div>';
+    const kv = (k, a) => a && a.length ? `<tr><th>${k}</th><td>${esc(a.slice(0, 6).join(', '))}${a.length > 6 ? ` <i>+${a.length - 6}</i>` : ''}</td></tr>` : '';
+    const hd = `<div class="tg-ch"><span>${this.TY[t.type][0]}</span><b class="mono">${esc(t.acc)}</b>${this.common(t) ? '<span class="tg-cm">🔗 Common</span>' : ''}<span class="eo-st" style="--c:${s[2]}">${s[0]} ${s[1]}</span></div>`;
+    let body;
+    if (/^state$/i.test(col)) body = `<h4>🗺 States (${t.state.length})</h4>${li(t.state, 20)}`;
+    else if (/^district$/i.test(col)) body = `<h4>📍 Districts (${t.district.length})</h4>${li(t.district, 20)}`;
+    else if (/found in/i.test(col)) body = `<h4>📂 Found In (${t.src.length})</h4><div>${t.src.map(x => { const cc = (this.SRC.find(y => y[0] === x) || [, '#64748b'])[1]; return `<span class="tg-sp" style="--c:${cc}">${esc(x)}</span>`; }).join(' ')}</div><h4>📁 Cases (${t.cases.length})</h4>${li(t.cases.map(x => x.name), 8)}<h4>🔖 References – EO / JMIS / FIR (${t.refs.length})</h4>${li(t.refs, 10)}${t.acks.length ? `<h4>🧾 Complaints (${t.acks.length})</h4>${li(t.acks, 8)}` : ''}`;
+    else body = `<table class="tg-kv">${kv('Holder / Name', t.names)}${kv('Bank', t.banks)}${kv('IFSC', t.ifsc)}${kv('Mobile', t.mobile)}${kv('E-mail', t.email)}${kv('UPI', t.upi)}${kv('PAN', t.pan)}${kv('Aadhaar', t.aadhaar)}${kv('IMEI', t.imei)}${kv('Other', t.other)}${kv('State', t.state)}${kv('District', t.district)}${kv('Found In', t.src)}${kv('Cases', t.cases.map(x => x.name))}${kv('References', t.refs)}${kv('Complaints', t.acks)}${kv('Linked Targets', t.links)}${t.amt ? `<tr><th>Amount</th><td>${esc(fmtINR(t.amt))}</td></tr>` : ''}${t.utr.length ? `<tr><th>UTR Trail</th><td>${t.utr.length} transfer${t.utr.length > 1 ? 's' : ''}</td></tr>` : ''}</table>`;
+    c.innerHTML = hd + body + '<div class="small muted" style="margin-top:6px">Click the row for the complete view, JMIS status and 🔎 Track Everywhere</div>';
+    const r = td.getBoundingClientRect(), w = Math.min(520, innerWidth - 16); c.style.width = w + 'px';
+    c.style.left = Math.max(8, Math.min(innerWidth - w - 8, r.left)) + 'px'; const below = r.bottom + 6, h = c.offsetHeight;
+    c.style.top = (below + h > innerHeight - 8 && r.top - h - 6 > 8 ? r.top - h - 6 : Math.min(below, Math.max(8, innerHeight - h - 8))) + 'px';
   },
   tip(el, list) {
     let t = $('#agTip'); if (!el) { if (t) t.remove(); return; }
@@ -154,6 +176,7 @@ const Target = {
   }
 };
 Pages.target = main => Target.page(main);
+addEventListener('scroll', () => Target.card(null), true);
 
 /* Analytics drop-down: Trending Crime above CDR Analysis, Target after SMS Analysis */
 (() => {

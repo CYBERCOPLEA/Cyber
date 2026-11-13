@@ -509,14 +509,14 @@ $('#nb').onclick=()=>{if(!confirm('Start a new empty batch? The submitted batch 
   }
 };
 
-PAGE_META.offx = { group: 'Office', title: 'Office Work', desc: 'Crime data of all cases, good work, press notes, duty chart and office files – the same in every case, kept on this computer.', order: ['crime', 'good', 'press', 'duty', 'files'], names: { good: '🏅 Good Work', press: '📰 Press Note', crime: '🗃 Crime Data', duty: '📅 Duty Chart', files: '⬆ Upload +' } };
-Pages.offx = main => { const { cur, body } = tabs(main, 'offx', [['crime', '🗃 Crime Data'], ['good', '🏅 Good Work'], ['press', '📰 Press Note'], ['duty', '📅 Duty Chart'], ['files', '⬆ Upload +']], 'Office Work');
-  ({ good: () => Off.good(body), press: () => Off.press(body), crime: () => Off.crime(body), duty: () => Off.duty(body), files: () => Off.filesPage(body) }[cur] || (() => Off.good(body)))(); };
+PAGE_META.offx = { group: 'Office', title: 'Office Work', desc: 'Crime data of all cases, good work, press notes, duty chart and office files – the same in every case, kept on this computer.', order: ['crime', 'daily', 'good', 'press', 'duty', 'files'], names: { good: '🏅 Good Work', press: '📰 Press Note', crime: '🗃 Master Crime Data', daily: '📅 Daily Crime', duty: '📅 Duty Chart', files: '⬆ Upload +' } };
+Pages.offx = main => { const { cur, body } = tabs(main, 'offx', [['crime', '🗃 Master Crime Data'], ['daily', '📅 Daily Crime'], ['good', '🏅 Good Work'], ['press', '📰 Press Note'], ['duty', '📅 Duty Chart'], ['files', '⬆ Upload +']], 'Office Work');
+  ({ good: () => Off.good(body), press: () => Off.press(body), crime: () => Off.crime(body), daily: () => Daily.page(body), duty: () => Off.duty(body), files: () => Off.filesPage(body) }[cur] || (() => Off.good(body)))(); };
 
 /* sidebar: OFFICE drop-down (Search in Local Drive moves inside it) */
 (() => {
   const nav = $('#sidebar'), ls = nav && $('.nav-item[data-page="lsearch"]', nav); if (!ls) return;
-  const SUB = [['lsearch', '', 'Search in Local Drive', '#6366f1'], ['offx', 'crime', 'Crime Data', '#ef4444'], ['offx', 'good', 'Good Work', '#eab308'], ['offx', 'press', 'Press Note', '#ec4899'], ['offx', 'duty', 'Duty Chart', '#22c55e'], ['offx', 'files', 'Upload +', '#06b6d4']];
+  const SUB = [['lsearch', '', 'Search in Local Drive', '#6366f1'], ['offx', 'crime', 'Master Crime Data', '#ef4444'], ['offx', 'daily', 'Daily Crime', '#f43f5e'], ['offx', 'good', 'Good Work', '#eab308'], ['offx', 'press', 'Press Note', '#ec4899'], ['offx', 'duty', 'Duty Chart', '#22c55e'], ['offx', 'files', 'Upload +', '#06b6d4']];
   ls.insertAdjacentHTML('beforebegin', `<div class="nav-item offx-item" title="Office work: local search, good work, press note, crime data, duty chart, files" style="--c:#14b8a6"><span class="nib">🏢</span><span>Office Work</span><span class="nav-chev">▾</span></div><div class="nav-subs offx-subs">${SUB.map(([p, s, l, c], i) => `<div class="nav-sub" data-ox="${p}|${s}" style="--pc:${c}"><i></i><span>${i + 1}. ${l}</span></div>`).join('')}</div>`);
   ls.style.display = 'none';
   const it = $('.offx-item', nav), subs = $('.offx-subs', nav), setOpen = on => { S.oxOpen = on; subs.classList.toggle('open', on); it.classList.toggle('open', on); };

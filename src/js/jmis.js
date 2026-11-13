@@ -18,6 +18,7 @@ const JMIS = {
   stOf(r) { return (r.dir === 'raised' ? r.tState : r.fState) || '—'; },
   dsOf(r) { return (r.dir === 'raised' ? r.tDist : r.fDist) || '—'; },
   SL: { p10: 'Pending up to 10 days', p10x: 'Pending more than 10 days' },
+  cd() { const v = parseInt(localStorage.getItem('sud-jmcd'), 10); return isNaN(v) ? '' : v; }, // your own delay days
   list() { return Off.get('jmis', []); },
   /* ---------- dates ---------- */
   dt(x) { if (!x) return ''; const d = new Date(x); if (isNaN(d)) return String(x); const p = n => String(n).padStart(2, '0'); let h = d.getHours(); const ap = h >= 12 ? 'PM' : 'AM'; h = h % 12 || 12; return `${p(d.getDate())}-${p(d.getMonth() + 1)}-${d.getFullYear()} ${p(h)}:${p(d.getMinutes())} ${ap}`; },
@@ -45,7 +46,7 @@ const JMIS = {
   caseOf(r) { const k = this.firKey(r.fir); if (!k || typeof S === 'undefined' || !S.cases) return null; return S.cases.find(c => this.firKey((c.fir || '') + (/\/\d{4}/.test(c.fir || '') ? '' : '/' + (c.year || ''))) === k) || null; },
   inRange(r, st) { const d = (r.reqAt || '').slice(0, 10); return (!st.from || d >= st.from) && (!st.to || d <= st.to); },
   base(L, st) { const q = (st.q || '').toLowerCase(); return L.filter(r => this.inRange(r, st) && (!st.state || this.stOf(r) === st.state) && (!st.dist || this.dsOf(r) === st.dist) && (!q || [r.reqId, r.type, r.fir, r.status, r.fState, r.fDist, r.fPS, r.tState, r.tDist, r.tPS, r.sp, r.spMail, r.brief, r.det, r.resp].join(' ').toLowerCase().includes(q))); },
-  pick(B, dir, s) { return B.filter(r => (!dir || r.dir === dir) && (!s || (s === 'old' ? this.old(r) : s === 'p10' ? r.status === 'Pending' && this.pdays(r) <= this.PD : s === 'p10x' ? r.status === 'Pending' && this.pdays(r) > this.PD : r.status === s))); },
+  pick(B, dir, s) { return B.filter(r => (!dir || r.dir === dir) && (!s || (s === 'old' ? this.old(r) : s === 'p10' ? r.status === 'Pending' && this.pdays(r) <= this.PD : s === 'p10x' ? r.status === 'Pending' && this.pdays(r) > this.PD : s === 'pcd' ? r.status === 'Pending' && this.pdays(r) > this.cd() : r.status === s))); },
 
   /* ---------- page ---------- */
   async page(el) {
@@ -55,7 +56,8 @@ const JMIS = {
       return `<div class="jm-card" style="--c:${c}"><div class="jm-ch"><span class="jm-ic">${ic}</span><div><h3>${t}</h3><div class="small">${sub}</div></div></div>
         <div class="jm-bs">${bub(dir, '', 'Total Request', '#6366f1')}${bub(dir, 'Completed', 'Completed Request', '#16a34a')}${bub(dir, 'Under Processing', 'Under Processing Request', '#2563eb')}${bub(dir, 'Pending', 'Pending Request', '#f97316')}${bub(dir, 'old', `Open ${this.OLD}+ Days`, '#dc2626')}</div>
         ${(() => { const PP = this.pick(B, dir, 'Pending'); if (!PP.length) return ''; const g = this.pick(B, dir, 'p10').length, rr = this.pick(B, dir, 'p10x').length, mx = Math.max(...PP.map(r => this.pdays(r) || 0));
-          return `<div class="jm-pd"><span>⏳ Pending Days</span><button class="jm-pc g ${st.dir === dir && st.s === 'p10' ? 'on' : ''}" data-jd="${dir}" data-js="p10" data-tt="${this.SL.p10}"><b>${fmtNum(g)}</b> up to ${this.PD} days</button><button class="jm-pc r ${st.dir === dir && st.s === 'p10x' ? 'on' : ''}" data-jd="${dir}" data-js="p10x" data-tt="${this.SL.p10x}"><b>${fmtNum(rr)}</b> more than ${this.PD} days</button><span class="small">Oldest: <b class="${mx > this.PD ? 'jm-red' : 'jm-grn'}">${mx} days</b></span></div>`; })()}
+          const cd = this.cd(), cn = cd === '' ? 0 : this.pick(B, dir, 'pcd').length; this.SL.pcd = 'Pending more than ' + cd + ' days';
+          return `<div class="jm-pd"><span>⏳ Pending Days</span><label class="jm-cdl" title="Type any number of days – see how many requests are pending longer than that"><span>Check Delay</span><input type="number" min="0" max="3650" class="jm-cd" value="${cd}" placeholder="Days" data-nov><span>Days</span></label>${cd === '' ? '' : `<button class="jm-pc c ${st.dir === dir && st.s === 'pcd' ? 'on' : ''}" data-jd="${dir}" data-js="pcd" data-tt="${this.SL.pcd}"><b>${fmtNum(cn)}</b> more than ${cd} days</button>`}<button class="jm-pc g ${st.dir === dir && st.s === 'p10' ? 'on' : ''}" data-jd="${dir}" data-js="p10" data-tt="${this.SL.p10}"><b>${fmtNum(g)}</b> up to ${this.PD} days</button><button class="jm-pc r ${st.dir === dir && st.s === 'p10x' ? 'on' : ''}" data-jd="${dir}" data-js="p10x" data-tt="${this.SL.p10x}"><b>${fmtNum(rr)}</b> more than ${this.PD} days</button><span class="small">Oldest: <b class="${mx > this.PD ? 'jm-red' : 'jm-grn'}">${mx} days</b></span></div>`; })()}
         <div class="jm-cf small">${P.length ? `Done: <b>${P.length ? Math.round(P.filter(r => r.status === 'Completed').length / P.length * 100) : 0}%</b>${avg.length ? ` · Average time to complete: <b>${this.dur(avg.reduce((a, b) => a + b, 0) / avg.length)}</b>` : ''}` : 'No request yet'}</div></div>`; };
     const SD = this.pick(B, st.sd, ''), sdOK = SD.length || !B.length ? st.sd : (st.sd = st.sd === 'raised' ? 'received' : 'raised'), SDR = this.pick(B, sdOK, '');
     const rows = this.pick(B, st.dir, st.s).sort((a, b) => String(b.reqAt).localeCompare(String(a.reqAt)));
@@ -81,6 +83,8 @@ const JMIS = {
       { key: 'resp', label: 'Completed By / Response', csv: r => [r.compBy, r.compMob, r.resp].filter(Boolean).join(' | '), render: r => `${r.compBy ? `<b>${esc(r.compBy)}</b>${r.compMob ? `<div class="small">📞 ${esc(r.compMob)}</div>` : ''}` : ''}${r.endorse ? `<div class="small muted">SP/DCP Endorsed: ${esc(r.endorse)}</div>` : ''}<div class="jm-tx">${esc(r.resp || '')}</div>` },
       { key: 'act', label: 'Status', nosort: true, noexport: true, render: r => `<select class="jm-sel" data-jid="${esc(r.id)}" data-nov>${Object.keys(this.ST).map(k => `<option ${k === r.status ? 'selected' : ''}>${k}</option>`).join('')}</select>` }] });
     /* hover: live preview of the requests behind a bubble */
+    $$('.jm-cd', el).forEach(i => { i.onclick = e => e.stopPropagation(); i.onchange = () => { const v = i.value.trim(); if (v === '' || isNaN(+v)) localStorage.removeItem('sud-jmcd'); else localStorage.setItem('sud-jmcd', String(Math.max(0, Math.round(+v)))); if (st.s === 'pcd') st.s = v === '' ? '' : 'pcd'; this.page(el); };
+      i.onkeydown = e => { if (e.key === 'Enter') i.blur(); }; });
     $$('.jm-b, .jm-pc', el).forEach(b => { b.onmouseenter = e => this.tip(b, this.pick(B, b.dataset.jd, b.dataset.js)); b.onmouseleave = () => this.tip(null);
       b.onclick = () => { const same = st.dir === b.dataset.jd && st.s === b.dataset.js; Object.assign(st, same ? { dir: '', s: '' } : { dir: b.dataset.jd, s: b.dataset.js }); this.tip(null); this.page(el).then(() => { const x = $('#jmList', el); x && x.scrollIntoView({ behavior: 'smooth', block: 'start' }); }); }; });
     const toList = () => { const x = $('#jmList', el); x && x.scrollIntoView({ behavior: 'smooth', block: 'start' }); };

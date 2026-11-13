@@ -13,7 +13,8 @@ const Role = {
     ['office', '🏢 Office Work', 'Good Work, Press Note, Duty Chart', 1],
     ['upload', '⬆ Office Upload +', 'Keep office files in Upload +', 0],
     ['lists', '✏ Edit / Reorder Lists', 'Change drop-down lists and menus', 0],
-    ['delcase', '🗑 Delete Case Data', 'Remove own cases from own computer', 1]],
+    ['delcase', '🗑 Delete Case Data', 'Remove own cases from own computer', 1],
+    ['contacts', '📇 Contacts', 'See and add Contacts – Intermediary, UP Cyber Police', 1]],
   user() { return SUD_ED === 'user'; },
   admin() { if (SUD_ED === 'user') return false; if (this._a === null) { const k = localStorage.getItem(this.K) || ''; this._a = !!k && sha256('SA|' + k) === this.H; } return this._a; },
   take(txt) { const m = String(txt || '').match(/\b[0-9a-f]{64}\b/i); const k = m ? m[0].toLowerCase() : ''; if (!k || sha256('SA|' + k) !== this.H) return false; localStorage.setItem(this.K, k); this._a = true; this.apply(); return true; },
@@ -56,7 +57,7 @@ const Role = {
   for (const [f, w, sa] of [['formMake', 'make data forms'], ['formImport', 'import form files'], ['liveOpen', 'use the Live Data Form', 1], ['cdImport', 'import files']]) {
     const o = Off[f]; if (o) Off[f] = function (...a) { return (sa ? Role.admin() : Role.can('crimeEdit')) ? o.apply(this, a) : Role.deny(w); };
   }
-  const TABR = { crime: 'crime', eo: 'office', good: 'office', press: 'office', duty: 'office', files: 'upload' };
+  const TABR = { crime: 'crime', daily: 'crime', eo: 'office', good: 'office', press: 'office', duty: 'office', files: 'upload' };
   const ofp = Off.filesPage; if (ofp) Off.filesPage = function (...a) { return Role.can('upload') ? ofp.apply(this, a) : Role.deny('use Office Upload +'); };
   const po = Pages.offx;
   Pages.offx = main => {
