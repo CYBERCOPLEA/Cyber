@@ -147,31 +147,7 @@ const EO = {
       else if (k === 'img') { btn.disabled = true; try { await this.png(b, fn() + '.png'); } catch (e) { UI.toast('Could not make the image: ' + e.message); } btn.disabled = false; }
       UI.toast('Report ready'); });
   },
-  /* formatting bar for an editable report (also usable by other report windows) */
-  editBar(tb, root, changed, reset) {
-    const B = [['bold', '<b>B</b>', 'Bold'], ['italic', '<i>I</i>', 'Italic'], ['underline', '<u>U</u>', 'Underline'], ['strikeThrough', '<s>S</s>', 'Strike Through'], ['|'],
-      ['dline', '<span style="border-bottom:3px double currentColor">U̳</span>', 'Double Underline'], ['hr', '―', 'Insert Line'], ['box', '▭', 'Put In A Box (Border)'], ['shade', '▦', 'Shaded Box'], ['|'],
-      ['justifyLeft', '⯇', 'Align Left'], ['justifyCenter', '≡', 'Align Center'], ['justifyRight', '⯈', 'Align Right'], ['justifyFull', '☰', 'Justify'], ['|'],
-      ['insertUnorderedList', '• List', 'Bullets'], ['insertOrderedList', '1. List', 'Numbering'], ['indent', '→', 'Indent'], ['outdent', '←', 'Outdent'], ['|'],
-      ['h', 'H', 'Heading'], ['bigger', 'A+', 'Bigger Text'], ['smaller', 'A−', 'Smaller Text'], ['removeFormat', '⌫', 'Clear Formatting'], ['undo', '↶', 'Undo'], ['redo', '↷', 'Redo']];
-    tb.innerHTML = B.map(([k, l, t]) => k === '|' ? '<span class="er-sep"></span>' : `<button type="button" class="btn sm" data-ex="${k}" title="${t}" data-nov>${l}</button>`).join('') +
-      '<label class="er-col" title="Text Colour">A <input type="color" data-col="foreColor" value="#c00000"></label><label class="er-col" title="Highlight">🖍 <input type="color" data-col="hiliteColor" value="#ffff00"></label>' +
-      '<button type="button" class="btn sm" data-ex="reset" title="Throw away edits and make the report again" data-nov>↺ Fresh Report</button><span class="small muted" style="margin-left:6px">Click anywhere in the report and type. Header, title, table and signature can all be changed.</span>';
-    const sel = () => { const s = getSelection(); return s.rangeCount && root() && root().contains(s.anchorNode) ? s : null; };
-    const wrap = css => { const s = sel(); if (!s) return UI.toast('Select some text in the report first'); const r = s.getRangeAt(0), d = document.createElement(css.startsWith('div') ? 'div' : 'span'); d.setAttribute('style', css.replace(/^(div|span)\|/, '')); d.appendChild(r.extractContents()); if (!d.textContent.trim()) d.textContent = 'Text'; r.insertNode(d); s.removeAllRanges(); changed(); };
-    tb.addEventListener('mousedown', e => { if (e.target.closest('[data-ex]')) e.preventDefault(); });
-    $$('[data-ex]', tb).forEach(b => b.onclick = () => { const k = b.dataset.ex;
-      if (k === 'reset') return reset();
-      if (k === 'hr') document.execCommand('insertHTML', false, '<hr style="border:0;border-top:1.5px solid #000;margin:8px 0">');
-      else if (k === 'dline') wrap('span|border-bottom:3px double #000');
-      else if (k === 'box') wrap('div|border:1.5px solid #000;padding:6px 8px;margin:6px 0');
-      else if (k === 'shade') wrap('div|border:1px solid #000;background:#eef1f7;padding:6px 8px;margin:6px 0');
-      else if (k === 'h') document.execCommand('formatBlock', false, 'h4');
-      else if (k === 'bigger' || k === 'smaller') wrap('span|font-size:' + (k === 'bigger' ? '1.2em' : '.85em'));
-      else document.execCommand(k, false, null);
-      changed(); });
-    $$('[data-col]', tb).forEach(i => i.onchange = () => { if (!sel()) return UI.toast('Select some text in the report first'); document.execCommand('styleWithCSS', false, true); document.execCommand(i.dataset.col, false, i.value); changed(); });
-  },
+  editBar(tb, root, changed, reset) { DocEdit.bar(tb, { root, changed, reset }); },
   async png(b, name) {
     const W = b.o ? 900 : 1300, box = document.createElement('div');
     box.style.cssText = `position:fixed;left:-99999px;top:0;width:${W}px;padding:36px;background:#fff;box-sizing:border-box`; box.innerHTML = `<style>${b.css}</style>${b.inner}`; document.body.appendChild(box);
