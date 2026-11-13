@@ -2481,3 +2481,8 @@ html.ed-user:not(.ed-desk) #xtAdd{display:none!important}
 /* case drop-down 25% shorter (13-11) */
 #topbar #caseSel{max-width:210px;min-width:135px}
 @media (max-width:1500px){#topbar #caseSel{max-width:150px}}
+
+/* Login to Workspace: bold text, key icon on a white disc */
+.hp-top .hp-btn.big{font-weight:800;letter-spacing:.2px}
+.hp-top .hp-btn.big .hp-lt{font-weight:800}
+.hp-top .hp-btn.big>:first-child{width:20px!important;height:20px!important;padding:6px;box-sizing:content-box;border-radius:50%;background-color:#7c2d12!important;background-size:72% 72%!important;background-position:center!important;background-repeat:no-repeat!important;flex:none;box-shadow:0 0 0 2px rgba(255,255,255,.85),0 1px 4px rgba(124,45,18,.35)}

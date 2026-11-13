@@ -2490,6 +2490,11 @@ html.ed-user:not(.ed-desk) #xtAdd{display:none!important}
 #topbar #caseSel{max-width:210px;min-width:135px}
 @media (max-width:1500px){#topbar #caseSel{max-width:150px}}
 
+/* Login to Workspace: bold text, key icon on a white disc */
+.hp-top .hp-btn.big{font-weight:800;letter-spacing:.2px}
+.hp-top .hp-btn.big .hp-lt{font-weight:800}
+.hp-top .hp-btn.big>:first-child{width:20px!important;height:20px!important;padding:6px;box-sizing:content-box;border-radius:50%;background-color:#7c2d12!important;background-size:72% 72%!important;background-position:center!important;background-repeat:no-repeat!important;flex:none;box-shadow:0 0 0 2px rgba(255,255,255,.85),0 1px 4px rgba(124,45,18,.35)}
+
 </style>
 </head>
 <body>
@@ -2500,10 +2505,10 @@ html.ed-user:not(.ed-desk) #xtAdd{display:none!important}
     <header class="hp-top">
       <div class="hp-brand"><span class="hp-mark"><i class="ck" aria-hidden="true"></i><span class="emblem emblem-sm hp-logo" role="img" aria-label="SudarshanAshtra emblem"></span></span><div><b>SudarshanAshtra <span class="hp-hi" lang="hi">सुदर्शनास्त्र</span></b><small>Cyber Crime Analysis &amp; Tracking</small><span class="hp-by hp-one">One Platform <i>|</i> Every Investigation <i>|</i> Complete Resolution</span><span class="hp-onehi" lang="hi">एक ही टूल से साइबर अपराध की जाँच, विश्लेषण, ट्रैकिंग, कार्रवाई और समाधान</span></div></div>
       <span class="hp-spacer"></span>
-      <span class="hp-pill no-tc" title="Case files, CDRs, statements and reports are saved only in this browser on this computer. Only an optional Fetch Online look-up sends the one value you search, and only when you click it."><svg class="safe-ic" width="38" height="38" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5z" fill="#10b981"/><rect x="8.5" y="11" width="7" height="5.5" rx="1" fill="#fff"/><path d="M10 11V9.5a2 2 0 0 1 4 0V11" fill="none" stroke="#fff" stroke-width="1.6"/></svg><span class="hp-pt"><b>Offline</b> · Your Case Data stays on this computer<br><small>Never Uploaded to any Server or Online, so don't worry about your Privacy</small></span></span>
+      <span class="hp-pill no-tc" title="Case files, CDRs, statements and reports are saved only in this browser on this computer. Only an optional Fetch Online look-up sends the one value you search, and only when you click it."><svg class="safe-ic" width="38" height="38" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5z" fill="#10b981"/><rect x="8.5" y="11" width="7" height="5.5" rx="1" fill="#fff"/><path d="M10 11V9.5a2 2 0 0 1 4 0V11" fill="none" stroke="#fff" stroke-width="1.6"/></svg><span class="hp-pt"><b>Offline</b> · Your case data stays on this computer.<br><small>Never uploaded to any server or online, so don't worry about your privacy.</small></span></span>
       <div class="bv-wrap"><button class="hp-bv" type="button" id="hpBv" aria-haspopup="true" title="Which screen resolution shows the tool best">🖥 For Best View <i>▾</i></button><div class="bv-menu" id="bvMenu" hidden></div></div>
       <button class="hp-rf" type="button" id="hpRf" title="Refresh this page" aria-label="Refresh"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg></button>
-      <button class="hp-btn big" type="button" data-login><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Login to workspace</button>
+      <button class="hp-btn big" type="button" data-login><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><span class="hp-lt">Login to Workspace</span></button>
     </header>
     <section class="hp-hero">
       <div class="hp-copy">
@@ -2539,7 +2544,7 @@ html.ed-user:not(.ed-desk) #xtAdd{display:none!important}
         <div class="hp-feat" style="--fc:#06b6d4"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><div><b>Analytics</b><p>The same mobile, account, IP or e-mail across complaints, banks and platforms.</p></div></div>
         <div class="hp-feat" style="--fc:#eab308"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h5"/></svg></span><div><b>Case File &amp; Notices</b><p>Case reports, notices to banks and platforms, and CSV / PDF exports.</p></div></div>
     </section>
-    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · <b>One Platform | Every Investigation | Complete Resolution</b> · v2.0 · Build 2026-11-14 03:39 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
+    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · <b>One Platform | Every Investigation | Complete Resolution</b> · v2.0 · Build 2026-11-14 03:42 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
   </div>
 
   <div class="lg-wrap" id="lgWrap" aria-hidden="true">
