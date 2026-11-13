@@ -473,7 +473,7 @@ function showComplaint(c) {
 
 /* ======================= 4. ANALYTICS ======================= */
 Pages.analytics = main => {
-  const { cur, body } = tabs(main, 'analytics', [['common', 'Common Suspect'], ['cross', 'Cross-Link (all sections)'], ['entity', 'Entity Graph'], ['time', 'Timeline'], ['geo', 'Hotspots'], ['flags', 'Bulk Split & Rapid'], ['velocity', 'Fast Movement'], ['round', 'Patterns']], '4 · Analytics',
+  const { cur, body } = tabs(main, 'analytics', [['common', 'Common Suspect'], ['cross', 'Cross-Link (all sections)'], ['entity', 'Entity Graph'], ['time', 'Timeline'], ['geo', 'Hotspots'], ['flags', 'Bulk Split & Rapid'], ['velocity', 'Fast Movement'], ['round', 'Patterns'], ['docs', '🔎 Found In Documents']], '4 · Analytics',
     `<button class="btn primary" id="anImp">⬆ Import NCRP Data</button><input type="file" id="anPick" multiple accept=".xlsx,.xls,.xlsb,.ods,.csv,.txt,.html,.htm" class="hidden">`);
   // one button, top right: pick many NCRP bank-action sheets at once
   const pick = $('#anPick', main), btn = $('#anImp', main);

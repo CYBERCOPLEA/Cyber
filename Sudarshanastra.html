@@ -2282,6 +2282,26 @@ html.no-contacts .ct-item,html.no-contacts .ct-subs{display:none!important}
 #topWho{display:flex;flex-direction:column;line-height:1.15;font-size:11px;opacity:.9;margin-right:8px;align-self:center;min-width:104px;flex:0 1 auto;max-width:190px;overflow:hidden}#topWho>span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#topWho b{font-weight:700}#topWho small{opacity:.7;font-size:10px}#topbar .gsearch{flex:0 1 220px;min-width:110px}#topbar .gsearch #gsearch{width:100%!important;min-width:0}
 .pb-flt{padding:10px 14px}.pb-flt label{display:flex;flex-direction:column;gap:3px;font-size:12px}.pf-g{display:flex;flex-direction:column;gap:3px}.pf-seg{display:inline-flex;border:1px solid var(--border);border-radius:8px;overflow:hidden}.pf-seg button{background:transparent;color:inherit;border:0;border-right:1px solid var(--border);padding:6px 9px;font-size:12px;cursor:pointer}.pf-seg button:last-child{border-right:0}.pf-seg button.on{background:#dc2626;color:#fff}
 
+/* datafind: where the data is */
+.df-chk,.df-p{margin-top:14px}
+.df-why{background:rgba(234,179,8,.08);border:1px solid rgba(234,179,8,.35);border-radius:10px;padding:8px 12px;margin:8px 0 10px;font-size:13px}
+.df-why ul{margin:4px 0 0 18px;padding:0}.df-why li{margin:3px 0}
+.df-t th,.df-t td{white-space:nowrap}.df-t td:first-child{white-space:normal;min-width:180px}
+.df-n{background:none;border:0;color:var(--accent);font-weight:700;cursor:pointer;text-decoration:underline dotted;font:inherit}
+.df-tot td{border-top:2px solid var(--border)}
+.df-kp{display:flex;flex-wrap:wrap;gap:10px;margin:8px 0}
+.df-k{flex:1 1 120px;border:1px solid var(--border);border-radius:10px;padding:8px 12px;background:rgba(99,102,241,.07)}
+.df-k b{display:block;font-size:22px}.df-k small{color:var(--text-secondary)}
+.df-ch{display:grid;grid-template-columns:minmax(260px,1fr) minmax(260px,1.3fr);gap:14px;margin:6px 0}
+.df-ch h4{margin:4px 0 8px}
+.df-bars{display:flex;flex-direction:column;gap:4px}
+.df-bar{display:grid;grid-template-columns:minmax(80px,40%) 1fr 52px;align-items:center;gap:8px;background:none;border:1px solid transparent;border-radius:6px;padding:3px 6px;cursor:pointer;color:inherit;font:inherit;font-size:12px;text-align:left}
+.df-bar:hover,.df-bar.on{border-color:var(--accent);background:rgba(99,102,241,.08)}
+.df-bar span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.df-bar i{display:block;height:10px;border-radius:5px;background:linear-gradient(90deg,#6366f1,#0ea5e9)}
+.df-bar b{text-align:right}
+@media (max-width:900px){.df-ch{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body>
@@ -2329,7 +2349,7 @@ html.no-contacts .ct-item,html.no-contacts .ct-subs{display:none!important}
         <div class="hp-feat" style="--fc:#06b6d4"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><div><b>Analytics</b><p>The same mobile, account, IP or e-mail across complaints, banks and platforms.</p></div></div>
         <div class="hp-feat" style="--fc:#eab308"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h5"/></svg></span><div><b>Case File &amp; Notices</b><p>Case reports, notices to banks and platforms, and CSV / PDF exports.</p></div></div>
     </section>
-    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-13 15:31 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
+    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-13 18:52 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
   </div>
 
   <div class="lg-wrap" id="lgWrap" aria-hidden="true">
@@ -4909,7 +4929,7 @@ function showComplaint(c) {
 
 /* ======================= 4. ANALYTICS ======================= */
 Pages.analytics = main => {
-  const { cur, body } = tabs(main, 'analytics', [['common', 'Common Suspect'], ['cross', 'Cross-Link (all sections)'], ['entity', 'Entity Graph'], ['time', 'Timeline'], ['geo', 'Hotspots'], ['flags', 'Bulk Split & Rapid'], ['velocity', 'Fast Movement'], ['round', 'Patterns']], '4 · Analytics',
+  const { cur, body } = tabs(main, 'analytics', [['common', 'Common Suspect'], ['cross', 'Cross-Link (all sections)'], ['entity', 'Entity Graph'], ['time', 'Timeline'], ['geo', 'Hotspots'], ['flags', 'Bulk Split & Rapid'], ['velocity', 'Fast Movement'], ['round', 'Patterns'], ['docs', '🔎 Found In Documents']], '4 · Analytics',
     `<button class="btn primary" id="anImp">⬆ Import NCRP Data</button><input type="file" id="anPick" multiple accept=".xlsx,.xls,.xlsb,.ods,.csv,.txt,.html,.htm" class="hidden">`);
   // one button, top right: pick many NCRP bank-action sheets at once
   const pick = $('#anPick', main), btn = $('#anImp', main);
@@ -8066,7 +8086,7 @@ let LayoutSoc = null;
     /* signed-in user + version: top bar, just before Search, on every page */
     { const tb = $('#topbar'), gs = $('#gsearch'); let w = $('#topWho'); if (tb && gs && !w) { w = document.createElement('span'); w.id = 'topWho'; w.className = 'no-tc'; let at = gs; while (at.parentElement && at.parentElement !== tb) at = at.parentElement; tb.insertBefore(w, at); }
       if (w) w.innerHTML = `<span title="Signed in as ${esc(S.settings.user || '')}">👤 Signed in as <b>${esc(S.settings.user || '')}</b></span><span><small>SudarshanAshtra v2.0</small></span>`; }
-    $('#statusbar').innerHTML = `<span class="sb-safe no-tc" title="Case files, CDRs, statements and reports are saved only in this browser on this computer. Only an optional Fetch Online look-up sends the one value you search, and only when you click it."><svg class="safe-ic" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5z" fill="#10b981"/><rect x="8.5" y="11" width="7" height="5.5" rx="1" fill="#fff"/><path d="M10 11V9.5a2 2 0 0 1 4 0V11" fill="none" stroke="#fff" stroke-width="1.6"/></svg><b>Offline</b> · Your case data stays on this computer, never uploaded to any server</span><span class="sep">|</span><span>Case: <b>${esc(c.name || '')}</b>${c.status ? ' · ' + esc(c.status) : ''}</span><span class="sep">|</span><span>${fmtNum(n)} complaints · ${fmtNum(d.txns.length)} txns · ${fmtNum(d.kyc.length)} KYC · ${fmtNum(d.social.length)} social</span>`;
+    $('#statusbar').innerHTML = `<span class="sb-safe no-tc" title="Case files, CDRs, statements and reports are saved only in this browser on this computer. Only an optional Fetch Online look-up sends the one value you search, and only when you click it."><svg class="safe-ic" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5z" fill="#10b981"/><rect x="8.5" y="11" width="7" height="5.5" rx="1" fill="#fff"/><path d="M10 11V9.5a2 2 0 0 1 4 0V11" fill="none" stroke="#fff" stroke-width="1.6"/></svg><b>Offline</b> · Your case data stays on this computer, never uploaded to any server</span><span class="sep">|</span><span>Case: <b>${esc(c.name || '')}</b>${c.status ? ' · ' + esc(c.status) : ''}</span><span class="sep">|</span><span>${fmtNum(n)} complaints · ${fmtNum(d.txns.length)} txns · ${fmtNum(d.kyc.length)} KYC · ${fmtNum(d.social.length)} social${(d.idents || []).length ? ` · ${fmtNum(d.idents.length)} from documents` : ''}</span>`;
   };
 })();
 
@@ -18794,6 +18814,111 @@ addEventListener('scroll', () => PRB.tip(null), true);
   const r0 = render; render = function () { const r = r0.apply(this, arguments); const on = S.page === 'prb'; if ($$('.pb-n', subs).some((n, i, a) => (i ? a[i - 1] : h).nextElementSibling !== n)) keep();
     h.classList.toggle('active', on); $$('.pb-n', subs).forEach(n => n.classList.toggle('active', on && S.sub.prb === n.dataset.pbn)); if (on && !S.pbOpen) show(true);
     if (on) { const it = $('.nav-item[data-page="analytics"]'); if (it) it.classList.add('active'); if (!subs.classList.contains('open')) { subs.classList.add('open'); it && it.classList.add('open'); S.telOpen = true; } } return r; };
+})();
+
+</script>
+<script>
+/* datafind.js – "Where is my data?": every page shows what the case really holds.
+   1. 📦 Data In Every Case – Dashboard / CCTNS card: what each case holds (NCRP, money trail, KYC, social, telecom,
+      FIR, CD parts, documents, identifiers read from documents). Click a number to open that case on that page.
+   2. 🔎 Found In Your Documents – identifiers read from the FIR / CD / documents (mobile, account, UPI, IFSC, PAN,
+      email, IP, IMEI, URL) with ring + bar charts, filters, other cases and Track. Shown on Financial, NCRP,
+      Money Trail and Social pages when their own sheets are empty, and always under Analytics. */
+'use strict';
+const DataFind = {
+  TY: { mobile: '📱 Mobile', account: '🏦 Account', upi: '💸 UPI', ifsc: '🏛 IFSC', pan: '🪪 PAN', aadhaar: '🆔 Aadhaar', email: '✉ Email', ip: '🌐 IP', imei: '📟 IMEI', url: '🔗 Link / URL' },
+  PAGE: { financial: ['account', 'upi', 'ifsc', 'pan', 'aadhaar', 'mobile', 'email'], ncrp: ['mobile', 'account', 'upi', 'email', 'url'], trail: ['account', 'upi', 'ifsc', 'mobile'], social: ['email', 'mobile', 'url', 'ip', 'imei'] },
+  tl(t) { return this.TY[t] || t; },
+  /* what one case holds */
+  counts(d) {
+    d = d || {}; const n = k => (Array.isArray(d[k]) ? d[k].length : 0), cc = d.cctns || {};
+    return { ncrp: n('ncrp'), txns: n('txns'), kyc: n('kyc'), social: n('social') + n('google'), tel: n('tel'), caf: n('caf'), fir: cc.fir && String(cc.fir.text || '').trim() ? 1 : 0, cd: (cc.cd || []).length, docs: (cc.docs || []).length, ids: n('idents'), files: n('imports') };
+  },
+  COLS: [['ncrp', 'NCRP Complaints', 'ncrp'], ['txns', 'Money Trail / Statement Rows', 'trail'], ['kyc', 'KYC / Beneficiary', 'financial'], ['social', 'Social Media', 'social'], ['tel', 'Telecom (CDR / IPDR)', 'tele'], ['caf', 'CAF', 'caf'], ['fir', 'FIR Read', 'cctns'], ['cd', 'CD Parts', 'cctns'], ['docs', 'Documents', 'cctns'], ['ids', 'Identifiers From Documents', 'analytics', 'docs'], ['files', 'Files Imported', 'financial']],
+  async all() {
+    const out = [];
+    for (const c of S.cases) { let d; try { d = c.id === S.caseId ? S.data : await DB.get('case:' + c.id); } catch (e) { d = null; } out.push({ c, n: this.counts(d) }); await new Promise(r => setTimeout(r, 0)); }
+    return out;
+  },
+  /* plain-words reason for empty pages */
+  why(R) {
+    const tot = k => R.reduce((s, r) => s + (r.n[k] || 0), 0), L = [];
+    if (!tot('ncrp') && !tot('txns')) L.push('No NCRP / bank-action (money trail) sheet is imported in any case – that is why Complaints, Money Trail, Amount and Mule Accounts show 0. Open the case, then <b>Financial Trail › Import</b> the NCRP / bank-action Excel.');
+    if (!tot('kyc')) L.push('No KYC / beneficiary reply from a bank is imported – Bank & Financial › KYC stays empty until a bank reply (Excel / PDF) is added.');
+    if (!tot('social')) L.push('No social-media / Google / WhatsApp reply is imported yet.');
+    if (!tot('fir') && !tot('cd')) L.push('No FIR text or case-diary part is read yet – IO › Case Diary › Import / Upload the CCTNS zip, FIR and CD PDFs.');
+    const big = R.filter(r => r.n.ids).sort((a, b) => b.n.ids - a.n.ids);
+    if (big.length) L.push(`Identifiers read from documents: ${big.map(r => `<b>${esc(AllMode.caseLabel(r.c))}</b> – ${fmtNum(r.n.ids)}`).join(', ')}. These are now shown on every page under <b>🔎 Found In Your Documents</b> and in <b>Analytics › Found In Documents</b>.`);
+    return L;
+  },
+  async check(el) {
+    if (!el || !S.cases.length) return;
+    let box = $('#dfChk', el); if (!box) { el.insertAdjacentHTML('beforeend', '<div class="card df-chk" id="dfChk"><div class="muted small">Checking the data of every case…</div></div>'); box = $('#dfChk', el); }
+    const R = await this.all(); if (!document.body.contains(box)) return;
+    const tot = k => R.reduce((s, r) => s + (r.n[k] || 0), 0), why = this.why(R);
+    box.innerHTML = `<div class="d2-hd"><h3>📦 Data In Every Case</h3><span class="sub">What each case really holds on this computer. Click a number to open that case on that page. Nothing here is changed or deleted.</span></div>
+      ${why.length ? `<div class="df-why"><b>Why some pages show 0:</b><ul>${why.map(w => `<li>${w}</li>`).join('')}</ul></div>` : ''}
+      <div class="tbl-wrap"><table class="tbl df-t"><thead><tr><th>Case</th>${this.COLS.map(c => `<th class="num">${esc(c[1])}</th>`).join('')}</tr></thead><tbody>
+      ${R.map(r => `<tr><td><b>${esc(AllMode.caseLabel(r.c))}</b></td>${this.COLS.map(c => { const v = r.n[c[0]] || 0, s = c[0] === 'fir' ? (v ? 'Yes' : 'No') : fmtNum(v); return `<td class="num">${v ? `<button class="df-n" data-dfc="${r.c.id}" data-dfp="${c[2]}" data-dfs="${c[3] || ''}" title="Open ${esc(c[1])} of this case">${s}</button>` : `<span class="muted">${s}</span>`}</td>`; }).join('')}</tr>`).join('')}
+      <tr class="df-tot"><td><b>All Cases</b></td>${this.COLS.map(c => `<td class="num"><b>${c[0] === 'fir' ? tot('fir') + ' of ' + R.length : fmtNum(tot(c[0]))}</b></td>`).join('')}</tr></tbody></table></div>`;
+    $$('[data-dfc]', box).forEach(b => b.onclick = async () => { const id = b.dataset.dfc, p = b.dataset.dfp; if (b.dataset.dfs) S.sub[p] = b.dataset.dfs; if (S.caseId !== id) { S.page = p; await switchCase(id); } else go(p); });
+  },
+  /* identifiers of the shown data (one case or All Cases), grouped by type + value */
+  rows(types) {
+    const G = new Map();
+    for (const i of S.data.idents || []) {
+      if (!i || !i.value || (types && !types.includes(i.type))) continue; if (typeof isSynthetic === 'function' && isSynthetic(String(i.value))) continue;
+      const k = i.type + '|' + String(i.value).toLowerCase(); let g = G.get(k);
+      if (!g) G.set(k, g = { type: i.type, value: String(i.value), src: new Set(), cases: new Set(), ids: new Set() });
+      g.src.add(String(i.source || 'Document').replace(/^(Document|FIR|CS|FR) · /, '')); if (i._case) g.cases.add(i._case); if (i._caseId) g.ids.add(i._caseId);
+    }
+    return [...G.values()].map(g => ({ type: g.type, value: g.value, n: g.src.size, srcs: [...g.src], src: [...g.src].slice(0, 4).join(' | ') + (g.src.size > 4 ? ' +' + (g.src.size - 4) : ''), cases: [...g.cases], nc: g.cases.size || 1 }));
+  },
+  _f: {},
+  panel(el, types, o = {}) {
+    if (!el) return; const all = this.rows(types); if (!all.length && !o.always) return;
+    const f = this._f, key = (types || ['*']).join(','); if (f.key !== key) { f.key = key; f.t = ''; f.s = ''; }
+    const by = (L, g) => { const m = new Map(); L.forEach(x => g(x).forEach(k => m.set(k, (m.get(k) || 0) + 1))); return [...m].map(([k, n]) => ({ k, n })).sort((a, b) => b.n - a.n); };
+    const R = all.filter(x => (!f.t || x.type === f.t) && (!f.s || x.srcs.includes(f.s)));
+    const T = by(all, x => [this.tl(x.type)]), Src = by(all.filter(x => !f.t || x.type === f.t), x => x.srcs), multi = all.filter(x => x.n > 1).length, mc = all.filter(x => x.nc > 1).length;
+    const id = 'df' + (o.id || 'P'); let box = $('#' + id, el);
+    const html = `<div class="d2-hd"><h3>🔎 Found In Your Documents <span class="pill">${fmtNum(all.length)}</span></h3><span class="sub">${esc(o.why || 'Mobiles, accounts, UPI, IFSC, PAN, e-mail, IP, IMEI and links read from the FIR, case diary and documents of ' + (AllMode.on() ? 'all cases' : 'this case') + '. Click a ring part or a file to filter, a row to track it everywhere.')}</span></div>
+      ${all.length ? `<div class="df-kp">${[['Identifiers', all.length, ''], ['Types', T.length, ''], ['Files Read', Src.length, ''], ['Seen In 2+ Files', multi, 'Strong leads – the same number in more than one document'], ...(AllMode.on() ? [['In 2+ Cases', mc, 'Common suspects across your cases']] : [])].map(([l, v, t]) => `<div class="df-k" title="${esc(t || l)}"><b>${fmtNum(v)}</b><small>${esc(l)}</small></div>`).join('')}</div>
+      <div class="df-ch"><div><h4>By Type</h4>${Trend.ring(T, f.t ? this.tl(f.t) : '', 'data-dft', all.length, 'identifiers')}</div>
+      <div><h4>By File / Document ${f.s ? `<button class="btn sm" data-dfx="s">✕ ${esc(f.s.slice(0, 30))}</button>` : ''}</h4><div class="df-bars">${Src.slice(0, 12).map(x => `<button class="df-bar ${f.s === x.k ? 'on' : ''}" data-dfs2="${esc(x.k)}" title="${esc(x.k)} – ${x.n} identifiers"><span>${esc(x.k)}</span><i style="width:${Math.max(3, x.n / Src[0].n * 100)}%"></i><b>${fmtNum(x.n)}</b></button>`).join('')}${Src.length > 12 ? `<div class="small muted">+ ${Src.length - 12} more files</div>` : ''}</div></div></div>
+      ${f.t || f.s ? `<div class="row small" style="margin:6px 0">Showing <b>${fmtNum(R.length)}</b> of ${fmtNum(all.length)} ${f.t ? '· ' + esc(this.tl(f.t)) : ''} <button class="btn sm" data-dfx="all">✕ Clear Filter</button></div>` : ''}
+      <div class="df-tb"></div>` : `<div class="muted small">Nothing read from documents yet.</div>`}`;
+    if (!box) { el.insertAdjacentHTML('beforeend', `<div class="card df-p" id="${id}"></div>`); box = $('#' + id, el); }
+    box.innerHTML = html; const again = () => this.panel(el, types, o);
+    $$('[data-dft]', box).forEach(b => b.onclick = () => { const t = Object.keys(this.TY).find(k => this.TY[k] === b.dataset.dft) || b.dataset.dft; f.t = f.t === t ? '' : t; again(); });
+    $$('[data-dfs2]', box).forEach(b => b.onclick = () => { f.s = f.s === b.dataset.dfs2 ? '' : b.dataset.dfs2; again(); });
+    $$('[data-dfx]', box).forEach(b => b.onclick = () => { if (b.dataset.dfx === 'all') { f.t = ''; f.s = ''; } else f.s = ''; again(); });
+    const tb = $('.df-tb', box); if (!tb) return;
+    Table(tb, { rows: R, pageSize: 50, noNd: true, sortKey: 'n', sortDir: -1, exportName: 'found_in_documents', onRow: r => Dash2.track(r.value), columns: [
+      { key: 'type', label: 'Type', render: r => esc(this.tl(r.type)) },
+      { key: 'value', label: 'Identifier', render: r => `<b class="mono">${esc(r.value)}</b>` },
+      { key: 'n', label: 'Files', num: true, render: r => r.n > 1 ? `<b class="bad-t">${r.n}</b>` : '1' },
+      { key: 'src', label: 'Found In', render: r => `<span class="small">${esc(r.src)}</span>` },
+      ...(AllMode.on() ? [{ key: 'nc', label: 'Cases', num: true, csv: r => r.cases.join(' | '), render: r => `<span title="${esc(r.cases.join(' | '))}">${r.nc > 1 ? `<b class="bad-t">${r.nc}</b>` : r.nc}</span>` }] : []),
+      { key: 'go', label: 'Track', sortVal: () => '', csv: () => '', render: () => '<span class="btn sm">🎯 Track</span>' }] });
+  },
+  /* page hooks */
+  empty(p, d) { return p === 'financial' ? !d.kyc.length && !d.txns.length : p === 'ncrp' ? !d.ncrp.length && !d.txns.length : p === 'trail' ? !d.txns.length : p === 'social' ? !d.social.length && !(d.google || []).length : false; }
+};
+(() => {
+  const or = render;
+  render = function () {
+    const r = or.apply(this, arguments);
+    try {
+      const p = S.page, d = S.data || {}, main = $('#main');
+      if (d._loading) return r;
+      if (DataFind.PAGE[p] && (d.idents || []).length && DataFind.empty(p, d)) DataFind.panel(main, DataFind.PAGE[p], { id: 'Pg', why: `This page has no ${p === 'social' ? 'social-media reply' : p === 'financial' ? 'bank / KYC sheet' : 'NCRP / money-trail sheet'} yet, but the documents of ${AllMode.on() ? 'your cases' : 'this case'} name these – track them now, and import the sheet for the full trail.` });
+      if (p === 'dashboard' && S.cases.length) DataFind.check(main);
+      if (p === 'cctns' && (S.sub.cctns || 'diary') === 'diary' && AllMode.on()) { const c = $('.card', main); if (c) { const w = document.createElement('div'); c.after(w); DataFind.check(w); } }
+    } catch (e) { console.warn('datafind', e); }
+    return r;
+  };
+  if (typeof AnaTabs !== 'undefined') AnaTabs.docs = el => DataFind.panel(el, null, { id: 'An', always: true });
 })();
 
 </script>
