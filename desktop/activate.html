@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>SudarshanAshtra – Activate</title>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' sud:; img-src 'self' sud: data:; style-src 'unsafe-inline'; script-src 'unsafe-inline'">
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:"Segoe UI",Arial,sans-serif;background:radial-gradient(circle at 20% 0%,#1e3a8a 0,#0b1220 55%);color:#e5e7eb;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+.box{width:min(980px,100%);background:rgba(15,23,42,.92);border:1px solid #334155;border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.5);padding:26px 30px}
+.hd{display:flex;gap:16px;align-items:center;margin-bottom:14px}.hd img{width:76px;height:76px}.hd h1{margin:0;font-size:26px}.hd .hi{color:#fbbf24;font-size:16px}.hd small{color:#94a3b8}
+.why{padding:10px 14px;border-radius:10px;margin:10px 0 16px;font-size:14.5px;border:1px solid #f59e0b;background:rgba(245,158,11,.12)}.why.bad{border-color:#ef4444;background:rgba(239,68,68,.12)}.why.info{border-color:#38bdf8;background:rgba(56,189,248,.1)}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:18px}.card{border:1px solid #334155;border-radius:14px;padding:16px;background:rgba(30,41,59,.55)}
+.card h2{margin:0 0 4px;font-size:17px}.card p{margin:4px 0 10px;color:#cbd5e1;font-size:13.5px}
+label{display:block;font-size:12.5px;font-weight:600;color:#cbd5e1;margin:6px 0 2px}input,textarea{width:100%;padding:8px 10px;border-radius:8px;border:1px solid #475569;background:#0f172a;color:#f1f5f9;font-size:14px;font-family:inherit}
+textarea{font-family:Consolas,monospace;font-size:12px;resize:vertical}.g2{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}
+.mid{font-family:Consolas,monospace;font-size:20px;font-weight:700;letter-spacing:1px;color:#fde68a;padding:8px 12px;border-radius:10px;background:#0f172a;border:1px dashed #f59e0b;display:inline-block;user-select:all}
+button,.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:9px;border:1px solid #475569;background:#1e293b;color:#f1f5f9;font-weight:600;font-size:13.5px;cursor:pointer;margin:8px 6px 0 0}
+button.pri{background:#2563eb;border-color:#2563eb}button.ok{background:#16a34a;border-color:#16a34a}button:disabled{opacity:.5}
+.err{color:#fca5a5;font-size:13.5px;margin-top:8px;min-height:18px}.okm{color:#86efac}.muted{color:#94a3b8;font-size:12.5px}
+.foot{margin-top:16px;color:#94a3b8;font-size:12px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+@media(max-width:820px){.cols{grid-template-columns:1fr}}
+</style></head>
+<body><div class="box">
+  <div class="hd"><img src="emblem.png" alt=""><div><h1>SudarshanAshtra Desktop <span class="hi" lang="hi">सुदर्शनास्त्र</span></h1><small>Cyber Crime Analysis &amp; Tracking · works offline · licence from the Super Admin (Vijay Tomar)</small></div></div>
+  <div id="why" class="why info">Welcome! This computer needs a licence once. Fill your details, send the Request Code to the Super Admin, then paste the licence key he sends you.</div>
+  <div class="cols">
+    <div class="card"><h2>① Ask For A Licence</h2><p>Your computer's Machine ID:</p><div class="mid" id="mid">…</div>
+      <div class="g2"><div><label>Name *</label><input id="n"></div><div><label>Rank / Post</label><input id="rk"></div>
+        <div><label>Posting / Police Station / Unit</label><input id="ps"></div><div><label>District / Commissionerate</label><input id="dist"></div>
+        <div><label>State</label><input id="st" list="states"></div><div><label>Mobile</label><input id="mob" inputmode="tel"></div></div>
+      <button class="pri" id="mk">📋 Copy Request Code</button><button id="wa">🟢 Send On WhatsApp</button>
+      <textarea id="req" rows="3" readonly placeholder="Your Request Code appears here" style="margin-top:8px"></textarea>
+      <div class="muted">Send the Request Code to the Super Admin (Vijay Tomar) by WhatsApp / e-mail.</div></div>
+    <div class="card"><h2>② Activate</h2><p>Paste the licence key from the Super Admin, or load the <b>.lic</b> file.</p>
+      <textarea id="key" rows="7" placeholder="SADL1.…"></textarea>
+      <label class="btn" style="width:auto">📂 Load .lic File<input type="file" id="kf" accept=".lic,.txt" hidden></label><button class="ok" id="act">✅ Activate</button><button id="chk" style="display:none">🔄 Check Online Again</button>
+      <div class="err" id="err"></div></div>
+  </div>
+  <div class="foot"><span>Your case data always stays on this computer. Only the licence ID and Machine ID are checked online (when internet is there).</span><span id="ver"></span></div>
+</div>
+<datalist id="states"><option>Andaman &amp; Nicobar Islands</option><option>Andhra Pradesh</option><option>Arunachal Pradesh</option><option>Assam</option><option>Bihar</option><option>Chandigarh</option><option>Chhattisgarh</option><option>Dadra &amp; Nagar Haveli and Daman &amp; Diu</option><option>Delhi</option><option>Goa</option><option>Gujarat</option><option>Haryana</option><option>Himachal Pradesh</option><option>Jammu &amp; Kashmir</option><option>Jharkhand</option><option>Karnataka</option><option>Kerala</option><option>Ladakh</option><option>Lakshadweep</option><option>Madhya Pradesh</option><option>Maharashtra</option><option>Manipur</option><option>Meghalaya</option><option>Mizoram</option><option>Nagaland</option><option>Odisha</option><option>Puducherry</option><option>Punjab</option><option>Rajasthan</option><option>Sikkim</option><option>Tamil Nadu</option><option>Telangana</option><option>Tripura</option><option>Uttar Pradesh</option><option>Uttarakhand</option><option>West Bengal</option></datalist>
+<script>
+'use strict';
+const D = window.SudDesk, $ = s => document.querySelector(s), F = ['n', 'rk', 'ps', 'dist', 'st', 'mob'];
+const dmy = d => d ? d.split('-').reverse().join('-') : '';
+$('#mid').textContent = D.mid; $('#ver').textContent = 'Setup ' + D.shell + ' · build ' + D.build;
+try { const o = JSON.parse(localStorage.getItem('sud-req') || '{}'); F.forEach(k => { if (o[k]) $('#' + k).value = o[k]; }); } catch (e) { }
+const p = D.plic, W = {
+  expired: ['bad', `⌛ Your licence ended on <b>${dmy(p && p.to)}</b>. Ask the Super Admin (Vijay Tomar) to extend it – then paste the new key, or press “Check Online Again” if he has extended it online.`],
+  notyet: ['', `⏳ Your licence starts on <b>${dmy(p && p.from)}</b>. Please open SudarshanAshtra again on that day.`],
+  Suspended: ['bad', '⏸ Your licence has been <b>suspended</b> by the Super Admin (Vijay Tomar). Contact him. When he resumes it, press “Check Online Again”.'],
+  Deleted: ['bad', '🗑 Your licence has been <b>deleted</b> by the Super Admin (Vijay Tomar). Contact him for a new licence.'],
+  moved: ['bad', '🖥 Your licence was moved to another computer by the Super Admin. Ask him for a key for this computer.'],
+  machine: ['bad', '🖥 The licence on this computer was made for another computer. Ask the Super Admin for a key for this Machine ID.'],
+  clock: ['bad', '🕘 The date / time of this computer looks wrong (it is earlier than when SudarshanAshtra was last used). Set the correct date and time in Windows and open SudarshanAshtra again, or press “Check Online Again”.'],
+  tamper: ['bad', '⚠ The licence file on this computer was changed or damaged. Paste your licence key again.'],
+  invalid: ['bad', '⚠ The licence on this computer is not valid. Paste the key from the Super Admin again.']
+}[D.why];
+if (W) { $('#why').className = 'why ' + W[0]; $('#why').innerHTML = W[1]; }
+if (p && ['expired', 'Suspended', 'Deleted', 'moved', 'clock'].includes(D.why)) $('#chk').style.display = '';
+if (p) { if (!$('#n').value) $('#n').value = p.n || ''; if (!$('#rk').value) $('#rk').value = p.rk || ''; if (!$('#ps').value) $('#ps').value = p.ps || ''; if (!$('#dist').value) $('#dist').value = p.dist || ''; if (!$('#st').value) $('#st').value = p.st || ''; if (!$('#mob').value) $('#mob').value = p.mob || ''; }
+const b64u = s => btoa(String.fromCharCode(...new TextEncoder().encode(s))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+const code = () => { const o = { mid: D.mid }; F.forEach(k => { o[k] = $('#' + k).value.trim(); }); localStorage.setItem('sud-req', JSON.stringify(o)); return 'SUDREQ1.' + b64u(JSON.stringify(o)); };
+const msg = () => { const c = code(); $('#req').value = c; return `SudarshanAshtra Desktop – licence request\nName: ${[$('#rk').value, $('#n').value].filter(Boolean).join(' ')}\nPosting: ${[$('#ps').value, $('#dist').value, $('#st').value].filter(Boolean).join(', ')}\nMobile: ${$('#mob').value}\nMachine ID: ${D.mid}\n\nRequest Code:\n${c}`; };
+const need = () => { if (!$('#n').value.trim()) { $('#err').textContent = 'Fill your name first'; $('#n').focus(); return false; } $('#err').textContent = ''; return true; };
+$('#mk').onclick = async () => { if (!need()) return; const t = msg(); try { await navigator.clipboard.writeText(t); $('#err').innerHTML = '<span class="okm">✔ Copied – paste it in WhatsApp / e-mail to the Super Admin</span>'; } catch (e) { $('#req').select(); } };
+$('#wa').onclick = () => { if (!need()) return; D.open('https://wa.me/?text=' + encodeURIComponent(msg())); };
+$('#kf').onchange = async e => { const f = e.target.files[0]; if (f) $('#key').value = (await f.text()).trim(); };
+$('#act').onclick = async () => {
+  const b = $('#act'); b.disabled = true; $('#err').textContent = '⏳ Checking the key…';
+  const r = await D.setLicence($('#key').value); b.disabled = false;
+  if (!r.ok) { $('#err').textContent = r.err; if (r.saved) setTimeout(() => location.reload(), 2500); return; }
+  $('#err').innerHTML = '<span class="okm">✅ Activated – opening SudarshanAshtra…</span>'; setTimeout(() => D.start(), 700);
+};
+$('#chk').onclick = async () => { const b = $('#chk'); b.disabled = true; $('#err').textContent = '⏳ Checking with the Super Admin…'; const r = await D.checkOnline(); b.disabled = false; $('#err').textContent = r.msg || ''; if (r.ok) setTimeout(() => D.start(), 900); };
+</script>
+</body></html>

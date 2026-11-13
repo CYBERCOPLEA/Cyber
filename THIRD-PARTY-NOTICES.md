@@ -6,3 +6,9 @@
   The logos are trademarks of their owners and are shown only to name each platform.
 
 MIT License (Fluent Emoji): Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions: The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software. THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND.
+
+# Licence signing and the Windows EXE
+
+- **TweetNaCl.js** 1.0.3 (`src/js/lib/nacl-fast.min.js`) – public domain (The Unlicense) – https://github.com/dchest/tweetnacl-js. Signs and checks the Desktop licence keys.
+- **Electron** – MIT License – https://www.electronjs.org (the Windows EXE in `desktop/`, with Chromium and its own licences listed in the installed `LICENSES.chromium.html`).
+- **electron-builder** and **resedit** – MIT License – used only to build the setup.

@@ -1,0 +1,38 @@
+# Builds the SudarshanAshtra Desktop Windows setup (EXE) and puts it on the Releases page.
+# Runs by itself when the desktop/ folder changes on main, or by hand (Actions › Desktop EXE › Run workflow).
+# Day-to-day tool updates do not need a new setup – the EXE's ⬆ Update button fetches the latest User.html.
+name: Desktop EXE
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['desktop/**', '.github/workflows/desktop.yml']
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - name: Build setup
+        working-directory: desktop
+        run: |
+          npm ci --no-audit --no-fund
+          npm run dist
+      - name: Version
+        id: v
+        shell: bash
+        run: echo "ver=$(node -p "require('./desktop/package.json').version")" >> "$GITHUB_OUTPUT"
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: desktop-v${{ steps.v.outputs.ver }}
+          name: SudarshanAshtra Desktop ${{ steps.v.outputs.ver }}
+          make_latest: true
+          body: |
+            **SudarshanAshtra Desktop for Windows 10 / 11 (64-bit).** Download `SudarshanAshtra-Setup-${{ steps.v.outputs.ver }}.exe` below.
+            It installs without internet. On first start it shows a Machine ID and a Request Code – send the Request Code to the Super Admin (Vijay Tomar) and paste the licence key he sends back.
+            Tool updates come through the ⬆ Update button inside the program.
+          files: desktop/dist/SudarshanAshtra-Setup-${{ steps.v.outputs.ver }}.exe
