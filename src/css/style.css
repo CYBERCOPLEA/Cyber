@@ -2478,3 +2478,6 @@ html.ed-user:not(.ed-desk) #xtAdd{display:none!important}
 .rx-o span{display:flex;flex-direction:column;gap:2px}.rx-o small{opacity:.8}
 .rx-f{display:flex;gap:8px;flex-wrap:wrap}.rx-f .btn{min-width:110px;justify-content:center;font-weight:700}
 #rxC:disabled{opacity:.5}
+/* case drop-down 25% shorter (13-11) */
+#topbar #caseSel{max-width:210px;min-width:135px}
+@media (max-width:1500px){#topbar #caseSel{max-width:150px}}
