@@ -2278,6 +2278,8 @@ html.no-contacts .ct-item,html.no-contacts .ct-subs{display:none!important}
 .tel-subs .pb-n{margin-left:18px;font-size:12px}.tel-subs .pb-n.pb-off{display:none!important}
 .pb-map{background:#0b1220;border-radius:10px;border:1px solid #334155;display:block}.pb-map .pb-grid line{stroke:#1e293b;stroke-width:1}.pb-map circle{stroke:#fff;stroke-width:.8;opacity:.9;cursor:pointer}.pb-map circle:hover{stroke-width:2.5;opacity:1}.pb-map circle.hit{stroke:#fde047;stroke-width:1.6}.pb-map .pb-sc{fill:#94a3b8;font-size:11px}
 .tabs .ct-sep{align-self:center;opacity:.6;font-weight:700;margin:0 2px}.tabs .ct-ch{border:1px solid var(--c);background:color-mix(in srgb,var(--c) 14%,transparent);color:inherit;border-radius:999px;padding:6px 12px;font-size:12.5px;cursor:pointer;white-space:nowrap}.tabs .ct-ch b{margin-left:4px;opacity:.85}.tabs .ct-ch.on{background:var(--c);color:#fff}
+.eo-act{display:inline-flex;gap:4px;white-space:nowrap}
+#topWho{display:flex;flex-direction:column;line-height:1.15;font-size:11px;opacity:.9;margin-right:8px;align-self:center;min-width:104px;flex:0 1 auto;max-width:190px;overflow:hidden}#topWho>span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#topWho b{font-weight:700}#topWho small{opacity:.7;font-size:10px}#topbar .gsearch{flex:0 1 220px;min-width:110px}#topbar .gsearch #gsearch{width:100%!important;min-width:0}
 
 </style>
 </head>
@@ -2326,7 +2328,7 @@ html.no-contacts .ct-item,html.no-contacts .ct-subs{display:none!important}
         <div class="hp-feat" style="--fc:#06b6d4"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><div><b>Analytics</b><p>The same mobile, account, IP or e-mail across complaints, banks and platforms.</p></div></div>
         <div class="hp-feat" style="--fc:#eab308"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h5"/></svg></span><div><b>Case File &amp; Notices</b><p>Case reports, notices to banks and platforms, and CSV / PDF exports.</p></div></div>
     </section>
-    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-13 15:02 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
+    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-13 15:18 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
   </div>
 
   <div class="lg-wrap" id="lgWrap" aria-hidden="true">
@@ -8060,7 +8062,10 @@ let LayoutSoc = null;
     const c = typeof activeCase === 'function' ? activeCase() : {};
     const n = Trail.complaints().length;
     $('#sideInfo').innerHTML = `<div class="si-case">${esc(c.name || '')}</div><div class="si-row"><span>Complaints</span><b>${fmtNum(n)}</b></div><div class="si-row"><span>Transactions</span><b>${fmtNum(d.txns.length)}</b></div><div class="si-row"><span>KYC records</span><b>${fmtNum(d.kyc.length)}</b></div><div class="si-row"><span>Social records</span><b>${fmtNum(d.social.length)}</b></div>`;
-    $('#statusbar').innerHTML = `<span class="sb-safe no-tc" title="Case files, CDRs, statements and reports are saved only in this browser on this computer. Only an optional Fetch Online look-up sends the one value you search, and only when you click it."><svg class="safe-ic" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5z" fill="#10b981"/><rect x="8.5" y="11" width="7" height="5.5" rx="1" fill="#fff"/><path d="M10 11V9.5a2 2 0 0 1 4 0V11" fill="none" stroke="#fff" stroke-width="1.6"/></svg><b>Offline</b> · Your case data stays on this computer, never uploaded to any server</span><span class="sep">|</span><span>Case: <b>${esc(c.name || '')}</b>${c.status ? ' · ' + esc(c.status) : ''}</span><span class="sep">|</span><span>${fmtNum(n)} complaints · ${fmtNum(d.txns.length)} txns · ${fmtNum(d.kyc.length)} KYC · ${fmtNum(d.social.length)} social</span><span class="spacer"></span><span>Signed in as <b>${esc(S.settings.user)}</b></span><span class="sep">|</span><span>SudarshanAshtra v2.0</span>`;
+    /* signed-in user + version: top bar, just before Search, on every page */
+    { const tb = $('#topbar'), gs = $('#gsearch'); let w = $('#topWho'); if (tb && gs && !w) { w = document.createElement('span'); w.id = 'topWho'; w.className = 'no-tc'; let at = gs; while (at.parentElement && at.parentElement !== tb) at = at.parentElement; tb.insertBefore(w, at); }
+      if (w) w.innerHTML = `<span title="Signed in as ${esc(S.settings.user || '')}">👤 Signed in as <b>${esc(S.settings.user || '')}</b></span><span><small>SudarshanAshtra v2.0</small></span>`; }
+    $('#statusbar').innerHTML = `<span class="sb-safe no-tc" title="Case files, CDRs, statements and reports are saved only in this browser on this computer. Only an optional Fetch Online look-up sends the one value you search, and only when you click it."><svg class="safe-ic" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5z" fill="#10b981"/><rect x="8.5" y="11" width="7" height="5.5" rx="1" fill="#fff"/><path d="M10 11V9.5a2 2 0 0 1 4 0V11" fill="none" stroke="#fff" stroke-width="1.6"/></svg><b>Offline</b> · Your case data stays on this computer, never uploaded to any server</span><span class="sep">|</span><span>Case: <b>${esc(c.name || '')}</b>${c.status ? ' · ' + esc(c.status) : ''}</span><span class="sep">|</span><span>${fmtNum(n)} complaints · ${fmtNum(d.txns.length)} txns · ${fmtNum(d.kyc.length)} KYC · ${fmtNum(d.social.length)} social</span>`;
   };
 })();
 
@@ -16816,7 +16821,13 @@ const EO = {
       { key: 'sent', label: 'Report Sent / Closed', render: r => esc(this.dmy(r.sent)) },
       { key: 'days', label: 'Days', num: true, sortVal: r => this.days(r) === '' ? -1 : this.days(r), render: r => { const d = this.days(r); return d === '' ? '' : `<b class="${r.status === 'Pending' && d >= 30 ? 'bad-t' : ''}">${d}</b>`; } },
       { key: 'status', label: 'Status', csv: r => this.stTxt(r), render: r => { const s = this.ST[r.status] || this.ST.Pending; return `<span class="eo-st" style="--c:${s[2]}">${s[0]} ${s[1]}</span>${r.status === 'FIR' && this.firTxt(r) ? `<div class="small muted">${esc(this.firTxt(r))}</div>` : ''}`; } },
-      { key: 'notes', label: 'Closing Notes', render: r => `<span class="small">${esc(String(r.notes || '').slice(0, 120))}</span>` }] });
+      { key: 'notes', label: 'Closing Notes', render: r => `<span class="small">${esc(String(r.notes || '').slice(0, 120))}</span>` },
+      { key: 'act', label: 'Edit / Remove', nosort: true, noexport: true, render: r => `<span class="eo-act"><button class="btn sm" data-eoe="${esc(r.id)}" title="Edit this enquiry">✏️</button><button class="btn sm danger" data-eod="${esc(r.id)}" title="Remove this enquiry">🗑</button></span>` }] });
+    $('#eoT', el).addEventListener('click', async e => { const b = e.target.closest('[data-eoe],[data-eod]'); if (!b) return; e.stopPropagation(); e.preventDefault();
+      const all = await this.list(), r = all.find(y => y.id === (b.dataset.eoe || b.dataset.eod)); if (!r) return;
+      if (b.dataset.eoe) return this.edit(r, el);
+      if (!UI.confirm(`Remove enquiry SR ${r.sr || ''} – ${this.caseNo(r)}${r.victim ? ' – ' + r.victim : ''}?`)) return;
+      all.splice(all.indexOf(r), 1); await Off.put('eo'); UI.toast('🗑 Enquiry removed'); this.page(el); }, true);
     const re = () => this.page(el);
     $$('[data-eof]', el).forEach(b => { b.onclick = () => { st.f = b.dataset.eof === 'all' ? '' : b.dataset.eof; re(); };
       b.onmouseenter = () => this.tip(b, L.filter(r => this.match(r, b.dataset.eof === 'all' ? '' : b.dataset.eof))); b.onmouseleave = () => this.tip(null); });
@@ -18333,10 +18344,10 @@ Pages.nodalm = main => NodalM.page(main);
   const r0 = render; render = function () { const r = r0.apply(this, arguments); if (S.page === 'nodalm') { const it = $('.eo-item'); if (it) { it.classList.add('active', 'open'); eos.classList.add('open'); S.eoOpen = true; } } return r; }; })();
 /* ---------- 3. EO: import existing enquiries (Excel / CSV / Word table) ---------- */
 Object.assign(EO, {
-  IMPF: [['sr', 'SR No.', /^(s\.?\s*no|sr|sl|क्र)/i], ['type', 'Type', /type|प्रकार|category/i], ['no', 'Complaint / Ack / Case No.', /ack|complaint\s*no|case\s*no|शिकायत\s*सं|application\s*no|appl|^no\.?$/i], ['year', 'Year', /year|वर्ष/i],
-    ['victim', 'Victim / Applicant', /victim|complainant|applicant|पीड़ित|आवेदक|शिकायतकर्ता|^name/i], ['mobile', 'Victim Mobile', /mobile|phone|contact|मोबाइल/i], ['amount', 'Fraud Amount', /amount|राशि|₹|rs\.?$/i],
+  IMPF: [['sr', 'SR No.', /^(s\.?\s*no|sr|sl|क्र)/i], ['type', 'Type', /type|प्रकार|category/i], ['no', 'Complaint / Ack / Case No.', /ack|comp(laint)?\.?\s*(no|number)|case\s*no|शिकायत\s*सं|application\s*no|appl|^no\.?$/i], ['year', 'Year', /year|वर्ष/i],
+    ['victim', 'Victim / Applicant', /victim|complainant|applicant|पीड़ित|आवेदक|शिकायतकर्ता|^name/i], ['mobile', 'Victim Mobile', /mobile|phone|contact|मोबाइल/i], ['amount', 'Fraud Amount', /amount|\bamt\b|राशि|₹|rs\.?$/i],
     ['recv', 'Received Date', /receiv|प्राप्त|complaint\s*date|date\s*of\s*complaint|^date$|दिनांक/i], ['brief', 'Short Details', /brief|detail|fact|subject|nature|विवरण|विषय|घटना/i], ['status', 'Status', /status|स्थिति|result/i],
-    ['sent', 'Report Sent / Closed Date', /sent|close|disposal|निस्तारण|report\s*date/i], ['notes', 'Closing Notes', /remark|note|finding|टिप्पणी|action/i], ['firno', 'FIR No.', /fir/i], ['ps', 'Police Station', /police\s*station|^ps$|थाना/i], ['io', 'IO Name', /^io|investigat|विवेचक/i]],
+    ['sent', 'Report Sent / Closed Date', /sent|close|disposal|निस्तारण|report\s*date/i], ['notes', 'Closing Notes', /remark|note|finding|टिप्पणी|action/i], ['firno', 'FIR No. / FIR Lodged', /fir/i], ['ps', 'Police Station', /police\s*station|^ps$|थाना/i], ['io', 'IO Name', /^io|investigat|विवेचक/i]],
   async rowsOf(f) {
     if (/\.(xlsx?|xlsb|ods|csv)$/i.test(f.name)) { const wb = /\.csv$/i.test(f.name) ? XLSX.read(await f.text(), { type: 'string', raw: true }) : XLSX.read(new Uint8Array(await f.arrayBuffer()), { type: 'array', cellDates: true });
       let best = []; wb.SheetNames.forEach(sn => { const A = XLSX.utils.sheet_to_json(wb.Sheets[sn], { header: 1, defval: '', raw: false, dateNF: 'dd/mm/yyyy' }); if (A.length > best.length) best = A; }); return best; }
@@ -18346,17 +18357,29 @@ Object.assign(EO, {
       if (best.length) return best; return (await NoticeKit.readAny(f)).split('\n').filter(l => l.includes('\t')).map(l => l.split('\t')); }
     return (await NoticeKit.readAny(f)).split('\n').filter(l => /\t|\|/.test(l)).map(l => l.split(/\t|\|/));
   },
+  dkey(y) { const n = String(y.no || '').replace(/\s+/g, '').replace(/^0+/, '').toUpperCase(); return n ? 'n|' + n + '|' + y.year : 's|' + String(y.sr || '').trim() + '|' + y.year + '|' + String(y.victim || '').trim().toUpperCase(); },
+  /* same enquiry entered twice (import + add, or an old import without the Complaint No.) */
+  dups(L) { const M = new Map(); L.forEach(y => { const k = this.dkey(y); (M.get(k) || M.set(k, []).get(k)).push(y); });
+    const S2 = new Map(); L.filter(y => y.no).forEach(y => { const k = 's|' + String(y.sr || '').trim() + '|' + y.year + '|' + String(y.victim || '').trim().toUpperCase(); (S2.get(k) || S2.set(k, []).get(k)).push(y); });
+    const G = [...M.values()].filter(a => a.length > 1); L.filter(y => !y.no).forEach(y => { const k = 's|' + String(y.sr || '').trim() + '|' + y.year + '|' + String(y.victim || '').trim().toUpperCase(), o = S2.get(k); if (o && !G.some(g => g.includes(y))) G.push([...o, y]); });
+    return G; },
+  dupOpen(el) { this.list().then(L => { const G = this.dups(L);
+    const m = UI.modal('🧹 Same Enquiry Entered Twice – ' + G.length, G.length ? `<p class="small">Each group below is one enquiry that is in the list more than once. <b>Keep</b> the right one – the others are removed. Nothing is removed until you press a button.</p>${G.map((g, i) => `<div class="card" style="padding:8px;margin:6px 0"><b>Group ${i + 1}</b>${g.map((y, j) => `<div class="row" style="gap:8px;align-items:center;margin-top:4px"><button class="btn sm ${j ? '' : 'primary'}" data-dk="${i}|${esc(y.id)}">✔ Keep</button><span class="small">SR ${esc(y.sr || '')} · ${esc(this.caseNo(y))} · ${esc(y.victim || '')} · ${esc(y.status || '')}${y.at ? ' · added ' + esc(String(y.at).slice(0, 10)) : ''}</span></div>`).join('')}</div>`).join('')}` : '<p>✔ No enquiry is entered twice.</p>',
+      [...(G.length ? [{ label: '✔ Keep First Of Every Group', cls: 'primary', onClick: async () => { const rm = new Set(G.flatMap(g => g.slice(1).map(y => y.id))); const A = await this.list(); for (let i = A.length - 1; i >= 0; i--) if (rm.has(A[i].id)) A.splice(i, 1); await Off.put('eo'); UI.closeModal(); UI.toast(`🧹 ${rm.size} extra entr${rm.size === 1 ? 'y' : 'ies'} removed`); this.page(el); } }] : []), { label: 'Close', onClick: UI.closeModal }]);
+    $$('[data-dk]', m).forEach(b => b.onclick = async () => { const [gi, id] = b.dataset.dk.split('|'), rm = new Set(G[+gi].filter(y => y.id !== id).map(y => y.id)), A = await this.list(); for (let i = A.length - 1; i >= 0; i--) if (rm.has(A[i].id)) A.splice(i, 1); await Off.put('eo'); UI.closeModal(); UI.toast('🧹 Removed ' + rm.size); this.page(el); this.dupOpen(el); }); }); },
   mapOf(H) { const M = {}; H.forEach((h, i) => { h = String(h).trim(); if (!h) return; const hit = this.IMPF.find(([k, , re]) => !(k in M) && re.test(h)); if (hit) M[hit[0]] = i; }); return M; },
   rowTo(r, M) {
     const g = k => M[k] != null ? String(r[M[k]] == null ? '' : r[M[k]]).trim() : '', d = v => { const t = Trend.ts(v); return t ? new Date(t + 6 * 36e5).toISOString().slice(0, 10) : ''; };
     const no = g('no').replace(/\s+/g, ''), ty = g('type'), st = g('status'), err = [];
-    const x = { sr: g('sr'), type: /fir/i.test(ty) ? 'FIR' : /ncrp|1930|ack/i.test(ty) || /^\d{14}$/.test(no) ? 'NCRP' : /comp|appl|शिकायत|प्रार्थना/i.test(ty) ? 'COMP' : (g('firno') ? 'FIR' : 'COMP'), no, year: (g('year').match(/(19|20)\d\d/) || [String(new Date().getFullYear())])[0],
+    /* the sheet's own Status decides; "FIR Lodged" column only fills the FIR details (and the status when Status is empty) */
+    const fn = g('firno'), fy = /^(y|yes|haan|हाँ|हां|✓|√|1|true)$/i.test(fn), x = { sr: g('sr'), type: /fir/i.test(ty) ? 'FIR' : /ncrp|1930|ack/i.test(ty) || /^\d{14}$/.test(no) ? 'NCRP' : 'COMP', no, year: (g('year').match(/(19|20)\d\d/) || [String(new Date().getFullYear())])[0],
       victim: g('victim'), mobile: g('mobile').replace(/\D/g, '').slice(-10), amount: String(+g('amount').replace(/[^\d.]/g, '') || ''), recv: d(g('recv')), brief: g('brief'), notes: g('notes'), sent: d(g('sent')),
-      status: /fir/i.test(st) || g('firno') ? 'FIR' : /close|dispos|निस्तार|बंद|समाप्त|file/i.test(st) ? 'Close' : 'Pending', fir: { no: g('firno'), ps: g('ps'), io: g('io') } };
+      status: /fir/i.test(st) ? 'FIR' : /close|dispos|निस्तार|बंद|समाप्त|file/i.test(st) ? 'Close' : /pend|लंबित/i.test(st) ? 'Pending' : fn ? 'FIR' : 'Pending', fir: { no: fy ? '' : fn, ps: g('ps'), io: g('io') } };
+    if (x.mobile.length < 10) x.mobile = '';
     if (!x.no && !x.victim) err.push('no Complaint No. or Victim');
-    if (g('mobile') && !/^[6-9]\d{9}$/.test(x.mobile)) err.push('mobile not 10 digits');
+    if (g('mobile') && +g('mobile') !== 0 && !/^[6-9]\d{9}$/.test(x.mobile)) err.push('mobile not 10 digits');
     if (g('recv') && !x.recv) err.push('received date not read');
-    if (g('amount') && !x.amount) err.push('amount not a number');
+    if (g('amount') && !x.amount && !/^[\s0.\-–—₹rs/nil]*$/i.test(g('amount'))) err.push('amount not a number');
     return { x, err };
   },
   importPick(el) {
@@ -18373,14 +18396,17 @@ Object.assign(EO, {
           <div class="tbl-wrap" style="max-height:300px"><table class="tbl"><thead><tr><th>#</th><th>Type</th><th>No. / Year</th><th>Victim</th><th>Mobile</th><th>Amount</th><th>Received</th><th>Status</th><th>Check</th></tr></thead><tbody>${R.slice(0, 200).map(({ x, err }, i) => `<tr><td>${i + 1}</td><td>${x.type}</td><td>${esc(x.no)}/${x.year}</td><td>${esc(x.victim)}</td><td>${esc(x.mobile)}</td><td>${x.amount ? fmtINR(+x.amount) : ''}</td><td>${esc(this.dmy(x.recv))}</td><td>${x.status}</td><td>${err.length ? `<span class="bad-t">⚠ ${esc(err.join(', '))}</span>` : '✔'}</td></tr>`).join('')}</tbody></table></div>`;
         $$('[data-ei]', P).forEach(s => s.onchange = () => { const i = +s.dataset.ei; Object.keys(M).forEach(k => { if (M[k] === i) delete M[k]; }); if (s.value) M[s.value] = i; show(); });
         this._imp = async () => { const L = await this.list(); let a = 0, u = 0, sr = Math.max(0, ...L.map(y => +y.sr || 0));
-          for (const { x } of R) { const o = x.no && L.find(y => y.type === x.type && String(y.no) === x.no && String(y.year) === x.year);
+          const sk = y => String(y.sr || '').trim() + '|' + y.year + '|' + String(y.victim || '').trim().toUpperCase();
+          for (const { x } of R) { const o = L.find(y => this.dkey(y) === this.dkey(x)) || L.find(y => !y.no && sk(y) === sk(x));
             if (o) { Object.keys(x).forEach(k => { if (k === 'fir') { o.fir = o.fir || {}; Object.keys(x.fir).forEach(j => { if (x.fir[j]) o.fir[j] = x.fir[j]; }); } else if (x[k]) o[k] = x[k]; }); u++; }
             else { L.push({ id: uid(), ...x, sr: x.sr || String(++sr), at: new Date().toISOString() }); a++; } }
           await Off.put('eo'); UI.closeModal(); UI.toast(`📥 ${a} enquiries added · ${u} updated`, 5000); this.page(el); }; };
       show(); };
   }
 });
-{ const pg = EO.page.bind(EO); EO.page = async function (el) { const r = await pg(el); const a = $('#eoAdd', el); if (a && !$('#eoImp', el)) { a.insertAdjacentHTML('afterend', '<button class="btn" id="eoImp" title="Your existing enquiry register – Excel / CSV / Word table">📥 Import Enquiries</button>'); $('#eoImp', el).onclick = () => this.importPick(el); } return r; }; }
+{ const pg = EO.page.bind(EO); EO.page = async function (el) { const r = await pg(el); const a = $('#eoAdd', el); if (a && !$('#eoImp', el)) { a.insertAdjacentHTML('afterend', '<button class="btn" id="eoImp" title="Your existing enquiry register – Excel / CSV / Word table">📥 Import Enquiries</button>'); $('#eoImp', el).onclick = () => this.importPick(el); }
+  const dn = this.dups(await this.list()).reduce((s, g) => s + g.length - 1, 0); if (dn && a && !$('#eoDup', el)) { a.parentElement.insertAdjacentHTML('afterend', `<div class="note warn" id="eoDup" style="margin-top:8px">⚠ <b>${dn}</b> enquir${dn === 1 ? 'y is' : 'ies are'} in the list twice (same Complaint No. / SR + Victim). <button class="btn sm primary" id="eoDupB">🧹 Check &amp; Remove</button></div>`); $('#eoDupB', el).onclick = () => this.dupOpen(el); }
+  return r; }; }
 
 </script>
 <script>

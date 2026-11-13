@@ -46,7 +46,13 @@ const EO = {
       { key: 'sent', label: 'Report Sent / Closed', render: r => esc(this.dmy(r.sent)) },
       { key: 'days', label: 'Days', num: true, sortVal: r => this.days(r) === '' ? -1 : this.days(r), render: r => { const d = this.days(r); return d === '' ? '' : `<b class="${r.status === 'Pending' && d >= 30 ? 'bad-t' : ''}">${d}</b>`; } },
       { key: 'status', label: 'Status', csv: r => this.stTxt(r), render: r => { const s = this.ST[r.status] || this.ST.Pending; return `<span class="eo-st" style="--c:${s[2]}">${s[0]} ${s[1]}</span>${r.status === 'FIR' && this.firTxt(r) ? `<div class="small muted">${esc(this.firTxt(r))}</div>` : ''}`; } },
-      { key: 'notes', label: 'Closing Notes', render: r => `<span class="small">${esc(String(r.notes || '').slice(0, 120))}</span>` }] });
+      { key: 'notes', label: 'Closing Notes', render: r => `<span class="small">${esc(String(r.notes || '').slice(0, 120))}</span>` },
+      { key: 'act', label: 'Edit / Remove', nosort: true, noexport: true, render: r => `<span class="eo-act"><button class="btn sm" data-eoe="${esc(r.id)}" title="Edit this enquiry">✏️</button><button class="btn sm danger" data-eod="${esc(r.id)}" title="Remove this enquiry">🗑</button></span>` }] });
+    $('#eoT', el).addEventListener('click', async e => { const b = e.target.closest('[data-eoe],[data-eod]'); if (!b) return; e.stopPropagation(); e.preventDefault();
+      const all = await this.list(), r = all.find(y => y.id === (b.dataset.eoe || b.dataset.eod)); if (!r) return;
+      if (b.dataset.eoe) return this.edit(r, el);
+      if (!UI.confirm(`Remove enquiry SR ${r.sr || ''} – ${this.caseNo(r)}${r.victim ? ' – ' + r.victim : ''}?`)) return;
+      all.splice(all.indexOf(r), 1); await Off.put('eo'); UI.toast('🗑 Enquiry removed'); this.page(el); }, true);
     const re = () => this.page(el);
     $$('[data-eof]', el).forEach(b => { b.onclick = () => { st.f = b.dataset.eof === 'all' ? '' : b.dataset.eof; re(); };
       b.onmouseenter = () => this.tip(b, L.filter(r => this.match(r, b.dataset.eof === 'all' ? '' : b.dataset.eof))); b.onmouseleave = () => this.tip(null); });
