@@ -97,7 +97,7 @@ const Desk = {
         } }]);
     });
   },
-  pwDone() { UI.toast('✔ New password saved – log in now', 6000); this.note(); $('#lgErr').textContent = ''; $('#lgPass').value = ''; $('#lgPass').focus(); },
+  pwDone() { try { window.LoginLock && window.LoginLock.ok(); } catch (e) { } UI.toast('✔ New password saved – log in now', 6000); this.note(); $('#lgErr').textContent = ''; $('#lgPass').value = ''; $('#lgPass').focus(); },
   async forgot() {
     const em = this.email(), p = this.lic();
     const b = UI.modal('🔑 Forgot Password?', `<div class="dk-fg">
