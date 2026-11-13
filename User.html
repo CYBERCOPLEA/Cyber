@@ -2241,6 +2241,25 @@ html.ed-user .nav-bottom,html.ed-user #sidebar [data-page="settings"]{display:no
 .jm-tip{position:fixed;z-index:9999;max-width:520px;background:#0b1220;color:#e5e7eb;border:1px solid #334155;border-radius:10px;padding:8px 10px;box-shadow:0 10px 30px rgba(0,0,0,.45);font-size:12.5px;pointer-events:none}.jm-tip table{border-collapse:collapse;margin:6px 0}.jm-tip td{padding:2px 6px;border-bottom:1px solid #1f2937;white-space:nowrap}
 .jm-sec{margin:10px 0 4px;font-weight:700;color:#60a5fa}.jm-w{grid-column:span 1}.jm-w textarea{width:100%}
 .df-bar .df-lg{display:flex;gap:0}.df-bar .df-lg .btn{border-radius:0;text-transform:none;letter-spacing:0}.df-bar .df-lg .btn:first-child{border-radius:8px 0 0 8px}.df-bar .df-lg .btn:last-child{border-radius:0 8px 8px 0}.df-bar .df-lg .btn.on{background:var(--accent,#2563eb);color:#fff;border-color:var(--accent,#2563eb)}
+.jm-fd{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;border:1px solid #0ea5e9;background:rgba(14,165,233,.14);font-size:12.5px;white-space:nowrap}.jm-fd b{color:#0ea5e9}
+.jm-pd{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px;font-size:12.5px}.jm-pd>span:first-child{font-weight:700}
+.jm-pc{border-radius:999px;padding:5px 12px;cursor:pointer;font-size:12.5px;border:2px solid;transition:transform .12s}.jm-pc:hover{transform:translateY(-1px)}.jm-pc b{font-size:15px;margin-right:3px}
+.jm-pc.g{background:#dcfce7;color:#14532d;border-color:#16a34a}.jm-pc.r{background:#fee2e2;color:#7f1d1d;border-color:#dc2626}.jm-pc.on{box-shadow:0 0 0 3px rgba(99,102,241,.5)}
+.jm-pdy{display:inline-block;margin-top:3px;padding:1px 8px;border-radius:999px;font-size:11.5px;font-weight:700;white-space:nowrap}.jm-pdy.g{background:#dcfce7;color:#166534;border:1px solid #16a34a}.jm-pdy.r{background:#fee2e2;color:#991b1b;border:1px solid #dc2626}
+.jm-red{color:#dc2626}.jm-grn{color:#16a34a}
+.jm-sdg{display:grid;grid-template-columns:minmax(320px,1fr) 1.3fr;gap:18px;margin-top:10px}@media(max-width:1100px){.jm-sdg{grid-template-columns:1fr}}
+.jm-ring{display:flex;gap:14px;align-items:flex-start}.jm-arc{cursor:pointer;stroke:var(--surface-1,#111);stroke-width:1.5;transition:opacity .12s}.jm-arc:hover{opacity:.8}.jm-arc.on{stroke:#fff;stroke-width:3}
+.jm-rt{font-size:22px;font-weight:800;fill:currentColor}.jm-rs{font-size:11px;fill:currentColor;opacity:.7}
+.jm-lg{display:flex;flex-direction:column;gap:3px;flex:1;min-width:0}.jm-li{display:flex;align-items:center;gap:6px;padding:3px 8px;border-radius:6px;border:1px solid transparent;background:none;color:inherit;cursor:pointer;text-align:left;font-size:12.5px}.jm-li:hover,.jm-li.on{border-color:var(--border);background:rgba(99,102,241,.12)}
+.jm-li i{width:11px;height:11px;border-radius:3px;flex:none}.jm-li span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.jm-li em{font-size:11px;color:#f97316;font-style:normal}
+.jm-bars{display:flex;flex-direction:column;gap:4px}.jm-bar{display:grid;grid-template-columns:150px 1fr 44px;align-items:center;gap:8px;padding:3px 6px;border-radius:6px;border:1px solid transparent;background:none;color:inherit;cursor:pointer;text-align:left;font-size:12.5px}
+.jm-bar:hover,.jm-bar.on{border-color:var(--border);background:rgba(99,102,241,.12)}.jm-bn{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.jm-bn small{display:block;opacity:.6;font-size:10.5px}
+.jm-bt{display:flex;height:14px;border-radius:7px;overflow:hidden;min-width:4px}.jm-bt i.c,.jm-k.c{background:#16a34a}.jm-bt i.u,.jm-k.u{background:#2563eb}.jm-bt i.p,.jm-k.p{background:#f97316}.jm-bar b{text-align:right}
+.jm-k{display:inline-block;padding:0 6px;border-radius:4px;color:#fff;font-size:11px}
+.tg-src{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:10px}.tg-sl{font-size:12px;font-weight:700;margin-right:4px;min-width:78px}
+.tg-sc{border:1px solid var(--c);background:color-mix(in srgb,var(--c) 14%,transparent);color:inherit;border-radius:999px;padding:3px 10px;font-size:12px;cursor:pointer}.tg-sc b{color:var(--c);margin-left:3px}.tg-sc.on{background:var(--c);color:#fff}.tg-sc.on b{color:#fff}.tg-sc.zero{opacity:.45}
+.tg-sp{display:inline-block;margin:1px 0;padding:0 7px;border-radius:999px;font-size:11px;border:1px solid var(--c);color:var(--c);white-space:nowrap}.tg-ty{font-size:15px}
+#tgT td:nth-child(3){min-width:190px;max-width:250px;white-space:normal}
 
 </style>
 </head>
@@ -2289,7 +2308,7 @@ html.ed-user .nav-bottom,html.ed-user #sidebar [data-page="settings"]{display:no
         <div class="hp-feat" style="--fc:#06b6d4"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><div><b>Analytics</b><p>The same mobile, account, IP or e-mail across complaints, banks and platforms.</p></div></div>
         <div class="hp-feat" style="--fc:#eab308"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h5"/></svg></span><div><b>Case File &amp; Notices</b><p>Case reports, notices to banks and platforms, and CSV / PDF exports.</p></div></div>
     </section>
-    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-13 13:07 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
+    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-13 13:24 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
   </div>
 
   <div class="lg-wrap" id="lgWrap" aria-hidden="true">
@@ -17022,10 +17041,10 @@ const Target = {
   ok: a => { a = String(a || '').trim(); return a.length >= 6 && !/^(VICTIM|CASH|ATM|NA|N\/A|NIL)/i.test(a) && !(typeof isSynthetic === 'function' && isSynthetic(a)); },
   one(c, d) {
     const M = new Map(), lab = AllMode && AllMode.caseLabel ? AllMode.caseLabel(c) : c.name;
-    const get = acc => { let t = M.get(acc); if (!t) M.set(acc, t = { acc, caseId: c.id, case: lab, names: [], banks: [], ifsc: [], branch: [], mobile: [], email: [], pan: [], aadhaar: [], kyc: [], ckyc: [], address: [], state: [], district: [], atm: [], chq: [], utr: [], acks: [], layers: [], amt: 0 }); return t; };
+    const get = acc => { let t = M.get(acc); if (!t) M.set(acc, t = { acc, type: 'account', key: 'account|' + acc, src: [], refs: [], upi: [], imei: [], other: [], caseId: c.id, case: lab, names: [], banks: [], ifsc: [], branch: [], mobile: [], email: [], pan: [], aadhaar: [], kyc: [], ckyc: [], address: [], state: [], district: [], atm: [], chq: [], utr: [], acks: [], layers: [], amt: 0 }); return t; };
     const put = (t, k, v) => { v = String(v || '').trim(); if (v && v !== '-' && !t[k].includes(v)) t[k].push(v); };
     for (const x of d.txns || []) {
-      if (!this.ok(x.to_acc)) continue; const t = get(String(x.to_acc).trim()), how = [x.mode, x.action, x.remarks].join(' ');
+      if (!this.ok(x.to_acc)) continue; const t = get(String(x.to_acc).trim()); if (!t.src.includes('Financial Trail')) t.src.push('Financial Trail'); const how = [x.mode, x.action, x.remarks].join(' ');
       put(t, 'names', x.to_name); put(t, 'banks', x.to_bank); put(t, 'ifsc', x.to_ifsc); ['mobile', 'email', 'pan', 'aadhaar', 'state', 'district'].forEach(k => put(t, k, x[k])); put(t, 'acks', x.ack_no); if (x.layer != null) put(t, 'layers', 'L' + x.layer);
       t.amt += Math.abs(+x.amount || 0);
       if (x.txn_id) t.utr.push({ utr: String(x.txn_id), date: [x.date, x.time].filter(Boolean).join(' '), amt: +x.amount || 0, from: x.from_acc || '', mode: x.mode || '', act: x.action || '' });
@@ -17033,7 +17052,7 @@ const Target = {
       if (/che(que|ck)|\bchq\b|clearing/i.test(how)) put(t, 'chq', x.atm_loc || (how.match(/(?:branch|br\.?)\s*[:\-]?\s*[^,;|]{2,50}/i) || [''])[0] || x.to_bank);
     }
     for (const k of d.kyc || []) {
-      if (!this.ok(k.acc)) continue; const t = get(String(k.acc).trim());
+      if (!this.ok(k.acc)) continue; const t = get(String(k.acc).trim()); if (!t.src.includes('KYC')) t.src.push('KYC');
       put(t, 'names', k.name); put(t, 'banks', k.bank); put(t, 'ifsc', k.ifsc); put(t, 'branch', k.branch); ['mobile', 'email', 'pan', 'aadhaar', 'address', 'state', 'district'].forEach(f => put(t, f, k[f]));
       put(t, 'kyc', k.kyc_doc || k.id_type || k.acc_type || k.type || 'KYC received'); const ck = k.ckyc || (String(k.remarks || '').match(/ckyc\s*(?:no\.?|number)?\s*[:\-]?\s*(\d{14})/i) || [])[1]; put(t, 'ckyc', ck);
     }
@@ -17043,36 +17062,81 @@ const Target = {
     if (this._d && !force && Date.now() - this._t < 60000) return this._d;
     const all = new Map();
     for (const c of S.cases) {
-      const L = c.id === S.caseId && S.data && !isScope(S.caseId) ? this.one(c, S.data) : await Vault.sum(c.id, 'tgt', 'v1|' + JSON.stringify(c), async () => { const d = await DB.get('case:' + c.id); return d ? this.one(c, Object.assign(emptyCase(), d)) : []; });
+      const L = c.id === S.caseId && S.data && !isScope(S.caseId) ? this.one(c, S.data) : await Vault.sum(c.id, 'tgt', 'v2|' + JSON.stringify(c), async () => { const d = await DB.get('case:' + c.id); return d ? this.one(c, Object.assign(emptyCase(), d)) : []; });
       for (const t of L) { const g = all.get(t.acc); if (!g) { all.set(t.acc, { ...t, cases: [{ id: t.caseId, name: t.case }] }); continue; }
-        for (const k of ['names', 'banks', 'ifsc', 'branch', 'mobile', 'email', 'pan', 'aadhaar', 'kyc', 'ckyc', 'address', 'state', 'district', 'atm', 'chq', 'acks', 'layers']) t[k].forEach(v => { if (!g[k].includes(v)) g[k].push(v); });
+        for (const k of this.AK) (t[k] || []).forEach(v => { if (!g[k].includes(v)) g[k].push(v); });
         g.utr.push(...t.utr); g.amt += t.amt; if (!g.cases.some(x => x.id === t.caseId)) g.cases.push({ id: t.caseId, name: t.case }); }
       await new Promise(r => setTimeout(r, 0));
     }
+    await this.more(all, force);
     const T = [...all.values()];
     // same person: other accounts sharing PAN / Aadhaar / mobile / email
-    const idx = new Map(); T.forEach(t => ['pan', 'aadhaar', 'mobile', 'email'].forEach(k => t[k].forEach(v => { const K = k + '|' + v.toLowerCase(); (idx.get(K) || idx.set(K, []).get(K)).push(t); })));
-    T.forEach(t => { const s = new Set(); ['pan', 'aadhaar', 'mobile', 'email'].forEach(k => t[k].forEach(v => (idx.get(k + '|' + v.toLowerCase()) || []).forEach(o => { if (o !== t) s.add(o.acc); }))); t.links = [...s]; t.utr.sort((a, b) => String(a.date).localeCompare(String(b.date))); t.score = t.cases.length * 10 + t.acks.length * 3 + t.links.length * 2 + (t.layers.includes('L1') ? 2 : 0); });
+    const idx = new Map(); T.forEach(t => ['pan', 'aadhaar', 'mobile', 'email', 'upi'].forEach(k => t[k].forEach(v => { const K = k + '|' + v.toLowerCase(); (idx.get(K) || idx.set(K, []).get(K)).push(t); })));
+    T.forEach(t => { const s = new Set(); ['pan', 'aadhaar', 'mobile', 'email', 'upi'].forEach(k => t[k].forEach(v => (idx.get(k + '|' + v.toLowerCase()) || []).forEach(o => { if (o !== t) s.add(o.acc); }))); t.links = [...s]; t.utr.sort((a, b) => String(a.date).localeCompare(String(b.date))); t.score = t.cases.length * 10 + t.refs.length * 6 + t.acks.length * 3 + t.links.length * 2 + t.src.length * 2 + (t.layers.includes('L1') ? 2 : 0) + (t.type === 'account' ? 1 : 0); });
     this._t = Date.now(); return (this._d = T.sort((a, b) => b.score - a.score));
   },
+  AK: ['names', 'banks', 'ifsc', 'branch', 'mobile', 'email', 'pan', 'aadhaar', 'upi', 'imei', 'other', 'kyc', 'ckyc', 'address', 'state', 'district', 'atm', 'chq', 'acks', 'layers', 'src', 'refs'],
+  TY: { account: ['🏦', 'Account'], mobile: ['📱', 'Mobile'], upi: ['💸', 'UPI ID'], email: ['✉️', 'E-mail'], pan: ['🪪', 'PAN'], aadhaar: ['🆔', 'Aadhaar'], imei: ['📟', 'IMEI'], ip: ['🖧', 'IP'], url: ['🌐', 'URL / Website'], apk: ['📦', 'APK'], telegram: ['✈️', 'Telegram'], person: ['👤', 'Person (Accused)'] },
+  SRC: [['Financial Trail', '#0ea5e9'], ['KYC', '#16a34a'], ['NCRP', '#f97316'], ['CDR / CAF / IPDR', '#a855f7'], ['Social Media', '#ec4899'], ['FIR / Case Diary', '#64748b'], ['Case Files', '#14b8a6'], ['Notices', '#eab308'], ['Crime Data', '#ef4444'], ['Arrest / Accused', '#be123c'], ['EO Enquiry', '#6366f1'], ['JMIS Notice', '#2563eb']],
+  srcOf(s, auto) { s = String(s || ''); if (!auto && !/ncrp|kyc|money|fir|diary/i.test(s)) return 'Crime Data'; return /money|trail|txn|layer/i.test(s) ? 'Financial Trail' : /kyc/i.test(s) ? 'KYC' : /ncrp|complaint/i.test(s) ? 'NCRP' : /caf|cdr|ipdr|tdr|tower|sdr/i.test(s) ? 'CDR / CAF / IPDR' : /fir|diary|document|charge/i.test(s) ? 'FIR / Case Diary' : /notice|draft/i.test(s) ? 'Notices' : /whatsapp|telegram|facebook|instagram|google|gmail|youtube|twitter|x|snap|meta|social|truecaller|sharechat/i.test(s) ? 'Social Media' : 'Case Files'; },
+  /* everything else in the tool: Crime Data (all cases' identifiers + staff entries), Arrest / Accused, EO enquiries, JMIS notices */
+  async more(all, force) {
+    const val = (t, v) => { v = String(v || '').trim(); if (!v) return ''; try { return Off.norm(t === 'whatsapp' ? 'mobile' : t, v); } catch (e) { return v; } };
+    const idx = new Map(); const reidx = t => ['mobile', 'email', 'pan', 'aadhaar', 'upi', 'imei'].forEach(k => (t[k] || []).forEach(v => idx.set(k + '|' + String(v).toLowerCase(), t)));
+    all.forEach(reidx);
+    const blank = (type, v) => ({ acc: v, type, key: type + '|' + v, src: [], refs: [], cases: [], names: [], banks: [], ifsc: [], branch: [], mobile: [], email: [], pan: [], aadhaar: [], upi: [], imei: [], other: [], kyc: [], ckyc: [], address: [], state: [], district: [], atm: [], chq: [], utr: [], acks: [], layers: [], amt: 0 });
+    const pushU = (a, v) => { v = String(v || '').trim(); if (v && v !== '-' && !a.includes(v)) a.push(v); };
+    const tie = (t, o) => { pushU(t.src, o.src); if (o.caseId) { const c = S.cases.find(x => x.id === o.caseId); if (c && !t.cases.some(x => x.id === c.id)) t.cases.push({ id: c.id, name: AllMode && AllMode.caseLabel ? AllMode.caseLabel(c) : c.name }); } if (o.ref) pushU(t.refs, o.ref); if (o.name && !/victim/i.test(o.name)) pushU(t.names, o.name); ['state', 'district', 'ifsc', 'address'].forEach(k => o[k] && pushU(t[k], o[k])); };
+    const KT = { mobile: 'mobile', whatsapp: 'mobile', email: 'email', pan: 'pan', aadhaar: 'aadhaar', upi: 'upi', imei: 'imei' };
+    const add = (type, v, o) => {
+      if (type === 'whatsapp') type = 'mobile'; if (!this.TY[type] || type === 'person') return; v = val(type, v); if (!v || v.length < 4 || /^_+$/.test(v)) return;
+      if (type === 'account') { if (!this.ok(v)) return; let t = all.get(v); if (!t) { t = blank('account', v); all.set(v, t); } tie(t, o); return t; }
+      const hit = KT[type] && idx.get(type + '|' + v.toLowerCase()); if (hit) { tie(hit, o); return hit; }
+      const k = type + '|' + v.toLowerCase(); let t = all.get(k); if (!t) { t = blank(type, v); if (KT[type]) t[KT[type]].push(v); else t.other.push(v); all.set(k, t); idx.set(k, t); } tie(t, o); return t; };
+    // Crime Data: identifiers of every case (refreshed from the case open now) + live / manual staff entries
+    let R = []; try { R = await Off.get('crime', []); if ((!R.length || force) && S.cases.length) { await Off.rescan(true); R = Off.D.crime || []; } } catch (e) { }
+    const curC = S.cases.find(c => c.id === S.caseId), cur = curC && S.data && !isScope(S.caseId) ? (() => { try { return Off.harvest(S.data, curC); } catch (e) { return []; } })() : [];
+    for (const r of R.filter(r => !(r.auto && curC && r.caseId === curC.id)).concat(cur)) { if (/victim/i.test(r.source || '') || r.type === 'name' || r.type === 'ifsc') continue;
+      add(r.type, r.value, { src: this.srcOf(r.source, r.auto), caseId: r.caseId, name: r.name, state: r.state, district: r.district, ref: !r.caseId && r.case ? r.case : '' }); }
+    await new Promise(r => setTimeout(r, 0));
+    // Arrest / Accused: one person target, tied to the accounts / mobiles that person used
+    let AC = []; try { AC = await Off.get('accused', []); } catch (e) { }
+    for (const a of AC) { if (!a || !a.name) continue; const o = { src: 'Arrest / Accused', caseId: a.caseId, name: a.name, ref: a.fir ? 'FIR ' + a.fir + (a.year ? '/' + a.year : '') : '' };
+      const hits = []; [['mobile', a.mobile], ['email', a.email], ['pan', a.pan], ['aadhaar', a.aadhaar]].forEach(([k, v]) => { const t = v && add(k, v, o); if (t) hits.push(t); });
+      for (const x of extractIdentifiers(String(a.social || '') + ' ' + String(a.otherId || ''))) { const t = add(x.type, x.value, o); if (t) hits.push(t); }
+      const pk = 'person|' + String(a.name).toLowerCase() + '|' + String(a.relName || a.father || '').toLowerCase(); let p = all.get(pk);
+      if (!p) { p = blank('person', a.name); all.set(pk, p); } tie(p, o); pushU(p.names, a.alias); pushU(p.address, a.presAddr || a.permAddr || a.address); pushU(p.state, a.state); pushU(p.district, a.district); pushU(p.ckyc, a.ckyc);
+      [['mobile', a.mobile], ['email', a.email], ['pan', a.pan], ['aadhaar', a.aadhaar]].forEach(([k, v]) => v && pushU(p[k], val(k, v))); p.arrest = a.status || ''; p.rel = a.relName || a.father || '';
+      hits.forEach(t => { if (t !== p) { pushU(t.other, '👤 ' + a.name); t.person = a.name; } }); }
+    // EO enquiries and JMIS notices: identifiers written in their details
+    let EOL = [], JL = []; try { EOL = await Off.get('eo', []); JL = await Off.get('jmis', []); } catch (e) { }
+    for (const r of EOL) for (const x of extractIdentifiers([r.brief, r.notes].join(' '))) add(x.type, x.value, { src: 'EO Enquiry', ref: 'EO SR ' + (r.sr || r.no || ''), name: '' });
+    for (const r of JL) { const c = typeof JMIS !== 'undefined' && JMIS.caseOf(r); for (const x of extractIdentifiers([r.brief, r.det, r.resp].join(' '))) add(x.type, x.value, { src: 'JMIS Notice', caseId: c && c.id, ref: 'JMIS ' + (r.reqId || r.fir || ''), state: r.dir === 'raised' ? r.tState : '', district: r.dir === 'raised' ? r.tDist : '' }); }
+    all.forEach(t => { t.cases = t.cases || []; this.AK.forEach(k => t[k] = t[k] || []); t.type = t.type || 'account'; t.key = t.key || 'account|' + t.acc; });
+  },
   jm() { return Off.get('tgt', {}); },
-  st() { return this._s || (this._s = { f: '', c: false, q: '' }); },
+  st() { return this._s || (this._s = { f: '', c: false, q: '', src: '', ty: '' }); },
+  common(t) { return t.cases.length + t.refs.length >= 2 || t.acks.length >= 2 || t.links.length > 0 || !!t.person; },
   async page(main) {
-    main.innerHTML = `<div class="page-head"><div class="ph-text"><div class="crumb">Analysis <span>›</span> Target</div><h2>🎯 Target</h2><div class="ph-desc">Suspect accounts and persons across all cases, in working order: JMIS notice status → account, IFSC, bank, holder → mobile, email, Aadhaar, PAN, KYC, CKYC → state, district → ATM location, cheque branch → UTR trail.</div></div></div><div id="tgB"><div class="card muted">Reading all cases…</div></div>`;
+    main.innerHTML = `<div class="page-head"><div class="ph-text"><div class="crumb">Analysis <span>›</span> Target</div><h2>🎯 Target</h2><div class="ph-desc">Suspect accounts, mobiles, UPI, e-mails, PAN, Aadhaar and accused persons found anywhere in the tool – every case (Financial Trail, KYC, NCRP, CDR / CAF, Social Media, FIR / CD), Crime Data, Arrest, EO and JMIS – in working order: JMIS notice status → account, IFSC, bank, holder → mobile, email, Aadhaar, PAN, KYC, CKYC → state, district → ATM location, cheque branch → UTR trail.</div></div></div><div id="tgB"><div class="card muted">Reading all cases…</div></div>`;
     const [T, J] = [await this.collect(), await this.jm()]; if (S.page !== 'target') return; this.draw($('#tgB', main), T, J);
   },
   sOf(J, t) { return (J[t.acc] && J[t.acc].st) || 'P'; },
   draw(el, T, J) {
     this.tip(null);
-    const st = this.st(), q = st.q.toLowerCase(), common = t => t.cases.length >= 2 || t.acks.length >= 2 || t.links.length > 0;
-    const F = T.filter(t => (!st.f || this.sOf(J, t) === st.f) && (!st.c || common(t)) && (!q || [t.acc, ...t.names, ...t.mobile, ...t.email, ...t.pan, ...t.aadhaar, ...t.ifsc, ...t.banks, ...t.district, ...t.state, ...t.utr.map(u => u.utr)].join(' ').toLowerCase().includes(q)));
+    const st = this.st(), q = st.q.toLowerCase(), common = t => this.common(t);
+    const F = T.filter(t => (!st.f || this.sOf(J, t) === st.f) && (!st.c || common(t)) && (!st.src || t.src.includes(st.src)) && (!st.ty || t.type === st.ty) && (!q || [t.acc, ...t.names, ...t.mobile, ...t.email, ...t.pan, ...t.aadhaar, ...t.upi, ...t.imei, ...t.other, ...t.ifsc, ...t.banks, ...t.district, ...t.state, ...t.refs, ...t.cases.map(c => c.name), ...t.utr.map(u => u.utr)].join(' ').toLowerCase().includes(q)));
+    const sc = this.SRC.map(([s, c]) => [s, c, T.filter(t => t.src.includes(s)).length]), tys = Object.keys(this.TY).map(k => [k, T.filter(t => t.type === k).length]).filter(x => x[1]);
     const n = k => T.filter(t => this.sOf(J, t) === k).length, j = (a, m = 2) => esc(a.slice(0, m).join(', ')) + (a.length > m ? ` <small class="muted">+${a.length - m}</small>` : '');
     el.innerHTML = `<div class="card"><div class="ag-k tg-k"><button class="ag-kb ${!st.f && !st.c ? 'on' : ''}" data-tgf="" style="--c:#6366f1"><span>🎯</span><b>${fmtNum(T.length)}</b><small>All Targets</small></button><button class="ag-kb ${st.c ? 'on' : ''}" data-tgc="1" style="--c:#be123c"><span>🔗</span><b>${fmtNum(T.filter(common).length)}</b><small>Common (2+ Cases / Complaints / Same Person)</small></button>${Object.entries(this.JS).map(([k, [i, l, c]]) => `<button class="ag-kb ${st.f === k ? 'on' : ''}" data-tgf="${k}" style="--c:${c}"><span>${i}</span><b>${fmtNum(n(k))}</b><small>JMIS: ${l}</small></button>`).join('')}</div>
-      <div class="row" style="gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px"><h3 class="grow" style="margin:0">🎯 Targets <span class="badge">${fmtNum(F.length)}</span></h3><input id="tgQ" placeholder="Find account, name, mobile, PAN, UTR…" value="${esc(st.q)}" style="max-width:280px"><button class="btn" id="tgImp" title="Excel / CSV from JMIS with account number and notice status">📥 Import JMIS Status</button><button class="btn" id="tgRe">🔄 Read All Cases Again</button></div>
+      <div class="tg-src"><span class="tg-sl">📂 Found In</span>${sc.map(([s, c, k]) => `<button class="tg-sc ${st.src === s ? 'on' : ''} ${k ? '' : 'zero'}" data-tgs="${esc(s)}" style="--c:${c}">${esc(s)} <b>${fmtNum(k)}</b></button>`).join('')}</div>
+      <div class="tg-src"><span class="tg-sl">🏷 Type</span>${tys.map(([k, n]) => `<button class="tg-sc ${st.ty === k ? 'on' : ''}" data-tgy="${k}" style="--c:#475569">${this.TY[k][0]} ${this.TY[k][1]} <b>${fmtNum(n)}</b></button>`).join('') || '<span class="small muted">No target found yet – add cases (NCRP / bank statements / KYC / CAF), Crime Data, accused, EO or JMIS records, then 🔄 Read All Again.</span>'}</div>
+      <div class="row" style="gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px"><h3 class="grow" style="margin:0">🎯 Targets <span class="badge">${fmtNum(F.length)}</span></h3><input id="tgQ" placeholder="Find account, name, mobile, PAN, UTR…" value="${esc(st.q)}" style="max-width:280px"><button class="btn" id="tgImp" title="Excel / CSV from JMIS with account number and notice status">📥 Import JMIS Status</button><button class="btn" id="tgRe" title="Read every case and every page of the tool again">🔄 Read All Again</button></div>
       <div id="tgT" style="margin-top:10px"></div></div>`;
     Table($('#tgT', el), { rows: F, pageSize: 25, exportName: 'targets', onRow: t => this.open(t, J, () => this.draw(el, T, J)), columns: [
       { key: 'jm', label: 'JMIS Notice', sortVal: t => this.sOf(J, t), csv: t => this.JS[this.sOf(J, t)][1] + (J[t.acc] && J[t.acc].date ? ' · ' + J[t.acc].date : ''), render: t => { const s = this.JS[this.sOf(J, t)]; return `<span class="eo-st" style="--c:${s[2]}">${s[0]} ${s[1]}</span>${J[t.acc] && J[t.acc].date ? `<div class="small muted">${esc(EO.dmy(J[t.acc].date))}</div>` : ''}`; } },
-      { key: 'acc', label: 'Account', render: t => `<b class="mono">${esc(t.acc)}</b>${common(t) ? ' <span class="tg-c" title="Common target">🔗</span>' : ''}<div class="small muted">${esc(t.layers.join(' '))}</div>` },
+      { key: 'acc', label: 'Target', sortVal: t => t.type + t.acc, csv: t => this.TY[t.type][1] + ': ' + t.acc, render: t => `<span class="tg-ty" title="${this.TY[t.type][1]}">${this.TY[t.type][0]}</span> <b class="mono">${esc(t.acc)}</b>${common(t) ? ' <span class="tg-c" title="Common target">🔗</span>' : ''}${t.person ? `<div class="small">👤 ${esc(t.person)}</div>` : ''}${t.arrest ? `<div class="small">⛓ ${esc(t.arrest)}</div>` : ''}<div class="small muted">${esc(t.layers.join(' '))}</div>` },
+      { key: 'src', label: 'Found In', sortVal: t => t.src.length, csv: t => t.src.join('; '), render: t => t.src.map(s => { const c = (this.SRC.find(x => x[0] === s) || [, '#64748b'])[1]; return `<span class="tg-sp" style="--c:${c}">${esc(s)}</span>`; }).join(' ') },
       { key: 'ifsc', label: 'IFSC', csv: t => t.ifsc.join('; '), render: t => `<span class="mono small">${j(t.ifsc, 1)}</span>` },
       { key: 'bank', label: 'Bank', csv: t => t.banks.join('; '), render: t => j(t.banks, 1) },
       { key: 'name', label: 'Holder', csv: t => t.names.join('; '), sortVal: t => t.names[0] || '', render: t => `<b>${j(t.names, 1)}</b>` },
@@ -17087,11 +17151,13 @@ const Target = {
       { key: 'atm', label: 'ATM Location', csv: t => t.atm.join('; '), render: t => `<span class="small">${j(t.atm, 1)}</span>` },
       { key: 'chq', label: 'Cheque Branch', csv: t => t.chq.join('; '), render: t => `<span class="small">${j(t.chq, 1)}</span>` },
       { key: 'utr', label: 'UTR Trail', sortVal: t => t.utr.length, csv: t => t.utr.map(u => u.utr).join('; '), render: t => t.utr.length ? `<b>${t.utr.length}</b> <span class="small muted mono">${esc(t.utr[0].utr)}${t.utr.length > 1 ? ' …' : ''}</span>` : '' },
-      { key: 'cases', label: 'Cases / Complaints', sortVal: t => t.score, csv: t => t.cases.map(c => c.name).join('; ') + ' | ' + t.acks.join('; '), render: t => `<b class="${t.cases.length > 1 ? 'bad-t' : ''}">${t.cases.length}</b> case${t.cases.length > 1 ? 's' : ''} · <b>${t.acks.length}</b> compl.${t.links.length ? `<div class="small">👤 ${t.links.length} linked A/C</div>` : ''}` },
+      { key: 'cases', label: 'Cases / Complaints / References', sortVal: t => t.score, csv: t => t.cases.map(c => c.name).join('; ') + ' | ' + t.acks.join('; ') + ' | ' + t.refs.join('; '), render: t => `<b class="${t.cases.length > 1 ? 'bad-t' : ''}">${t.cases.length}</b> case${t.cases.length === 1 ? '' : 's'} · <b>${t.acks.length}</b> compl.${t.refs.length ? ` · <b>${t.refs.length}</b> ref.` : ''}${t.links.length ? `<div class="small">🔗 ${t.links.length} linked target${t.links.length > 1 ? 's' : ''}</div>` : ''}` },
       { key: 'amt', label: 'Amount', num: true, render: t => t.amt ? fmtINR(t.amt) : '' }] });
     const re = () => this.draw(el, T, J);
     $$('[data-tgf]', el).forEach(b => { b.onclick = () => { st.f = b.dataset.tgf; st.c = false; re(); }; b.onmouseenter = () => this.tip(b, T.filter(t => !b.dataset.tgf || this.sOf(J, t) === b.dataset.tgf)); b.onmouseleave = () => this.tip(null); });
     $$('[data-tgc]', el).forEach(b => { b.onclick = () => { st.c = !st.c; st.f = ''; re(); }; b.onmouseenter = () => this.tip(b, T.filter(common)); b.onmouseleave = () => this.tip(null); });
+    $$('[data-tgs]', el).forEach(b => { b.onclick = () => { st.src = st.src === b.dataset.tgs ? '' : b.dataset.tgs; re(); }; b.onmouseenter = () => this.tip(b, T.filter(t => t.src.includes(b.dataset.tgs))); b.onmouseleave = () => this.tip(null); });
+    $$('[data-tgy]', el).forEach(b => { b.onclick = () => { st.ty = st.ty === b.dataset.tgy ? '' : b.dataset.tgy; re(); }; b.onmouseenter = () => this.tip(b, T.filter(t => t.type === b.dataset.tgy)); b.onmouseleave = () => this.tip(null); });
     const qi = $('#tgQ', el); qi.onchange = () => { st.q = qi.value; re(); };
     $('#tgRe', el).onclick = async () => { $('#tgRe', el).disabled = true; const T2 = await this.collect(true); this.draw(el, T2, J); };
     $('#tgImp', el).onclick = () => this.imp(J, re);
@@ -17099,13 +17165,13 @@ const Target = {
   tip(el, list) {
     let t = $('#agTip'); if (!el) { if (t) t.remove(); return; }
     if (!t) { t = document.createElement('div'); t.id = 'agTip'; t.className = 'ag-tip'; document.body.appendChild(t); }
-    t.innerHTML = `<b>${list.length} target${list.length === 1 ? '' : 's'}</b>${list.slice(0, 8).map(x => `<div><span class="mono">${esc(x.acc)}</span> · ${esc(x.names[0] || '')} · ${esc(x.banks[0] || '')} <i>${x.cases.length} case</i></div>`).join('')}${list.length > 8 ? `<div class="muted">+ ${list.length - 8} more – click</div>` : ''}`;
+    t.innerHTML = `<b>${list.length} target${list.length === 1 ? '' : 's'}</b>${list.slice(0, 8).map(x => `<div>${this.TY[x.type] ? this.TY[x.type][0] : ''} <span class="mono">${esc(x.acc)}</span> · ${esc(x.names[0] || '')} · ${esc(x.src.join(', '))} · ${esc(x.banks[0] || '')} <i>${x.cases.length} case</i></div>`).join('')}${list.length > 8 ? `<div class="muted">+ ${list.length - 8} more – click</div>` : ''}`;
     const r = el.getBoundingClientRect(); t.style.left = Math.min(innerWidth - 440, Math.max(8, r.left)) + 'px'; t.style.top = (r.bottom + 6) + 'px';
   },
   open(t, J, done) {
     const s = J[t.acc] || { st: 'P', date: '', note: '' }, row = (k, v) => v && v.length ? `<tr><th>${k}</th><td>${esc(Array.isArray(v) ? v.join(', ') : v)}</td></tr>` : '';
     const m = UI.modal('🎯 ' + t.acc + (t.names[0] ? ' · ' + t.names[0] : ''), `<div class="tg-jm"><b>📮 JMIS Notice Status</b><div class="map-grid"><label>Status<select id="tjS">${Object.entries(this.JS).map(([k, [i, l]]) => `<option value="${k}" ${s.st === k ? 'selected' : ''}>${i} ${l}</option>`).join('')}</select></label><label>Date<input type="date" id="tjD" value="${esc(s.date || '')}"></label><label>Note<input id="tjN" value="${esc(s.note || '')}" placeholder="Address found / police station / remarks"></label></div></div>
-      <table class="tg-tb">${row('Account', t.acc)}${row('IFSC', t.ifsc)}${row('Bank', t.banks)}${row('Branch', t.branch)}${row('Holder', t.names)}${row('Mobile', t.mobile)}${row('Email', t.email)}${row('Aadhaar', t.aadhaar)}${row('PAN', t.pan)}${row('KYC', t.kyc)}${row('CKYC', t.ckyc)}${row('Address', t.address)}${row('State', t.state)}${row('District', t.district)}${row('ATM Location', t.atm)}${row('Cheque Branch', t.chq)}${row('Layers', t.layers)}${row('Complaints (Ack)', t.acks)}${row('Cases', t.cases.map(c => c.name))}${row('Same Person – Linked A/C', t.links)}${row('Amount Received', t.amt ? fmtINR(t.amt) : '')}</table>
+      <table class="tg-tb">${row(this.TY[t.type][1], t.acc)}${row('Found In', t.src)}${t.arrest ? row('Arrest Status', t.arrest) : ''}${row('Relation', t.rel || '')}${row('IFSC', t.ifsc)}${row('Bank', t.banks)}${row('Branch', t.branch)}${row('Holder', t.names)}${row('Mobile', t.mobile)}${row('Email', t.email)}${row('Aadhaar', t.aadhaar)}${row('PAN', t.pan)}${row('UPI ID', t.upi)}${row('IMEI', t.imei)}${row('Other', t.other)}${row('KYC', t.kyc)}${row('CKYC', t.ckyc)}${row('Address', t.address)}${row('State', t.state)}${row('District', t.district)}${row('ATM Location', t.atm)}${row('Cheque Branch', t.chq)}${row('Layers', t.layers)}${row('Complaints (Ack)', t.acks)}${row('Cases', t.cases.map(c => c.name))}${row('References (EO / JMIS / FIR)', t.refs)}${row('Same Person – Linked Targets', t.links)}${row('Amount Received', t.amt ? fmtINR(t.amt) : '')}</table>
       ${t.utr.length ? `<h4 style="margin:12px 0 6px">🔗 UTR Trail (${t.utr.length})</h4><div class="tg-utr">${t.utr.map((u, i) => `<div><span class="tg-un">${i + 1}</span><b class="mono">${esc(u.utr)}</b><span class="small muted">${esc(u.date)}</span><span>${u.amt ? fmtINR(u.amt) : ''}</span><span class="small">${esc([u.from && 'from ' + u.from, u.mode, u.act].filter(Boolean).join(' · '))}</span></div>`).join('')}</div>` : ''}`,
       [{ label: '🔎 Track Everywhere', onClick: () => { UI.closeModal(); if (typeof Dash2 !== 'undefined' && Dash2.track) Dash2.track(t.acc); } }, { label: 'Close', onClick: UI.closeModal }, { label: 'Save Status', cls: 'primary', onClick: async () => { J[t.acc] = { st: $('#tjS', m).value, date: $('#tjD', m).value, note: $('#tjN', m).value.trim() }; await Off.put('tgt'); UI.closeModal(); UI.toast('JMIS status saved'); done(); } }]);
   },
@@ -17150,7 +17216,13 @@ const JMIS = {
   STATES: ['Andaman & Nicobar Islands', 'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chandigarh', 'Chhattisgarh', 'Dadra & Nagar Haveli and Daman & Diu', 'Delhi', 'Goa', 'Gujarat', 'Haryana', 'Himachal Pradesh', 'Jammu & Kashmir', 'Jharkhand', 'Karnataka', 'Kerala', 'Ladakh', 'Lakshadweep', 'Madhya Pradesh', 'Maharashtra', 'Manipur', 'Meghalaya', 'Mizoram', 'Nagaland', 'Odisha', 'Puducherry', 'Punjab', 'Rajasthan', 'Sikkim', 'Tamil Nadu', 'Telangana', 'Tripura', 'Uttar Pradesh', 'Uttarakhand', 'West Bengal', 'CBI', 'NIA', 'ED', 'I4C', 'Other Central Agency'],
   OLD: 7,
   stateN(x) { x = String(x || '').trim(); if (!x) return ''; const h = this.STATES.find(s => s.toLowerCase() === x.toLowerCase().replace(/\band\b/g, '&')); return h || (/[a-z]/.test(x) ? x : x.toLowerCase().replace(/\b\w/g, c => c.toUpperCase())); },
-  st() { return this._s || (this._s = { dir: '', s: '', from: '', to: '', q: '', state: '' }); },
+  st() { return this._s || (this._s = { dir: '', s: '', from: '', to: '', q: '', state: '', dist: '', sd: 'raised' }); },
+  PD: 10, // pending up to 10 days = green, more = red
+  pdays(r) { return r.status !== 'Completed' && r.reqAt && !isNaN(new Date(r.reqAt)) ? Math.max(0, Math.floor((Date.now() - new Date(r.reqAt)) / 864e5)) : null; },
+  pchip(r) { const d = this.pdays(r); return d == null ? '' : `<span class="jm-pdy ${d > this.PD ? 'r' : 'g'}" title="${d > this.PD ? 'More than' : 'Up to'} ${this.PD} days since the request">⏳ ${d} day${d === 1 ? '' : 's'} pending</span>`; },
+  stOf(r) { return (r.dir === 'raised' ? r.tState : r.fState) || '—'; },
+  dsOf(r) { return (r.dir === 'raised' ? r.tDist : r.fDist) || '—'; },
+  SL: { p10: 'Pending up to 10 days', p10x: 'Pending more than 10 days' },
   list() { return Off.get('jmis', []); },
   /* ---------- dates ---------- */
   dt(x) { if (!x) return ''; const d = new Date(x); if (isNaN(d)) return String(x); const p = n => String(n).padStart(2, '0'); let h = d.getHours(); const ap = h >= 12 ? 'PM' : 'AM'; h = h % 12 || 12; return `${p(d.getDate())}-${p(d.getMonth() + 1)}-${d.getFullYear()} ${p(h)}:${p(d.getMinutes())} ${ap}`; },
@@ -17177,32 +17249,33 @@ const JMIS = {
   firKey(s) { const m = String(s || '').match(/(\d{1,5})\s*[\/\-]\s*(\d{4})/); return m ? +m[1] + '/' + m[2] : ''; },
   caseOf(r) { const k = this.firKey(r.fir); if (!k || typeof S === 'undefined' || !S.cases) return null; return S.cases.find(c => this.firKey((c.fir || '') + (/\/\d{4}/.test(c.fir || '') ? '' : '/' + (c.year || ''))) === k) || null; },
   inRange(r, st) { const d = (r.reqAt || '').slice(0, 10); return (!st.from || d >= st.from) && (!st.to || d <= st.to); },
-  base(L, st) { const q = (st.q || '').toLowerCase(); return L.filter(r => this.inRange(r, st) && (!st.state || (r.dir === 'raised' ? r.tState : r.fState) === st.state) && (!q || [r.reqId, r.type, r.fir, r.status, r.fState, r.fDist, r.fPS, r.tState, r.tDist, r.tPS, r.sp, r.spMail, r.brief, r.det, r.resp].join(' ').toLowerCase().includes(q))); },
-  pick(B, dir, s) { return B.filter(r => (!dir || r.dir === dir) && (!s || (s === 'old' ? this.old(r) : r.status === s))); },
+  base(L, st) { const q = (st.q || '').toLowerCase(); return L.filter(r => this.inRange(r, st) && (!st.state || this.stOf(r) === st.state) && (!st.dist || this.dsOf(r) === st.dist) && (!q || [r.reqId, r.type, r.fir, r.status, r.fState, r.fDist, r.fPS, r.tState, r.tDist, r.tPS, r.sp, r.spMail, r.brief, r.det, r.resp].join(' ').toLowerCase().includes(q))); },
+  pick(B, dir, s) { return B.filter(r => (!dir || r.dir === dir) && (!s || (s === 'old' ? this.old(r) : s === 'p10' ? r.status === 'Pending' && this.pdays(r) <= this.PD : s === 'p10x' ? r.status === 'Pending' && this.pdays(r) > this.PD : r.status === s))); },
 
   /* ---------- page ---------- */
   async page(el) {
-    this.tip(null); const L = await this.list(), st = this.st(), B = this.base(L, st);
+    this.tip(null); const L = await this.list(), st = this.st(), B = this.base(L, st), META = await Off.get('jmisMeta', {});
     const bub = (dir, s, lbl, c) => { const n = this.pick(B, dir, s).length, on = st.dir === dir && st.s === s; return `<button class="jm-b ${on ? 'on' : ''}" data-jd="${dir}" data-js="${s}" style="--c:${c}"><b>${fmtNum(n)}</b><small>${lbl}</small></button>`; };
     const card = dir => { const [ic, t, c, sub] = this.DIR[dir], P = this.pick(B, dir, ''), avg = P.filter(r => r.status === 'Completed').map(r => this.took(r)).filter(x => x != null);
       return `<div class="jm-card" style="--c:${c}"><div class="jm-ch"><span class="jm-ic">${ic}</span><div><h3>${t}</h3><div class="small">${sub}</div></div></div>
         <div class="jm-bs">${bub(dir, '', 'Total Request', '#6366f1')}${bub(dir, 'Completed', 'Completed Request', '#16a34a')}${bub(dir, 'Under Processing', 'Under Processing Request', '#2563eb')}${bub(dir, 'Pending', 'Pending Request', '#f97316')}${bub(dir, 'old', `Open ${this.OLD}+ Days`, '#dc2626')}</div>
+        ${(() => { const PP = this.pick(B, dir, 'Pending'); if (!PP.length) return ''; const g = this.pick(B, dir, 'p10').length, rr = this.pick(B, dir, 'p10x').length, mx = Math.max(...PP.map(r => this.pdays(r) || 0));
+          return `<div class="jm-pd"><span>⏳ Pending Days</span><button class="jm-pc g ${st.dir === dir && st.s === 'p10' ? 'on' : ''}" data-jd="${dir}" data-js="p10" data-tt="${this.SL.p10}"><b>${fmtNum(g)}</b> up to ${this.PD} days</button><button class="jm-pc r ${st.dir === dir && st.s === 'p10x' ? 'on' : ''}" data-jd="${dir}" data-js="p10x" data-tt="${this.SL.p10x}"><b>${fmtNum(rr)}</b> more than ${this.PD} days</button><span class="small">Oldest: <b class="${mx > this.PD ? 'jm-red' : 'jm-grn'}">${mx} days</b></span></div>`; })()}
         <div class="jm-cf small">${P.length ? `Done: <b>${P.length ? Math.round(P.filter(r => r.status === 'Completed').length / P.length * 100) : 0}%</b>${avg.length ? ` · Average time to complete: <b>${this.dur(avg.reduce((a, b) => a + b, 0) / avg.length)}</b>` : ''}` : 'No request yet'}</div></div>`; };
-    const byState = {}; B.forEach(r => { const k = (r.dir === 'raised' ? r.tState : r.fState) || '—'; (byState[k] = byState[k] || { t: 0, p: 0 }).t++; if (r.status !== 'Completed') byState[k].p++; });
-    const SS = Object.entries(byState).sort((a, b) => b[1].t - a[1].t).slice(0, 12), mx = Math.max(1, ...SS.map(x => x[1].t));
+    const SD = this.pick(B, st.sd, ''), sdOK = SD.length || !B.length ? st.sd : (st.sd = st.sd === 'raised' ? 'received' : 'raised'), SDR = this.pick(B, sdOK, '');
     const rows = this.pick(B, st.dir, st.s).sort((a, b) => String(b.reqAt).localeCompare(String(a.reqAt)));
     el.innerHTML = `<div class="card jm-top"><div class="row" style="gap:8px;flex-wrap:wrap;align-items:flex-end">
         <label class="small">From Date<input type="date" id="jmF" value="${esc(st.from)}"></label><label class="small">To Date<input type="date" id="jmT" value="${esc(st.to)}"></label>
         <input id="jmQ" class="grow" placeholder="Find Request Id, FIR No., state, district, PS, SP, details…" value="${esc(st.q)}" data-nov>
         <button class="btn" id="jmClr" data-nov>✖ Clear</button><span class="grow"></span>
-        <button class="btn primary" id="jmAdd" data-nov>➕ Add Request</button><button class="btn" id="jmImp" data-nov title="Excel / CSV of Request Details downloaded from Samanvaya (CIAR)">📥 Import CIAR Excel</button></div></div>
+        ${META.fileDate ? `<span class="jm-fd" title="${esc(META.fileName || '')} – imported ${esc(this.dt(META.at))}">📅 CIAR File Download Date: <b>${esc(this.day(META.fileDate))}</b></span>` : ''}<button class="btn" id="jmImp" data-nov title="Excel / CSV of Request Details downloaded from Samanvaya (CIAR)">📥 Import CIAR Excel</button></div></div>
       <div class="jm-cards">${card('raised')}${card('received')}</div>
-      ${SS.length ? `<div class="card"><h3>🗺 By State / Agency <span class="small muted">(Raised: to · Received: from) – click to filter</span></h3><div class="jm-st">${SS.map(([k, v]) => `<button class="jm-sr ${st.state === k ? 'on' : ''}" data-jst="${esc(k)}"><span>${esc(k)}</span><i style="width:${v.t / mx * 100}%"></i><b>${v.t}</b>${v.p ? `<em>${v.p} open</em>` : ''}</button>`).join('')}</div></div>` : ''}
-      <div class="card" id="jmList"><h3>📋 Request Details <span class="badge">${fmtNum(rows.length)}</span> <span class="small muted">${st.dir ? this.DIR[st.dir][1] : 'Raised + Received'} › ${st.s === 'old' ? `Open ${this.OLD}+ Days` : st.s || 'All Status'}${st.state ? ' › ' + esc(st.state) : ''}</span>${st.dir || st.s || st.state ? ' <button class="btn sm" id="jmAll" data-nov>Show All</button>' : ''}</h3><div id="jmTb"></div></div>`;
+      ${B.length ? this.sdCard(SDR, st, sdOK) : ''}
+      <div class="card" id="jmList"><h3>📋 Request Details <span class="badge">${fmtNum(rows.length)}</span> <span class="small muted">${st.dir ? this.DIR[st.dir][1] : 'Raised + Received'} › ${st.s === 'old' ? `Open ${this.OLD}+ Days` : this.SL[st.s] || st.s || 'All Status'}${st.state ? ' › ' + esc(st.state) : ''}${st.dist ? ' › ' + esc(st.dist) : ''}</span>${st.dir || st.s || st.state || st.dist ? ' <button class="btn sm" id="jmAll" data-nov>Show All</button>' : ''}</h3><div id="jmTb"></div></div>`;
     Table($('#jmTb', el), { rows, pageSize: 50, exportName: 'jmis_ciar_requests', noNd: true, onRow: r => this.edit(r, el), columns: [
       { key: 'reqId', label: 'Request Id / Type / Execution Date', sortVal: r => r.reqId, csv: r => [r.reqId, r.type, this.day(r.exec)].filter(Boolean).join(' | '), render: r => `<b class="mono">${esc(r.reqId || '—')}</b><div><span class="jm-ty">${esc(r.type || 'Notice')}</span></div>${r.exec ? `<div class="small muted">Executed ${esc(this.day(r.exec))}</div>` : ''}` },
       { key: 'dir', label: 'Raised / Received', render: r => `<span class="jm-dir" style="--c:${this.DIR[r.dir][2]}">${this.DIR[r.dir][0]} ${r.dir === 'raised' ? 'Raised' : 'Received'}</span>` },
-      { key: 'fir', label: 'FIR No/Year / Request Status', sortVal: r => r.status, csv: r => [r.fir, r.status].filter(Boolean).join(' | '), render: r => { const c = this.caseOf(r), S0 = this.ST[r.status] || this.ST.Pending; return `${esc(r.fir || '—')}${c ? ` <button class="btn sm" data-jcase="${esc(c.id)}" title="Open this case in the tool">🔗 Case</button>` : ''}<div><span class="jm-s" style="--c:${S0[2]}">${S0[0]} ${S0[1]}</span>${this.old(r) ? ' <span class="jm-old">⚠ ' + Math.floor((Date.now() - new Date(r.reqAt)) / 864e5) + ' days</span>' : ''}</div>`; } },
+      { key: 'fir', label: 'FIR No/Year / Request Status', sortVal: r => r.status, csv: r => [r.fir, r.status].filter(Boolean).join(' | '), render: r => { const c = this.caseOf(r), S0 = this.ST[r.status] || this.ST.Pending; return `${esc(r.fir || '—')}${c ? ` <button class="btn sm" data-jcase="${esc(c.id)}" title="Open this case in the tool">🔗 Case</button>` : ''}<div><span class="jm-s" style="--c:${S0[2]}">${S0[0]} ${S0[1]}</span></div>${this.pchip(r)}`; } },
       { key: 'from', label: 'Requesting State / District / PS', csv: r => [r.agency, r.fState, r.fDist, r.fPS].filter(Boolean).join(', '), render: r => `<b>${esc(r.fState || '')}</b>${r.agency ? ` <span class="small muted">(${esc(r.agency)})</span>` : ''}<div class="small">${esc([r.fDist, r.fPS].filter(Boolean).join(' · '))}</div>` },
       { key: 'sp', label: 'Supervising SP / DCP', csv: r => [r.sp, r.spMail, r.spPh].filter(Boolean).join(', '), render: r => `${esc(r.sp || '')}<div class="small muted">${esc([r.spMail, r.spPh].filter(Boolean).join(' · '))}</div>` },
       { key: 'brief', label: 'Brief of Request', render: r => `<div class="jm-tx">${esc(r.brief || '')}</div>` },
@@ -17213,23 +17286,45 @@ const JMIS = {
       { key: 'resp', label: 'Completed By / Response', csv: r => [r.compBy, r.compMob, r.resp].filter(Boolean).join(' | '), render: r => `${r.compBy ? `<b>${esc(r.compBy)}</b>${r.compMob ? `<div class="small">📞 ${esc(r.compMob)}</div>` : ''}` : ''}${r.endorse ? `<div class="small muted">SP/DCP Endorsed: ${esc(r.endorse)}</div>` : ''}<div class="jm-tx">${esc(r.resp || '')}</div>` },
       { key: 'act', label: 'Status', nosort: true, noexport: true, render: r => `<select class="jm-sel" data-jid="${esc(r.id)}" data-nov>${Object.keys(this.ST).map(k => `<option ${k === r.status ? 'selected' : ''}>${k}</option>`).join('')}</select>` }] });
     /* hover: live preview of the requests behind a bubble */
-    $$('.jm-b', el).forEach(b => { b.onmouseenter = e => this.tip(b, this.pick(B, b.dataset.jd, b.dataset.js)); b.onmouseleave = () => this.tip(null);
+    $$('.jm-b, .jm-pc', el).forEach(b => { b.onmouseenter = e => this.tip(b, this.pick(B, b.dataset.jd, b.dataset.js)); b.onmouseleave = () => this.tip(null);
       b.onclick = () => { const same = st.dir === b.dataset.jd && st.s === b.dataset.js; Object.assign(st, same ? { dir: '', s: '' } : { dir: b.dataset.jd, s: b.dataset.js }); this.tip(null); this.page(el).then(() => { const x = $('#jmList', el); x && x.scrollIntoView({ behavior: 'smooth', block: 'start' }); }); }; });
-    $$('[data-jst]', el).forEach(b => b.onclick = () => { st.state = st.state === b.dataset.jst ? '' : b.dataset.jst; this.page(el); });
+    const toList = () => { const x = $('#jmList', el); x && x.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+    $$('[data-jst]', el).forEach(b => { b.onmouseenter = () => this.tip(b, SDR.filter(r => this.stOf(r) === b.dataset.jst), '🗺 ' + b.dataset.jst); b.onmouseleave = () => this.tip(null);
+      b.onclick = () => { const on = st.state === b.dataset.jst && !st.dist; Object.assign(st, { state: on ? '' : b.dataset.jst, dist: '', dir: on ? '' : sdOK }); this.tip(null); this.page(el).then(() => on || toList()); }; });
+    $$('[data-jds]', el).forEach(b => { const [s0, d0] = b.dataset.jds.split('|'); b.onmouseenter = () => this.tip(b, SDR.filter(r => this.stOf(r) === s0 && this.dsOf(r) === d0), '📍 ' + d0 + ', ' + s0); b.onmouseleave = () => this.tip(null);
+      b.onclick = () => { const on = st.dist === d0 && st.state === s0; Object.assign(st, { state: on ? '' : s0, dist: on ? '' : d0, dir: on ? '' : sdOK }); this.tip(null); this.page(el).then(() => on || toList()); }; });
+    $$('[data-jsd]', el).forEach(b => b.onclick = () => { st.sd = b.dataset.jsd; Object.assign(st, { state: '', dist: '' }); this.page(el); });
     $$('[data-jcase]', el).forEach(b => b.onclick = e => { e.stopPropagation(); switchCase(b.dataset.jcase); });
     $$('.jm-sel', el).forEach(s => { s.onclick = e => e.stopPropagation(); s.onchange = async () => { const L2 = await this.list(), r = L2.find(x => x.id === s.dataset.jid); if (!r) return; r.status = s.value; if (s.value !== 'Pending' && !r.actAt) r.actAt = this.parse(new Date()); await Off.put('jmis'); UI.toast('Status: ' + s.value); this.page(el); }; });
     $('#jmF', el).onchange = $('#jmT', el).onchange = () => { st.from = $('#jmF', el).value; st.to = $('#jmT', el).value; this.page(el); };
     let qt; $('#jmQ', el).oninput = () => { clearTimeout(qt); qt = setTimeout(() => { st.q = $('#jmQ', el).value; this.page(el).then(() => { const q = $('#jmQ', el); q.focus(); q.setSelectionRange(q.value.length, q.value.length); }); }, 350); };
-    $('#jmClr', el).onclick = () => { Object.assign(st, { dir: '', s: '', from: '', to: '', q: '', state: '' }); this.page(el); };
-    if ($('#jmAll', el)) $('#jmAll', el).onclick = () => { Object.assign(st, { dir: '', s: '', state: '' }); this.page(el); };
-    $('#jmAdd', el).onclick = () => this.edit(null, el);
+    $('#jmClr', el).onclick = () => { Object.assign(st, { dir: '', s: '', from: '', to: '', q: '', state: '', dist: '' }); this.page(el); };
+    if ($('#jmAll', el)) $('#jmAll', el).onclick = () => { Object.assign(st, { dir: '', s: '', state: '', dist: '' }); this.page(el); };
     $('#jmImp', el).onclick = () => this.importPick(el);
   },
-  tip(b, R) {
+  /* State / District wise: ring of States, bars of Districts (our sent requests by default) */
+  sdCard(R, st, dir) {
+    const PAL = ['#6366f1', '#f97316', '#16a34a', '#0ea5e9', '#e11d48', '#a855f7', '#eab308', '#14b8a6', '#f43f5e', '#64748b'];
+    const cnt = (L, f) => { const m = new Map(); L.forEach(r => { const k = f(r), o = m.get(k) || { t: 0, c: 0, p: 0, u: 0 }; o.t++; o[r.status === 'Completed' ? 'c' : r.status === 'Pending' ? 'p' : 'u']++; m.set(k, o); }); return [...m].sort((a, b) => b[1].t - a[1].t); };
+    const SS = cnt(R, r => this.stOf(r)), top = SS.slice(0, 9), rest = SS.slice(9), tot = R.length || 1;
+    let a0 = -Math.PI / 2; const C = 90, r1 = 80, r2 = 48;
+    const arc = (v, col, key, n) => { const a1 = a0 + v / tot * Math.PI * 2, big = a1 - a0 > Math.PI ? 1 : 0, p = (r, a) => [C + r * Math.cos(a), C + r * Math.sin(a)].map(x => x.toFixed(2)).join(' ');
+      const d = v >= tot ? `M ${C - r1} ${C} A ${r1} ${r1} 0 1 1 ${C + r1} ${C} A ${r1} ${r1} 0 1 1 ${C - r1} ${C} M ${C - r2} ${C} A ${r2} ${r2} 0 1 0 ${C + r2} ${C} A ${r2} ${r2} 0 1 0 ${C - r2} ${C} Z` : `M ${p(r1, a0)} A ${r1} ${r1} 0 ${big} 1 ${p(r1, a1)} L ${p(r2, a1)} A ${r2} ${r2} 0 ${big} 0 ${p(r2, a0)} Z`;
+      a0 = a1; return `<path d="${d}" fill="${col}" class="jm-arc ${st.state === key ? 'on' : ''}" ${key ? `data-jst="${esc(key)}"` : ''} fill-rule="evenodd"><title>${esc(n)}</title></path>`; };
+    const ring = top.map(([k, v], i) => arc(v.t, PAL[i], k, k + ': ' + v.t)).join('') + (rest.length ? arc(rest.reduce((s, [, v]) => s + v.t, 0), '#94a3b8', '', 'Others') : '');
+    const DL = cnt(st.state ? R.filter(r => this.stOf(r) === st.state) : R, r => this.stOf(r) + '|' + this.dsOf(r)).slice(0, 15), mx = Math.max(1, ...DL.map(x => x[1].t));
+    return `<div class="card jm-sd"><div class="row" style="gap:8px;flex-wrap:wrap;align-items:center"><h3 class="grow" style="margin:0">🗺 State / District wise <span class="small muted">– point at a number for a live view, click for the full list</span></h3>
+      <span class="pill-group"><button data-jsd="raised" class="${dir === 'raised' ? 'active' : ''}">📤 Our Notices Sent (Raised)</button><button data-jsd="received" class="${dir === 'received' ? 'active' : ''}">📥 Received</button></span></div>
+      <div class="jm-sdg"><div class="jm-ring"><svg viewBox="0 0 180 180" width="190" height="190">${ring}<text x="90" y="86" text-anchor="middle" class="jm-rt">${fmtNum(R.length)}</text><text x="90" y="104" text-anchor="middle" class="jm-rs">${dir === 'raised' ? 'Sent' : 'Received'}</text></svg>
+        <div class="jm-lg">${top.map(([k, v], i) => `<button class="jm-li ${st.state === k ? 'on' : ''}" data-jst="${esc(k)}"><i style="background:${PAL[i]}"></i><span>${esc(k)}</span><b>${v.t}</b>${v.p ? `<em>${v.p} pending</em>` : ''}</button>`).join('')}${rest.length ? `<div class="small muted">+ ${rest.length} more states</div>` : ''}</div></div>
+        <div class="jm-bars"><div class="small" style="margin-bottom:4px"><b>📍 District wise${st.state ? ' – ' + esc(st.state) : ' (top 15)'}</b> · <span class="jm-k c">Completed</span> <span class="jm-k u">Under Processing</span> <span class="jm-k p">Pending</span></div>
+        ${DL.map(([k, v]) => { const [s0, d0] = k.split('|'); return `<button class="jm-bar ${st.dist === d0 && st.state === s0 ? 'on' : ''}" data-jds="${esc(k)}"><span class="jm-bn">${esc(d0)}${st.state ? '' : `<small>${esc(s0)}</small>`}</span><span class="jm-bt" style="width:${v.t / mx * 100}%"><i class="c" style="flex:${v.c}"></i><i class="u" style="flex:${v.u}"></i><i class="p" style="flex:${v.p}"></i></span><b>${v.t}</b></button>`; }).join('') || '<div class="small muted">No district in these requests</div>'}</div></div></div>`;
+  },
+  tip(b, R, title) {
     let t = $('#jmTip'); if (!b) { if (t) t.remove(); return; }
     if (!t) { t = document.createElement('div'); t.id = 'jmTip'; t.className = 'jm-tip'; document.body.appendChild(t); }
     const L = R.slice().sort((x, y) => String(y.reqAt).localeCompare(String(x.reqAt)));
-    t.innerHTML = `<b>${esc(b.querySelector('small').textContent)} · ${R.length}</b>${L.length ? `<table>${L.slice(0, 8).map(r => `<tr><td class="mono">${esc(r.reqId || '—')}</td><td>${esc(r.fir || '')}</td><td>${esc((r.dir === 'raised' ? r.tState : r.fState) || '')}</td><td>${esc(this.dt(r.reqAt))}</td><td style="color:${(this.ST[r.status] || this.ST.Pending)[2]}">${esc(r.status)}</td></tr>`).join('')}</table>${L.length > 8 ? `<div class="small">+ ${L.length - 8} more – click to see all</div>` : '<div class="small">Click to see the full list</div>'}` : '<div class="small">Nothing here</div>'}`;
+    t.innerHTML = `<b>${esc(title || b.dataset.tt || (b.querySelector('small') || b).textContent)} · ${R.length}</b>${L.length ? `<table>${L.slice(0, 8).map(r => `<tr><td class="mono">${esc(r.reqId || '—')}</td><td>${esc(r.fir || '')}</td><td>${esc((r.dir === 'raised' ? r.tState : r.fState) || '')}</td><td>${esc(this.dt(r.reqAt))}</td><td style="color:${(this.ST[r.status] || this.ST.Pending)[2]}">${esc(r.status)}</td><td>${this.pdays(r) == null ? '' : `<span class="jm-pdy ${this.pdays(r) > this.PD ? 'r' : 'g'}">${this.pdays(r)} d</span>`}</td></tr>`).join('')}</table>${L.length > 8 ? `<div class="small">+ ${L.length - 8} more – click to see all</div>` : '<div class="small">Click to see the full list</div>'}` : '<div class="small">Nothing here</div>'}`;
     const r = b.getBoundingClientRect(); t.style.left = Math.max(8, Math.min(innerWidth - 520, r.left)) + 'px'; t.style.top = (r.bottom + 6) + 'px';
   },
   /* ---------- add / edit (fields as in the CIAR form) ---------- */
@@ -17299,7 +17394,10 @@ const JMIS = {
     }
     if (!sheets) throw new Error('Could not find the Request Details header row in this file');
     if (!add && !upd) throw new Error('No request rows found under the header');
-    await Off.put('jmis'); return { add, upd };
+    await Off.put('jmis');
+    const fm = String(f.name || '').match(/(\d{1,2})[_\-.](\d{1,2})[_\-.]((?:19|20)\d\d)/), M = await Off.get('jmisMeta', {}), p = n => String(n).padStart(2, '0');
+    M.fileDate = fm ? `${fm[3]}-${p(fm[2])}-${p(fm[1])}` : f.lastModified ? new Date(f.lastModified).toISOString().slice(0, 10) : ''; M.fileName = f.name || ''; M.at = this.parse(new Date()); Off.D.jmisMeta = M; await Off.put('jmisMeta');
+    return { add, upd };
   }
 };
 

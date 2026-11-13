@@ -11,7 +11,13 @@ const JMIS = {
   STATES: ['Andaman & Nicobar Islands', 'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chandigarh', 'Chhattisgarh', 'Dadra & Nagar Haveli and Daman & Diu', 'Delhi', 'Goa', 'Gujarat', 'Haryana', 'Himachal Pradesh', 'Jammu & Kashmir', 'Jharkhand', 'Karnataka', 'Kerala', 'Ladakh', 'Lakshadweep', 'Madhya Pradesh', 'Maharashtra', 'Manipur', 'Meghalaya', 'Mizoram', 'Nagaland', 'Odisha', 'Puducherry', 'Punjab', 'Rajasthan', 'Sikkim', 'Tamil Nadu', 'Telangana', 'Tripura', 'Uttar Pradesh', 'Uttarakhand', 'West Bengal', 'CBI', 'NIA', 'ED', 'I4C', 'Other Central Agency'],
   OLD: 7,
   stateN(x) { x = String(x || '').trim(); if (!x) return ''; const h = this.STATES.find(s => s.toLowerCase() === x.toLowerCase().replace(/\band\b/g, '&')); return h || (/[a-z]/.test(x) ? x : x.toLowerCase().replace(/\b\w/g, c => c.toUpperCase())); },
-  st() { return this._s || (this._s = { dir: '', s: '', from: '', to: '', q: '', state: '' }); },
+  st() { return this._s || (this._s = { dir: '', s: '', from: '', to: '', q: '', state: '', dist: '', sd: 'raised' }); },
+  PD: 10, // pending up to 10 days = green, more = red
+  pdays(r) { return r.status !== 'Completed' && r.reqAt && !isNaN(new Date(r.reqAt)) ? Math.max(0, Math.floor((Date.now() - new Date(r.reqAt)) / 864e5)) : null; },
+  pchip(r) { const d = this.pdays(r); return d == null ? '' : `<span class="jm-pdy ${d > this.PD ? 'r' : 'g'}" title="${d > this.PD ? 'More than' : 'Up to'} ${this.PD} days since the request">⏳ ${d} day${d === 1 ? '' : 's'} pending</span>`; },
+  stOf(r) { return (r.dir === 'raised' ? r.tState : r.fState) || '—'; },
+  dsOf(r) { return (r.dir === 'raised' ? r.tDist : r.fDist) || '—'; },
+  SL: { p10: 'Pending up to 10 days', p10x: 'Pending more than 10 days' },
   list() { return Off.get('jmis', []); },
   /* ---------- dates ---------- */
   dt(x) { if (!x) return ''; const d = new Date(x); if (isNaN(d)) return String(x); const p = n => String(n).padStart(2, '0'); let h = d.getHours(); const ap = h >= 12 ? 'PM' : 'AM'; h = h % 12 || 12; return `${p(d.getDate())}-${p(d.getMonth() + 1)}-${d.getFullYear()} ${p(h)}:${p(d.getMinutes())} ${ap}`; },
@@ -38,32 +44,33 @@ const JMIS = {
   firKey(s) { const m = String(s || '').match(/(\d{1,5})\s*[\/\-]\s*(\d{4})/); return m ? +m[1] + '/' + m[2] : ''; },
   caseOf(r) { const k = this.firKey(r.fir); if (!k || typeof S === 'undefined' || !S.cases) return null; return S.cases.find(c => this.firKey((c.fir || '') + (/\/\d{4}/.test(c.fir || '') ? '' : '/' + (c.year || ''))) === k) || null; },
   inRange(r, st) { const d = (r.reqAt || '').slice(0, 10); return (!st.from || d >= st.from) && (!st.to || d <= st.to); },
-  base(L, st) { const q = (st.q || '').toLowerCase(); return L.filter(r => this.inRange(r, st) && (!st.state || (r.dir === 'raised' ? r.tState : r.fState) === st.state) && (!q || [r.reqId, r.type, r.fir, r.status, r.fState, r.fDist, r.fPS, r.tState, r.tDist, r.tPS, r.sp, r.spMail, r.brief, r.det, r.resp].join(' ').toLowerCase().includes(q))); },
-  pick(B, dir, s) { return B.filter(r => (!dir || r.dir === dir) && (!s || (s === 'old' ? this.old(r) : r.status === s))); },
+  base(L, st) { const q = (st.q || '').toLowerCase(); return L.filter(r => this.inRange(r, st) && (!st.state || this.stOf(r) === st.state) && (!st.dist || this.dsOf(r) === st.dist) && (!q || [r.reqId, r.type, r.fir, r.status, r.fState, r.fDist, r.fPS, r.tState, r.tDist, r.tPS, r.sp, r.spMail, r.brief, r.det, r.resp].join(' ').toLowerCase().includes(q))); },
+  pick(B, dir, s) { return B.filter(r => (!dir || r.dir === dir) && (!s || (s === 'old' ? this.old(r) : s === 'p10' ? r.status === 'Pending' && this.pdays(r) <= this.PD : s === 'p10x' ? r.status === 'Pending' && this.pdays(r) > this.PD : r.status === s))); },
 
   /* ---------- page ---------- */
   async page(el) {
-    this.tip(null); const L = await this.list(), st = this.st(), B = this.base(L, st);
+    this.tip(null); const L = await this.list(), st = this.st(), B = this.base(L, st), META = await Off.get('jmisMeta', {});
     const bub = (dir, s, lbl, c) => { const n = this.pick(B, dir, s).length, on = st.dir === dir && st.s === s; return `<button class="jm-b ${on ? 'on' : ''}" data-jd="${dir}" data-js="${s}" style="--c:${c}"><b>${fmtNum(n)}</b><small>${lbl}</small></button>`; };
     const card = dir => { const [ic, t, c, sub] = this.DIR[dir], P = this.pick(B, dir, ''), avg = P.filter(r => r.status === 'Completed').map(r => this.took(r)).filter(x => x != null);
       return `<div class="jm-card" style="--c:${c}"><div class="jm-ch"><span class="jm-ic">${ic}</span><div><h3>${t}</h3><div class="small">${sub}</div></div></div>
         <div class="jm-bs">${bub(dir, '', 'Total Request', '#6366f1')}${bub(dir, 'Completed', 'Completed Request', '#16a34a')}${bub(dir, 'Under Processing', 'Under Processing Request', '#2563eb')}${bub(dir, 'Pending', 'Pending Request', '#f97316')}${bub(dir, 'old', `Open ${this.OLD}+ Days`, '#dc2626')}</div>
+        ${(() => { const PP = this.pick(B, dir, 'Pending'); if (!PP.length) return ''; const g = this.pick(B, dir, 'p10').length, rr = this.pick(B, dir, 'p10x').length, mx = Math.max(...PP.map(r => this.pdays(r) || 0));
+          return `<div class="jm-pd"><span>⏳ Pending Days</span><button class="jm-pc g ${st.dir === dir && st.s === 'p10' ? 'on' : ''}" data-jd="${dir}" data-js="p10" data-tt="${this.SL.p10}"><b>${fmtNum(g)}</b> up to ${this.PD} days</button><button class="jm-pc r ${st.dir === dir && st.s === 'p10x' ? 'on' : ''}" data-jd="${dir}" data-js="p10x" data-tt="${this.SL.p10x}"><b>${fmtNum(rr)}</b> more than ${this.PD} days</button><span class="small">Oldest: <b class="${mx > this.PD ? 'jm-red' : 'jm-grn'}">${mx} days</b></span></div>`; })()}
         <div class="jm-cf small">${P.length ? `Done: <b>${P.length ? Math.round(P.filter(r => r.status === 'Completed').length / P.length * 100) : 0}%</b>${avg.length ? ` · Average time to complete: <b>${this.dur(avg.reduce((a, b) => a + b, 0) / avg.length)}</b>` : ''}` : 'No request yet'}</div></div>`; };
-    const byState = {}; B.forEach(r => { const k = (r.dir === 'raised' ? r.tState : r.fState) || '—'; (byState[k] = byState[k] || { t: 0, p: 0 }).t++; if (r.status !== 'Completed') byState[k].p++; });
-    const SS = Object.entries(byState).sort((a, b) => b[1].t - a[1].t).slice(0, 12), mx = Math.max(1, ...SS.map(x => x[1].t));
+    const SD = this.pick(B, st.sd, ''), sdOK = SD.length || !B.length ? st.sd : (st.sd = st.sd === 'raised' ? 'received' : 'raised'), SDR = this.pick(B, sdOK, '');
     const rows = this.pick(B, st.dir, st.s).sort((a, b) => String(b.reqAt).localeCompare(String(a.reqAt)));
     el.innerHTML = `<div class="card jm-top"><div class="row" style="gap:8px;flex-wrap:wrap;align-items:flex-end">
         <label class="small">From Date<input type="date" id="jmF" value="${esc(st.from)}"></label><label class="small">To Date<input type="date" id="jmT" value="${esc(st.to)}"></label>
         <input id="jmQ" class="grow" placeholder="Find Request Id, FIR No., state, district, PS, SP, details…" value="${esc(st.q)}" data-nov>
         <button class="btn" id="jmClr" data-nov>✖ Clear</button><span class="grow"></span>
-        <button class="btn primary" id="jmAdd" data-nov>➕ Add Request</button><button class="btn" id="jmImp" data-nov title="Excel / CSV of Request Details downloaded from Samanvaya (CIAR)">📥 Import CIAR Excel</button></div></div>
+        ${META.fileDate ? `<span class="jm-fd" title="${esc(META.fileName || '')} – imported ${esc(this.dt(META.at))}">📅 CIAR File Download Date: <b>${esc(this.day(META.fileDate))}</b></span>` : ''}<button class="btn" id="jmImp" data-nov title="Excel / CSV of Request Details downloaded from Samanvaya (CIAR)">📥 Import CIAR Excel</button></div></div>
       <div class="jm-cards">${card('raised')}${card('received')}</div>
-      ${SS.length ? `<div class="card"><h3>🗺 By State / Agency <span class="small muted">(Raised: to · Received: from) – click to filter</span></h3><div class="jm-st">${SS.map(([k, v]) => `<button class="jm-sr ${st.state === k ? 'on' : ''}" data-jst="${esc(k)}"><span>${esc(k)}</span><i style="width:${v.t / mx * 100}%"></i><b>${v.t}</b>${v.p ? `<em>${v.p} open</em>` : ''}</button>`).join('')}</div></div>` : ''}
-      <div class="card" id="jmList"><h3>📋 Request Details <span class="badge">${fmtNum(rows.length)}</span> <span class="small muted">${st.dir ? this.DIR[st.dir][1] : 'Raised + Received'} › ${st.s === 'old' ? `Open ${this.OLD}+ Days` : st.s || 'All Status'}${st.state ? ' › ' + esc(st.state) : ''}</span>${st.dir || st.s || st.state ? ' <button class="btn sm" id="jmAll" data-nov>Show All</button>' : ''}</h3><div id="jmTb"></div></div>`;
+      ${B.length ? this.sdCard(SDR, st, sdOK) : ''}
+      <div class="card" id="jmList"><h3>📋 Request Details <span class="badge">${fmtNum(rows.length)}</span> <span class="small muted">${st.dir ? this.DIR[st.dir][1] : 'Raised + Received'} › ${st.s === 'old' ? `Open ${this.OLD}+ Days` : this.SL[st.s] || st.s || 'All Status'}${st.state ? ' › ' + esc(st.state) : ''}${st.dist ? ' › ' + esc(st.dist) : ''}</span>${st.dir || st.s || st.state || st.dist ? ' <button class="btn sm" id="jmAll" data-nov>Show All</button>' : ''}</h3><div id="jmTb"></div></div>`;
     Table($('#jmTb', el), { rows, pageSize: 50, exportName: 'jmis_ciar_requests', noNd: true, onRow: r => this.edit(r, el), columns: [
       { key: 'reqId', label: 'Request Id / Type / Execution Date', sortVal: r => r.reqId, csv: r => [r.reqId, r.type, this.day(r.exec)].filter(Boolean).join(' | '), render: r => `<b class="mono">${esc(r.reqId || '—')}</b><div><span class="jm-ty">${esc(r.type || 'Notice')}</span></div>${r.exec ? `<div class="small muted">Executed ${esc(this.day(r.exec))}</div>` : ''}` },
       { key: 'dir', label: 'Raised / Received', render: r => `<span class="jm-dir" style="--c:${this.DIR[r.dir][2]}">${this.DIR[r.dir][0]} ${r.dir === 'raised' ? 'Raised' : 'Received'}</span>` },
-      { key: 'fir', label: 'FIR No/Year / Request Status', sortVal: r => r.status, csv: r => [r.fir, r.status].filter(Boolean).join(' | '), render: r => { const c = this.caseOf(r), S0 = this.ST[r.status] || this.ST.Pending; return `${esc(r.fir || '—')}${c ? ` <button class="btn sm" data-jcase="${esc(c.id)}" title="Open this case in the tool">🔗 Case</button>` : ''}<div><span class="jm-s" style="--c:${S0[2]}">${S0[0]} ${S0[1]}</span>${this.old(r) ? ' <span class="jm-old">⚠ ' + Math.floor((Date.now() - new Date(r.reqAt)) / 864e5) + ' days</span>' : ''}</div>`; } },
+      { key: 'fir', label: 'FIR No/Year / Request Status', sortVal: r => r.status, csv: r => [r.fir, r.status].filter(Boolean).join(' | '), render: r => { const c = this.caseOf(r), S0 = this.ST[r.status] || this.ST.Pending; return `${esc(r.fir || '—')}${c ? ` <button class="btn sm" data-jcase="${esc(c.id)}" title="Open this case in the tool">🔗 Case</button>` : ''}<div><span class="jm-s" style="--c:${S0[2]}">${S0[0]} ${S0[1]}</span></div>${this.pchip(r)}`; } },
       { key: 'from', label: 'Requesting State / District / PS', csv: r => [r.agency, r.fState, r.fDist, r.fPS].filter(Boolean).join(', '), render: r => `<b>${esc(r.fState || '')}</b>${r.agency ? ` <span class="small muted">(${esc(r.agency)})</span>` : ''}<div class="small">${esc([r.fDist, r.fPS].filter(Boolean).join(' · '))}</div>` },
       { key: 'sp', label: 'Supervising SP / DCP', csv: r => [r.sp, r.spMail, r.spPh].filter(Boolean).join(', '), render: r => `${esc(r.sp || '')}<div class="small muted">${esc([r.spMail, r.spPh].filter(Boolean).join(' · '))}</div>` },
       { key: 'brief', label: 'Brief of Request', render: r => `<div class="jm-tx">${esc(r.brief || '')}</div>` },
@@ -74,23 +81,45 @@ const JMIS = {
       { key: 'resp', label: 'Completed By / Response', csv: r => [r.compBy, r.compMob, r.resp].filter(Boolean).join(' | '), render: r => `${r.compBy ? `<b>${esc(r.compBy)}</b>${r.compMob ? `<div class="small">📞 ${esc(r.compMob)}</div>` : ''}` : ''}${r.endorse ? `<div class="small muted">SP/DCP Endorsed: ${esc(r.endorse)}</div>` : ''}<div class="jm-tx">${esc(r.resp || '')}</div>` },
       { key: 'act', label: 'Status', nosort: true, noexport: true, render: r => `<select class="jm-sel" data-jid="${esc(r.id)}" data-nov>${Object.keys(this.ST).map(k => `<option ${k === r.status ? 'selected' : ''}>${k}</option>`).join('')}</select>` }] });
     /* hover: live preview of the requests behind a bubble */
-    $$('.jm-b', el).forEach(b => { b.onmouseenter = e => this.tip(b, this.pick(B, b.dataset.jd, b.dataset.js)); b.onmouseleave = () => this.tip(null);
+    $$('.jm-b, .jm-pc', el).forEach(b => { b.onmouseenter = e => this.tip(b, this.pick(B, b.dataset.jd, b.dataset.js)); b.onmouseleave = () => this.tip(null);
       b.onclick = () => { const same = st.dir === b.dataset.jd && st.s === b.dataset.js; Object.assign(st, same ? { dir: '', s: '' } : { dir: b.dataset.jd, s: b.dataset.js }); this.tip(null); this.page(el).then(() => { const x = $('#jmList', el); x && x.scrollIntoView({ behavior: 'smooth', block: 'start' }); }); }; });
-    $$('[data-jst]', el).forEach(b => b.onclick = () => { st.state = st.state === b.dataset.jst ? '' : b.dataset.jst; this.page(el); });
+    const toList = () => { const x = $('#jmList', el); x && x.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+    $$('[data-jst]', el).forEach(b => { b.onmouseenter = () => this.tip(b, SDR.filter(r => this.stOf(r) === b.dataset.jst), '🗺 ' + b.dataset.jst); b.onmouseleave = () => this.tip(null);
+      b.onclick = () => { const on = st.state === b.dataset.jst && !st.dist; Object.assign(st, { state: on ? '' : b.dataset.jst, dist: '', dir: on ? '' : sdOK }); this.tip(null); this.page(el).then(() => on || toList()); }; });
+    $$('[data-jds]', el).forEach(b => { const [s0, d0] = b.dataset.jds.split('|'); b.onmouseenter = () => this.tip(b, SDR.filter(r => this.stOf(r) === s0 && this.dsOf(r) === d0), '📍 ' + d0 + ', ' + s0); b.onmouseleave = () => this.tip(null);
+      b.onclick = () => { const on = st.dist === d0 && st.state === s0; Object.assign(st, { state: on ? '' : s0, dist: on ? '' : d0, dir: on ? '' : sdOK }); this.tip(null); this.page(el).then(() => on || toList()); }; });
+    $$('[data-jsd]', el).forEach(b => b.onclick = () => { st.sd = b.dataset.jsd; Object.assign(st, { state: '', dist: '' }); this.page(el); });
     $$('[data-jcase]', el).forEach(b => b.onclick = e => { e.stopPropagation(); switchCase(b.dataset.jcase); });
     $$('.jm-sel', el).forEach(s => { s.onclick = e => e.stopPropagation(); s.onchange = async () => { const L2 = await this.list(), r = L2.find(x => x.id === s.dataset.jid); if (!r) return; r.status = s.value; if (s.value !== 'Pending' && !r.actAt) r.actAt = this.parse(new Date()); await Off.put('jmis'); UI.toast('Status: ' + s.value); this.page(el); }; });
     $('#jmF', el).onchange = $('#jmT', el).onchange = () => { st.from = $('#jmF', el).value; st.to = $('#jmT', el).value; this.page(el); };
     let qt; $('#jmQ', el).oninput = () => { clearTimeout(qt); qt = setTimeout(() => { st.q = $('#jmQ', el).value; this.page(el).then(() => { const q = $('#jmQ', el); q.focus(); q.setSelectionRange(q.value.length, q.value.length); }); }, 350); };
-    $('#jmClr', el).onclick = () => { Object.assign(st, { dir: '', s: '', from: '', to: '', q: '', state: '' }); this.page(el); };
-    if ($('#jmAll', el)) $('#jmAll', el).onclick = () => { Object.assign(st, { dir: '', s: '', state: '' }); this.page(el); };
-    $('#jmAdd', el).onclick = () => this.edit(null, el);
+    $('#jmClr', el).onclick = () => { Object.assign(st, { dir: '', s: '', from: '', to: '', q: '', state: '', dist: '' }); this.page(el); };
+    if ($('#jmAll', el)) $('#jmAll', el).onclick = () => { Object.assign(st, { dir: '', s: '', state: '', dist: '' }); this.page(el); };
     $('#jmImp', el).onclick = () => this.importPick(el);
   },
-  tip(b, R) {
+  /* State / District wise: ring of States, bars of Districts (our sent requests by default) */
+  sdCard(R, st, dir) {
+    const PAL = ['#6366f1', '#f97316', '#16a34a', '#0ea5e9', '#e11d48', '#a855f7', '#eab308', '#14b8a6', '#f43f5e', '#64748b'];
+    const cnt = (L, f) => { const m = new Map(); L.forEach(r => { const k = f(r), o = m.get(k) || { t: 0, c: 0, p: 0, u: 0 }; o.t++; o[r.status === 'Completed' ? 'c' : r.status === 'Pending' ? 'p' : 'u']++; m.set(k, o); }); return [...m].sort((a, b) => b[1].t - a[1].t); };
+    const SS = cnt(R, r => this.stOf(r)), top = SS.slice(0, 9), rest = SS.slice(9), tot = R.length || 1;
+    let a0 = -Math.PI / 2; const C = 90, r1 = 80, r2 = 48;
+    const arc = (v, col, key, n) => { const a1 = a0 + v / tot * Math.PI * 2, big = a1 - a0 > Math.PI ? 1 : 0, p = (r, a) => [C + r * Math.cos(a), C + r * Math.sin(a)].map(x => x.toFixed(2)).join(' ');
+      const d = v >= tot ? `M ${C - r1} ${C} A ${r1} ${r1} 0 1 1 ${C + r1} ${C} A ${r1} ${r1} 0 1 1 ${C - r1} ${C} M ${C - r2} ${C} A ${r2} ${r2} 0 1 0 ${C + r2} ${C} A ${r2} ${r2} 0 1 0 ${C - r2} ${C} Z` : `M ${p(r1, a0)} A ${r1} ${r1} 0 ${big} 1 ${p(r1, a1)} L ${p(r2, a1)} A ${r2} ${r2} 0 ${big} 0 ${p(r2, a0)} Z`;
+      a0 = a1; return `<path d="${d}" fill="${col}" class="jm-arc ${st.state === key ? 'on' : ''}" ${key ? `data-jst="${esc(key)}"` : ''} fill-rule="evenodd"><title>${esc(n)}</title></path>`; };
+    const ring = top.map(([k, v], i) => arc(v.t, PAL[i], k, k + ': ' + v.t)).join('') + (rest.length ? arc(rest.reduce((s, [, v]) => s + v.t, 0), '#94a3b8', '', 'Others') : '');
+    const DL = cnt(st.state ? R.filter(r => this.stOf(r) === st.state) : R, r => this.stOf(r) + '|' + this.dsOf(r)).slice(0, 15), mx = Math.max(1, ...DL.map(x => x[1].t));
+    return `<div class="card jm-sd"><div class="row" style="gap:8px;flex-wrap:wrap;align-items:center"><h3 class="grow" style="margin:0">🗺 State / District wise <span class="small muted">– point at a number for a live view, click for the full list</span></h3>
+      <span class="pill-group"><button data-jsd="raised" class="${dir === 'raised' ? 'active' : ''}">📤 Our Notices Sent (Raised)</button><button data-jsd="received" class="${dir === 'received' ? 'active' : ''}">📥 Received</button></span></div>
+      <div class="jm-sdg"><div class="jm-ring"><svg viewBox="0 0 180 180" width="190" height="190">${ring}<text x="90" y="86" text-anchor="middle" class="jm-rt">${fmtNum(R.length)}</text><text x="90" y="104" text-anchor="middle" class="jm-rs">${dir === 'raised' ? 'Sent' : 'Received'}</text></svg>
+        <div class="jm-lg">${top.map(([k, v], i) => `<button class="jm-li ${st.state === k ? 'on' : ''}" data-jst="${esc(k)}"><i style="background:${PAL[i]}"></i><span>${esc(k)}</span><b>${v.t}</b>${v.p ? `<em>${v.p} pending</em>` : ''}</button>`).join('')}${rest.length ? `<div class="small muted">+ ${rest.length} more states</div>` : ''}</div></div>
+        <div class="jm-bars"><div class="small" style="margin-bottom:4px"><b>📍 District wise${st.state ? ' – ' + esc(st.state) : ' (top 15)'}</b> · <span class="jm-k c">Completed</span> <span class="jm-k u">Under Processing</span> <span class="jm-k p">Pending</span></div>
+        ${DL.map(([k, v]) => { const [s0, d0] = k.split('|'); return `<button class="jm-bar ${st.dist === d0 && st.state === s0 ? 'on' : ''}" data-jds="${esc(k)}"><span class="jm-bn">${esc(d0)}${st.state ? '' : `<small>${esc(s0)}</small>`}</span><span class="jm-bt" style="width:${v.t / mx * 100}%"><i class="c" style="flex:${v.c}"></i><i class="u" style="flex:${v.u}"></i><i class="p" style="flex:${v.p}"></i></span><b>${v.t}</b></button>`; }).join('') || '<div class="small muted">No district in these requests</div>'}</div></div></div>`;
+  },
+  tip(b, R, title) {
     let t = $('#jmTip'); if (!b) { if (t) t.remove(); return; }
     if (!t) { t = document.createElement('div'); t.id = 'jmTip'; t.className = 'jm-tip'; document.body.appendChild(t); }
     const L = R.slice().sort((x, y) => String(y.reqAt).localeCompare(String(x.reqAt)));
-    t.innerHTML = `<b>${esc(b.querySelector('small').textContent)} · ${R.length}</b>${L.length ? `<table>${L.slice(0, 8).map(r => `<tr><td class="mono">${esc(r.reqId || '—')}</td><td>${esc(r.fir || '')}</td><td>${esc((r.dir === 'raised' ? r.tState : r.fState) || '')}</td><td>${esc(this.dt(r.reqAt))}</td><td style="color:${(this.ST[r.status] || this.ST.Pending)[2]}">${esc(r.status)}</td></tr>`).join('')}</table>${L.length > 8 ? `<div class="small">+ ${L.length - 8} more – click to see all</div>` : '<div class="small">Click to see the full list</div>'}` : '<div class="small">Nothing here</div>'}`;
+    t.innerHTML = `<b>${esc(title || b.dataset.tt || (b.querySelector('small') || b).textContent)} · ${R.length}</b>${L.length ? `<table>${L.slice(0, 8).map(r => `<tr><td class="mono">${esc(r.reqId || '—')}</td><td>${esc(r.fir || '')}</td><td>${esc((r.dir === 'raised' ? r.tState : r.fState) || '')}</td><td>${esc(this.dt(r.reqAt))}</td><td style="color:${(this.ST[r.status] || this.ST.Pending)[2]}">${esc(r.status)}</td><td>${this.pdays(r) == null ? '' : `<span class="jm-pdy ${this.pdays(r) > this.PD ? 'r' : 'g'}">${this.pdays(r)} d</span>`}</td></tr>`).join('')}</table>${L.length > 8 ? `<div class="small">+ ${L.length - 8} more – click to see all</div>` : '<div class="small">Click to see the full list</div>'}` : '<div class="small">Nothing here</div>'}`;
     const r = b.getBoundingClientRect(); t.style.left = Math.max(8, Math.min(innerWidth - 520, r.left)) + 'px'; t.style.top = (r.bottom + 6) + 'px';
   },
   /* ---------- add / edit (fields as in the CIAR form) ---------- */
@@ -160,7 +189,10 @@ const JMIS = {
     }
     if (!sheets) throw new Error('Could not find the Request Details header row in this file');
     if (!add && !upd) throw new Error('No request rows found under the header');
-    await Off.put('jmis'); return { add, upd };
+    await Off.put('jmis');
+    const fm = String(f.name || '').match(/(\d{1,2})[_\-.](\d{1,2})[_\-.]((?:19|20)\d\d)/), M = await Off.get('jmisMeta', {}), p = n => String(n).padStart(2, '0');
+    M.fileDate = fm ? `${fm[3]}-${p(fm[2])}-${p(fm[1])}` : f.lastModified ? new Date(f.lastModified).toISOString().slice(0, 10) : ''; M.fileName = f.name || ''; M.at = this.parse(new Date()); Off.D.jmisMeta = M; await Off.put('jmisMeta');
+    return { add, upd };
   }
 };
 
