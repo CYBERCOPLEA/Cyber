@@ -18,7 +18,7 @@ const UI = {
     setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
   },
   toCSV(columns, rows) {
-    const q = v => { v = v == null ? '' : String(v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
+    const q = v => { v = v == null ? '' : String(v); if (/^[=+\-@\t\r]/.test(v) && !/^[-+]?[\d,]*\.?\d+$/.test(v.trim())) v = "'" + v; return /[",\n\r]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
     return '﻿' + columns.map(c => q(c.label)).join(',') + '\n' + rows.map(r => columns.map(c => q(c.csv ? c.csv(r) : r[c.key])).join(',')).join('\n');
   },
   kv(obj) { return '<dl class="kv">' + Object.entries(obj).filter(([, v]) => v !== '' && v != null).map(([k, v]) => `<dt>${esc(k)}</dt><dd>${v}</dd>`).join('') + '</dl>'; },

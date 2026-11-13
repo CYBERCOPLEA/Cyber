@@ -60,16 +60,28 @@ const CDX = {
     if (/\.pdf$/i.test(f.name) && window.pdfjsLib) {
       try {
         const doc = await pdfjsLib.getDocument({ data: new Uint8Array(await f.arrayBuffer()), isEvalSupported: false }).promise; const parts = [];
-        for (let i = 1; i <= doc.numPages; i++) { const tc = await (await doc.getPage(i)).getTextContent(); parts.push(tc.items.map(x => x.str + (x.hasEOL ? '\n' : ' ')).join('')); }
-        t = parts.join('\n\f\n'); if (t.replace(/\s/g, '').length < 40 * doc.numPages) t = ''; try { doc.destroy(); } catch (e) { }
+        for (let i = 1; i <= doc.numPages; i++) { const pg = await doc.getPage(i), tc = await pg.getTextContent(); parts.push(tc.items.map(x => x.str + (x.hasEOL ? '\n' : ' ')).join('')); try { pg.cleanup(); } catch (e) { } }
+        // pages with a real text layer are kept; only scanned pages (little or no text) go to OCR
+        const need = parts.map((p, i) => p.replace(/\s/g, '').length < 40 ? i + 1 : 0).filter(Boolean);
+        if (need.length && typeof OCR !== 'undefined') { try { const o = await OCR.pages(doc, need, prog); need.forEach(i => { parts[i - 1] = o[i] || parts[i - 1]; }); } catch (e) { } }
+        t = parts.join('\n\f\n'); try { doc.destroy(); } catch (e) { }
       } catch (e) { t = ''; }
-      if (!t && (typeof OCR !== 'undefined')) t = await OCR.read(f, prog);
+      if (!t.replace(/\s/g, '') && (typeof OCR !== 'undefined')) t = await OCR.read(f, prog);
     } else if (/\.(png|jpe?g|webp|bmp|gif)$/i.test(f.name) && (typeof OCR !== 'undefined')) t = await OCR.read(f, prog);
     else t = await this.orig.text.call(CCTNS, f);
     t = this.dg(t || '');
     if (t.trim()) try { await DB.set(key, { t, at: Date.now() }); } catch (e) { }
     return t;
   },
+  readMany(files, onDone) {
+    const n = Math.max(2, typeof OCR !== 'undefined' ? OCR.size() : 2), P = new Array(files.length); let k = 0, done = 0;
+    const R = files.map(() => { let r; const p = new Promise(x => r = x); p.r = r; return p; });
+    const run = async () => { while (k < files.length) { const i = k++; let t = '', err = ''; try { t = await this.readFile(files[i]); } catch (e) { err = e.message || String(e); } done++; onDone && onDone(done, files.length, files[i]); R[i].r({ t, err }); } };
+    for (let j = 0; j < Math.min(n, files.length); j++) run();
+    return R;
+  },
+  bar(done, tot, t0) { const left = done ? Math.max(1, Math.round((Date.now() - t0) / done * (tot - done) / 60000)) : 0;
+    return `<div class="rd-bar"><i style="width:${Math.round(done / tot * 100)}%"></i></div><div class="rd-t">⏳ Reading files: <b>${done} of ${tot}</b> done${done && done < tot ? ` · about ${left} min left` : ''}${done < tot ? ' · several files read at once' : ''}</div>`; },
   kind(name, t, folderFin) {
     const n = name.replace(/\.[^.]+$/, '').trim(), h = String(t || '').slice(0, 900);
     if (/^\s*(FR|F\.R\.?)\b|final\s*report/i.test(n)) return { k: 'fin', type: 'FR' };
@@ -547,10 +559,11 @@ const CDX = {
     const msg = (t, pg) => { const el = $('#cxM', b); if (el) el.innerHTML = t + (pg ? ` · page ${pg[0]} of ${pg[1]}` : ''); const bar = $('#cxB', b); if (bar) bar.style.width = Math.round(done / tot * 100) + '%'; };
     const log = t => { const el = $('#cxL', b); if (el) el.insertAdjacentHTML('afterbegin', `<div>${t}</div>`); };
     const res = []; let firstId = null;
+    const ALL = [...G.values()].flatMap(g => g.E), RD = this.readMany(ALL.map(e => e.file), d => { const el = $('#cxM', b); if (el) el.innerHTML = this.bar(d, tot, t0); const bb = $('#cxB', b); if (bb) bb.parentElement.style.display = 'none'; }); let ri = 0;
     for (const [k, g] of G) {
       if (stop) break; const items = [];
-      for (const e of g.E) { if (stop) break; const nm = e.file.name; msg(`<b>${esc(g.m ? 'FIR ' + g.m.fir : 'This case')}</b> · file ${done + 1} of ${tot}: ${esc(nm)}${done ? ` · about ${Math.max(1, Math.round((Date.now() - t0) / done * (tot - done) / 60000))} min left` : ''}`);
-        let t = ''; try { t = await this.readFile(e.file, (a, n) => msg(`<b>${esc(g.m ? 'FIR ' + g.m.fir : 'This case')}</b> · file ${done + 1} of ${tot}: ${esc(nm)}`, [a, n])); } catch (er) { log('⚠ ' + esc(nm) + ': ' + esc(er.message)); }
+      for (const e of g.E) { if (stop) break; const nm = e.file.name;
+        const rr = await RD[ri++]; let t = rr.t || ''; if (rr.err) log('⚠ ' + esc(nm) + ': ' + esc(rr.err));
         done++; const kd = this.kind(nm, t, g.m && g.m.fin); items.push({ e, t, kd }); log(`${t.trim() ? '✔' : '⚠ no text'} ${esc(nm)} → ${kd.k === 'cd' ? 'CD ' + (this.cdNo(t, nm).no || '?') : kd.k === 'fin' ? kd.type : kd.k.toUpperCase()}`); }
       if (items.length && !g.m) { const cnt = {}; for (const it of items) { const f = this.firOf(it.t); if (f) cnt[f] = (cnt[f] || 0) + 1; } const best = Object.keys(cnt).sort((x, y) => cnt[y] - cnt[x])[0];
         if (best) { const [no, year] = best.split('/'); const fk = items.find(it => it.kd.k === 'fin'); g.m = { no, year, fir: best, ps: (items.map(it => (it.t.match(/\(थाना\)\s*:\s*([^\n]{3,60})/) || [])[1]).find(Boolean) || '').trim(), dist: '', fin: fk ? fk.kd.type : '' }; } }

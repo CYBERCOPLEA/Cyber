@@ -2302,6 +2302,18 @@ html.no-contacts .ct-item,html.no-contacts .ct-subs{display:none!important}
 .df-bar b{text-align:right}
 @media (max-width:900px){.df-ch{grid-template-columns:1fr}}
 
+/* reading progress */
+.rd-bar{height:8px;border-radius:4px;background:rgba(148,163,184,.25);overflow:hidden;margin:4px 0}.rd-bar i{display:block;height:100%;background:linear-gradient(90deg,#16a34a,#0ea5e9);transition:width .3s}
+.rd-t{font-size:12.5px}
+
+.bn-due.done{border-color:#16a34a!important;background:rgba(22,163,74,.14)!important;color:inherit}.bn-due.done .bn-dot{animation:none}
+
+/* shared live cells: hover preview, click = full data */
+[data-lv]{cursor:pointer}
+.lv-c{text-decoration:underline dotted;text-underline-offset:3px;padding:1px 4px;border-radius:4px}
+.lv-c:hover,[data-lv]:hover{background:rgba(99,102,241,.14);outline:1px solid rgba(99,102,241,.45)}
+.cdx-kp>[data-lv],.cdx-sum>[data-lv]{border-radius:8px;transition:background .15s}
+
 </style>
 </head>
 <body>
@@ -2349,7 +2361,7 @@ html.no-contacts .ct-item,html.no-contacts .ct-subs{display:none!important}
         <div class="hp-feat" style="--fc:#06b6d4"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><div><b>Analytics</b><p>The same mobile, account, IP or e-mail across complaints, banks and platforms.</p></div></div>
         <div class="hp-feat" style="--fc:#eab308"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h5"/></svg></span><div><b>Case File &amp; Notices</b><p>Case reports, notices to banks and platforms, and CSV / PDF exports.</p></div></div>
     </section>
-    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-13 18:52 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
+    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-13 19:43 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
   </div>
 
   <div class="lg-wrap" id="lgWrap" aria-hidden="true">
@@ -2502,7 +2514,7 @@ const OCR_PACK = { core: "\nvar TesseractCore = (() => {\n  var _scriptDir = typ
 'use strict';
 const OCR = {
   langs: ['eng', 'hin'], scale: 3, url: null, pool: [], making: 0, wait: [], prog: null,
-  size() { return Math.max(1, Math.min(3, (navigator.hardwareConcurrency || 2) - 1)); },
+  size() { const hc = navigator.hardwareConcurrency || 2, mem = navigator.deviceMemory || 8; return Math.max(1, Math.min(mem >= 8 ? 4 : mem >= 4 ? 3 : 2, hc - 1)); },
   blob() {
     if (this.url) return this.url;
     const pk = JSON.stringify({ wasm: OCR_PACK.wasm, hin: OCR_PACK.hin, eng: OCR_PACK.eng });
@@ -2542,6 +2554,13 @@ const __f=self.fetch;self.fetch=(u,o)=>{const m=/\\/(hin|eng)\\.traineddata/.exe
     await Promise.all(Array.from({ length: Math.min(this.size(), n) }, run));
     try { doc.destroy(); } catch (e) { }
     return out.join('\n\f\n');
+  },
+  /* only the given page numbers of an already open PDF (pages that have no text layer) */
+  async pages(doc, list, onPage) {
+    const out = {}; let k = 0, done = 0;
+    const run = async () => { while (k < list.length) { const i = list[k++]; out[i] = await this.page(doc, i); done++; onPage && onPage(done, list.length); } };
+    await Promise.all(Array.from({ length: Math.min(this.size(), list.length) }, run));
+    return out;
   },
   async read(file, onPage) {
     const n = (file.name || '').toLowerCase();
@@ -3313,7 +3332,7 @@ const UI = {
     setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
   },
   toCSV(columns, rows) {
-    const q = v => { v = v == null ? '' : String(v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
+    const q = v => { v = v == null ? '' : String(v); if (/^[=+\-@\t\r]/.test(v) && !/^[-+]?[\d,]*\.?\d+$/.test(v.trim())) v = "'" + v; return /[",\n\r]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
     return '﻿' + columns.map(c => q(c.label)).join(',') + '\n' + rows.map(r => columns.map(c => q(c.csv ? c.csv(r) : r[c.key])).join(',')).join('\n');
   },
   kv(obj) { return '<dl class="kv">' + Object.entries(obj).filter(([, v]) => v !== '' && v != null).map(([k, v]) => `<dt>${esc(k)}</dt><dd>${v}</dd>`).join('') + '</dl>'; },
@@ -5567,7 +5586,7 @@ const CaseBox = {
       $$('[data-fs]', W).forEach(b => b.onclick = () => { st.st = st.st === b.dataset.fs ? '' : b.dataset.fs; draw(); });
       $$('[data-so]', W).forEach(h => h.onclick = () => { const k = h.dataset.so; st.dir = st.sort === k ? -st.dir : 1; st.sort = k; draw(); });
       $('#cmAdd', W).onclick = () => this.open('new');
-      $('#cmCsv', W).onclick = () => { const q = v => '"' + String(v ?? '').replace(/"/g, '""') + '"'; UI.download('all_cases.csv', '﻿' + [['Case', ...COLS.map(x => x[1])], ...L.map(c => [c.name, ...COLS.map(([k]) => V(c, k))])].map(r => r.map(q).join(',')).join('\r\n'), 'text/csv'); };
+      $('#cmCsv', W).onclick = () => { const q = v => { v = String(v ?? ''); if (/^[=+\-@\t\r]/.test(v) && !/^[-+]?[\d,]*\.?\d+$/.test(v.trim())) v = "'" + v; return '"' + v.replace(/"/g, '""') + '"'; }; UI.download('all_cases.csv', '﻿' + [['Case', ...COLS.map(x => x[1])], ...L.map(c => [c.name, ...COLS.map(([k]) => V(c, k))])].map(r => r.map(q).join(',')).join('\r\n'), 'text/csv'); };
       $$('[data-co]', W).forEach(b => b.onclick = async () => { UI.closeDrawer(); if (b.dataset.co !== S.caseId) await switchCase(b.dataset.co); go('dashboard'); });
       $$('[data-ce]', W).forEach(b => b.onclick = () => this.open(b.dataset.ce, { stay: true, after: draw }));
       $$('[data-cd]', W).forEach(b => b.onclick = async () => { await deleteCase(b.dataset.cd); if ($('#cmW')) draw(); });
@@ -14299,11 +14318,12 @@ const CCTNS = {
       const cc = d.cctns || {}, pend = W.filter(w => w.status === 'Pending');
       return ({ id: c.id, name: c.name, fir: c.fir || '', ps: c.ps || '', io: c.io || '', section: c.section || '', status: c.status || 'Pending', complaints: (d.ncrp || []).length, txns: (d.txns || []).length,
         amount: sum(d.ncrp || [], r => +r.amount || 0), cd: (cc.cd || []).length, lastCd: CDX.lastDate(cc.cd), cdLast: CDX.lastNo(cc.cd), cdGap: CDX.gaps(cc.cd), firUp: cc.fir ? 'Yes' : 'No',
-        done: W.filter(w => w.status === 'Done').length, pending: pend.length, pendList: pend.map(w => w.title).join('; '), notices: (cc.notices || []).length, cur: c.id === S.caseId, fin: (c.final || {}).type || '', finNo: (c.final || {}).no || '', finDate: (c.final || {}).date || '', finInfo: c.final ? this.finTxt(c.final) : '', docs: (cc.files || []).length, bn: this.bn(c, d) }); };
-      out.push(c.id === S.caseId ? await mk1() : await Vault.sum(c.id, 'cc', 'v2|' + JSON.stringify(c) + '|' + today(), mk1));
+        done: W.filter(w => w.status === 'Done').length, pending: pend.length, pendList: pend.map(w => w.title).join('; '), notices: (cc.notices || []).length, cur: c.id === S.caseId, fin: (c.final || {}).type || '', finNo: (c.final || {}).no || '', finDate: (c.final || {}).date || '', finInfo: c.final ? this.finTxt(c.final) : '', docs: (cc.files || []).length, bn: this.bn(c, d),
+        cdList: (cc.cd || []).map(x => ({ no: x.no || '', date: x.date || '', file: x.file || '', text: String(x.text || '').replace(/\s+/g, ' ').slice(0, 220) })), pendItems: pend.map(w => ({ title: w.title, from: w.demand || '' })), doneItems: W.filter(w => w.status === 'Done').map(w => ({ title: w.title })), noticeList: (cc.notices || []).map(n => ({ when: String(n.when || '').slice(0, 16).replace('T', ' '), name: n.name || '', to: n.to || '' })) }); };
+      out.push(c.id === S.caseId ? await mk1() : await Vault.sum(c.id, 'cc', 'v3|' + JSON.stringify(c) + '|' + today(), mk1));
       await new Promise(r => setTimeout(r, 0));
     }
-    return out;
+    this._all = out; return out;
   },
 
   /* ---------- page ---------- */
@@ -14363,12 +14383,12 @@ const CCTNS = {
       $('#ccK', el).innerHTML = UI.kpis([['Total FIR Cases', fmtNum(R.length), 'Your investigation cases', 'c2'], ['Pending', fmtNum(R.filter(r => this.isPend(r)).length), (R.length ? Math.round(R.filter(r => this.isPend(r)).length / R.length * 100) : 0) + '% · Under Investigation + CS-PPI', 'c5'], ['Case Diary Parts', fmtNum(tot('cd')), R.filter(r => r.cdGap).length ? R.filter(r => r.cdGap).length + ' case(s) with missing CD' : 'CD numbering OK', 'c3'], ['Pending demands', fmtNum(tot('pending')), 'across all cases', 'c4'], ['Notices drafted', fmtNum(tot('notices')), '', 'c6'], ['CS', fmtNum(R.filter(r => r.fin === 'CS').length), 'Charge Sheet · ' + (R.length ? Math.round(R.filter(r => r.fin === 'CS').length / R.length * 100) : 0) + '% of all cases', 'c1 cc-kcs'], ['CS-PPI', fmtNum(R.filter(r => r.fin === 'PPI').length), 'Further inv. pending · ' + (R.length ? Math.round(R.filter(r => r.fin === 'PPI').length / R.length * 100) : 0) + '% of all cases', 'c2 cc-kppi'], ['FR', fmtNum(R.filter(r => r.fin === 'FR').length), 'Final Report · ' + (R.length ? Math.round(R.filter(r => r.fin === 'FR').length / R.length * 100) : 0) + '% of all cases', 'c5 cc-kfr']]).replace(/^<div class="kpis">|<\/div>$/g, '');
       const defs = [R, R.filter(r => this.isPend(r)), R.filter(r => r.cd), R.filter(r => r.pending), R.filter(r => r.notices), R.filter(r => r.fin === 'CS'), R.filter(r => r.fin === 'PPI'), R.filter(r => r.fin === 'FR')];
       const fcols = [{ key: 'name', label: 'Case' }, { key: 'fir', label: 'FIR' }, { key: 'finNo', label: 'CS / FR No.' }, { key: 'finDate', label: 'Date', render: r => esc(this.dmy(r.finDate)) }, { key: 'finInfo', label: 'Details' }, { key: 'io', label: 'IO' }];
-      $$('#ccK .kpi', el).forEach((k, i) => DashX.bind(k, { title: i === 5 ? 'CS – Charge Sheet' : i === 6 ? 'CS-PPI – Charge Sheet, further investigation pending' : i === 7 ? 'FR – Final Report' : $('.label', k).textContent, rows: () => defs[i], cols: i >= 5 ? fcols : [{ key: 'name', label: 'Case' }, { key: 'fir', label: 'FIR' }, { key: 'status', label: 'Status' }, { key: 'cdLast', label: 'Last CD No.', num: true }, { key: 'pending', label: 'Pending', num: true }, { key: 'pendList', label: 'Pending work' }], sort: i >= 5 ? 'finDate' : 'pending', pv: r => i >= 5 ? [r.name, [r.finNo && 'No. ' + r.finNo, this.dmy(r.finDate)].filter(Boolean).join(' · ')] : [r.name, r.pending + ' pending'], onRow: r => { UI.closeDrawer(); if (!r.cur) switchCase(r.id); } }));
+      $$('#ccK .kpi', el).forEach((k, i) => this.LV && i >= 2 && i <= 4 ? DashX.bind(k, this.LV[['cd', 'pend', 'notices'][i - 2]](R)) : DashX.bind(k, { title: i === 5 ? 'CS – Charge Sheet' : i === 6 ? 'CS-PPI – Charge Sheet, further investigation pending' : i === 7 ? 'FR – Final Report' : $('.label', k).textContent, rows: () => defs[i], cols: i >= 5 ? fcols : [{ key: 'name', label: 'Case' }, { key: 'fir', label: 'FIR' }, { key: 'status', label: 'Status' }, { key: 'cdLast', label: 'Last CD No.', num: true }, { key: 'pending', label: 'Pending', num: true }, { key: 'pendList', label: 'Pending work' }], sort: i >= 5 ? 'finDate' : 'pending', pv: r => i >= 5 ? [r.name, [r.finNo && 'No. ' + r.finNo, this.dmy(r.finDate)].filter(Boolean).join(' · ')] : [r.name, r.pending + ' pending'], onRow: r => { UI.closeDrawer(); if (!r.cur) switchCase(r.id); } }));
       $('#ccAll', el).classList.remove('muted', 'small');
       Table($('#ccAll', el), { rows: R, pageSize: 10, sortKey: 'pending', sortDir: -1, exportName: 'all_cases_cctns', onRow: r => { if (!r.cur) switchCase(r.id); },
         columns: [{ key: 'name', label: 'Case', render: r => `<b>${esc(r.name)}</b>${r.cur ? ' <span class="badge info">open</span>' : ''}<div class="small muted">${esc([r.fir && 'FIR ' + r.fir, r.ps, r.section].filter(Boolean).join(' · '))}</div>` },
-          { key: 'status', label: 'Status', render: r => r.fin ? `<span class="cc-fin ${(this.FIN[r.fin] || this.FIN.CS)[2]}">${r.fin === 'PPI' ? 'CS-PPI' : r.fin}${r.finNo ? ' ' + esc(r.finNo) : ''}</span>` : esc(r.status) }, { key: 'bn', label: 'CS / FR Due (BNSS 187)', sortVal: r => r.bn && r.bn.start ? r.bn.left : 1e9, render: r => this.bnBadge(r.bn, true) }, { key: 'complaints', label: 'Complaints', num: true }, { key: 'amount', label: 'Amount', num: true, render: r => r.amount ? fmtINR(r.amount) : '' }, { key: 'firUp', label: 'FIR read' }, { key: 'cd', label: 'CD Parts', num: true }, { key: 'cdLast', label: 'Last CD No.', num: true }, { key: 'lastCd', label: 'Last CD Date' }, { key: 'cdGap', label: 'Missing CD', render: r => r.cdGap ? `<b class="bad-t">${esc(r.cdGap)}</b>` : '' },
-          { key: 'done', label: 'Done', num: true }, { key: 'pending', label: 'Pending', num: true, render: r => r.pending ? `<b class="bad-t" title="${esc(r.pendList)}">${r.pending}</b>` : '0' }, { key: 'notices', label: 'Notices', num: true }] });
+          { key: 'status', label: 'Status', render: r => r.fin ? `<span class="cc-fin ${(this.FIN[r.fin] || this.FIN.CS)[2]}">${r.fin === 'PPI' ? 'CS-PPI' : r.fin}${r.finNo ? ' ' + esc(r.finNo) : ''}</span>` : esc(r.status) }, { key: 'bn', label: 'CS / FR Due (BNSS 187)', sortVal: r => r.bn && r.bn.start && !r.bn.filed ? r.bn.left : r.bn && r.bn.filed ? 2e9 : 1e9, render: r => this.bnBadge(r.bn, true) }, { key: 'complaints', label: 'Complaints', num: true }, { key: 'amount', label: 'Amount', num: true, render: r => r.amount ? fmtINR(r.amount) : '' }, { key: 'firUp', label: 'FIR read' }, { key: 'cd', label: 'CD Parts', num: true, render: r => r.cd ? `<span class="lv-c" data-lv="cc" data-k="cd" data-id="${r.id}">${r.cd}</span>` : '0' }, { key: 'cdLast', label: 'Last CD No.', num: true }, { key: 'lastCd', label: 'Last CD Date' }, { key: 'cdGap', label: 'Missing CD', render: r => r.cdGap ? `<b class="bad-t lv-c" data-lv="cc" data-k="gap" data-id="${r.id}">${esc(r.cdGap)}</b>` : '' },
+          { key: 'done', label: 'Done', num: true, render: r => r.done ? `<span class="lv-c" data-lv="cc" data-k="done" data-id="${r.id}">${r.done}</span>` : '0' }, { key: 'pending', label: 'Pending', num: true, render: r => r.pending ? `<b class="bad-t lv-c" data-lv="cc" data-k="pend" data-id="${r.id}">${r.pending}</b>` : '0' }, { key: 'notices', label: 'Notices', num: true, render: r => r.notices ? `<span class="lv-c" data-lv="cc" data-k="notices" data-id="${r.id}">${r.notices}</span>` : '0' }] });
     });
   },
 
@@ -14376,16 +14396,19 @@ const CCTNS = {
   /* BNSS 187: CS / FR due – 90 days (death / life / 10+ years), 60 days otherwise; default bail after that */
   HEAVY: /^(64|65|70|71|103|104|105|109|111|113|139|140|143|147|148|149|310|311|312|302|304|307|376|409|467|489A|489B|396|364|364A)$|^(309\((4|6)\)|316\(5\)|66F|118\(2\)|117\(3\)|61\(2\)\(a\))$/i,
   bn(c, d) {
-    if (!c || (c.final && c.final.type)) return null;
+    if (!c) return null; const filed = c.final && c.final.type ? c.final : null;
     const secs = String(c.section || '').replace(/\s+/g, '').match(/\d+[A-Z]?(\(\d+\))*(\([a-z]\))?/gi) || [], heavy = secs.some(t => this.HEAVY.test(t) || this.HEAVY.test(t.replace(/\(.*$/, '')));
     let fd = c.firDate || ''; if (!fd) try { fd = CDX.iso(CDX.analyse(d || S.data, c).fir.date); } catch (e) { }
     const start = c.d187 || fd, limit = +c.lim187 || (heavy ? 90 : 60);
-    if (!start) return { start: '', limit, heavy, fd };
+    if (!start) return { start: '', limit, heavy, fd, filed };
     const el = Math.floor((new Date(today()) - new Date(start)) / 864e5), left = limit - el;
-    return { start, kind: c.d187 ? (c.d187k === 'fir' ? 'FIR date' : 'Arrest / first remand') : 'FIR date', limit, heavy, el, left, fd, pc: limit === 90 ? 60 : 40 };
+    return { start, kind: c.d187 ? (c.d187k === 'fir' ? 'FIR date' : 'Arrest / first remand') : 'FIR date', limit, heavy, el, left, fd, pc: limit === 90 ? 60 : 40, filed };
   },
   bnBadge(b, small) {
     if (!b) return '';
+    if (b.filed) { const f = b.filed, nm = f.type === 'PPI' ? 'CS-PPI' : f.type, on = f.date ? this.dmy(f.date) : '', dd = b.start && f.date ? Math.floor((new Date(f.date) - new Date(b.start)) / 864e5) : null;
+      const t = `${nm}${f.no ? ' No. ' + f.no : ''} filed${on ? ' on ' + on : ''}${dd != null ? ` – day ${dd} of ${b.limit} (BNSS 187)` : ''}.${f.type === 'PPI' ? ' Further investigation is pending (BNSS 193(9)).' : ''} Click to see or change the dates.`;
+      return small ? `<span class="bn-due sm done" title="${esc(t)}"><i class="bn-dot g"></i>✅ ${esc(nm)} Filed${dd != null ? `<small>Day ${dd} of ${b.limit}</small>` : ''}</span>` : `<button class="bn-due done" data-bn title="${esc(t)}"><i class="bn-dot g"></i><b>CS / FR Due:</b> ✅ ${esc(nm)} Filed${on ? ' · ' + esc(on) : ''}${dd != null ? `<small>Day ${dd} of ${b.limit}</small>` : ''}</button>`; }
     if (!b.start) return small ? '<span class="muted small">Set date</span>' : `<button class="bn-due nodate" data-bn title="Set the FIR / arrest date to count the BNSS 187 days"><i class="bn-dot r"></i>CS / FR Due: Set Start Date</button>`;
     const t = `BNSS 187 – ${b.limit} days (${b.heavy ? 'death / life / 10+ years' : 'other offences'}) from ${b.kind} ${this.dmy(b.start)}. Police custody up to 15 days, in parts, within the first ${b.pc} days. After ${b.limit} days without CS / FR the accused gets default bail.`;
     return `<${small ? 'span' : 'button'} class="bn-due ${b.left < 0 ? 'over' : ''} ${small ? 'sm' : ''}" ${small ? '' : 'data-bn'} title="${esc(t)}"><i class="bn-dot ${b.left > 10 ? 'g' : 'r'}"></i>${small ? '' : '<b>CS / FR Due:</b> '}${b.left >= 0 ? `${b.left} Days Left` : `Overdue ${-b.left} Days`}<small>Day ${Math.max(0, b.el)} of ${b.limit}</small></${small ? 'span' : 'button'}>`;
@@ -14589,16 +14612,28 @@ const CDX = {
     if (/\.pdf$/i.test(f.name) && window.pdfjsLib) {
       try {
         const doc = await pdfjsLib.getDocument({ data: new Uint8Array(await f.arrayBuffer()), isEvalSupported: false }).promise; const parts = [];
-        for (let i = 1; i <= doc.numPages; i++) { const tc = await (await doc.getPage(i)).getTextContent(); parts.push(tc.items.map(x => x.str + (x.hasEOL ? '\n' : ' ')).join('')); }
-        t = parts.join('\n\f\n'); if (t.replace(/\s/g, '').length < 40 * doc.numPages) t = ''; try { doc.destroy(); } catch (e) { }
+        for (let i = 1; i <= doc.numPages; i++) { const pg = await doc.getPage(i), tc = await pg.getTextContent(); parts.push(tc.items.map(x => x.str + (x.hasEOL ? '\n' : ' ')).join('')); try { pg.cleanup(); } catch (e) { } }
+        // pages with a real text layer are kept; only scanned pages (little or no text) go to OCR
+        const need = parts.map((p, i) => p.replace(/\s/g, '').length < 40 ? i + 1 : 0).filter(Boolean);
+        if (need.length && typeof OCR !== 'undefined') { try { const o = await OCR.pages(doc, need, prog); need.forEach(i => { parts[i - 1] = o[i] || parts[i - 1]; }); } catch (e) { } }
+        t = parts.join('\n\f\n'); try { doc.destroy(); } catch (e) { }
       } catch (e) { t = ''; }
-      if (!t && (typeof OCR !== 'undefined')) t = await OCR.read(f, prog);
+      if (!t.replace(/\s/g, '') && (typeof OCR !== 'undefined')) t = await OCR.read(f, prog);
     } else if (/\.(png|jpe?g|webp|bmp|gif)$/i.test(f.name) && (typeof OCR !== 'undefined')) t = await OCR.read(f, prog);
     else t = await this.orig.text.call(CCTNS, f);
     t = this.dg(t || '');
     if (t.trim()) try { await DB.set(key, { t, at: Date.now() }); } catch (e) { }
     return t;
   },
+  readMany(files, onDone) {
+    const n = Math.max(2, typeof OCR !== 'undefined' ? OCR.size() : 2), P = new Array(files.length); let k = 0, done = 0;
+    const R = files.map(() => { let r; const p = new Promise(x => r = x); p.r = r; return p; });
+    const run = async () => { while (k < files.length) { const i = k++; let t = '', err = ''; try { t = await this.readFile(files[i]); } catch (e) { err = e.message || String(e); } done++; onDone && onDone(done, files.length, files[i]); R[i].r({ t, err }); } };
+    for (let j = 0; j < Math.min(n, files.length); j++) run();
+    return R;
+  },
+  bar(done, tot, t0) { const left = done ? Math.max(1, Math.round((Date.now() - t0) / done * (tot - done) / 60000)) : 0;
+    return `<div class="rd-bar"><i style="width:${Math.round(done / tot * 100)}%"></i></div><div class="rd-t">⏳ Reading files: <b>${done} of ${tot}</b> done${done && done < tot ? ` · about ${left} min left` : ''}${done < tot ? ' · several files read at once' : ''}</div>`; },
   kind(name, t, folderFin) {
     const n = name.replace(/\.[^.]+$/, '').trim(), h = String(t || '').slice(0, 900);
     if (/^\s*(FR|F\.R\.?)\b|final\s*report/i.test(n)) return { k: 'fin', type: 'FR' };
@@ -15076,10 +15111,11 @@ const CDX = {
     const msg = (t, pg) => { const el = $('#cxM', b); if (el) el.innerHTML = t + (pg ? ` · page ${pg[0]} of ${pg[1]}` : ''); const bar = $('#cxB', b); if (bar) bar.style.width = Math.round(done / tot * 100) + '%'; };
     const log = t => { const el = $('#cxL', b); if (el) el.insertAdjacentHTML('afterbegin', `<div>${t}</div>`); };
     const res = []; let firstId = null;
+    const ALL = [...G.values()].flatMap(g => g.E), RD = this.readMany(ALL.map(e => e.file), d => { const el = $('#cxM', b); if (el) el.innerHTML = this.bar(d, tot, t0); const bb = $('#cxB', b); if (bb) bb.parentElement.style.display = 'none'; }); let ri = 0;
     for (const [k, g] of G) {
       if (stop) break; const items = [];
-      for (const e of g.E) { if (stop) break; const nm = e.file.name; msg(`<b>${esc(g.m ? 'FIR ' + g.m.fir : 'This case')}</b> · file ${done + 1} of ${tot}: ${esc(nm)}${done ? ` · about ${Math.max(1, Math.round((Date.now() - t0) / done * (tot - done) / 60000))} min left` : ''}`);
-        let t = ''; try { t = await this.readFile(e.file, (a, n) => msg(`<b>${esc(g.m ? 'FIR ' + g.m.fir : 'This case')}</b> · file ${done + 1} of ${tot}: ${esc(nm)}`, [a, n])); } catch (er) { log('⚠ ' + esc(nm) + ': ' + esc(er.message)); }
+      for (const e of g.E) { if (stop) break; const nm = e.file.name;
+        const rr = await RD[ri++]; let t = rr.t || ''; if (rr.err) log('⚠ ' + esc(nm) + ': ' + esc(rr.err));
         done++; const kd = this.kind(nm, t, g.m && g.m.fin); items.push({ e, t, kd }); log(`${t.trim() ? '✔' : '⚠ no text'} ${esc(nm)} → ${kd.k === 'cd' ? 'CD ' + (this.cdNo(t, nm).no || '?') : kd.k === 'fin' ? kd.type : kd.k.toUpperCase()}`); }
       if (items.length && !g.m) { const cnt = {}; for (const it of items) { const f = this.firOf(it.t); if (f) cnt[f] = (cnt[f] || 0) + 1; } const best = Object.keys(cnt).sort((x, y) => cnt[y] - cnt[x])[0];
         if (best) { const [no, year] = best.split('/'); const fk = items.find(it => it.kd.k === 'fin'); g.m = { no, year, fir: best, ps: (items.map(it => (it.t.match(/\(थाना\)\s*:\s*([^\n]{3,60})/) || [])[1]).find(Boolean) || '').trim(), dist: '', fin: fk ? fk.kd.type : '' }; } }
@@ -15306,10 +15342,10 @@ const Hub = {
     /* 1 · CCTNS: FIR, CD, CS / PPI / FR, case documents (OCR when scanned) */
     const cc = todo.filter(q => this.CCT.includes(q.kind));
     if (cc.length) {
-      const G = new Map(); let i = 0; const t0 = Date.now();
+      const G = new Map(); let i = 0; const t0 = Date.now(); log(CDX.bar(0, cc.length, t0));
+      const RD = CDX.readMany(cc.map(q => q.f), d => log(CDX.bar(d, cc.length, t0)));
       for (const q of cc) {
-        log(`⏳ Reading ${++i} of ${cc.length}: <b>${esc(q.f.name)}</b>${i > 1 ? ` · about ${Math.max(1, Math.round((Date.now() - t0) / (i - 1) * (cc.length - i + 1) / 60000))} min left` : ''}`);
-        let t = ''; try { t = await CDX.readFile(q.f, (a, n) => log(`⏳ Reading ${i} of ${cc.length}: <b>${esc(q.f.name)}</b> · page ${a} of ${n}`)); } catch (e) { q.res = 'Error: ' + e.message; }
+        const rr = await RD[i++]; let t = rr.t || ''; if (rr.err) q.res = 'Error: ' + rr.err;
         let kind = q.kind; if (kind === 'doc' && !q.user && t) { const k2 = CDX.kind(q.f.name, t); kind = k2.k === 'cd' ? 'cd' : k2.k === 'fir' ? 'fir' : k2.k === 'fin' ? (k2.type === 'FR' ? 'fr' : k2.type === 'PPI' ? 'ppi' : 'cs') : 'doc'; q.kind = kind; }
         const kd = kind === 'cd' ? { k: 'cd' } : kind === 'fir' ? { k: 'fir' } : kind === 'cs' ? { k: 'fin', type: 'CS' } : kind === 'ppi' ? { k: 'fin', type: 'PPI' } : kind === 'fr' ? { k: 'fin', type: 'FR' } : { k: 'doc' };
         let m = s.mode === 'auto' ? (CDX.meta(q.path) || (t && CDX.firOf(t) ? (() => { const [no, year] = CDX.firOf(t).split('/'); return { no, year, fir: no + '/' + year, ps: '', dist: '', fin: '' }; })() : null)) : null;
@@ -17078,6 +17114,7 @@ const Trend = {
       return { t, n: l.length, amt: l.reduce((s, r) => s + r.amount, 0), a, b, ch: b ? Math.round((a - b) / b * 100) : a ? 100 : 0, m: months.map(m => l.filter(r => r.rep && new Date(r.rep).toISOString().slice(0, 7) === m).length), top: [...groupBy(l, r => r.ps || r.district || '—')].sort((x, y) => y[1].length - x[1].length).slice(0, 3).map(([k, v]) => k + ' (' + v.length + ')') }; }).sort((x, y) => y.n - x.n);
     const rise = T.filter(t => t.a >= 2).sort((x, y) => y.ch - x.ch)[0];
     const spark = m => { const mx = Math.max(1, ...m); return `<svg viewBox="0 0 60 18" class="tr-sp"><polyline fill="none" stroke="currentColor" stroke-width="1.6" points="${m.map((v, i) => `${i * 12},${17 - v / mx * 15}`).join(' ')}"/></svg>`; };
+    this._F = F;
     el.innerHTML = `${UI.kpis([['Records', fmtNum(F.length), `${S.cases.length} case(s) · NCRP · EO`, 'c2'], ['Amount', fmtINR(amt), 'fraud amount reported', 'c4'], ['Top Fraud Type', T[0] ? this.icon(T[0].t) + ' ' + T[0].t : '—', T[0] ? T[0].n + ' records' : '', 'c5'], ['Rising Fast', rise ? this.icon(rise.t) + ' ' + rise.t : '—', rise ? `${rise.a} in last 30 days · ${rise.ch >= 0 ? '▲' : '▼'} ${Math.abs(rise.ch)}%` : 'not enough dated records', 'c1'], ['Avg Reporting Delay', dl.length ? this.dur(dl.reduce((s, x) => s + x, 0) / dl.length) : '—', dl.length ? `incident → reporting · ${dl.length} records` : 'needs incident & reporting dates', 'c3'], ['Districts / PS', fmtNum(uniq(F.map(r => r.district).filter(Boolean)).length) + ' / ' + fmtNum(uniq(F.map(r => r.ps).filter(Boolean)).length), '', 'c6']])}
       <div class="card"><div class="row" style="gap:8px;flex-wrap:wrap;align-items:center"><h3 class="grow" style="margin:0">🔥 Fraud Type Trend <span class="small muted">last 30 days vs the 30 before · 6-month line</span></h3>
         <div class="seg">${[['', 'All Sources'], ['NCRP', '🧾 NCRP'], ['Case', '📁 Cases'], ['EO', '🕵 EO']].map(([k, l]) => `<button class="btn sm ${st.src === k ? 'primary' : ''}" data-tsrc="${k}">${l}</button>`).join('')}</div>
@@ -17410,7 +17447,7 @@ const JMIS = {
       <div class="card" id="jmList"><h3>📋 Request Details <span class="badge">${fmtNum(rows.length)}</span> <span class="small muted">${st.dir ? this.DIR[st.dir][1] : 'Raised + Received'} › ${st.s === 'old' ? `Open ${this.OLD}+ Days` : this.SL[st.s] || st.s || 'All Status'}${st.state ? ' › ' + esc(st.state) : ''}${st.dist ? ' › ' + esc(st.dist) : ''}</span>${st.dir || st.s || st.state || st.dist ? ' <button class="btn sm" id="jmAll" data-nov>Show All</button>' : ''}</h3><div id="jmTb"></div></div>`;
     Table($('#jmTb', el), { rows, pageSize: 50, exportName: 'jmis_ciar_requests', noNd: true, onRow: r => this.edit(r, el), columns: [
       { key: 'reqId', label: 'Request Id / Type / Execution Date', sortVal: r => r.reqId, csv: r => [r.reqId, r.type, this.day(r.exec)].filter(Boolean).join(' | '), render: r => `<b class="mono">${esc(r.reqId || '—')}</b><div><span class="jm-ty">${esc(r.type || 'Notice')}</span></div>${r.exec ? `<div class="small muted">Executed ${esc(this.day(r.exec))}</div>` : ''}` },
-      { key: 'dir', label: 'Raised / Received', render: r => `<span class="jm-dir" style="--c:${this.DIR[r.dir][2]}">${this.DIR[r.dir][0]} ${r.dir === 'raised' ? 'Raised' : 'Received'}</span>` },
+      { key: 'dir', label: 'Raised / Received', render: r => `<span class="jm-dir" style="--c:${(this.DIR[r.dir] || [])[2] || '#64748b'}">${(this.DIR[r.dir] || [''])[0]} ${r.dir === 'raised' ? 'Raised' : 'Received'}</span>` },
       { key: 'fir', label: 'FIR No/Year / Request Status', sortVal: r => r.status, csv: r => [r.fir, r.status].filter(Boolean).join(' | '), render: r => { const c = this.caseOf(r), S0 = this.ST[r.status] || this.ST.Pending; return `${esc(r.fir || '—')}${c ? ` <button class="btn sm" data-jcase="${esc(c.id)}" title="Open this case in the tool">🔗 Case</button>` : ''}<div><span class="jm-s" style="--c:${S0[2]}">${S0[0]} ${S0[1]}</span></div>${this.pchip(r)}`; } },
       { key: 'from', label: 'Requesting State / District / PS', csv: r => [r.agency, r.fState, r.fDist, r.fPS].filter(Boolean).join(', '), render: r => `<b>${esc(r.fState || '')}</b>${r.agency ? ` <span class="small muted">(${esc(r.agency)})</span>` : ''}<div class="small">${esc([r.fDist, r.fPS].filter(Boolean).join(' · '))}</div>` },
       { key: 'sp', label: 'Supervising SP / DCP', csv: r => [r.sp, r.spMail, r.spPh].filter(Boolean).join(', '), render: r => `${esc(r.sp || '')}<div class="small muted">${esc([r.spMail, r.spPh].filter(Boolean).join(' · '))}</div>` },
@@ -18091,7 +18128,7 @@ const Letters = {
         { key: 'subject', label: 'Letter / Subject', render: x => `<b>${esc(x.subject || x.title || 'Letter')}</b>${x.title && x.title !== x.subject ? `<div class="small muted">${esc(x.title)}</div>` : ''}` },
         { key: 'to', label: 'Sent To / For', render: x => `<span class="small">${esc(x.to || '—')}</span>` },
         { key: 'ref', label: 'Letter No.', render: x => `<span class="mono small">${esc(x.ref || '')}</span>` },
-        { key: 'how', label: 'Made As', csv: x => x.how.map(k => (this.KIND[k] || [, k])[1]).join(', '), render: x => x.how.map(k => `<span title="${(this.KIND[k] || [, k])[1]}">${(this.KIND[k] || ['•'])[0]}</span>`).join(' ') },
+        { key: 'how', label: 'Made As', csv: x => (x.how || []).map(k => (this.KIND[k] || [, k])[1]).join(', '), render: x => (x.how || []).map(k => `<span title="${(this.KIND[k] || [, k])[1]}">${(this.KIND[k] || ['•'])[0]}</span>`).join(' ') },
         { key: 'act', label: '', nosort: true, noexport: true, render: x => `<button class="btn sm" data-lo="${x.id}">👁 Open</button>` }] });
     }
     $$('[data-lo]', el).forEach(b => b.onclick = e => { e.stopPropagation(); const x = L.find(y => y.id === b.dataset.lo); x && this.open(x, el); });
@@ -18577,7 +18614,7 @@ const PRB = {
       UI.toast(a ? `🛰 ${a} row(s) imported – ${Object.entries(by).map(([k, n]) => this.k(k)[2] + ' ' + n).join(', ')}${s ? ` · ${s} already there` : ''}` : s ? 'All rows were already imported' : 'No Pratibimb rows found – check the sheet has Mobile / IMEI / Account / Coordinates columns', 6000); done && done(); };
     i.click();
   },
-  ids(r) { const o = []; if (r.mobile) o.push(['📱', 'm:' + r.mobile, r.mobile]); if (r.imei) o.push(['📟', 'i:' + r.imei.slice(0, 14), r.imei]); if (r.acc) o.push(['🏦', 'a:' + r.acc, r.acc]); r.acks.forEach(k => o.push(['🧾', 'k:' + k, k])); return o; },
+  ids(r) { const o = []; if (r.mobile) o.push(['📱', 'm:' + r.mobile, r.mobile]); if (r.imei) o.push(['📟', 'i:' + r.imei.slice(0, 14), r.imei]); if (r.acc) o.push(['🏦', 'a:' + r.acc, r.acc]); (r.acks || []).forEach(k => o.push(['🧾', 'k:' + k, k])); return o; },
   /* links: Target (all cases) and NCRP complaints in cases */
   async ix(force) {
     if (this._ix && !force && Date.now() - this._ixt < 60000) return this._ix;
@@ -18721,7 +18758,7 @@ const PRB = {
       ...F.map(fk => ({ key: fk, label: this.L[fk], num: fk === 'amt', render: r => fk === 'amt' ? (r.amt ? fmtINR(r.amt) : '') : `<span class="${/mobile|imei|acc|ifsc/.test(fk) ? 'mono' : ''}">${esc(r[fk] || '')}</span>` })),
       { key: 'addr', label: 'Location', csv: r => [r.lat != null ? r.lat + ',' + r.lng : '', r.addr].filter(Boolean).join(' '), render: r => `${r.lat != null ? `<a href="https://www.google.com/maps?q=${r.lat},${r.lng}" target="_blank" rel="noopener" onclick="event.stopPropagation()">📍 ${r.lat.toFixed(5)}, ${r.lng.toFixed(5)}</a>` : ''}${r.addr && !/^https?:/i.test(r.addr) ? `<div class="small">${esc(r.addr.slice(0, 90))}</div>` : ''}${r.district || r.state ? `<div class="small muted">${esc([r.district, r.state].filter(Boolean).join(', '))}</div>` : ''}` },
       { key: 'time', label: 'Fetch / Txn Time', sortVal: r => r.time, csv: r => r.time ? new Date(r.time).toLocaleString('en-IN') : '', render: r => r.time ? esc(new Date(r.time).toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })) : '' },
-      { key: 'total', label: 'Complaints', num: true, render: r => `<b>${r.total || ''}</b>${r.acks.length ? `<div class="small mono">${esc(r.acks.slice(0, 2).join(', '))}${r.acks.length > 2 ? ' +' + (r.acks.length - 2) : ''}</div>` : ''}` },
+      { key: 'total', label: 'Complaints', num: true, render: r => `<b>${r.total || ''}</b>${(r.acks || []).length ? `<div class="small mono">${esc((r.acks || []).slice(0, 2).join(', '))}${(r.acks || []).length > 2 ? ' +' + ((r.acks || []).length - 2) : ''}</div>` : ''}` },
       { key: 'hit', label: 'In Your Cases', sortVal: r => r._h.length, csv: r => r._h.map(h => h.l).join('; '), render: r => r._h.length ? r._h.slice(0, 2).map(h => `<div class="small"><b>${esc(h.l)}</b></div>`).join('') : '<span class="muted">—</span>' },
       { key: 'gang', label: 'Gang / Group', sortVal: r => this._gOf.has(r.id) ? 1 : 0, csv: r => this._gOf.has(r.id) ? 'G' + (this._gOf.get(r.id) + 1) : '', render: r => this._gOf.has(r.id) ? `<span class="tg-sp" style="--c:#0f766e">👥 G${this._gOf.get(r.id) + 1} · ${esc(this.gl(this._G[this._gOf.get(r.id)], M).cat.split(' (')[0])}</span>` : '' }] });
   },
@@ -18919,6 +18956,112 @@ const DataFind = {
     return r;
   };
   if (typeof AnaTabs !== 'undefined') AnaTabs.docs = el => DataFind.panel(el, null, { id: 'An', always: true });
+})();
+
+</script>
+<script>
+/* livecell.js – one shared hover + click behaviour for any number, chip, box or table cell in the whole tool.
+   Mark an element with data-lv="<name>" (and any data-* it needs) and register LiveCell.fn[name] = el => def,
+   where def = { title, rows: () => [...], cols, pv, sort, onRow, total }. Hover = live preview of the top records,
+   click = the complete records in the side panel (search, sort, CSV, export). Works after paging / sorting
+   because it listens once on the whole page. */
+'use strict';
+const LiveCell = {
+  fn: {},
+  def(el) { const f = this.fn[el.dataset.lv]; if (!f) return null; try { return f(el); } catch (e) { console.warn('livecell', e); return null; } },
+  cols(R) {
+    const seen = new Set(); R.slice(0, 200).forEach(r => Object.keys(r).forEach(k => { if (!k.startsWith('_') && r[k] != null && r[k] !== '' && typeof r[k] !== 'object') seen.add(k); }));
+    return [...seen].slice(0, 10).map(k => ({ key: k, label: Records.label(k), num: typeof (R.find(r => r[k] != null) || {})[k] === 'number' }));
+  },
+  norm(d) { if (!d) return null; const rows = typeof d.rows === 'function' ? d.rows : () => d.rows || []; const o = Object.assign({}, d, { rows }); if (!o.cols) o.cols = this.cols(rows() || []); if (!o.pv) { const k = (o.cols[0] || {}).key, k2 = (o.cols[1] || {}).key; o.pv = r => [r[k], k2 ? r[k2] : '']; } return o; }
+};
+(() => {
+  let cur = null;
+  document.addEventListener('mouseover', e => {
+    const el = e.target.closest && e.target.closest('[data-lv]'); if (el === cur) return; cur = el;
+    if (!el) return DashX.tip(null, null); const d = LiveCell.norm(LiveCell.def(el)); if (d) DashX.tip(el, d);
+  });
+  document.addEventListener('click', e => {
+    const el = e.target.closest && e.target.closest('[data-lv]'); if (!el || e.target.closest('a[href],input,select,textarea')) return;
+    const d = LiveCell.norm(LiveCell.def(el)); if (!d) return;
+    e.stopPropagation(); e.preventDefault(); cur = null; DashX.open(d);
+  }, true);
+  const or = render; render = function () { cur = null; return or.apply(this, arguments); };
+})();
+
+/* ---------- CCTNS: number boxes, All Cases table cells, Case At A Glance ---------- */
+(() => {
+  if (typeof CCTNS === 'undefined') return;
+  const C = () => CCTNS._all || [], byId = id => C().find(r => r.id === id) || {};
+  const open = r => { UI.closeDrawer(); if (r._id && r._id !== S.caseId) switchCase(r._id); };
+  const cdCols = [{ key: '_case', label: 'Case' }, { key: 'no', label: 'CD No.', num: true }, { key: 'date', label: 'Date' }, { key: 'file', label: 'File' }, { key: 'text', label: 'Short Summary', render: r => `<span class="small">${esc(r.text || '')}</span>` }];
+  const cdRows = L => L.flatMap(r => (r.cdList || []).map(x => ({ ...x, _case: r.name, _id: r.id })));
+  const showCd = x => { UI.closeDrawer(); Promise.resolve(x._id === S.caseId ? S.data : DB.get('case:' + x._id)).then(d => { const cd = ((d && d.cctns && d.cctns.cd) || []).find(c => String(c.no) === String(x.no) && (c.file === x.file || !x.file)); UI.drawer(`CD ${x.no || '?'} – ${x._case}`, `<div class="small muted">${esc([x.date, x.file].filter(Boolean).join(' · '))}</div><div class="ad-full" style="white-space:pre-wrap;margin-top:8px">${esc((cd && cd.text) || x.text || '')}</div>`); }); };
+  const pendRows = L => L.flatMap(r => (r.pendItems || []).map(w => ({ what: w.title, from: w.from || '', _case: r.name, _id: r.id })));
+  const pendCols = [{ key: '_case', label: 'Case' }, { key: 'what', label: 'Demand / Notice To Do' }, { key: 'from', label: 'From Whom' }];
+  const ntRows = L => L.flatMap(r => (r.noticeList || []).map(n => ({ ...n, _case: r.name, _id: r.id })));
+  const ntCols = [{ key: '_case', label: 'Case' }, { key: 'when', label: 'When' }, { key: 'name', label: 'Notice' }, { key: 'to', label: 'To' }];
+  const gapRows = L => L.filter(r => r.cdGap).flatMap(r => String(r.cdGap).split(/\s*,\s*/).map(n => ({ missing: 'CD ' + n, last: r.cdLast, _case: r.name, _id: r.id })));
+  const D = {
+    cd: L => ({ title: 'Case Diary Parts', rows: () => cdRows(L), cols: cdCols, sort: 'no', pv: x => ['CD ' + (x.no || '?') + ' · ' + x._case, x.date], onRow: showCd }),
+    gap: L => ({ title: 'Missing CD Numbers', rows: () => gapRows(L), cols: [{ key: '_case', label: 'Case' }, { key: 'missing', label: 'Missing', render: r => `<b class="bad-t">${esc(r.missing)}</b>` }, { key: 'last', label: 'Last CD No.' }], pv: x => [x.missing + ' · ' + x._case, 'last CD ' + x.last], onRow: open }),
+    pend: L => ({ title: 'Pending Demands / Work', rows: () => pendRows(L), cols: pendCols, pv: x => [x.what, x._case], onRow: open }),
+    done: L => ({ title: 'Work Done', rows: () => L.flatMap(r => (r.doneItems || []).map(w => ({ what: w.title, _case: r.name, _id: r.id }))), cols: [{ key: '_case', label: 'Case' }, { key: 'what', label: 'Done' }], pv: x => [x.what, x._case], onRow: open }),
+    notices: L => ({ title: 'Notices Drafted', rows: () => ntRows(L), cols: ntCols, pv: x => [x.name + (x.to ? ' → ' + x.to : ''), x._case], onRow: open })
+  };
+  CCTNS.LV = D;
+  LiveCell.fn.cc = el => { const k = el.dataset.k, r = byId(el.dataset.id); return D[k] ? Object.assign(D[k]([r]), { title: D[k]([r]).title + ' – ' + (r.name || '') }) : null; };
+  /* Case At A Glance: boxes and the Received / Pending / Suggestions / Section chips */
+  LiveCell.fn.cdx = el => {
+    const r = CDX.analyse(), k = el.dataset.k, kv = (a, b) => ({ item: a, value: b });
+    const its = r.items.map(i => ({ what: [i.need || i.type, i.value].filter(Boolean).join(' · '), from: i.from || '', status: i.status, age: i.age || '', cd: i.got ? 'CD ' + i.got.cd : i.ask ? 'CD ' + i.ask.cd : '' }));
+    const ags = r.agencies.map(a => ({ what: a.en + (a.bank ? ' · ' + a.bank : ''), from: a.bank || a.en || '', status: a.status, age: a.age || '', cd: a.cd ? 'CD ' + a.cd : '' }));
+    const cdL = r.L.map(l => ({ no: l.no, date: CDX.dmy(l.prep), file: l.x.file, text: CDX.cut(l.body, 240), _case: activeCase().name, _id: S.caseId }));
+    const T = {
+      received: () => ({ title: 'Received', rows: () => [...its, ...ags].filter(x => x.status === 'Received'), pv: x => [x.what, x.cd] }),
+      pending: () => ({ title: 'Pending – From Whom', rows: () => [...its, ...ags].filter(x => x.status !== 'Received'), pv: x => [x.what, x.age ? x.age + ' days' : x.from], sort: 'age' }),
+      sugg: () => ({ title: 'Suggestions To IO', rows: () => r.sugg.map((s, i) => ({ no: i + 1, suggestion: s.en, hindi: s.hi })), pv: x => [x.suggestion, ''] }),
+      secs: () => ({ title: 'Section Points', rows: () => r.secs.filter(s => s.state !== 'ok').map(s => ({ section: s.sec, check: s.state === 'review' ? 'Review' : 'Consider Adding', reason: s.why || s.reason || s.hi || '' })), pv: x => [x.section, x.check] }),
+      'Case Diary': () => ({ title: 'Case Diary Parts', rows: () => cdL, cols: cdCols.slice(1), sort: 'no', pv: x => ['CD ' + (x.no || '?'), x.date], onRow: showCd }),
+      FIR: () => ({ title: 'FIR', rows: () => [kv('FIR No.', r.fir.no), kv('Date', r.fir.date), kv('Sections', r.fir.sections.join(', ')), kv('Complainant', r.fir.complainant), kv('Mobile', r.fir.mobile), kv('Incident', r.fir.incident), kv('Amount', r.fir.amount ? fmtINR(r.fir.amount) : '')].filter(x => x.value) }),
+      Sections: () => ({ title: 'Sections', rows: () => r.fir.sections.map(s => ({ section: s, check: (r.secs.find(x => x.sec === s) || {}).state === 'ok' ? 'In FIR' : '' })) }),
+      Complainant: () => ({ title: 'Complainant', rows: () => [kv('Name', r.fir.complainant), kv('Mobile', r.fir.mobile), kv('Statement', r.vic ? 'CD ' + r.vic.cd : 'Not found in the case diary')].filter(x => x.value) }),
+      Incident: () => ({ title: 'Incident', rows: () => [kv('Incident', r.fir.incident), kv('FIR Date', r.fir.date)].filter(x => x.value) }),
+      Amount: () => ({ title: 'Amount', rows: () => [kv('Amount In FIR', r.fir.amount ? fmtINR(r.fir.amount) : '')].filter(x => x.value) }),
+      IO: () => ({ title: 'IO', rows: () => [kv('IO', r.io || activeCase().io), kv('Case', activeCase().name)].filter(x => x.value) }),
+      Status: () => { const c = activeCase(); return { title: 'Status', rows: () => [kv('Status', c.status), kv('CS / FR', c.final ? CCTNS.finTxt(c.final) : 'Not filed yet')].filter(x => x.value) }; }
+    };
+    return T[k] ? T[k]() : null;
+  };
+  const od = CCTNS.diary; CCTNS.diary = function (el) {
+    const r = od.apply(this, arguments);
+    try { const g = $('#cdxG', el); if (g) { $$('.cdx-kp > div', g).forEach(d => { const k = ($('span', d) || {}).textContent; if (k) { d.dataset.lv = 'cdx'; d.dataset.k = k.trim(); } });
+      const S4 = ['received', 'pending', 'sugg', 'secs']; $$('.cdx-sum > span', g).forEach((s, i) => { if (S4[i]) { s.dataset.lv = 'cdx'; s.dataset.k = S4[i]; } }); } } catch (e) { }
+    return r;
+  };
+})();
+
+/* number boxes resolved by their label: Bulk-Split / Rapid Pass-Through (any page) and Trending Crime */
+(() => {
+  if (typeof LiveNum === 'undefined') return;
+  const or = LiveNum.resolve;
+  LiveNum.resolve = function (label, c) {
+    const L = String(label || '').toLowerCase().trim();
+    if (/bulk.?split|rapid|pass.?through|both flags/.test(L) && typeof Flags !== 'undefined') {
+      let F = []; try { F = Flags.compute(this.txns(c)); } catch (e) { }
+      return { rows: F.filter(r => /both/.test(L) ? r.bulk && r.rapid : /bulk/.test(L) ? r.bulk : r.rapid) };
+    }
+    if (S.page === 'trend' && typeof Trend !== 'undefined' && Trend._F) {
+      const F = Trend._F;
+      if (/^records/.test(L)) return { rows: F };
+      if (/^amount/.test(L)) return { rows: F.filter(r => +r.amount > 0).sort((a, b) => b.amount - a.amount) };
+      if (/district|ps\b|police station/.test(L)) return this.group(F.map(r => ({ ...r, _dps: [r.district, r.ps].filter(Boolean).join(' / ') })), ['_dps'], 'District / PS') || { rows: F };
+      if (/fraud type|rising/.test(L)) return this.group(F, ['type'], 'Fraud Type') || { rows: F };
+      if (/delay/.test(L)) return { rows: F.filter(r => r.rep && r.inc).map(r => ({ ...r, delay_days: Math.round((r.rep - r.inc) / 864e5) })).sort((a, b) => b.delay_days - a.delay_days) };
+      return { rows: F };
+    }
+    return or.apply(this, arguments);
+  };
 })();
 
 </script>

@@ -3,7 +3,7 @@
 'use strict';
 const OCR = {
   langs: ['eng', 'hin'], scale: 3, url: null, pool: [], making: 0, wait: [], prog: null,
-  size() { return Math.max(1, Math.min(3, (navigator.hardwareConcurrency || 2) - 1)); },
+  size() { const hc = navigator.hardwareConcurrency || 2, mem = navigator.deviceMemory || 8; return Math.max(1, Math.min(mem >= 8 ? 4 : mem >= 4 ? 3 : 2, hc - 1)); },
   blob() {
     if (this.url) return this.url;
     const pk = JSON.stringify({ wasm: OCR_PACK.wasm, hin: OCR_PACK.hin, eng: OCR_PACK.eng });
@@ -43,6 +43,13 @@ const __f=self.fetch;self.fetch=(u,o)=>{const m=/\\/(hin|eng)\\.traineddata/.exe
     await Promise.all(Array.from({ length: Math.min(this.size(), n) }, run));
     try { doc.destroy(); } catch (e) { }
     return out.join('\n\f\n');
+  },
+  /* only the given page numbers of an already open PDF (pages that have no text layer) */
+  async pages(doc, list, onPage) {
+    const out = {}; let k = 0, done = 0;
+    const run = async () => { while (k < list.length) { const i = list[k++]; out[i] = await this.page(doc, i); done++; onPage && onPage(done, list.length); } };
+    await Promise.all(Array.from({ length: Math.min(this.size(), list.length) }, run));
+    return out;
   },
   async read(file, onPage) {
     const n = (file.name || '').toLowerCase();

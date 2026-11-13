@@ -2293,3 +2293,15 @@ html.no-contacts .ct-item,html.no-contacts .ct-subs{display:none!important}
 .df-bar i{display:block;height:10px;border-radius:5px;background:linear-gradient(90deg,#6366f1,#0ea5e9)}
 .df-bar b{text-align:right}
 @media (max-width:900px){.df-ch{grid-template-columns:1fr}}
+
+/* reading progress */
+.rd-bar{height:8px;border-radius:4px;background:rgba(148,163,184,.25);overflow:hidden;margin:4px 0}.rd-bar i{display:block;height:100%;background:linear-gradient(90deg,#16a34a,#0ea5e9);transition:width .3s}
+.rd-t{font-size:12.5px}
+
+.bn-due.done{border-color:#16a34a!important;background:rgba(22,163,74,.14)!important;color:inherit}.bn-due.done .bn-dot{animation:none}
+
+/* shared live cells: hover preview, click = full data */
+[data-lv]{cursor:pointer}
+.lv-c{text-decoration:underline dotted;text-underline-offset:3px;padding:1px 4px;border-radius:4px}
+.lv-c:hover,[data-lv]:hover{background:rgba(99,102,241,.14);outline:1px solid rgba(99,102,241,.45)}
+.cdx-kp>[data-lv],.cdx-sum>[data-lv]{border-radius:8px;transition:background .15s}

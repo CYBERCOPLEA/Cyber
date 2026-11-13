@@ -78,7 +78,7 @@ const Letters = {
         { key: 'subject', label: 'Letter / Subject', render: x => `<b>${esc(x.subject || x.title || 'Letter')}</b>${x.title && x.title !== x.subject ? `<div class="small muted">${esc(x.title)}</div>` : ''}` },
         { key: 'to', label: 'Sent To / For', render: x => `<span class="small">${esc(x.to || '—')}</span>` },
         { key: 'ref', label: 'Letter No.', render: x => `<span class="mono small">${esc(x.ref || '')}</span>` },
-        { key: 'how', label: 'Made As', csv: x => x.how.map(k => (this.KIND[k] || [, k])[1]).join(', '), render: x => x.how.map(k => `<span title="${(this.KIND[k] || [, k])[1]}">${(this.KIND[k] || ['•'])[0]}</span>`).join(' ') },
+        { key: 'how', label: 'Made As', csv: x => (x.how || []).map(k => (this.KIND[k] || [, k])[1]).join(', '), render: x => (x.how || []).map(k => `<span title="${(this.KIND[k] || [, k])[1]}">${(this.KIND[k] || ['•'])[0]}</span>`).join(' ') },
         { key: 'act', label: '', nosort: true, noexport: true, render: x => `<button class="btn sm" data-lo="${x.id}">👁 Open</button>` }] });
     }
     $$('[data-lo]', el).forEach(b => b.onclick = e => { e.stopPropagation(); const x = L.find(y => y.id === b.dataset.lo); x && this.open(x, el); });

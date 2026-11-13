@@ -46,7 +46,7 @@ const PRB = {
       UI.toast(a ? `🛰 ${a} row(s) imported – ${Object.entries(by).map(([k, n]) => this.k(k)[2] + ' ' + n).join(', ')}${s ? ` · ${s} already there` : ''}` : s ? 'All rows were already imported' : 'No Pratibimb rows found – check the sheet has Mobile / IMEI / Account / Coordinates columns', 6000); done && done(); };
     i.click();
   },
-  ids(r) { const o = []; if (r.mobile) o.push(['📱', 'm:' + r.mobile, r.mobile]); if (r.imei) o.push(['📟', 'i:' + r.imei.slice(0, 14), r.imei]); if (r.acc) o.push(['🏦', 'a:' + r.acc, r.acc]); r.acks.forEach(k => o.push(['🧾', 'k:' + k, k])); return o; },
+  ids(r) { const o = []; if (r.mobile) o.push(['📱', 'm:' + r.mobile, r.mobile]); if (r.imei) o.push(['📟', 'i:' + r.imei.slice(0, 14), r.imei]); if (r.acc) o.push(['🏦', 'a:' + r.acc, r.acc]); (r.acks || []).forEach(k => o.push(['🧾', 'k:' + k, k])); return o; },
   /* links: Target (all cases) and NCRP complaints in cases */
   async ix(force) {
     if (this._ix && !force && Date.now() - this._ixt < 60000) return this._ix;
@@ -190,7 +190,7 @@ const PRB = {
       ...F.map(fk => ({ key: fk, label: this.L[fk], num: fk === 'amt', render: r => fk === 'amt' ? (r.amt ? fmtINR(r.amt) : '') : `<span class="${/mobile|imei|acc|ifsc/.test(fk) ? 'mono' : ''}">${esc(r[fk] || '')}</span>` })),
       { key: 'addr', label: 'Location', csv: r => [r.lat != null ? r.lat + ',' + r.lng : '', r.addr].filter(Boolean).join(' '), render: r => `${r.lat != null ? `<a href="https://www.google.com/maps?q=${r.lat},${r.lng}" target="_blank" rel="noopener" onclick="event.stopPropagation()">📍 ${r.lat.toFixed(5)}, ${r.lng.toFixed(5)}</a>` : ''}${r.addr && !/^https?:/i.test(r.addr) ? `<div class="small">${esc(r.addr.slice(0, 90))}</div>` : ''}${r.district || r.state ? `<div class="small muted">${esc([r.district, r.state].filter(Boolean).join(', '))}</div>` : ''}` },
       { key: 'time', label: 'Fetch / Txn Time', sortVal: r => r.time, csv: r => r.time ? new Date(r.time).toLocaleString('en-IN') : '', render: r => r.time ? esc(new Date(r.time).toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })) : '' },
-      { key: 'total', label: 'Complaints', num: true, render: r => `<b>${r.total || ''}</b>${r.acks.length ? `<div class="small mono">${esc(r.acks.slice(0, 2).join(', '))}${r.acks.length > 2 ? ' +' + (r.acks.length - 2) : ''}</div>` : ''}` },
+      { key: 'total', label: 'Complaints', num: true, render: r => `<b>${r.total || ''}</b>${(r.acks || []).length ? `<div class="small mono">${esc((r.acks || []).slice(0, 2).join(', '))}${(r.acks || []).length > 2 ? ' +' + ((r.acks || []).length - 2) : ''}</div>` : ''}` },
       { key: 'hit', label: 'In Your Cases', sortVal: r => r._h.length, csv: r => r._h.map(h => h.l).join('; '), render: r => r._h.length ? r._h.slice(0, 2).map(h => `<div class="small"><b>${esc(h.l)}</b></div>`).join('') : '<span class="muted">—</span>' },
       { key: 'gang', label: 'Gang / Group', sortVal: r => this._gOf.has(r.id) ? 1 : 0, csv: r => this._gOf.has(r.id) ? 'G' + (this._gOf.get(r.id) + 1) : '', render: r => this._gOf.has(r.id) ? `<span class="tg-sp" style="--c:#0f766e">👥 G${this._gOf.get(r.id) + 1} · ${esc(this.gl(this._G[this._gOf.get(r.id)], M).cat.split(' (')[0])}</span>` : '' }] });
   },

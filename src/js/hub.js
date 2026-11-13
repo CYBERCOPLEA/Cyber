@@ -158,10 +158,10 @@ const Hub = {
     /* 1 · CCTNS: FIR, CD, CS / PPI / FR, case documents (OCR when scanned) */
     const cc = todo.filter(q => this.CCT.includes(q.kind));
     if (cc.length) {
-      const G = new Map(); let i = 0; const t0 = Date.now();
+      const G = new Map(); let i = 0; const t0 = Date.now(); log(CDX.bar(0, cc.length, t0));
+      const RD = CDX.readMany(cc.map(q => q.f), d => log(CDX.bar(d, cc.length, t0)));
       for (const q of cc) {
-        log(`⏳ Reading ${++i} of ${cc.length}: <b>${esc(q.f.name)}</b>${i > 1 ? ` · about ${Math.max(1, Math.round((Date.now() - t0) / (i - 1) * (cc.length - i + 1) / 60000))} min left` : ''}`);
-        let t = ''; try { t = await CDX.readFile(q.f, (a, n) => log(`⏳ Reading ${i} of ${cc.length}: <b>${esc(q.f.name)}</b> · page ${a} of ${n}`)); } catch (e) { q.res = 'Error: ' + e.message; }
+        const rr = await RD[i++]; let t = rr.t || ''; if (rr.err) q.res = 'Error: ' + rr.err;
         let kind = q.kind; if (kind === 'doc' && !q.user && t) { const k2 = CDX.kind(q.f.name, t); kind = k2.k === 'cd' ? 'cd' : k2.k === 'fir' ? 'fir' : k2.k === 'fin' ? (k2.type === 'FR' ? 'fr' : k2.type === 'PPI' ? 'ppi' : 'cs') : 'doc'; q.kind = kind; }
         const kd = kind === 'cd' ? { k: 'cd' } : kind === 'fir' ? { k: 'fir' } : kind === 'cs' ? { k: 'fin', type: 'CS' } : kind === 'ppi' ? { k: 'fin', type: 'PPI' } : kind === 'fr' ? { k: 'fin', type: 'FR' } : { k: 'doc' };
         let m = s.mode === 'auto' ? (CDX.meta(q.path) || (t && CDX.firOf(t) ? (() => { const [no, year] = CDX.firOf(t).split('/'); return { no, year, fir: no + '/' + year, ps: '', dist: '', fin: '' }; })() : null)) : null;

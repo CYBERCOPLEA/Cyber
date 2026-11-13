@@ -205,7 +205,7 @@ const CaseBox = {
       $$('[data-fs]', W).forEach(b => b.onclick = () => { st.st = st.st === b.dataset.fs ? '' : b.dataset.fs; draw(); });
       $$('[data-so]', W).forEach(h => h.onclick = () => { const k = h.dataset.so; st.dir = st.sort === k ? -st.dir : 1; st.sort = k; draw(); });
       $('#cmAdd', W).onclick = () => this.open('new');
-      $('#cmCsv', W).onclick = () => { const q = v => '"' + String(v ?? '').replace(/"/g, '""') + '"'; UI.download('all_cases.csv', '﻿' + [['Case', ...COLS.map(x => x[1])], ...L.map(c => [c.name, ...COLS.map(([k]) => V(c, k))])].map(r => r.map(q).join(',')).join('\r\n'), 'text/csv'); };
+      $('#cmCsv', W).onclick = () => { const q = v => { v = String(v ?? ''); if (/^[=+\-@\t\r]/.test(v) && !/^[-+]?[\d,]*\.?\d+$/.test(v.trim())) v = "'" + v; return '"' + v.replace(/"/g, '""') + '"'; }; UI.download('all_cases.csv', '﻿' + [['Case', ...COLS.map(x => x[1])], ...L.map(c => [c.name, ...COLS.map(([k]) => V(c, k))])].map(r => r.map(q).join(',')).join('\r\n'), 'text/csv'); };
       $$('[data-co]', W).forEach(b => b.onclick = async () => { UI.closeDrawer(); if (b.dataset.co !== S.caseId) await switchCase(b.dataset.co); go('dashboard'); });
       $$('[data-ce]', W).forEach(b => b.onclick = () => this.open(b.dataset.ce, { stay: true, after: draw }));
       $$('[data-cd]', W).forEach(b => b.onclick = async () => { await deleteCase(b.dataset.cd); if ($('#cmW')) draw(); });
