@@ -106,7 +106,7 @@ async function inboxUrl() {
 }
 async function sendReq(o) {
   o = o || {}; const r = { mid: MID };
-  ['n', 'rk', 'ps', 'dist', 'st', 'mob'].forEach(k => { r[k] = String(o[k] || '').replace(/\s+/g, ' ').trim().slice(0, 80); });
+  ['n', 'rk', 'ps', 'dist', 'st', 'mob', 'em'].forEach(k => { r[k] = String(o[k] || '').replace(/\s+/g, ' ').trim().slice(0, k === 'em' ? 120 : 80); });
   if (!r.n) return { ok: false, msg: 'Fill your name first' };
   const u = await inboxUrl();
   if (!u) return { ok: false, msg: 'Could not reach the Super Admin online (no internet?). Use “Copy Request Code” or “Send On WhatsApp” instead.' };
@@ -117,6 +117,14 @@ async function sendReq(o) {
   } catch (e) {
     return { ok: false, msg: /Unknown request/.test(String(e.message)) ? 'The Super Admin’s online inbox is not switched on yet. Use “Copy Request Code” or “Send On WhatsApp” instead.' : /Too many|Machine ID|Name/.test(String(e.message)) ? String(e.message) : 'Could not reach the Super Admin online (no internet?). Use “Copy Request Code” or “Send On WhatsApp” instead.' };
   }
+}
+/* e-mail code (lotp / lotpok) and reset requests for the activation screen and the tool – this computer's Machine ID is always used */
+async function gsCall(b) {
+  b = b || {}; if (!['lotp', 'lotpok', 'lreq'].includes(b.fn)) return { ok: false, err: 'Not allowed' };
+  const u = await inboxUrl(); if (!u) return { ok: false, err: 'No internet – could not reach the SudarshanAshtra team' };
+  const body = Object.assign({}, b, { mid: MID }); if (body.r) body.r = Object.assign({}, body.r, { mid: MID });
+  try { const res = await net.fetch(u, { method: 'POST', body: JSON.stringify(body), headers: { 'Content-Type': 'text/plain' } }); const j = JSON.parse(await res.text()); return j.ok ? { ok: true, r: j.r } : { ok: false, err: /Unknown request/.test(j.err || '') ? 'The SudarshanAshtra team has not switched this on yet' : (j.err || 'no answer') }; }
+  catch (e) { return { ok: false, err: 'No internet – could not reach the SudarshanAshtra team' }; }
 }
 /* ---------- the tool itself: bundled copy or a newer copy from ⬆ Update ---------- */
 function verOf(d) { try { return JSON.parse(fs.readFileSync(path.join(d, 'ver.json'), 'utf8')); } catch (e) { return null; } }
@@ -167,6 +175,7 @@ function wire() {
   ipcMain.handle('desk:setLicence', async (e, key) => { const r = setLicence(key); if (r.ok) { const o = await online(); if (o.reload && !check(false).ok) return { ok: false, err: o.msg, saved: 1 }; } return r; });
   ipcMain.handle('desk:checkOnline', () => online());
   ipcMain.handle('desk:sendReq', (e, o) => sendReq(o));
+  ipcMain.handle('desk:gs', (e, b) => gsCall(b));
   ipcMain.handle('desk:checkUpdate', () => checkUpdate());
   ipcMain.handle('desk:applyUpdate', () => applyUpdate());
   ipcMain.handle('desk:open', (e, url) => { if (/^https:\/\//i.test(String(url))) shell.openExternal(String(url)); });
