@@ -1404,8 +1404,8 @@ svg.c2.dn .dn-c2{font-size:24px}
 .cc-head h3{margin:0;color:#d8b4fe}
 .cc-btns{display:flex;flex-wrap:wrap;gap:6px}
 .cc-prog{margin:12px 0 4px;display:flex;align-items:center;gap:10px;font-weight:700}
-.cc-bar{flex:1;height:12px;border-radius:999px;background:rgba(239,68,68,.25);overflow:hidden}
-.cc-bar>i{display:block;height:100%;background:linear-gradient(90deg,#22c55e,#84cc16);border-radius:999px}
+.cc-bar:not(.card){flex:1;height:12px;border-radius:999px;background:rgba(239,68,68,.25);overflow:hidden}
+.cc-bar:not(.card)>i{display:block;height:100%;background:linear-gradient(90deg,#22c55e,#84cc16);border-radius:999px}
 .cc-g{gap:14px;align-items:start}
 .cc-work{border-top:3px solid #f97316}
 .cc-w{display:flex;gap:10px;align-items:flex-start;padding:9px 10px;margin:6px 0;border-radius:8px;border-left:5px solid #64748b;background:rgba(100,116,139,.08)}
@@ -2346,6 +2346,70 @@ html.ed-desk #topbar{gap:7px}
 .dk-must{margin-top:10px;padding:10px 12px;border-radius:10px;border:1px solid #f59e0b;background:rgba(245,158,11,.12);font-size:13px;line-height:1.45}
 .dk-flash p{margin:6px 0}
 
+/* ===== Vijay's list 13-11-2026 ===== */
+/* top bar: brand on two lines that fit, Refresh button, new Update icon */
+#topbar .brand{min-width:0;flex:none}
+#topbar .brand>div{white-space:nowrap;line-height:1.18}
+#topbar .brand small{font-size:9.5px;letter-spacing:.35px;white-space:nowrap}
+@media (max-width:1440px){#topbar .brand small{display:none}#topbar .brand .br-hi{display:block;margin:0!important;padding-top:.1em!important;padding-bottom:0!important;font-size:.95em}}
+#btnRefresh{height:34px;width:36px;padding:0;display:inline-flex;align-items:center;justify-content:center;color:#0ea5e9;border-color:color-mix(in srgb,#0ea5e9 45%,var(--border))}
+#btnRefresh:hover{background:rgba(14,165,233,.14);border-color:#0ea5e9}
+#btnRefresh.spin svg{animation:rfSpin .7s linear infinite}
+@keyframes rfSpin{to{transform:rotate(360deg)}}
+#dkUpd{display:inline-flex;align-items:center;gap:6px}
+#dkUpd .fx{background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2032%2032%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%2334d399%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%230284c7%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle%20cx%3D%2216%22%20cy%3D%2216%22%20r%3D%2215%22%20fill%3D%22url%28%23g%29%22/%3E%3Cpath%20d%3D%22M23.5%2013.5A8%208%200%200%200%209.2%2011%22%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222.6%22%20stroke-linecap%3D%22round%22/%3E%3Cpath%20d%3D%22M8.5%207v4.6h4.6%22%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222.6%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3Cpath%20d%3D%22M16%2014v10M12%2020l4%204%204-4%22%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222.6%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3C/svg%3E")!important;width:1.35em!important;height:1.35em!important}
+/* Offline heading on every import screen */
+.imp-off{display:flex;gap:10px;align-items:center;margin:0 0 12px;padding:10px 14px;border-radius:12px;font-size:14px;font-weight:600;line-height:1.4;color:#a7f3d0;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.45)}
+.imp-off b{color:#34d399;font-weight:800;font-size:15.5px}
+.imp-off svg{flex:none}
+[data-theme=light] .imp-off{color:#065f46;background:#ecfdf5;border-color:#6ee7b7}
+[data-theme=light] .imp-off b{color:#047857}
+/* chosen case: green, white bold text */
+#caseSel.cs-on{background:#15803d!important;color:#fff!important;font-weight:800;border-color:#16a34a!important}
+#caseSel.cs-on option{background:var(--surface-1,#fff);color:var(--text,#0f172a);font-weight:400}
+#main .am-c.pk-cur,#main .pk-t.pk-cur{background:linear-gradient(135deg,#16a34a,#15803d)!important;border-color:#16a34a!important;color:#fff!important}
+#main .am-c.pk-cur b,#main .pk-t.pk-cur b,#main .pk-t.pk-cur .pk-n{color:#fff!important;font-weight:800}
+#main .am-c.pk-cur small,#main .pk-t.pk-cur small{color:#dcfce7!important}
+.cx-cn.cur{background:#15803d!important;border-color:#16a34a!important;color:#fff!important}
+/* plan ending in under 10 days: red */
+.pl-b.pl-soon,#plTimer.pl-soon{--c:#dc2626!important;border-color:#dc2626!important;background:rgba(220,38,38,.16)!important;color:#ef4444!important;animation:plSoon 1.6s ease-in-out infinite}
+[data-theme=light] .pl-b.pl-soon,[data-theme=light] #plTimer.pl-soon{color:#b91c1c!important}
+@keyframes plSoon{50%{box-shadow:0 0 0 3px rgba(220,38,38,.25)}}
+/* normal users: no Add Contacts, no Import Excel, no Add Web Link */
+html.role-user #ctAdd,html.role-user #ctImp,html.role-user [data-ctn="add"],html.role-user #xtAdd,html.role-user #xtAddHere,html.role-user .nav-sub[data-xt="addlink"],html.role-user #main .tabs .tab[data-t="addlink"]{display:none!important}
+/* wrong-password caution flash */
+#lgErr.lg-flash{animation:lgFlash .45s ease-in-out 3;border-radius:8px}
+@keyframes lgFlash{50%{background:rgba(239,68,68,.22);box-shadow:0 0 0 4px rgba(239,68,68,.18)}}
+#lgErr{line-height:1.45}
+/* home + login page: One Platform, police badge in one line, bigger Offline */
+.hp-by.hp-one{font-size:15px;font-weight:800;letter-spacing:1.6px;text-transform:uppercase;color:#fbbf24;padding:3px 12px;border-radius:999px;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.35)}
+[data-theme=light] .hp-by.hp-one{color:#b45309;background:#fffbeb;border-color:#fcd34d}
+.hp-kicker .pk-nw{white-space:nowrap}
+@media (min-width:900px){.hp-kicker .pk-t{white-space:nowrap}.hp-kicker{letter-spacing:1.4px}}
+.hp-pill{font-size:15.5px;padding:9px 18px}
+.hp-pill b{font-size:18px}
+.hp-pill small{font-size:12.5px}
+.lg-safe{font-size:14.5px;padding:11px 13px;align-items:center}
+.lg-safe b{font-size:17px}
+.hp-brand b{white-space:nowrap}.hp-top .hp-btn{white-space:nowrap}
+@media (max-width:1500px){.hp-pill{font-size:14px;padding:8px 14px}.hp-pill b{font-size:16.5px}.hp-pill small{font-size:11.5px}
+  #btnNewCase,#btnDelCase{padding:0 8px;font-size:12px}#topbar #gsearch{width:160px}#topWho{min-width:0;max-width:124px;margin-right:2px}#topbar{gap:7px}}
+/* dashboard fits 1200–1500 px screens: five status boxes in one row, "This case" as a strip below */
+@media (min-width:1150px) and (max-width:1500px){
+  .cs-row.cs-row6{grid-template-columns:repeat(5,minmax(0,1fr))}
+  .cs-row.cs-row6>:nth-child(6){grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;padding-top:10px;padding-bottom:10px}
+  .cs-row.cs-row6>:nth-child(-n+5){padding-left:12px;padding-right:12px;min-width:0}
+}
+.d2{grid-template-columns:minmax(0,1fr)}
+.d2-tk>.grow{flex:0 1 300px;min-width:180px}
+@media (min-width:1150px) and (max-width:1500px){
+  .cs-row.cs-row6>.cs-now{flex-direction:row!important;justify-content:flex-start;text-align:left}
+  .cs-row.cs-row6>.cs-now>*{margin:0!important}
+  .cs-row.cs-row6 .cs-box{min-height:112px}
+}
+[data-theme=light] .d2-tk input{background:#fffbeb;color:#422006;border-color:#eab308}
+[data-theme=light] .d2-tk input::placeholder{color:#a16207}
+
 </style>
 </head>
 <body>
@@ -2354,14 +2418,14 @@ html.ed-desk #topbar{gap:7px}
 <div id="login">
   <div class="hp">
     <header class="hp-top">
-      <div class="hp-brand"><span class="hp-mark"><i class="ck" aria-hidden="true"></i><span class="emblem emblem-sm hp-logo" role="img" aria-label="SudarshanAshtra emblem"></span></span><div><b>SudarshanAshtra <span class="hp-hi" lang="hi">सुदर्शनास्त्र</span></b><small>Cyber Crime Analysis &amp; Tracking</small><span class="hp-by">Vijay Tomar <i>@lea_tomar</i></span></div></div>
+      <div class="hp-brand"><span class="hp-mark"><i class="ck" aria-hidden="true"></i><span class="emblem emblem-sm hp-logo" role="img" aria-label="SudarshanAshtra emblem"></span></span><div><b>SudarshanAshtra <span class="hp-hi" lang="hi">सुदर्शनास्त्र</span></b><small>Cyber Crime Analysis &amp; Tracking</small><span class="hp-by hp-one">One Platform</span></div></div>
       <span class="hp-spacer"></span>
-      <span class="hp-pill no-tc" title="Case files, CDRs, statements and reports are saved only in this browser on this computer. Only an optional Fetch Online look-up sends the one value you search, and only when you click it."><svg class="safe-ic" width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5z" fill="#10b981"/><rect x="8.5" y="11" width="7" height="5.5" rx="1" fill="#fff"/><path d="M10 11V9.5a2 2 0 0 1 4 0V11" fill="none" stroke="#fff" stroke-width="1.6"/></svg><span class="hp-pt"><b>Offline</b> · Your case data stays on this computer<br><small>Never uploaded to any server or online, so don't worry</small></span></span>
+      <span class="hp-pill no-tc" title="Case files, CDRs, statements and reports are saved only in this browser on this computer. Only an optional Fetch Online look-up sends the one value you search, and only when you click it."><svg class="safe-ic" width="38" height="38" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5z" fill="#10b981"/><rect x="8.5" y="11" width="7" height="5.5" rx="1" fill="#fff"/><path d="M10 11V9.5a2 2 0 0 1 4 0V11" fill="none" stroke="#fff" stroke-width="1.6"/></svg><span class="hp-pt"><b>Offline</b> · Your case data stays on this computer<br><small>Never uploaded to any server or online, so don't worry</small></span></span>
       <button class="hp-btn big" type="button" data-login><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Login to workspace</button>
     </header>
     <section class="hp-hero">
       <div class="hp-copy">
-        <div class="hp-kicker no-tc" tabindex="0"><svg class="pol-sh" viewBox="0 0 100 116" aria-hidden="true"><path d="M50 3 C68 10 84 11 96 8 L96 52 C96 82 76 102 50 113 C24 102 4 82 4 52 L4 8 C16 11 32 10 50 3Z" fill="#e0a526" stroke="#8a5a00" stroke-width="1.5"/><path d="M50 11 C66 17 79 18 88 16 L88 52 C88 77 71 94 50 104 C29 94 12 77 12 52 L12 16 C21 18 34 17 50 11Z" fill="#14254f"/><text x="50" y="35" text-anchor="middle" font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="15" fill="#f4b81f" letter-spacing=".5">POLICE</text><path d="M50 42 l5.6 11.6 12.8 1.6 -9.4 8.8 2.4 12.6 -11.4 -6.2 -11.4 6.2 2.4 -12.6 -9.4 -8.8 12.8 -1.6z" fill="#f4b81f" stroke="#b8860b" stroke-width=".8"/><g fill="#cfd5dc"><ellipse cx="26" cy="56" rx="2.2" ry="4.6" transform="rotate(-20 26 56)"/><ellipse cx="25" cy="64" rx="2.2" ry="4.6" transform="rotate(-30 25 64)"/><ellipse cx="26" cy="72" rx="2.2" ry="4.6" transform="rotate(-40 26 72)"/><ellipse cx="30" cy="80" rx="2.2" ry="4.6" transform="rotate(-52 30 80)"/><ellipse cx="36" cy="87" rx="2.2" ry="4.6" transform="rotate(-62 36 87)"/><ellipse cx="74" cy="56" rx="2.2" ry="4.6" transform="rotate(20 74 56)"/><ellipse cx="75" cy="64" rx="2.2" ry="4.6" transform="rotate(30 75 64)"/><ellipse cx="74" cy="72" rx="2.2" ry="4.6" transform="rotate(40 74 72)"/><ellipse cx="70" cy="80" rx="2.2" ry="4.6" transform="rotate(52 70 80)"/><ellipse cx="64" cy="87" rx="2.2" ry="4.6" transform="rotate(62 64 87)"/></g><path d="M30 52 Q24 74 46 92 M70 52 Q76 74 54 92" fill="none" stroke="#cfd5dc" stroke-width="1.6"/></svg><span class="pk-t">For Cyber Crime <b class="pk-pol">Police</b> Investigators</span><i class="sir r"></i><div class="pk-pop"><svg class="pol-sh" viewBox="0 0 100 116" aria-hidden="true"><path d="M50 3 C68 10 84 11 96 8 L96 52 C96 82 76 102 50 113 C24 102 4 82 4 52 L4 8 C16 11 32 10 50 3Z" fill="#e0a526" stroke="#8a5a00" stroke-width="1.5"/><path d="M50 11 C66 17 79 18 88 16 L88 52 C88 77 71 94 50 104 C29 94 12 77 12 52 L12 16 C21 18 34 17 50 11Z" fill="#14254f"/><text x="50" y="35" text-anchor="middle" font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="15" fill="#f4b81f" letter-spacing=".5">POLICE</text><path d="M50 42 l5.6 11.6 12.8 1.6 -9.4 8.8 2.4 12.6 -11.4 -6.2 -11.4 6.2 2.4 -12.6 -9.4 -8.8 12.8 -1.6z" fill="#f4b81f" stroke="#b8860b" stroke-width=".8"/><g fill="#cfd5dc"><ellipse cx="26" cy="56" rx="2.2" ry="4.6" transform="rotate(-20 26 56)"/><ellipse cx="25" cy="64" rx="2.2" ry="4.6" transform="rotate(-30 25 64)"/><ellipse cx="26" cy="72" rx="2.2" ry="4.6" transform="rotate(-40 26 72)"/><ellipse cx="30" cy="80" rx="2.2" ry="4.6" transform="rotate(-52 30 80)"/><ellipse cx="36" cy="87" rx="2.2" ry="4.6" transform="rotate(-62 36 87)"/><ellipse cx="74" cy="56" rx="2.2" ry="4.6" transform="rotate(20 74 56)"/><ellipse cx="75" cy="64" rx="2.2" ry="4.6" transform="rotate(30 75 64)"/><ellipse cx="74" cy="72" rx="2.2" ry="4.6" transform="rotate(40 74 72)"/><ellipse cx="70" cy="80" rx="2.2" ry="4.6" transform="rotate(52 70 80)"/><ellipse cx="64" cy="87" rx="2.2" ry="4.6" transform="rotate(62 64 87)"/></g><path d="M30 52 Q24 74 46 92 M70 52 Q76 74 54 92" fill="none" stroke="#cfd5dc" stroke-width="1.6"/></svg><div><b>Made for Police Cyber Crime Investigators</b><span>CDR · IPDR · TDR · Money Trail · NCRP · Social Media · Notices – all in one tool, fully offline. Your case data never leaves this computer.</span></div></div></div>
+        <div class="hp-kicker no-tc" tabindex="0"><svg class="pol-sh" viewBox="0 0 100 116" aria-hidden="true"><path d="M50 3 C68 10 84 11 96 8 L96 52 C96 82 76 102 50 113 C24 102 4 82 4 52 L4 8 C16 11 32 10 50 3Z" fill="#e0a526" stroke="#8a5a00" stroke-width="1.5"/><path d="M50 11 C66 17 79 18 88 16 L88 52 C88 77 71 94 50 104 C29 94 12 77 12 52 L12 16 C21 18 34 17 50 11Z" fill="#14254f"/><text x="50" y="35" text-anchor="middle" font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="15" fill="#f4b81f" letter-spacing=".5">POLICE</text><path d="M50 42 l5.6 11.6 12.8 1.6 -9.4 8.8 2.4 12.6 -11.4 -6.2 -11.4 6.2 2.4 -12.6 -9.4 -8.8 12.8 -1.6z" fill="#f4b81f" stroke="#b8860b" stroke-width=".8"/><g fill="#cfd5dc"><ellipse cx="26" cy="56" rx="2.2" ry="4.6" transform="rotate(-20 26 56)"/><ellipse cx="25" cy="64" rx="2.2" ry="4.6" transform="rotate(-30 25 64)"/><ellipse cx="26" cy="72" rx="2.2" ry="4.6" transform="rotate(-40 26 72)"/><ellipse cx="30" cy="80" rx="2.2" ry="4.6" transform="rotate(-52 30 80)"/><ellipse cx="36" cy="87" rx="2.2" ry="4.6" transform="rotate(-62 36 87)"/><ellipse cx="74" cy="56" rx="2.2" ry="4.6" transform="rotate(20 74 56)"/><ellipse cx="75" cy="64" rx="2.2" ry="4.6" transform="rotate(30 75 64)"/><ellipse cx="74" cy="72" rx="2.2" ry="4.6" transform="rotate(40 74 72)"/><ellipse cx="70" cy="80" rx="2.2" ry="4.6" transform="rotate(52 70 80)"/><ellipse cx="64" cy="87" rx="2.2" ry="4.6" transform="rotate(62 64 87)"/></g><path d="M30 52 Q24 74 46 92 M70 52 Q76 74 54 92" fill="none" stroke="#cfd5dc" stroke-width="1.6"/></svg><span class="pk-t"><span class="pk-nw">For Cyber Crime</span> <b class="pk-pol">Police</b> <span class="pk-nw">Investigators</span></span><i class="sir r"></i><div class="pk-pop"><svg class="pol-sh" viewBox="0 0 100 116" aria-hidden="true"><path d="M50 3 C68 10 84 11 96 8 L96 52 C96 82 76 102 50 113 C24 102 4 82 4 52 L4 8 C16 11 32 10 50 3Z" fill="#e0a526" stroke="#8a5a00" stroke-width="1.5"/><path d="M50 11 C66 17 79 18 88 16 L88 52 C88 77 71 94 50 104 C29 94 12 77 12 52 L12 16 C21 18 34 17 50 11Z" fill="#14254f"/><text x="50" y="35" text-anchor="middle" font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="15" fill="#f4b81f" letter-spacing=".5">POLICE</text><path d="M50 42 l5.6 11.6 12.8 1.6 -9.4 8.8 2.4 12.6 -11.4 -6.2 -11.4 6.2 2.4 -12.6 -9.4 -8.8 12.8 -1.6z" fill="#f4b81f" stroke="#b8860b" stroke-width=".8"/><g fill="#cfd5dc"><ellipse cx="26" cy="56" rx="2.2" ry="4.6" transform="rotate(-20 26 56)"/><ellipse cx="25" cy="64" rx="2.2" ry="4.6" transform="rotate(-30 25 64)"/><ellipse cx="26" cy="72" rx="2.2" ry="4.6" transform="rotate(-40 26 72)"/><ellipse cx="30" cy="80" rx="2.2" ry="4.6" transform="rotate(-52 30 80)"/><ellipse cx="36" cy="87" rx="2.2" ry="4.6" transform="rotate(-62 36 87)"/><ellipse cx="74" cy="56" rx="2.2" ry="4.6" transform="rotate(20 74 56)"/><ellipse cx="75" cy="64" rx="2.2" ry="4.6" transform="rotate(30 75 64)"/><ellipse cx="74" cy="72" rx="2.2" ry="4.6" transform="rotate(40 74 72)"/><ellipse cx="70" cy="80" rx="2.2" ry="4.6" transform="rotate(52 70 80)"/><ellipse cx="64" cy="87" rx="2.2" ry="4.6" transform="rotate(62 64 87)"/></g><path d="M30 52 Q24 74 46 92 M70 52 Q76 74 54 92" fill="none" stroke="#cfd5dc" stroke-width="1.6"/></svg><div><b>Made for Police Cyber Crime Investigators</b><span>CDR · IPDR · TDR · Money Trail · NCRP · Social Media · Notices – all in one tool, fully offline. Your case data never leaves this computer.</span></div></div></div>
         <div class="hp-name"><span class="hp-nhi" lang="hi">सुदर्शनास्त्र</span><span class="hp-nen">SudarshanAshtra</span></div>
         <h1>Trace the Suspect.<br><span>Connect the evidence.</span></h1>
         <p class="hp-lead">SudarshanAshtra turns NCRP complaints, bank statements and social media replies into clear money trails, linked accounts and ready case files, all on this computer.</p>
@@ -2393,7 +2457,7 @@ html.ed-desk #topbar{gap:7px}
         <div class="hp-feat" style="--fc:#06b6d4"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><div><b>Analytics</b><p>The same mobile, account, IP or e-mail across complaints, banks and platforms.</p></div></div>
         <div class="hp-feat" style="--fc:#eab308"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h5"/></svg></span><div><b>Case File &amp; Notices</b><p>Case reports, notices to banks and platforms, and CSV / PDF exports.</p></div></div>
     </section>
-    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-14 00:23 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
+    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · <b>One Platform</b> · v2.0 · Build 2026-11-14 02:26 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
   </div>
 
   <div class="lg-wrap" id="lgWrap" aria-hidden="true">
@@ -2409,7 +2473,7 @@ html.ed-desk #topbar{gap:7px}
       </form>
       <div style="text-align:right;margin-top:8px"><a href="#" id="lgForgot" class="small" style="color:var(--accent)">Forgot password?</a></div>
       <p class="small muted" id="lgFirst" style="margin-top:14px"></p>
-      <p class="lg-safe no-tc"><svg class="safe-ic" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5z" fill="#10b981"/><rect x="8.5" y="11" width="7" height="5.5" rx="1" fill="#fff"/><path d="M10 11V9.5a2 2 0 0 1 4 0V11" fill="none" stroke="#fff" stroke-width="1.6"/></svg><span><b>Offline</b> · Your case data stays on this computer, never uploaded to any server or online.</span></p>
+      <p class="lg-safe no-tc"><svg class="safe-ic" width="30" height="30" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5z" fill="#10b981"/><rect x="8.5" y="11" width="7" height="5.5" rx="1" fill="#fff"/><path d="M10 11V9.5a2 2 0 0 1 4 0V11" fill="none" stroke="#fff" stroke-width="1.6"/></svg><span><b>Offline</b> · Your case data stays on this computer, never uploaded to any server or online.</span></p>
     </div>
   </div>
 </div>
@@ -2426,6 +2490,7 @@ html.ed-desk #topbar{gap:7px}
     <button class="btn sm" id="btnNewCase" title="Create a new case">+ New case</button>
     <div class="spacer"></div>
     <input id="gsearch" placeholder="Search any account, mobile, email, UTR, IP…">
+    <button class="btn sm" id="btnRefresh" title="Refresh – save and reload this page">⟳</button>
     <button class="btn sm" id="btnTheme" title="Switch light / dark">☀ / ☾</button>
     <button class="btn sm" id="btnLock" title="Logout">🚪 Logout</button>
   </header>
@@ -5653,6 +5718,32 @@ $('#lgWrap').onclick = e => { if (e.target.id === 'lgWrap') showLogin(false); };
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && $('#lgWrap').classList.contains('open') && $('#modal').classList.contains('hidden')) showLogin(false); });
 /* stay signed in across a page refresh: the sign-in is kept for this browser tab only (sessionStorage) and ends
    when the tab or browser is closed, on Lock, on auto-lock, or when the password changes */
+/* Wrong-password lock (all links and the EXE): 3 wrong passwords lock login for 5 min, the next 3 for 15 min, then 1 hour each time.
+   Kept in localStorage so a reload or restarting the EXE does not reset it. Fires 'sud:locked' { ms, lv } on window. */
+const LoginLock = {
+  K: 'sud-lgfail', MINS: [5, 15, 60], TRIES: 3,
+  get() { try { const o = JSON.parse(localStorage.getItem(this.K) || '{}'); return o && typeof o === 'object' && 'lv' in o ? o : { n: 0, lv: 0, until: 0 }; } catch (e) { return { n: 0, lv: 0, until: 0 }; } },
+  put(o) { try { localStorage.setItem(this.K, JSON.stringify(o)); } catch (e) { } },
+  state() { const o = this.get(), ms = Math.max(0, (o.until || 0) - Date.now()); return { locked: ms > 0, ms, n: o.n || 0, lv: o.lv || 0, left: this.TRIES - (o.n || 0), next: this.MINS[Math.min(o.lv || 0, 2)] }; },
+  CAUTION: '⚠ Caution: repeated wrong passwords will lock this account. If you forgot it, contact the SudarshanAshtra team.',
+  say(html) { const e = $('#lgErr'); if (!e) return; e.innerHTML = html; e.classList.remove('lg-flash'); void e.offsetWidth; e.classList.add('lg-flash'); },
+  tm(ms) { const s = Math.ceil(ms / 1000); return s >= 3600 ? '1 hour' : s >= 60 ? Math.floor(s / 60) + ' min ' + String(s % 60).padStart(2, '0') + ' s' : s + ' s'; },
+  showLock() {
+    const st = this.state(); if (!st.locked) return false;
+    this.say(`🔒 <b>Login locked for ${this.tm(st.ms)}</b> after ${this.TRIES} wrong passwords. Every further ${this.TRIES} wrong passwords lock it again (5 min → 15 min → 1 hour).<br>${this.CAUTION}`);
+    try { window.dispatchEvent(new CustomEvent('sud:locked', { detail: { ms: st.ms, lv: st.lv } })); } catch (e) { }
+    clearInterval(this._t); this._t = setInterval(() => { const s = this.state(), e = $('#lgErr'); if (!s.locked || !e || !e.classList.contains('lg-flash')) { clearInterval(this._t); if (e && !s.locked && /Login locked/.test(e.textContent)) e.innerHTML = '🔓 You can try again now. ' + this.CAUTION; return; } const b = e.querySelector('b'); if (b) b.textContent = 'Login locked for ' + this.tm(s.ms); }, 1000);
+    return true; },
+  blocked() { return this.showLock(); },
+  fail() {
+    const o = this.get(); o.n = (o.n || 0) + 1; o.lv = o.lv || 0;
+    if (o.n >= this.TRIES) { o.until = Date.now() + this.MINS[Math.min(o.lv, 2)] * 60000; o.lv++; o.n = 0; }
+    this.put(o); if (this.showLock()) return;
+    const l = this.TRIES - o.n; this.say(`❌ Wrong login ID or password – <b>${l} ${l === 1 ? 'try' : 'tries'} left</b> before login is locked for ${this.MINS[Math.min(o.lv, 2)] === 60 ? '1 hour' : this.MINS[Math.min(o.lv, 2)] + ' min'}.<br>${this.CAUTION}`);
+  },
+  ok() { try { localStorage.removeItem(this.K); } catch (e) { } clearInterval(this._t); }
+};
+window.LoginLock = LoginLock;
 const Sess = {
   K: 'sud-session',
   sig: tok => sha256(tok + '|' + S.settings.user + '|' + S.settings.hash),
@@ -5687,12 +5778,9 @@ async function boot() {
   }
   $('#loginForm').onsubmit = async e => {
     e.preventDefault();
-    const LK = 'sud-lgfail', F = (() => { try { return JSON.parse(localStorage.getItem(LK) || '{}'); } catch (x) { return {}; } })(), now = Date.now();
-    if (F.until && now < F.until) { $('#lgErr').textContent = `Too many wrong tries – wait ${Math.ceil((F.until - now) / 1000)} seconds`; return; }
-    if ($('#lgUser').value.trim() !== S.settings.user || hashPass($('#lgPass').value, S.settings.salt) !== S.settings.hash) {
-      F.n = (F.n || 0) + 1; if (F.n % 5 === 0) F.until = now + Math.min(900, 30 * 2 ** (F.n / 5 - 1)) * 1000; try { localStorage.setItem(LK, JSON.stringify(F)); } catch (x) { }
-      $('#lgErr').textContent = F.until && now < F.until ? `Too many wrong tries – wait ${Math.ceil((F.until - now) / 1000)} seconds` : `Wrong login ID or password${F.n >= 3 ? ` (${5 - F.n % 5} ${5 - F.n % 5 === 1 ? 'try' : 'tries'} left before a wait)` : ''}`; return; }
-    try { localStorage.removeItem(LK); } catch (x) { }
+    if (LoginLock.blocked()) return;
+    if ($('#lgUser').value.trim() !== S.settings.user || hashPass($('#lgPass').value, S.settings.salt) !== S.settings.hash) { LoginLock.fail(); return; }
+    LoginLock.ok();
     const pw = $('#lgPass').value;
     if (Vault.on() && !Vault.key) { $('#lgErr').textContent = 'Unlocking case data…'; const ok = await Vault.unlock(pw); $('#lgErr').textContent = '';
       if (!ok) { $('#lgErr').textContent = 'Password is right but the locked case data could not be opened. Use "Forgot password?" with your recovery key.'; return; } }
@@ -19376,6 +19464,7 @@ const Users = {
     if (e.target.id !== 'loginForm' || this._pass) return;
     if (SUD_ED === 'admin') { if (Role.admin()) return; e.preventDefault(); e.stopImmediatePropagation(); $('#lgErr').textContent = 'This link is for the Super Admin only. Users must open their own User link.'; return; }
     e.preventDefault(); e.stopImmediatePropagation();
+    if (LoginLock.blocked()) return;
     const err = t => { $('#lgErr').textContent = t; }, L = this.link(), id = $('#lgUser').value.trim(), pw = $('#lgPass').value, btn = $('#loginForm button');
     if (!L || !L.url) { if ($('#lgJoinB')) $('#lgJoinB').classList.remove('hidden'); return err('This computer is not connected to the Super Admin yet. Open the personal link he sent you once, then log in with your User ID and password.'); }
     err('⏳ Checking your account with the Super Admin…'); btn.disabled = true;
@@ -19383,6 +19472,7 @@ const Users = {
     catch (x) {
       btn.disabled = false;
       if (x.net && L.id && L.id.toLowerCase() === id.toLowerCase() && L.status === 'Active' && L.okAt && Date.now() - L.okAt < this.GRACE) { err(''); this.pass(); UI.toast('Offline login – your account will be checked when the internet is back', 6000); return; }
+      if (!x.net && /wrong (login id or )?password/i.test(x.message || '')) return LoginLock.fail();
       return err(x.net ? 'Internet is needed to check your account (last checked ' + this.dt(L.okAt) + '). Connect and try again.' : x.message);
     }
     btn.disabled = false;
@@ -19740,7 +19830,7 @@ const Plans = {
       const i = opt.columns.findIndex(c => c.key === 'status');
       opt.columns.splice(i + 1, 0, { key: 'plan', label: 'Plan & Time', sortVal: u => Plans.T.findIndex(t => t[0] === (u.plan && u.plan.tier)), csv: u => u.plan ? [u.plan.tier, Plans.hrs(u.plan.h), u.plan.from && 'from ' + u.plan.from, u.plan.to && 'to ' + u.plan.to].filter(Boolean).join(' ') : '',
         render: u => { const p = u.plan; if (!p) return '<span class="small muted">update script</span>'; const exp = p.to && p.today > p.to, ny = p.from && p.today < p.from;
-          return `${Plans.badge(p.tier)}<div class="small">${Plans.hrs(p.h)}${p.hrs !== '' && p.hrs != null ? ' <i class="muted">(own)</i>' : ''}${p.h > 0 ? ` · <b>${Plans.mins(p.left)}</b> left today` : ''}${p.tf && p.tt ? ` · 🕘 ${p.tf}–${p.tt}` : ''}${p.own ? ' · 🧭 own panel' : ''}</div><div class="small ${exp ? 'bad-t' : ny ? 'warn-t' : 'muted'}">${p.from || p.to ? `${Plans.dmy(p.from) || '…'} → ${Plans.dmy(p.to) || 'no end'}` : 'No end date'}${exp ? ' · ⌛ Over' : ny ? ' · ⏳ Not Started' : ''}</div>`; } });
+          return `${Plans.badge(p.tier, p.to, p.today)}<div class="small">${Plans.hrs(p.h)}${p.hrs !== '' && p.hrs != null ? ' <i class="muted">(own)</i>' : ''}${p.h > 0 ? ` · <b>${Plans.mins(p.left)}</b> left today` : ''}${p.tf && p.tt ? ` · 🕘 ${p.tf}–${p.tt}` : ''}${p.own ? ' · 🧭 own panel' : ''}</div><div class="small ${exp ? 'bad-t' : ny ? 'warn-t' : 'muted'}">${p.from || p.to ? `${Plans.dmy(p.from) || '…'} → ${Plans.dmy(p.to) || 'no end'}` : 'No end date'}${exp ? ' · ⌛ Over' : ny ? ' · ⏳ Not Started' : ''}</div>`; } });
       const rc = opt.columns.find(c => c.key === 'rights'); if (rc) { const RN = Object.fromEntries(Role.RIGHTS.map(r => [r[0], r[1]])); rc.label = 'Rights'; rc.render = u => `<div class="sa-rc">${Plans.rightsOf(u.rights, u.plan).map(k => `<i>${esc(RN[k] || k)}</i>`).join('') || '<span class="muted small">Cases only</span>'}</div>`; }
       const ac = opt.columns.find(c => c.key === 'act'); if (ac) { const r0 = ac.render; ac.render = u => r0(u).replace('<button class="btn sm" data-ua="rights"', `<button class="btn sm" data-ua="plan" data-id="${esc(u.id)}" title="Plan, Dates &amp; Daily Time">💎</button><button class="btn sm" data-ua="rights"`); }
     }
@@ -20375,6 +20465,123 @@ const Desk = {
   const os = start; start = async function () { Users.link(); Role.apply(); Plans.apply(); const r = await os.apply(this, arguments); Desk.chip(); Desk.enforce(true); if (!Desk._bg) { Desk._bg = 1; setTimeout(() => Desk.bg(), 8000); setInterval(() => Desk.bg(), 30 * 60e3); } const l = Desk.left(); if (l <= 7) setTimeout(() => UI.toast(`⚠ Your licence ends in ${l} day${l === 1 ? '' : 's'} (${ExeLic.dmy(Desk.lic().to)}). Ask the SudarshanAshtra Super Admin to extend it.`, 9000), 2500); return r; };
   const ra = Role.apply.bind(Role); Role.apply = function () { if (S.settings) Users.link(); const r = ra(); const b = $('#roleBadge'); if (b && Desk.lic()) { b.textContent = '👤 ' + (Desk.lic().n || 'User'); b.title = 'My licence'; } return r; };
   document.addEventListener('click', e => { if (e.target.closest && e.target.closest('#lgForgot')) { e.preventDefault(); e.stopImmediatePropagation(); Desk.forgot(); } }, true);
+})();
+
+</script>
+<script>
+/* lightfix.js – Light theme readability.
+   Many boxes, chips, rings and bars were drawn for the dark theme (pale text on dark). In the light theme the tool now
+   checks every visible text against the colour really behind it (gradients included) and, where it is hard to read,
+   darkens the text (or turns it white on a strong colour) until it reads clearly. Dark theme is never touched. */
+'use strict';
+const LightFix = (() => {
+  const DK = [15, 23, 42], WH = [255, 255, 255];
+  const parse = s => {
+    if (!s) return null; let m = s.match(/^rgba?\(([^)]+)\)$/);
+    if (m) { const a = m[1].split(/[ ,\/]+/).filter(Boolean).map(Number); return [a[0], a[1], a[2], a.length > 3 ? a[3] : 1]; }
+    m = s.match(/^color\(srgb ([^)]+)\)$/); if (m) { const a = m[1].split(/[ \/]+/).filter(Boolean).map(Number); return [a[0] * 255, a[1] * 255, a[2] * 255, a.length > 3 ? a[3] : 1]; }
+    return null; };
+  const stops = img => { const L = []; const rx = /(rgba?\([^)]*\)|color\(srgb [^)]*\))/g; let m; while ((m = rx.exec(img))) { const c = parse(m[1]); if (c) L.push(c); } return L; };
+  const lum = c => { const f = v => { v /= 255; return v <= .03928 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4; }; return .2126 * f(c[0]) + .7152 * f(c[1]) + .0722 * f(c[2]); };
+  const mix = (t, b) => [0, 1, 2].map(i => t[i] * t[3] + b[i] * (1 - t[3])).concat(1);
+  const cr = (a, b) => { const x = lum(a), y = lum(b); return (Math.max(x, y) + .05) / (Math.min(x, y) + .05); };
+  const tone = (a, b, k) => [0, 1, 2].map(i => a[i] * (1 - k) + b[i] * k).concat(1);
+  let cache = new WeakMap();
+  /* colour really behind an element: its own and its parents' backgrounds, gradients averaged */
+  const bgOf = el => {
+    if (cache.has(el)) return cache.get(el);
+    const cs = getComputedStyle(el); let layers = [];
+    if (cs.backgroundImage && cs.backgroundImage !== 'none' && !/url\(/.test(cs.backgroundImage)) { const st = stops(cs.backgroundImage); if (st.length) { const A = st.reduce((s, c) => s + c[3], 0); if (A > 0) layers.push([0, 1, 2].map(i => st.reduce((s, c) => s + c[i] * c[3], 0) / A).concat(A / st.length)); } }
+    const c = parse(cs.backgroundColor); if (c && c[3] > 0) layers.push(c);
+    let r; const solid = layers.some(l => l[3] >= .95);
+    if (!solid) r = el.parentElement ? bgOf(el.parentElement) : WH.concat(1); else r = WH.concat(1);
+    for (let i = layers.length - 1; i >= 0; i--) r = mix(layers[i], r);
+    cache.set(el, r); return r; };
+  const SKIP = '.fx,.fxn,svg,canvas,input,textarea,select,option,.no-lf,#chartTip';
+  /* fix = true: set a readable colour; false: just list the hard-to-read texts */
+  const scan = (root, fix) => {
+    const out = []; if (!root || !root.ownerDocument) return out; cache = new WeakMap(); const seen = new Set();
+    const tw = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    while (tw.nextNode()) {
+      const t = tw.currentNode; if (!t.data.trim()) continue; const el = t.parentElement; if (!el || seen.has(el)) continue; seen.add(el);
+      if (el.closest(SKIP) || !el.getClientRects().length) continue;
+      const cs = getComputedStyle(el); if (cs.visibility === 'hidden' || /text/.test(cs.webkitBackgroundClip || cs.backgroundClip || '')) continue;
+      const fg = parse(cs.color); if (!fg || fg[3] < .05) continue;
+      const bg = bgOf(el), f = mix(fg, bg); const big = parseFloat(cs.fontSize) >= 18 || (parseFloat(cs.fontSize) >= 14 && +cs.fontWeight >= 700); const need = big ? 3.2 : 4.5;
+      const strong = lum(bg) < .42;   // a strong colour behind (button, badge, active tab): white text is the design
+      const c0 = cr(f, bg); if (c0 >= (strong ? 2.6 : need)) continue; if (strong && lum(f) > .8) continue;
+      if (!fix) { out.push({ el, cr: +c0.toFixed(2), fg: cs.color, bg: 'rgb(' + bg.slice(0, 3).map(Math.round) + ')', tx: t.data.trim().slice(0, 30) }); continue; }
+      const toward = strong ? WH : DK; let k = .15, n = f;
+      while (k <= 1.001) { n = tone(f, toward, k); if (cr(n, bg) >= need) break; k += .15; }
+      el.style.setProperty('color', `rgb(${n.slice(0, 3).map(Math.round).join(',')})`, 'important'); el.dataset.lf = '1';
+    }
+    return out; };
+  const on = () => document.documentElement.dataset.theme === 'light';
+  const clear = () => document.querySelectorAll('[data-lf]').forEach(e => { e.style.removeProperty('color'); delete e.dataset.lf; });
+  let q = new Set(), tm = 0;
+  const run = () => { tm = 0; if (!on()) { q.clear(); return; } const L = [...q].filter(n => n.isConnected); q.clear(); L.filter(n => !L.some(o => o !== n && o.contains(n))).forEach(n => scan(n, true)); };
+  const later = n => { q.add(n); if (!tm) tm = setTimeout(run, 140); };
+  const unfix = e => { if (e.dataset.lf) { e.style.removeProperty('color'); delete e.dataset.lf; } e.querySelectorAll('[data-lf]').forEach(x => { x.style.removeProperty('color'); delete x.dataset.lf; }); };
+  const mo = new MutationObserver(ms => { if (!on()) return; for (const m of ms) { if (m.type === 'attributes') { const e = m.target; if (e.nodeType === 1 && !e.closest('#chartTip,#dxTip')) { unfix(e); later(e); } continue; } m.addedNodes.forEach(x => { const e = x.nodeType === 1 ? x : x.parentElement; if (e && !e.closest('#chartTip')) later(e); }); } });
+  const all = () => { clear(); if (on()) later(document.body); };
+  new MutationObserver(all).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  const go = () => { mo.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] }); all(); };
+  document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', go) : go();
+  return { scan, clear, all, cr, parse };
+})();
+
+</script>
+<script>
+/* polish.js – Vijay's list of 13-11-2026 (all links; the EXE uses the same build):
+   ⟳ Refresh button before the theme button · Offline heading on every import screen · normal users: no Add Contacts,
+   no Import Excel, no Add Web Link · plan ending in under 10 days shows red · the chosen case shows green with white text. */
+'use strict';
+const Polish = {
+  OFF: '<div class="imp-off no-tc" role="note"><svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true"><path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5z" fill="#10b981"/><rect x="8.5" y="11" width="7" height="5.5" rx="1" fill="#fff"/><path d="M10 11V9.5a2 2 0 0 1 4 0V11" fill="none" stroke="#fff" stroke-width="1.6"/></svg><span><b>Offline</b> · Files are read on this computer only. Your case data stays here, never uploaded to any server or online.</span></div>',
+  IMP: /(^|[^a-z])(import|upload|reading|read case|choose .*files|add files)/i,
+  daysLeft(to, today) { if (!to) return null; const d = (Date.parse(to) - Date.parse(today || new Date().toISOString().slice(0, 10))) / 864e5; return isNaN(d) ? null : Math.ceil(d); },
+  user: () => typeof Role !== 'undefined' && !Role.admin(),
+  async refresh() {
+    const b = $('#btnRefresh'); if (b) b.classList.add('spin');
+    try { if (S.data && S.caseId && !isScope(S.caseId)) { clearTimeout(saveTimer); await DB.set('case:' + S.caseId, S.data); } if (typeof Sess !== 'undefined') Sess.save(); } catch (e) { }
+    location.reload();
+  }
+};
+(() => {
+  /* ⟳ Refresh */
+  const rb = $('#btnRefresh'); if (rb) { rb.innerHTML = '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg>'; rb.onclick = () => Polish.refresh(); }
+
+  /* Offline heading on every import window */
+  const om = UI.modal; UI.modal = function (title) { const body = om.apply(this, arguments); try { if (Polish.IMP.test(String(title || '')) && !/download|setup/i.test(String(title)) && body && !body.querySelector('.imp-off')) body.insertAdjacentHTML('afterbegin', Polish.OFF); } catch (e) { } return body; };
+
+  const r0 = render; render = function () {
+    const r = r0.apply(this, arguments);
+    try {
+      /* Offline heading on import tabs and import pages */
+      const tb = $('#tabBody'), act = $('#main .tabs .tab.active');
+      if (tb && act && /import|upload|files/i.test(act.textContent) && !tb.querySelector(':scope > .imp-off')) tb.insertAdjacentHTML('afterbegin', Polish.OFF);
+      const tip = $('#dxTip'); if (tip) tip.classList.remove('on');   // no leftover hover box from the page before
+      const rf = $('#btnRefresh'), th = $('#btnTheme'); if (rf && th && rf.nextElementSibling !== th) th.before(rf);
+      /* chosen case: green with white text */
+      const cs = $('#caseSel'); if (cs) cs.classList.toggle('cs-on', !!S.caseId && S.caseId !== '__none');
+      const pv = S.caseId === '__none' ? S.prevCase : S.caseId; if (pv) $$('#main [data-pk]').forEach(b => b.classList.toggle('pk-cur', b.dataset.pk === pv));
+      /* normal users: no adding web links */
+      if (Polish.user() && S.page === 'tools' && S.sub.tools === 'addlink') { S.sub.tools = ''; setTimeout(() => go('tools'), 0); }
+    } catch (e) { console.warn('polish', e); }
+    return r;
+  };
+  const sw = switchCase; switchCase = async function () { const r = await sw.apply(this, arguments); const cs = $('#caseSel'); if (cs) cs.classList.toggle('cs-on', !!S.caseId && S.caseId !== '__none'); return r; };
+
+  /* normal users: Contacts can be read, not added to or imported */
+  if (typeof Contacts !== 'undefined') { const oe = Contacts.edit; Contacts.edit = function (x) { if (Polish.user() && !(x && x.id)) return UI.toast('Only the SudarshanAshtra Super Admin can add contacts', 4000); return oe.apply(this, arguments); }; }
+  if (typeof XT !== 'undefined' && XT.addView) { const ov = XT.addView; XT.addView = function (body) { if (Polish.user()) { body.innerHTML = '<div class="card"><h3>🔒 Add Web Link</h3><p class="muted">Only the SudarshanAshtra Super Admin can add web links.</p></div>'; return; } return ov.apply(this, arguments); }; }
+
+  /* plan with under 10 days left: red */
+  if (typeof Plans !== 'undefined') {
+    const ot = Plans.timer; Plans.timer = function () { const r = ot.apply(this, arguments); try { const L = Users.link(), p = L && L.plan, c = $('#plTimer'); const d = p && Polish.daysLeft(p.to, p.today);
+      if (c && d != null) { c.classList.toggle('pl-soon', d < 10); let s = c.querySelector('.pl-dl'); if (d < 10) { if (!s) { c.insertAdjacentHTML('beforeend', '<span class="pl-dl"></span>'); s = c.querySelector('.pl-dl'); } s.textContent = ' · ' + Math.max(0, d) + (d === 1 ? ' day' : ' days') + ' left'; c.title = 'Your access ends on ' + Plans.dmy(p.to) + ' – contact the SudarshanAshtra Super Admin to extend it'; } else if (s) s.remove(); } } catch (e) { } return r; };
+    const ob = Plans.badge; Plans.badge = function (k, to, today) { const h = ob.apply(this, arguments), d = Polish.daysLeft(to, today); return d != null && d < 10 ? h.replace('class="pl-b"', 'class="pl-b pl-soon" title="' + Math.max(0, d) + ' days left"') : h; };
+  }
 })();
 
 </script>

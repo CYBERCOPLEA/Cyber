@@ -61,6 +61,7 @@ const Users = {
     if (e.target.id !== 'loginForm' || this._pass) return;
     if (SUD_ED === 'admin') { if (Role.admin()) return; e.preventDefault(); e.stopImmediatePropagation(); $('#lgErr').textContent = 'This link is for the Super Admin only. Users must open their own User link.'; return; }
     e.preventDefault(); e.stopImmediatePropagation();
+    if (LoginLock.blocked()) return;
     const err = t => { $('#lgErr').textContent = t; }, L = this.link(), id = $('#lgUser').value.trim(), pw = $('#lgPass').value, btn = $('#loginForm button');
     if (!L || !L.url) { if ($('#lgJoinB')) $('#lgJoinB').classList.remove('hidden'); return err('This computer is not connected to the Super Admin yet. Open the personal link he sent you once, then log in with your User ID and password.'); }
     err('⏳ Checking your account with the Super Admin…'); btn.disabled = true;
@@ -68,6 +69,7 @@ const Users = {
     catch (x) {
       btn.disabled = false;
       if (x.net && L.id && L.id.toLowerCase() === id.toLowerCase() && L.status === 'Active' && L.okAt && Date.now() - L.okAt < this.GRACE) { err(''); this.pass(); UI.toast('Offline login – your account will be checked when the internet is back', 6000); return; }
+      if (!x.net && /wrong (login id or )?password/i.test(x.message || '')) return LoginLock.fail();
       return err(x.net ? 'Internet is needed to check your account (last checked ' + this.dt(L.okAt) + '). Connect and try again.' : x.message);
     }
     btn.disabled = false;

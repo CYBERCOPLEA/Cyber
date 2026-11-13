@@ -240,6 +240,32 @@ $('#lgWrap').onclick = e => { if (e.target.id === 'lgWrap') showLogin(false); };
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && $('#lgWrap').classList.contains('open') && $('#modal').classList.contains('hidden')) showLogin(false); });
 /* stay signed in across a page refresh: the sign-in is kept for this browser tab only (sessionStorage) and ends
    when the tab or browser is closed, on Lock, on auto-lock, or when the password changes */
+/* Wrong-password lock (all links and the EXE): 3 wrong passwords lock login for 5 min, the next 3 for 15 min, then 1 hour each time.
+   Kept in localStorage so a reload or restarting the EXE does not reset it. Fires 'sud:locked' { ms, lv } on window. */
+const LoginLock = {
+  K: 'sud-lgfail', MINS: [5, 15, 60], TRIES: 3,
+  get() { try { const o = JSON.parse(localStorage.getItem(this.K) || '{}'); return o && typeof o === 'object' && 'lv' in o ? o : { n: 0, lv: 0, until: 0 }; } catch (e) { return { n: 0, lv: 0, until: 0 }; } },
+  put(o) { try { localStorage.setItem(this.K, JSON.stringify(o)); } catch (e) { } },
+  state() { const o = this.get(), ms = Math.max(0, (o.until || 0) - Date.now()); return { locked: ms > 0, ms, n: o.n || 0, lv: o.lv || 0, left: this.TRIES - (o.n || 0), next: this.MINS[Math.min(o.lv || 0, 2)] }; },
+  CAUTION: '⚠ Caution: repeated wrong passwords will lock this account. If you forgot it, contact the SudarshanAshtra team.',
+  say(html) { const e = $('#lgErr'); if (!e) return; e.innerHTML = html; e.classList.remove('lg-flash'); void e.offsetWidth; e.classList.add('lg-flash'); },
+  tm(ms) { const s = Math.ceil(ms / 1000); return s >= 3600 ? '1 hour' : s >= 60 ? Math.floor(s / 60) + ' min ' + String(s % 60).padStart(2, '0') + ' s' : s + ' s'; },
+  showLock() {
+    const st = this.state(); if (!st.locked) return false;
+    this.say(`🔒 <b>Login locked for ${this.tm(st.ms)}</b> after ${this.TRIES} wrong passwords. Every further ${this.TRIES} wrong passwords lock it again (5 min → 15 min → 1 hour).<br>${this.CAUTION}`);
+    try { window.dispatchEvent(new CustomEvent('sud:locked', { detail: { ms: st.ms, lv: st.lv } })); } catch (e) { }
+    clearInterval(this._t); this._t = setInterval(() => { const s = this.state(), e = $('#lgErr'); if (!s.locked || !e || !e.classList.contains('lg-flash')) { clearInterval(this._t); if (e && !s.locked && /Login locked/.test(e.textContent)) e.innerHTML = '🔓 You can try again now. ' + this.CAUTION; return; } const b = e.querySelector('b'); if (b) b.textContent = 'Login locked for ' + this.tm(s.ms); }, 1000);
+    return true; },
+  blocked() { return this.showLock(); },
+  fail() {
+    const o = this.get(); o.n = (o.n || 0) + 1; o.lv = o.lv || 0;
+    if (o.n >= this.TRIES) { o.until = Date.now() + this.MINS[Math.min(o.lv, 2)] * 60000; o.lv++; o.n = 0; }
+    this.put(o); if (this.showLock()) return;
+    const l = this.TRIES - o.n; this.say(`❌ Wrong login ID or password – <b>${l} ${l === 1 ? 'try' : 'tries'} left</b> before login is locked for ${this.MINS[Math.min(o.lv, 2)] === 60 ? '1 hour' : this.MINS[Math.min(o.lv, 2)] + ' min'}.<br>${this.CAUTION}`);
+  },
+  ok() { try { localStorage.removeItem(this.K); } catch (e) { } clearInterval(this._t); }
+};
+window.LoginLock = LoginLock;
 const Sess = {
   K: 'sud-session',
   sig: tok => sha256(tok + '|' + S.settings.user + '|' + S.settings.hash),
@@ -274,12 +300,9 @@ async function boot() {
   }
   $('#loginForm').onsubmit = async e => {
     e.preventDefault();
-    const LK = 'sud-lgfail', F = (() => { try { return JSON.parse(localStorage.getItem(LK) || '{}'); } catch (x) { return {}; } })(), now = Date.now();
-    if (F.until && now < F.until) { $('#lgErr').textContent = `Too many wrong tries – wait ${Math.ceil((F.until - now) / 1000)} seconds`; return; }
-    if ($('#lgUser').value.trim() !== S.settings.user || hashPass($('#lgPass').value, S.settings.salt) !== S.settings.hash) {
-      F.n = (F.n || 0) + 1; if (F.n % 5 === 0) F.until = now + Math.min(900, 30 * 2 ** (F.n / 5 - 1)) * 1000; try { localStorage.setItem(LK, JSON.stringify(F)); } catch (x) { }
-      $('#lgErr').textContent = F.until && now < F.until ? `Too many wrong tries – wait ${Math.ceil((F.until - now) / 1000)} seconds` : `Wrong login ID or password${F.n >= 3 ? ` (${5 - F.n % 5} ${5 - F.n % 5 === 1 ? 'try' : 'tries'} left before a wait)` : ''}`; return; }
-    try { localStorage.removeItem(LK); } catch (x) { }
+    if (LoginLock.blocked()) return;
+    if ($('#lgUser').value.trim() !== S.settings.user || hashPass($('#lgPass').value, S.settings.salt) !== S.settings.hash) { LoginLock.fail(); return; }
+    LoginLock.ok();
     const pw = $('#lgPass').value;
     if (Vault.on() && !Vault.key) { $('#lgErr').textContent = 'Unlocking case data…'; const ok = await Vault.unlock(pw); $('#lgErr').textContent = '';
       if (!ok) { $('#lgErr').textContent = 'Password is right but the locked case data could not be opened. Use "Forgot password?" with your recovery key.'; return; } }
