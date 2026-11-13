@@ -104,7 +104,7 @@ async function checkUpdate() {
   let t; try { t = await getText(SITE + 'index.html?t=' + Date.now()); } catch (e) { return { err: 'No internet – could not reach the SudarshanAshtra site.' }; }
   const m = t.match(/\?v=(\d{12})/), b = t.match(/\(build ([^)]+)\)/), c = cur(); if (!m) return { err: 'The site did not answer properly. Try again later.' };
   const o = { cur: c.build, latest: b ? b[1] : m[1], v: m[1], newer: m[1] > c.v, mb: 14 };
-  try { const j = JSON.parse(await getText(SITE + 'desktop/latest.json?t=' + Date.now())); if (j.shell && cmpVer(j.shell, SHELL) > 0) { o.shellNew = j.shell; o.shellUrl = j.url || 'https://github.com/CYBERCOPLEA/SudarshanAshtra/releases/latest'; } } catch (e) { }
+  try { const j = JSON.parse(await getText(SITE + 'desktop/latest.json?t=' + Date.now())); if (j.shell && cmpVer(j.shell, SHELL) > 0) { o.shellNew = j.shell; o.shellUrl = j.url || 'https://drive.google.com/file/d/1n601SQf1vr2OmqlduABBrDc88Rcmvjjk/view?usp=sharing'; } } catch (e) { }
   return o;
 }
 async function applyUpdate() {

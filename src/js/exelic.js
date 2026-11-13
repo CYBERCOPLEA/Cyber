@@ -199,7 +199,7 @@ const ExeLic = {
       [{ label: '🔑 Key', onClick: () => this.share(r) }, { label: '⏩ Extend', onClick: () => this.extend(r, main) }, { label: '✏ Change', onClick: () => this.edit(r, main) }, { label: 'Close', onClick: UI.closeModal }]);
     return b;
   },
-  setupUrl() { return (S.settings && S.settings.exeSetupUrl) || ''; },
+  setupUrl() { return (S.settings && S.settings.exeSetupUrl) || 'https://drive.google.com/file/d/1n601SQf1vr2OmqlduABBrDc88Rcmvjjk/view?usp=sharing'; },
   setupInfo() {
     const u = this.setupUrl();
     const txt = u => `SudarshanAshtra Desktop (Windows 10 / 11, 64-bit)\nDownload the setup: ${u}\n(It installs without internet.)\nAfter installing, open SudarshanAshtra, fill your name and posting, and send the Request Code to the Super Admin (Vijay Tomar).`;
