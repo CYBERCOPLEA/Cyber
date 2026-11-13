@@ -6,3 +6,7 @@ ch/
 ex/
 *.png
 !src/**/*.png
+desktop/node_modules/
+desktop/dist/
+desktop/app/
+!desktop/build/*.png
