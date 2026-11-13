@@ -2326,7 +2326,7 @@ html.no-contacts .ct-item,html.no-contacts .ct-subs{display:none!important}
         <div class="hp-feat" style="--fc:#06b6d4"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><div><b>Analytics</b><p>The same mobile, account, IP or e-mail across complaints, banks and platforms.</p></div></div>
         <div class="hp-feat" style="--fc:#eab308"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h5"/></svg></span><div><b>Case File &amp; Notices</b><p>Case reports, notices to banks and platforms, and CSV / PDF exports.</p></div></div>
     </section>
-    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-13 14:48 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
+    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-13 15:02 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
   </div>
 
   <div class="lg-wrap" id="lgWrap" aria-hidden="true">
@@ -18252,7 +18252,7 @@ const NodalM = {
   _ix: null, ix() { if (this._ix) return this._ix; const A = new Map(), K = []; this.list().forEach(x => { if (x.kw) K.push([x.kw.toUpperCase(), x]); else if (x.acc) A.set(this.na(x.acc), x); }); return (this._ix = { A, K }); },
   names: new Map(), // account → names / banks seen (filled by Target, used for keyword match across cases)
   hit(acc, txt) { const { A, K } = this.ix(), a = A.get(this.na(acc)); if (a) return a.type || 'Nodal A/C'; const u = String(txt || this.names.get(String(acc)) || '').toUpperCase(); if (u) for (const [k, x] of K) if (u.includes(k)) return x.type || 'Nodal A/C'; return ''; },
-  async changed() { this._ix = null; $$('.nm-top, .nm-open').forEach(b => b.textContent = `🏛️ Nodal / Escrow List (${this.list().length})`); await saveMeta(); try { Analysis.invalidate(); } catch (e) { } if (typeof Target !== 'undefined') Target._d = null; render(); },
+  async changed() { this._ix = null; $$('.nm-top, .nm-open').forEach(b => b.textContent = `🏛️ Nodal / Escrow List (${this.list().length})`); await saveMeta(); try { Analysis.invalidate(); } catch (e) { } if (typeof Target !== 'undefined') Target._d = null; if (typeof PRB !== 'undefined') PRB._ix = null; render(); },
   parseRows(A) { // rows (arrays) → entries
     let hi = A.findIndex(r => r.some(c => /acc|a\/c|account|खाता/i.test(String(c)))), H = hi >= 0 ? A[hi].map(c => String(c).toLowerCase()) : [];
     const ix = re => H.findIndex(h => re.test(h)), cA = hi >= 0 ? ix(/acc|a\/c|account|खाता/) : 0, cN = hi >= 0 ? ix(/name|holder|नाम/) : 1, cB = hi >= 0 ? ix(/bank/) : 2, cI = hi >= 0 ? ix(/ifsc/) : 3, cT = hi >= 0 ? ix(/type|nodal|escrow/) : 4, cK = hi >= 0 ? ix(/keyword|word/) : -1;
@@ -18260,27 +18260,56 @@ const NodalM = {
       if (!/\d{6,}|^[A-Z0-9]{8,}$/i.test(acc) && !kw) continue; const t = g(cT); out.push({ acc: kw ? '' : acc, kw, name: g(cN), bank: g(cB), ifsc: g(cI).toUpperCase(), type: this.TYPES.find(x => t && x.toLowerCase().startsWith(t.toLowerCase().slice(0, 4))) || (t || 'Nodal A/C') }); }
     return out; },
   merge(E) { const L = this.list(); let a = 0, u = 0; for (const e of E) { const o = L.find(x => (e.kw ? x.kw && x.kw.toUpperCase() === e.kw.toUpperCase() : x.acc && this.na(x.acc) === this.na(e.acc))); if (o) { Object.keys(e).forEach(k => { if (e[k]) o[k] = e[k]; }); u++; } else { L.push({ id: uid(), added: new Date().toISOString(), ...e }); a++; } } return { a, u }; },
-  seen(x) { const T = (typeof Target !== 'undefined' && Target._d) || []; return T.filter(t => x.kw ? [...t.names, ...t.banks].join(' ').toUpperCase().includes(x.kw.toUpperCase()) : this.na(t.acc) === this.na(x.acc)).reduce((s, t) => s + t.cases.length, 0); },
-  open() {
-    const L = this.list(), draw = () => {
-      const m = UI.modal('🏛️ Nodal / Escrow Accounts – Master List', `<div class="note">Add every nodal / escrow / payment-gateway / wallet pool account you find during investigation – once. Every case, Target, Money Trail and account list then shows it as <b>With Nodal ~ Escrow</b> (ask it for the next beneficiary), so the own / mule accounts stand out. Kept on this computer.</div>
+ seen(x) { const h = !x.kw && (this._h || []).find(a => this.na(a.acc) === this.na(x.acc)); if (h) return h.cases.length; return this.seen0(x); },
+  seen0(x) { const T = (typeof Target !== 'undefined' && Target._d) || []; return T.filter(t => x.kw ? [...t.names, ...t.banks].join(' ').toUpperCase().includes(x.kw.toUpperCase()) : this.na(t.acc) === this.na(x.acc)).reduce((s, t) => s + t.cases.length, 0); },
+  open() { go('nodalm'); },
+  /* the one page: EO – Enquiry Officer › Nodal / Escrow List */
+  async page(main) {
+    main.innerHTML = `<div class="page-title"><h2>🏛️ Nodal / Escrow List</h2><span class="spacer"></span></div><div id="nmPg"><div class="card muted">Collecting nodal / escrow accounts from all cases…</div></div>`;
+    const auto = await this.harvest(); if (S.page !== 'nodalm') return; this.draw($('#nmPg', main), auto);
+  },
+  /* nodal / escrow / gateway / wallet accounts already seen in every case (account name, bank action, remarks) */
+  async harvest(force) {
+    if (this._h && !force && Date.now() - this._ht < 120000) return this._h;
+    const H = new Map(), see = (acc, txt, c, x) => { acc = String(acc || '').trim(); if (!/\d{6,}|^[A-Z0-9]{9,}$/i.test(acc)) return; const u = String(txt || '').toUpperCase(); let ty = '';
+      for (const [t, rx] of ACC_TYPES.slice(0, 3)) if (rx.test(u)) { ty = t; break; } if (!ty) return;
+      const k = this.na(acc), o = H.get(k) || H.set(k, { acc, type: /gateway/i.test(ty) ? 'Payment Gateway' : /wallet/i.test(ty) ? 'Wallet / Pool A/C' : /escrow/.test(u.toLowerCase()) ? 'Escrow A/C' : 'Nodal A/C', name: '', bank: '', ifsc: '', cases: [] }).get(k);
+      if (!o.name && x.name) o.name = x.name; if (!o.bank && x.bank) o.bank = x.bank; if (!o.ifsc && x.ifsc) o.ifsc = String(x.ifsc).toUpperCase(); if (!o.cases.includes(c)) o.cases.push(c); };
+    for (const c of S.cases) { let d = null; try { d = c.id === S.caseId && S.data && !isScope(S.caseId) ? S.data : await DB.get('case:' + c.id); } catch (e) { } if (!d) continue; const lab = AllMode.caseLabel ? AllMode.caseLabel(c) : c.name;
+      for (const t of d.txns || []) see(t.to_acc, [t.to_name, t.action, t.remarks, t.narration].join(' '), lab, { name: t.to_name, bank: t.to_bank, ifsc: t.to_ifsc });
+      for (const k of d.kyc || []) see(k.acc, [k.name, k.acc_type, k.type, k.remarks].join(' '), lab, { name: k.name, bank: k.bank, ifsc: k.ifsc });
+      await new Promise(r => setTimeout(r, 0)); }
+    this._ht = Date.now(); return (this._h = [...H.values()]);
+  },
+  draw(el, auto) {
+    const L = this.list(), AU = (auto || []).filter(a => !L.some(x => x.acc && this.na(x.acc) === this.na(a.acc)));
+    {
+      const m = el; el.innerHTML = `<div class="card"><div class="note">Add every nodal / escrow / payment-gateway / wallet pool account you find during investigation – once. Every case, Target, Money Trail and account list then shows it as <b>With Nodal ~ Escrow</b> (ask it for the next beneficiary), so the own / mule accounts stand out. Kept on this computer.</div>
         <div class="map-grid"><label>Account No.<input id="nmA" placeholder="e.g. 50200012345678"></label><label>…or Name Word <span class="small muted">(matches any account whose name has it)</span><input id="nmK" placeholder="e.g. RAZORPAY, CASHFREE, PAYU"></label><label>Name / Holder<input id="nmN"></label><label>Bank<input id="nmB"></label><label>IFSC<input id="nmI"></label><label>Type<select id="nmT">${this.TYPES.map(t => `<option>${t}</option>`).join('')}</select></label></div>
         <div class="row" style="gap:8px;margin:8px 0;flex-wrap:wrap"><button class="btn primary" id="nmAdd">➕ Add</button><button class="btn" id="nmFile">📥 Import Excel / CSV</button><span class="small muted">or paste rows copied from Excel (Account, Name, Bank, IFSC, Type):</span></div>
         <textarea id="nmP" rows="3" placeholder="Paste here – one account per line" style="width:100%"></textarea><div class="row" style="justify-content:flex-end;margin-top:4px"><button class="btn" id="nmPaste">✔ Add Pasted Rows</button></div>
-        <h4 style="margin:12px 0 6px">📋 List <span class="badge">${L.length}</span></h4><div id="nmTb"></div>`, [{ label: 'Close', onClick: UI.closeModal }]);
+        <h4 style="margin:12px 0 6px">📋 Master List <span class="badge">${L.length}</span> <span class="small muted">matched in every case, Target, Money Trail and account list</span></h4><div id="nmTb"></div></div>
+        <div class="card"><div class="row" style="gap:8px;align-items:center;flex-wrap:wrap"><h3 class="grow" style="margin:0">🔎 Found In Your Cases – Not Yet In The List <span class="badge">${AU.length}</span></h3><button class="btn" id="nmRe">🔄 Fetch From All Cases</button>${AU.length ? '<button class="btn primary" id="nmAll">➕ Add All To Master List</button>' : ''}</div>
+        <p class="small muted" style="margin:6px 0">Accounts whose name, bank action or remarks say Nodal / Escrow / Pool / Settlement, a payment gateway (Razorpay, PayU, Cashfree…) or a wallet. Add them once – every next case is then matched automatically.</p><div id="nmAu"></div></div>`;
       Table($('#nmTb', m), { rows: L.slice().reverse(), pageSize: 20, exportName: 'nodal_escrow_master', noNd: true, columns: [
         { key: 'acc', label: 'Account / Name Word', csv: x => x.acc || 'word: ' + x.kw, render: x => x.acc ? `<b class="mono">${esc(x.acc)}</b>` : `<span class="tg-sp" style="--c:#7c3aed">word</span> <b>${esc(x.kw)}</b>` },
         { key: 'name', label: 'Name' }, { key: 'bank', label: 'Bank' }, { key: 'ifsc', label: 'IFSC' }, { key: 'type', label: 'Type' },
         { key: 'seen', label: 'In Cases', sortVal: x => this.seen(x), csv: x => this.seen(x), render: x => { const n = this.seen(x); return n ? `<b>${n}</b>` : '<span class="muted">—</span>'; } },
         { key: 'added', label: 'Added', render: x => esc(String(x.added || '').slice(0, 10)) },
         { key: 'del', label: '', nosort: true, noexport: true, render: x => `<button class="btn sm danger" data-nmd="${x.id}">🗑</button>` }] });
-      const done = async (r, msg) => { await this.changed(); UI.toast(msg || `${r.a} added · ${r.u} updated`); draw(); };
+      const done = async (r, msg) => { await this.changed(); UI.toast(msg || `${r.a} added · ${r.u} updated`); };
+      Table($('#nmAu', m), { rows: AU, pageSize: 20, exportName: 'nodal_found_in_cases', noNd: true, columns: [{ key: 'acc', label: 'Account', render: x => `<b class="mono">${esc(x.acc)}</b>` }, { key: 'name', label: 'Name' }, { key: 'bank', label: 'Bank' }, { key: 'ifsc', label: 'IFSC' }, { key: 'type', label: 'Type' },
+        { key: 'cases', label: 'Cases', sortVal: x => x.cases.length, csv: x => x.cases.join('; '), render: x => `<b>${x.cases.length}</b> <span class="small">${esc(x.cases.slice(0, 3).join(', '))}${x.cases.length > 3 ? ' …' : ''}</span>` },
+        { key: 'add', label: '', nosort: true, noexport: true, render: x => `<button class="btn sm primary" data-nma="${esc(x.acc)}">➕ Add</button>` }] });
+      $$('[data-nma]', m).forEach(b => b.onclick = () => { const x = AU.find(y => y.acc === b.dataset.nma); if (x) done(this.merge([{ acc: x.acc, kw: '', name: x.name, bank: x.bank, ifsc: x.ifsc, type: x.type, from: 'cases' }])); });
+      if ($('#nmAll', m)) $('#nmAll', m).onclick = () => done(this.merge(AU.map(x => ({ acc: x.acc, kw: '', name: x.name, bank: x.bank, ifsc: x.ifsc, type: x.type, from: 'cases' }))));
+      $('#nmRe', m).onclick = async () => { await this.harvest(true); render(); };
       $('#nmAdd', m).onclick = () => { const v = k => $('#' + k, m).value.trim(), acc = v('nmA').replace(/\s/g, ''), kw = v('nmK'); if (!acc && !kw) return UI.toast('Type the account no. or a name word');
         if (acc && !/^[0-9A-Z]{6,20}$/i.test(acc)) return UI.toast('Account No. – 6 to 20 letters / digits'); done(this.merge([{ acc: kw ? '' : acc, kw: acc ? '' : kw, name: v('nmN'), bank: v('nmB'), ifsc: v('nmI').toUpperCase(), type: v('nmT') }])); };
       $('#nmPaste', m).onclick = () => { const A = $('#nmP', m).value.split(/\r?\n/).filter(x => x.trim()).map(l => l.split(/\t|,|;/)); const E = this.parseRows(A); if (!E.length) return UI.toast('No account found in the pasted rows'); done(this.merge(E)); };
       $('#nmFile', m).onclick = () => { const i = document.createElement('input'); i.type = 'file'; i.accept = '.xlsx,.xls,.csv,.ods'; i.onchange = async () => { const f = i.files[0]; if (!f) return; try { const wb = /\.csv$/i.test(f.name) ? XLSX.read(await f.text(), { type: 'string', raw: true }) : XLSX.read(new Uint8Array(await f.arrayBuffer()), { type: 'array' }); let E = []; wb.SheetNames.forEach(sn => E = E.concat(this.parseRows(XLSX.utils.sheet_to_json(wb.Sheets[sn], { header: 1, defval: '', raw: false })))); if (!E.length) return UI.toast('No account column found'); done(this.merge(E)); } catch (e) { UI.toast('Could not read: ' + e.message); } }; i.click(); };
       $$('[data-nmd]', m).forEach(b => b.onclick = () => { const i = L.findIndex(x => x.id === b.dataset.nmd); if (i < 0 || !UI.confirm('Remove from the Nodal / Escrow list?')) return; L.splice(i, 1); done({ a: 0, u: 0 }, 'Removed'); });
-    }; draw();
+    }
   }
 };
 { const of0 = Nodal.of.bind(Nodal); Nodal.of = acc => NodalM.hit(acc) || of0(acc);
@@ -18290,13 +18319,18 @@ const NodalM = {
   const td = Target.draw.bind(Target); Target.draw = function (el, T, J) { NodalM.names.clear(); T.forEach(t => NodalM.names.set(String(t.acc), [...t.names, ...t.banks].join(' '))); return td(el, T, J); };
   /* easy to find: Analytics drop-down item (after Target) + a button in the title of Target, Money Trail, Financial and Dashboard */
   { const subs = $('.tel-subs'), tg = subs && $('[data-tx="target"]', subs);
-    if (tg) { tg.insertAdjacentHTML('afterend', `<div class="nav-sub" data-nmo="1" style="--pc:#7c3aed" title="Nodal / escrow / payment-gateway accounts you found – matched in every case"><i></i><span>Nodal / Escrow List</span></div>`); const n = $('[data-nmo]', subs); n.dataset.ncI = 99; n.onclick = e => { e.stopPropagation(); NodalM.open(); }; }
     NodalM.top = () => {
-      if (/^(target|trail|financial|dashboard|analytics)$/.test(S.page)) { const t = $('#main .page-title') || $('#main h2') && $('#main h2').parentElement; if (t && !$('.nm-top', t)) { const x = document.createElement('button'); x.className = 'btn nm-top'; x.type = 'button'; x.title = 'Add nodal / escrow accounts you found – matched in every case, Target and Money Trail'; x.textContent = `🏛️ Nodal / Escrow List (${NodalM.list().length})`; x.onclick = () => NodalM.open(); const sp = $('.spacer', t); sp ? sp.after(x) : t.appendChild(x); } } }; }
+      if (/^(target|trail|financial|dashboard|analytics|eo)$/.test(S.page)) { const t = $('#main .page-title') || $('#main h2') && $('#main h2').parentElement; if (t && !$('.nm-top', t)) { const x = document.createElement('button'); x.className = 'btn nm-top'; x.type = 'button'; x.title = 'Add nodal / escrow accounts you found – matched in every case, Target and Money Trail'; x.textContent = `🏛️ Nodal / Escrow List (${NodalM.list().length})`; x.onclick = () => NodalM.open(); const sp = $('.spacer', t); sp ? sp.after(x) : t.appendChild(x); } } }; }
   /* a "Nodal / Escrow List" button on every All / Without / With Nodal bar */
   let q = 0; new MutationObserver(() => { if (q) return; q = requestAnimationFrame(() => { q = 0; NodalM.top(); $$('.nd-bar').forEach(b => { if (b.querySelector('.nm-open')) return; const x = document.createElement('button'); x.className = 'btn sm nm-open'; x.type = 'button'; x.title = 'Add nodal / escrow accounts you found – matched in every case'; x.textContent = `🏛️ Nodal / Escrow List (${NodalM.list().length})`; x.onclick = () => NodalM.open(); const h = b.querySelector('.nd-h'); h ? b.insertBefore(x, h) : b.appendChild(x); }); }); }).observe(document.body, { childList: true, subtree: true });
 }
 
+PAGE_META.nodalm = { group: 'EO – Enquiry Officer', title: 'Nodal / Escrow List', desc: 'One place for nodal / escrow / payment-gateway / wallet pool accounts – fed by you and collected from all cases, matched everywhere in the tool.', order: ['nodalm'], names: { nodalm: '🏛️ Nodal / Escrow List' } };
+Pages.nodalm = main => NodalM.page(main);
+(() => { const eos = $('.eo-subs'), lr = eos && $('[data-eo="letters"]', eos); if (!lr) return;
+  lr.insertAdjacentHTML('afterend', `<div class="nav-sub" data-eo="nodalm" style="--pc:#7c3aed" title="Nodal / escrow accounts – one list for all cases"><i></i><span>Nodal / Escrow List</span></div>`);
+  const n = $('[data-eo="nodalm"]', eos); n.onclick = () => go('nodalm'); $$('.nav-sub', eos).forEach((x, i) => { x.dataset.ncI = i; });
+  const r0 = render; render = function () { const r = r0.apply(this, arguments); if (S.page === 'nodalm') { const it = $('.eo-item'); if (it) { it.classList.add('active', 'open'); eos.classList.add('open'); S.eoOpen = true; } } return r; }; })();
 /* ---------- 3. EO: import existing enquiries (Excel / CSV / Word table) ---------- */
 Object.assign(EO, {
   IMPF: [['sr', 'SR No.', /^(s\.?\s*no|sr|sl|क्र)/i], ['type', 'Type', /type|प्रकार|category/i], ['no', 'Complaint / Ack / Case No.', /ack|complaint\s*no|case\s*no|शिकायत\s*सं|application\s*no|appl|^no\.?$/i], ['year', 'Year', /year|वर्ष/i],
@@ -19193,7 +19227,7 @@ const Plans = {
     $$('#sidebar > .nav-group').forEach(g => { let n = g.nextElementSibling, any = false; while (n && !n.classList.contains('nav-group')) { if (n.classList.contains('nav-item') && !n.classList.contains('pl-hide') && getComputedStyle(n).display !== 'none') any = true; n = n.nextElementSibling; } g.classList.toggle('pl-hide', !any); });
   },
   plan() { const L = SUD_ED === 'user' && typeof Users !== 'undefined' ? Users.link() : null; return L && L.plan ? L.plan : null; },
-  SEC: { prb: 'analytics', contacts: 'ct-item', arrest: 'arrest-item', cctns: 'io-item', others: 'io-item', formats: 'io-item', eo: 'eo-item', jmis: 'eo-item' },
+  SEC: { nodalm: 'eo-item', prb: 'analytics', contacts: 'ct-item', arrest: 'arrest-item', cctns: 'io-item', others: 'io-item', formats: 'io-item', eo: 'eo-item', jmis: 'eo-item' },
   blocked(page) { const p = this.plan(), H = p && p.hide || []; return !!(p && page && (H.includes('S:' + page) || (this.SEC[page] && (H.includes('S:' + this.SEC[page]) || (this.SEC[page] === 'eo-item' && H.includes('eo-item|eo:' + page)))))); },
   apply() {
     if (SUD_ED !== 'user') return; const p = this.plan();
