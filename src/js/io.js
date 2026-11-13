@@ -251,8 +251,12 @@ if (PAGE_META.cctns) PAGE_META.cctns.group = 'Investigation';
       [...ios.children].forEach((n, i) => { const sp = n.querySelector('span'); if (!sp) return; sp.textContent = sp.textContent.replace(/^\s*\d+\.\s*/, ''); delete n.dataset.ncOrig; delete n.dataset.ncI; });
       [cct, ccs, cf, cfs].forEach(x => x && x.remove()); } finally { NavCustom.busy = false; }
     drop(io, ios, 'ioOpen', () => ['cctns', 'others', 'formats'].includes(S.page));
-    ios.insertAdjacentHTML('afterend', `<div class="nav-item" data-page="eo" title="EO – Enquiry Officer: enquiries, enquiry report and status" style="--c:#0891b2"><span class="nib">🕵</span><span>EO – Enquiry Officer</span></div>`);
-    const eo = $('.nav-item[data-page="eo"]', nav); eo.onclick = () => go('eo');
+    ios.insertAdjacentHTML('afterend', mk('eo-item', '🕵', 'EO – Enquiry Officer', 'EO – Enquiry Officer: Enquiries (report, status) and JMIS Notice (Samanvaya CIAR requests)', '#0891b2'));
+    const eo = $('.eo-item', nav), eos = $('.eo-subs', nav);
+    eos.innerHTML = `<div class="nav-sub" data-eo="eo" style="--pc:#0891b2"><i></i><span>Enquiry List &amp; Report</span></div><div class="nav-sub" data-eo="jmis" style="--pc:#7c3aed"><i></i><span>JMIS Notice</span></div>`;
+    $$('[data-eo]', eos).forEach(n => n.onclick = () => go(n.dataset.eo));
+    drop(eo, eos, 'eoOpen', () => ['eo', 'jmis'].includes(S.page));
+    { const or2 = render; render = function () { const r = or2.apply(this, arguments); $$('[data-eo]', eos).forEach(n => n.classList.toggle('active', S.page === n.dataset.eo)); return r; }; }
     const or = render; render = function () { const r = or.apply(this, arguments);
       $$('[data-cct]', ios).forEach(n => n.classList.toggle('active', S.page === 'cctns' && (S.sub.cctns || 'diary') === n.dataset.cct));
       $$('[data-cf]', ios).forEach(n => { const [p, s] = n.dataset.cf.split('|'); n.classList.toggle('active', S.page === p && (!s || (S.sub.formats || 'notice') === s)); }); return r; };
