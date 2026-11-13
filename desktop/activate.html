@@ -19,21 +19,21 @@ button.pri{background:#2563eb;border-color:#2563eb}button.ok{background:#16a34a;
 </style></head>
 <body><div class="box">
   <div class="hd"><img src="emblem.png" alt=""><div><h1>SudarshanAshtra Desktop <span class="hi" lang="hi">सुदर्शनास्त्र</span></h1><small>Cyber Crime Analysis &amp; Tracking · works offline · licence from the SudarshanAshtra Super Admin</small></div></div>
-  <div id="why" class="why info">Welcome! This computer needs a licence once. Fill your details, send the Request Code to the Super Admin, then paste the licence key you receive.</div>
+  <div id="why" class="why info">Welcome! This computer needs a licence once. Fill your details and press <b>📨 Send Request</b>. When the SudarshanAshtra Super Admin sends you the licence key, paste it on the right and press <b>Activate</b>.</div>
   <div class="cols">
     <div class="card"><h2>① Ask For A Licence</h2><p>Your computer's Machine ID:</p><div class="mid" id="mid">…</div>
       <div class="g2"><div><label>Name *</label><input id="n"></div><div><label>Rank / Post</label><input id="rk"></div>
         <div><label>Posting / Police Station / Unit</label><input id="ps"></div><div><label>District / Commissionerate</label><input id="dist"></div>
         <div><label>State</label><input id="st" list="states"></div><div><label>Mobile</label><input id="mob" inputmode="tel"></div></div>
-      <button class="pri" id="mk">📋 Copy Request Code</button><button id="wa">🟢 Send On WhatsApp</button>
+      <button class="pri" id="snd">📨 Send Request</button><button id="mk">📋 Copy Request Code</button><button id="wa">🟢 Send On WhatsApp</button>
       <textarea id="req" rows="3" readonly placeholder="Your Request Code appears here" style="margin-top:8px"></textarea>
-      <div class="muted">Send the Request Code to the SudarshanAshtra Super Admin by WhatsApp / e-mail.</div></div>
+      <div class="muted">📨 Send Request goes straight to the SudarshanAshtra Super Admin (needs internet). No internet? Copy the Request Code or send it on WhatsApp / e-mail instead.</div><div class="muted okm" id="sent"></div></div>
     <div class="card"><h2>② Activate</h2><p>Paste the licence key from the Super Admin, or load the <b>.lic</b> file.</p>
       <textarea id="key" rows="7" placeholder="SADL1.…"></textarea>
       <label class="btn" style="width:auto">📂 Load .lic File<input type="file" id="kf" accept=".lic,.txt" hidden></label><button class="ok" id="act">✅ Activate</button><button id="chk" style="display:none">🔄 Check Online Again</button>
       <div class="err" id="err"></div></div>
   </div>
-  <div class="foot"><span>Your case data always stays on this computer. Only the licence ID and Machine ID are checked online (when internet is there).</span><span id="ver"></span></div>
+  <div class="foot"><span>Your case data always stays on this computer. Only your licence request, licence ID and Machine ID go online (when internet is there).</span><span id="ver"></span></div>
 </div>
 <datalist id="states"><option>Andaman &amp; Nicobar Islands</option><option>Andhra Pradesh</option><option>Arunachal Pradesh</option><option>Assam</option><option>Bihar</option><option>Chandigarh</option><option>Chhattisgarh</option><option>Dadra &amp; Nagar Haveli and Daman &amp; Diu</option><option>Delhi</option><option>Goa</option><option>Gujarat</option><option>Haryana</option><option>Himachal Pradesh</option><option>Jammu &amp; Kashmir</option><option>Jharkhand</option><option>Karnataka</option><option>Kerala</option><option>Ladakh</option><option>Lakshadweep</option><option>Madhya Pradesh</option><option>Maharashtra</option><option>Manipur</option><option>Meghalaya</option><option>Mizoram</option><option>Nagaland</option><option>Odisha</option><option>Puducherry</option><option>Punjab</option><option>Rajasthan</option><option>Sikkim</option><option>Tamil Nadu</option><option>Telangana</option><option>Tripura</option><option>Uttar Pradesh</option><option>Uttarakhand</option><option>West Bengal</option></datalist>
 <script>
@@ -61,6 +61,17 @@ const code = () => { const o = { mid: D.mid }; F.forEach(k => { o[k] = $('#' + k
 const msg = () => { const c = code(); $('#req').value = c; return `SudarshanAshtra Desktop – licence request\nName: ${[$('#rk').value, $('#n').value].filter(Boolean).join(' ')}\nPosting: ${[$('#ps').value, $('#dist').value, $('#st').value].filter(Boolean).join(', ')}\nMobile: ${$('#mob').value}\nMachine ID: ${D.mid}\n\nRequest Code:\n${c}`; };
 const need = () => { if (!$('#n').value.trim()) { $('#err').textContent = 'Fill your name first'; $('#n').focus(); return false; } $('#err').textContent = ''; return true; };
 $('#mk').onclick = async () => { if (!need()) return; const t = msg(); try { await navigator.clipboard.writeText(t); $('#err').innerHTML = '<span class="okm">✔ Copied – paste it in WhatsApp / e-mail to the Super Admin</span>'; } catch (e) { $('#req').select(); } };
+const sentNote = () => { const t = localStorage.getItem('sud-req-sent'); $('#sent').textContent = t ? '✔ Request sent on ' + new Date(t).toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) + ' – wait for the licence key.' : ''; };
+sentNote();
+if (!D.sendReq) $('#snd').style.display = 'none';
+$('#snd').onclick = async () => {
+  if (!need()) return; const b = $('#snd'); b.disabled = true; $('#err').textContent = '⏳ Sending your request…';
+  const c = code(), o = { code: c }; $('#req').value = c; F.forEach(k => { o[k] = $('#' + k).value.trim(); });
+  let r; try { r = await D.sendReq(o); } catch (e) { r = { ok: false, msg: 'Could not send. Use “Copy Request Code” or “Send On WhatsApp” instead.' }; }
+  b.disabled = false;
+  if (r.ok) { localStorage.setItem('sud-req-sent', new Date().toISOString()); sentNote(); $('#err').innerHTML = '<span class="okm">✔ Request sent to the SudarshanAshtra Super Admin. When you get the licence key, paste it on the right and press Activate.</span>'; }
+  else $('#err').textContent = '⚠ ' + r.msg;
+};
 $('#wa').onclick = () => { if (!need()) return; D.open('https://wa.me/?text=' + encodeURIComponent(msg())); };
 $('#kf').onchange = async e => { const f = e.target.files[0]; if (f) $('#key').value = (await f.text()).trim(); };
 $('#act').onclick = async () => {
