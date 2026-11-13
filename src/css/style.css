@@ -2323,3 +2323,11 @@ html.no-contacts .ct-item,html.no-contacts .ct-subs{display:none!important}
 @media (max-width:900px){.ex-grid,.ex-plan{grid-template-columns:1fr}}
 html.ed-desk #topWho{display:none}
 html.ed-desk #topbar{gap:7px}
+/* 🔔 EXE licence requests (Super Admin) */
+#exBell{position:relative;margin-right:6px;padding:4px 9px;font-size:15px;line-height:1}
+#exBell .ex-bn:empty{display:none}
+#exBell .ex-bn{position:absolute;top:-6px;right:-7px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:#dc2626;color:#fff;font-size:11px;font-weight:800;line-height:18px;text-align:center;box-shadow:0 0 0 2px var(--surface,#0f172a)}
+#exBell.ex-has{border-color:#f59e0b;animation:exRing 2.4s ease-in-out infinite}
+@keyframes exRing{0%,86%,100%{transform:rotate(0)}89%{transform:rotate(-14deg)}93%{transform:rotate(12deg)}97%{transform:rotate(-6deg)}}
+.ex-rqt tr.ex-rq{cursor:pointer}.ex-rqt tr.ex-rq:hover td{background:var(--surface-3)}
+@media (max-width:1500px){html.role-admin #topbar{gap:7px}#exBell{margin-right:0;padding:4px 7px}}

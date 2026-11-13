@@ -113,11 +113,12 @@ const ExeLic = {
     UI.toast(({ off: '⏸ Suspended', on: '▶ Active again', del: '🗑 Licence deleted' })[a] + (ok ? ' – the EXE gets it when online' : ' – saved here (Google Sheet not reached)'), 5000);
   },
   /* ---------- Add / Edit ---------- */
-  edit(r, main) {
+  edit(r, main, pre) {
     const D = this.defs(), isNew = !r, x = r ? Object.assign({}, r) : { tier: 'normal', from: this.istToday(), days: D.normal.days, hide: D.normal.hide.slice(), xr: D.normal.xr.slice() };
+    if (pre && isNew) Object.assign(x, { name: pre.n || '', rank: pre.rk || '', ps: pre.ps || '', dist: pre.dist || '', st: pre.st || '', mob: pre.mob || '', mid: this.normMid(pre.mid) });
     if (!isNew) x.days = this.daysBetween(x.from, x.to) + 1;
     const b = UI.modal(isNew ? '➕ Add EXE User (Desktop Licence)' : '✏ Change Licence – ' + r.lid, `
-      ${isNew ? `<div class="ex-req"><b>1.</b> Paste the <b>Request Code</b> the user sent from the EXE (it fills everything below):<textarea id="exReq" rows="2" placeholder="SUDREQ1.…"></textarea></div>` : ''}
+      ${isNew ? `<div class="ex-req"><b>1.</b> Paste the <b>Request Code</b> the user sent from the EXE (it fills everything below):<textarea id="exReq" rows="2" placeholder="SUDREQ1.…">${pre ? esc(pre.code || '') : ''}</textarea></div>` : ''}
       <div class="ex-grid">
         <label>Name<input id="exN" value="${esc(x.name || '')}"></label><label>Rank / Post<input id="exRk" value="${esc(x.rank || '')}"></label>
         <label>Posting / Police Station / Unit<input id="exPs" value="${esc(x.ps || '')}"></label><label>District / Commissionerate<input id="exDi" value="${esc(x.dist || '')}"></label>
@@ -151,6 +152,7 @@ const ExeLic = {
       e('⏳ Signing the licence…');
       try { await this.issue(n, isNew ? 'Added' : 'Changed', isNew ? `${n.tier}, ${this.dmy(f)} → ${this.dmy(t)}` : [old.tier !== n.tier && 'category ' + old.tier + ' → ' + n.tier, old.to !== n.to && 'valid to ' + this.dmy(n.to), old.mid !== n.mid && 'moved to computer ' + n.mid].filter(Boolean).join(', ') || 'sections / details'); } catch (x) { return e('❌ ' + x.message); }
       if (isNew) this.list().push(n); await this.save();
+      if (isNew) this.reqGone(n.mid);
       UI.closeModal(); this.draw(main); this.share(n, isNew ? '✅ Licence Made – Send This To ' + n.name : '🔑 New Licence Key – ' + n.name);
     };
   },
@@ -211,6 +213,66 @@ const ExeLic = {
         { label: 'Done', onClick: UI.closeModal }]);
   },
   /* pull "last seen" from the Google Sheet (version 16) */
+  /* ---------- 🔔 licence requests that new EXE users send online (Google script version 17, sheet "EXE Requests") ---------- */
+  REQ_K: 'sud-exreq',
+  reqs() { try { const a = JSON.parse(localStorage.getItem(this.REQ_K) || '[]'); return Array.isArray(a) ? a : []; } catch (e) { return []; } },
+  reqKeep(a) { localStorage.setItem(this.REQ_K, JSON.stringify(a)); this.bell(); },
+  reqGone(mid) { this.reqKeep(this.reqs().filter(q => q.mid !== mid)); },
+  async reqPoll() {
+    if (SUD_ED !== 'admin' || !Role.admin() || this._reqBusy) return; this._reqBusy = 1;
+    try {
+      const L = await this.liveUrl(); if (!L) { this._reqWhy = 'nosheet'; return; }
+      const d = await Users.admin('reqlist', {}); if (!d || !Array.isArray(d.req)) throw new Error('Unknown request');
+      this._reqWhy = ''; const mine = this.list();
+      const a = d.req.filter(q => q && q.mid).filter(q => {
+        const done = mine.find(o => o.mid === q.mid && o.status !== 'Deleted' && (o.at || '') > (q.at || ''));
+        if (done) Users.admin('reqset', { mid: q.mid, status: 'Done' }).catch(() => { });
+        return !done;
+      }).sort((x, y) => (y.at || '').localeCompare(x.at || ''));
+      const old = new Set(this.reqs().map(q => q.mid + '|' + q.at)), fresh = a.filter(q => !old.has(q.mid + '|' + q.at));
+      this.reqKeep(a);
+      if (fresh.length && this._reqSeen) UI.toast(`🔔 ${fresh.length === 1 ? (fresh[0].n || 'A new user') + ' is asking' : fresh.length + ' new users are asking'} for an EXE licence – click the bell`, 7000);
+      this._reqSeen = 1;
+    } catch (e) { this._reqWhy = /Unknown request|op/i.test(e.message) ? 'old' : 'err'; }
+    finally { this._reqBusy = 0; this.bell(); }
+  },
+  bell() {
+    if (SUD_ED !== 'admin') return; const rb = $('#roleBadge'); let b = $('#exBell');
+    if (!Role.admin() || !rb) { if (b) b.parentNode.removeChild(b); return; }
+    if (!b) { rb.insertAdjacentHTML('afterend', '<button class="btn sm" id="exBell" type="button">🔔<span class="ex-bn"></span></button>'); b = $('#exBell'); b.onclick = () => this.reqOpen(); }
+    else if (b.previousElementSibling !== rb) rb.after(b);
+    const n = this.reqs().length; $('.ex-bn', b).textContent = n > 99 ? '99+' : (n || '');
+    b.classList.toggle('ex-has', n > 0); b.title = n ? `${n} new EXE user${n > 1 ? 's' : ''} asking for a licence – click to see` : 'EXE licence requests – none waiting';
+  },
+  reqWhen(t) { const d = new Date(t); return isNaN(d) ? '' : d.toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }); },
+  reqOpen() {
+    const a = this.reqs(), w = this._reqWhy;
+    const note = w === 'nosheet' ? '<div class="note warn">Connect your Google Sheet first (⚙ Settings › ☁ Google Sheet &amp; Apps Script). Requests from new EXE users arrive there.</div>'
+      : w === 'old' ? `<div class="note warn"><b>Update your Google script once</b> (⚙ Settings › ☁ Google Sheet &amp; Apps Script › copy the script again and paste it, version ${Off.GSVER}). After that, requests from new EXE users reach this bell.</div>`
+        : w === 'err' ? '<div class="note warn">Could not reach your Google Sheet just now (no internet?). This is the last list.</div>' : '';
+    const rows = a.map((q, i) => `<tr class="ex-rq" data-i="${i}" title="Open Super Admin Control › EXE Users with these details filled in">
+      <td><b>${esc([q.rk, q.n].filter(Boolean).join(' ') || '—')}</b><div class="small muted">${esc([q.ps, q.dist, q.st].filter(Boolean).join(', '))}</div></td>
+      <td class="mono">${esc(q.mob || '')}</td><td class="mono small">${esc(q.mid)}</td>
+      <td class="small">${esc(this.reqWhen(q.at))}${q.times > 1 ? ` <span class="badge" title="The user pressed Send ${q.times} times">${q.times}×</span>` : ''}</td>
+      <td style="white-space:nowrap"><button class="btn sm primary" data-a="add">➕ Add User</button> <button class="btn sm" data-a="no" title="Remove this request (no licence)">✖</button></td></tr>`).join('');
+    const b = UI.modal('🔔 New EXE Users Asking For A Licence', `${note}${a.length
+      ? `<p class="small muted">Click a user to open Super Admin Control › 🖥 EXE Users with Name, Rank, Posting, District, State, Mobile, Machine ID and Request Code filled in. Choose the category and days, then make the licence.</p>
+        <div class="tbl-wrap"><table class="tbl ex-rqt"><thead><tr><th>User</th><th>Mobile</th><th>Machine ID</th><th>Asked On</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`
+      : '<p>No new requests right now.</p><p class="small muted">When a new user fills the form on the EXE’s first screen and presses <b>📨 Send Request</b>, the request shows here with a red number on the bell.</p>'}`,
+      [{ label: '🔄 Check Now', onClick: async () => { $('#mdBody').insertAdjacentHTML('afterbegin', '<p class="small muted">⏳ Checking…</p>'); await this.reqPoll(); this.reqOpen(); } }, { label: 'Close', onClick: () => UI.closeModal() }]);
+    $$('.ex-rq', b).forEach(tr => tr.onclick = ev => {
+      const q = a[+tr.dataset.i], bt = ev.target.closest('[data-a]');
+      if (bt && bt.dataset.a === 'no') {
+        ev.stopPropagation(); if (!UI.confirm(`Remove the request of ${q.n || q.mid}? (No licence is made.)`)) return;
+        this.reqGone(q.mid); Users.admin('reqset', { mid: q.mid, status: 'Dismissed' }).catch(() => { }); this.reqOpen(); return;
+      }
+      this.reqAdd(q);
+    });
+  },
+  reqAdd(q) {
+    UI.closeModal(); Users._plTab = 0; Users._exTab = 1; go('sadmin');
+    setTimeout(() => this.edit(null, $('#main'), q), 350);
+  },
   async pull() {
     const L = await this.liveUrl(); if (!L || (L.ver || 0) < 16) return;
     try { const d = await Users.admin('liclist', {}); const R = this.list(); let ch = 0; (d.lic || []).forEach(o => { const r = R.find(x => x.lid === o.lid); if (r && o.seen && o.seen !== r.seen) { r.seen = o.seen; r.build = o.build || ''; ch = 1; } }); if (ch) await this.save(); } catch (e) { }
@@ -230,6 +292,9 @@ const ExeLic = {
     if (Users._exTab) $$('[data-tb]', main).forEach(b => b.classList.toggle('primary', b.dataset.tb === 'exe'));
     return r;
   };
+  const ra = Role.apply.bind(Role); Role.apply = function () { const r = ra(); try { ExeLic.bell(); } catch (e) { } return r; };
+  const poll = () => { if (navigator.onLine !== false && document.visibilityState !== 'hidden') ExeLic.reqPoll(); };
+  setTimeout(poll, 4000); setInterval(poll, 120000); window.addEventListener('focus', () => { if (Date.now() - (ExeLic._reqAt || 0) > 30000) { ExeLic._reqAt = Date.now(); poll(); } });
   const dr = Users.draw; Users.draw = async function (main, st) {
     if (Users._exTab && Role.admin()) { await ExeLic.draw(main); ExeLic.pull().then(() => { if (Users._exTab && S.page === 'sadmin' && document.body.contains(main)) ExeLic.draw(main); }); return; }
     return dr.call(this, main, st);
