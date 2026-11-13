@@ -10,7 +10,6 @@
 const ExeLic = {
   PUB: '2354206a5a6b00597cd19f967725427f1535fd7b83a93370418a28525ec769c9',
   PRE: 'SADL1',
-  SETUP_URL: 'https://github.com/CYBERCOPLEA/SudarshanAshtra/releases/latest',
   TIERS: ['normal', 'pro', 'premium'],
   XR: [['lists', '✏ Edit / Reorder Lists'], ['delcase', '🗑 Delete Case Data']],
   /* ---------- small helpers ---------- */
@@ -200,10 +199,16 @@ const ExeLic = {
       [{ label: '🔑 Key', onClick: () => this.share(r) }, { label: '⏩ Extend', onClick: () => this.extend(r, main) }, { label: '✏ Change', onClick: () => this.edit(r, main) }, { label: 'Close', onClick: UI.closeModal }]);
     return b;
   },
+  setupUrl() { return (S.settings && S.settings.exeSetupUrl) || ''; },
   setupInfo() {
-    const txt = `SudarshanAshtra Desktop (Windows 10 / 11, 64-bit)\nDownload the setup: ${this.SETUP_URL}\n(Download "SudarshanAshtra-Setup-….exe". It installs without internet.)\nAfter installing, open SudarshanAshtra, fill your name and posting, and send the Request Code to the Super Admin (Vijay Tomar).`;
-    UI.modal('⬇ Setup Download Link', `<p>Send this to new users. The setup can also be copied on a pen drive – it installs without internet.</p><code style="display:block;word-break:break-all;padding:8px">${esc(this.SETUP_URL)}</code><textarea readonly rows="5" style="width:100%;margin-top:8px">${esc(txt)}</textarea>`,
-      [{ label: '📋 Copy Message', cls: 'primary', onClick: async () => { try { await navigator.clipboard.writeText(txt); UI.toast('Copied'); } catch (e) { UI.toast('Copy failed'); } } }, { label: 'Open', onClick: () => window.open(this.SETUP_URL, '_blank', 'noopener') }, { label: 'Done', onClick: UI.closeModal }]);
+    const u = this.setupUrl();
+    const txt = u => `SudarshanAshtra Desktop (Windows 10 / 11, 64-bit)\nDownload the setup: ${u}\n(It installs without internet.)\nAfter installing, open SudarshanAshtra, fill your name and posting, and send the Request Code to the Super Admin (Vijay Tomar).`;
+    const b = UI.modal('⬇ Setup Download Link', `<p>Upload <b>SudarshanAshtra-Setup.exe</b> to your Google Drive, share it as <b>“Anyone with the link”</b>, and paste that link here once. New users get this link (it can also go on a pen drive – it installs without internet).</p>
+      <label class="small" style="display:block;font-weight:600">Your Google Drive link of the setup<input id="exSu" placeholder="https://drive.google.com/file/d/…" value="${esc(u)}" style="width:100%;margin-top:4px" data-nov></label><div class="err" id="exSuE"></div>
+      <textarea readonly rows="5" id="exSuT" style="width:100%;margin-top:8px">${esc(u ? txt(u) : '')}</textarea>`,
+      [{ label: '💾 Save Link', onClick: async () => { const v = $('#exSu', b).value.trim(); if (v && !/^https:\/\/(drive|docs)\.google\.com\//.test(v)) { $('#exSuE', b).textContent = 'Paste the Google Drive share link (it starts with https://drive.google.com/)'; return; } S.settings.exeSetupUrl = v; await this.save(); $('#exSuE', b).textContent = ''; $('#exSuT', b).value = v ? txt(v) : ''; UI.toast(v ? '💾 Setup link saved' : 'Link removed'); } },
+        { label: '📋 Copy Message', cls: 'primary', onClick: async () => { const v = $('#exSu', b).value.trim(); if (!v) { $('#exSuE', b).textContent = 'Paste your Google Drive link first'; return; } try { await navigator.clipboard.writeText(txt(v)); UI.toast('Copied – paste it in WhatsApp / e-mail'); } catch (e) { UI.toast('Copy failed'); } } },
+        { label: 'Done', onClick: UI.closeModal }]);
   },
   /* pull "last seen" from the Google Sheet (version 16) */
   async pull() {

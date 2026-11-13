@@ -2379,7 +2379,7 @@ html.ed-desk #topbar{gap:7px}
         <div class="hp-feat" style="--fc:#06b6d4"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><div><b>Analytics</b><p>The same mobile, account, IP or e-mail across complaints, banks and platforms.</p></div></div>
         <div class="hp-feat" style="--fc:#eab308"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h5"/></svg></span><div><b>Case File &amp; Notices</b><p>Case reports, notices to banks and platforms, and CSV / PDF exports.</p></div></div>
     </section>
-    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-13 21:44 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
+    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-13 22:42 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
   </div>
 
   <div class="lg-wrap" id="lgWrap" aria-hidden="true">
@@ -19887,7 +19887,6 @@ const PickData = {
 const ExeLic = {
   PUB: '2354206a5a6b00597cd19f967725427f1535fd7b83a93370418a28525ec769c9',
   PRE: 'SADL1',
-  SETUP_URL: 'https://github.com/CYBERCOPLEA/SudarshanAshtra/releases/latest',
   TIERS: ['normal', 'pro', 'premium'],
   XR: [['lists', '✏ Edit / Reorder Lists'], ['delcase', '🗑 Delete Case Data']],
   /* ---------- small helpers ---------- */
@@ -20077,10 +20076,16 @@ const ExeLic = {
       [{ label: '🔑 Key', onClick: () => this.share(r) }, { label: '⏩ Extend', onClick: () => this.extend(r, main) }, { label: '✏ Change', onClick: () => this.edit(r, main) }, { label: 'Close', onClick: UI.closeModal }]);
     return b;
   },
+  setupUrl() { return (S.settings && S.settings.exeSetupUrl) || ''; },
   setupInfo() {
-    const txt = `SudarshanAshtra Desktop (Windows 10 / 11, 64-bit)\nDownload the setup: ${this.SETUP_URL}\n(Download "SudarshanAshtra-Setup-….exe". It installs without internet.)\nAfter installing, open SudarshanAshtra, fill your name and posting, and send the Request Code to the Super Admin (Vijay Tomar).`;
-    UI.modal('⬇ Setup Download Link', `<p>Send this to new users. The setup can also be copied on a pen drive – it installs without internet.</p><code style="display:block;word-break:break-all;padding:8px">${esc(this.SETUP_URL)}</code><textarea readonly rows="5" style="width:100%;margin-top:8px">${esc(txt)}</textarea>`,
-      [{ label: '📋 Copy Message', cls: 'primary', onClick: async () => { try { await navigator.clipboard.writeText(txt); UI.toast('Copied'); } catch (e) { UI.toast('Copy failed'); } } }, { label: 'Open', onClick: () => window.open(this.SETUP_URL, '_blank', 'noopener') }, { label: 'Done', onClick: UI.closeModal }]);
+    const u = this.setupUrl();
+    const txt = u => `SudarshanAshtra Desktop (Windows 10 / 11, 64-bit)\nDownload the setup: ${u}\n(It installs without internet.)\nAfter installing, open SudarshanAshtra, fill your name and posting, and send the Request Code to the Super Admin (Vijay Tomar).`;
+    const b = UI.modal('⬇ Setup Download Link', `<p>Upload <b>SudarshanAshtra-Setup.exe</b> to your Google Drive, share it as <b>“Anyone with the link”</b>, and paste that link here once. New users get this link (it can also go on a pen drive – it installs without internet).</p>
+      <label class="small" style="display:block;font-weight:600">Your Google Drive link of the setup<input id="exSu" placeholder="https://drive.google.com/file/d/…" value="${esc(u)}" style="width:100%;margin-top:4px" data-nov></label><div class="err" id="exSuE"></div>
+      <textarea readonly rows="5" id="exSuT" style="width:100%;margin-top:8px">${esc(u ? txt(u) : '')}</textarea>`,
+      [{ label: '💾 Save Link', onClick: async () => { const v = $('#exSu', b).value.trim(); if (v && !/^https:\/\/(drive|docs)\.google\.com\//.test(v)) { $('#exSuE', b).textContent = 'Paste the Google Drive share link (it starts with https://drive.google.com/)'; return; } S.settings.exeSetupUrl = v; await this.save(); $('#exSuE', b).textContent = ''; $('#exSuT', b).value = v ? txt(v) : ''; UI.toast(v ? '💾 Setup link saved' : 'Link removed'); } },
+        { label: '📋 Copy Message', cls: 'primary', onClick: async () => { const v = $('#exSu', b).value.trim(); if (!v) { $('#exSuE', b).textContent = 'Paste your Google Drive link first'; return; } try { await navigator.clipboard.writeText(txt(v)); UI.toast('Copied – paste it in WhatsApp / e-mail'); } catch (e) { UI.toast('Copy failed'); } } },
+        { label: 'Done', onClick: UI.closeModal }]);
   },
   /* pull "last seen" from the Google Sheet (version 16) */
   async pull() {
