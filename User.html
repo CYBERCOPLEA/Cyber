@@ -2288,7 +2288,7 @@ html.ed-user .nav-bottom,html.ed-user #sidebar [data-page="settings"]{display:no
         <div class="hp-feat" style="--fc:#06b6d4"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><div><b>Analytics</b><p>The same mobile, account, IP or e-mail across complaints, banks and platforms.</p></div></div>
         <div class="hp-feat" style="--fc:#eab308"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h5"/></svg></span><div><b>Case File &amp; Notices</b><p>Case reports, notices to banks and platforms, and CSV / PDF exports.</p></div></div>
     </section>
-    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-13 11:19 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
+    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-13 11:49 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
   </div>
 
   <div class="lg-wrap" id="lgWrap" aria-hidden="true">
@@ -17131,7 +17131,7 @@ const JMIS = {
       { key: 'to', label: 'Request for State / District / PS', csv: r => [r.tState, r.tDist, r.tPS].filter(Boolean).join(', '), render: r => `<b>${esc(r.tState || '')}</b><div class="small">${esc([r.tDist, r.tPS].filter(Boolean).join(' · '))}</div>` },
       { key: 'reqAt', label: 'Date Time of Request / Last Action', sortVal: r => r.reqAt || '', csv: r => 'Request: ' + this.dt(r.reqAt) + (r.actAt ? ' | Action: ' + this.dt(r.actAt) : ''), render: r => `<div class="jm-dt"><span>Request</span><b>${esc(this.dt(r.reqAt) || '—')}</b></div><div class="jm-dt"><span>Action</span><b>${esc(this.dt(r.actAt) || '—')}</b></div>` },
       { key: 'took', label: 'Time Taken on Request', sortVal: r => this.took(r) || 0, csv: r => this.dur(this.took(r)), render: r => { const t = this.took(r); return t == null ? '—' : `<b>${this.dur(t)}</b>${this.running(r) ? '<div class="small muted">still running</div>' : ''}`; } },
-      { key: 'resp', label: 'Response / Remarks', render: r => `<div class="jm-tx">${esc(r.resp || '')}</div>` },
+      { key: 'resp', label: 'Completed By / Response', csv: r => [r.compBy, r.compMob, r.resp].filter(Boolean).join(' | '), render: r => `${r.compBy ? `<b>${esc(r.compBy)}</b>${r.compMob ? `<div class="small">📞 ${esc(r.compMob)}</div>` : ''}` : ''}${r.endorse ? `<div class="small muted">SP/DCP Endorsed: ${esc(r.endorse)}</div>` : ''}<div class="jm-tx">${esc(r.resp || '')}</div>` },
       { key: 'act', label: 'Status', nosort: true, noexport: true, render: r => `<select class="jm-sel" data-jid="${esc(r.id)}" data-nov>${Object.keys(this.ST).map(k => `<option ${k === r.status ? 'selected' : ''}>${k}</option>`).join('')}</select>` }] });
     /* hover: live preview of the requests behind a bubble */
     $$('.jm-b', el).forEach(b => { b.onmouseenter = e => this.tip(b, this.pick(B, b.dataset.jd, b.dataset.js)); b.onmouseleave = () => this.tip(null);
@@ -17179,30 +17179,46 @@ const JMIS = {
   },
   /* ---------- import Samanvaya "Request Details" Excel / CSV ---------- */
   importPick(el) {
-    const m = UI.modal('📥 Import CIAR Excel (Samanvaya)', `<p class="small">Download <b>Request Details</b> from Samanvaya › CIAR (Excel icon) and pick the file here. Rows are matched by Request Id – old rows are updated, new rows are added. The file is read on this computer only.</p>
+    const m = UI.modal('📥 Import CIAR Excel (Samanvaya)', `<p class="small">Download the CIAR Excel from Samanvaya (Excel icon) and pick it here. A sheet named <b>Request Sent</b> is taken as Raised and <b>Request Received</b> as Received; otherwise the choice below is used. Rows are matched by Request Id – old rows are updated, new rows are added. The file is read on this computer only.</p>
       <div class="map-grid"><label>These requests are<select id="jmD" data-nov><option value="raised">📤 Raised by us</option><option value="received">📥 Received from others</option></select></label><label>File (Excel / CSV)<input type="file" id="jmFile" accept=".xlsx,.xls,.csv,.ods"></label></div><div id="jmMsg" class="small"></div>`,
       [{ label: 'Close', onClick: UI.closeModal }, { label: '📥 Import', cls: 'primary', onClick: async () => { const f = $('#jmFile', m).files[0]; if (!f) return $('#jmMsg', m).textContent = 'Pick the Excel / CSV file first'; try { const n = await this.importFile(f, $('#jmD', m).value); UI.closeModal(); UI.toast(`📥 ${n.add} added · ${n.upd} updated`, 5000); this.page(el); } catch (e) { $('#jmMsg', m).textContent = '❌ ' + e.message; } } }]);
   },
   COLS: [['reqId', /request\s*id|req\.?\s*id/i], ['type', /type/i], ['exec', /execution/i], ['fir', /fir/i], ['status', /status/i], ['fState', /requesting\s*state|central\s*agency/i], ['fDist', /requesting\s*district/i], ['fPS', /requesting\s*ps/i],
     ['sp', /supervis|sp\s*\/?\s*dcp\s*name/i], ['spMail', /e-?mail/i], ['spPh', /contact|landline|phone/i], ['brief', /brief|gist/i], ['det', /request\s*details|cooperation/i], ['tState', /request\s*for\s*state/i], ['tDist', /request\s*for\s*district/i], ['tPS', /request\s*for\s*ps/i],
     ['reqAt', /request\s*time|date\s*time\s*of\s*request|request\s*date/i], ['actAt', /action\s*time|last\s*action/i], ['resp', /response|remark/i]],
-  async importFile(f, dir) {
-    const wb = /\.csv$/i.test(f.name) ? XLSX.read(await f.text(), { type: 'string', raw: true }) : XLSX.read(new Uint8Array(await f.arrayBuffer()), { type: 'array', cellDates: true });
-    const A = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1, defval: '', raw: true });
-    const hi = A.findIndex(r => r.filter(c => /request|fir|status|state/i.test(String(c))).length >= 3); if (hi < 0) throw new Error('Could not find the Request Details header row in this file');
-    const H = A[hi].map(String), map = {}; H.forEach((h, i) => { const hit = this.COLS.find(([k, re]) => re.test(h) && !(k in map) && !(k === 'type' && /request\s*id/i.test(h) && !/type/i.test(h))); if (hit) map[hit[0]] = i; });
-    /* combined cells like "Request Time : … Action Time : …" */
-    const L = await this.list(); let add = 0, upd = 0;
-    for (const row of A.slice(hi + 1)) { if (!row.some(c => String(c).trim())) continue;
-      const g = k => map[k] != null ? row[map[k]] : '', r = { dir, reqId: String(g('reqId')).trim(), type: String(g('type')).trim() || 'Notice', exec: this.parse(g('exec')).slice(0, 10), fir: String(g('fir')).trim(), status: this.stN(g('status')),
-        agency: /cbi|nia|\bed\b|i4c|central/i.test(String(g('fState'))) ? 'Central Agency' : 'State Police' };
-      for (const k of ['fState', 'fDist', 'fPS', 'tState', 'tDist', 'tPS', 'sp', 'spMail', 'spPh', 'brief', 'det', 'resp']) r[k] = String(g(k)).replace(/\s*View\s*Contact\s*/i, '').trim();
-      const rt = String(g('reqAt')), both = rt.match(/Request\s*Time\s*:?\s*(.*?)\s*(?:Action\s*Time\s*:?\s*(.*))?$/i);
-      r.reqAt = this.parse(both ? both[1] : g('reqAt')); r.actAt = this.parse(both && both[2] ? both[2] : g('actAt'));
-      if (/\s(PENDING|COMPLETED|UNDER PROCESSING)\s*$/i.test(r.fir)) { if (!g('status')) r.status = this.stN(r.fir); r.fir = r.fir.replace(/\s(PENDING|COMPLETED|UNDER PROCESSING)\s*$/i, ''); }
-      if (!r.reqId && !r.fir && !r.brief) continue; r.fState = this.stateN(r.fState); r.tState = this.stateN(r.tState);
-      const o = r.reqId && L.find(x => x.dir === dir && x.reqId === r.reqId);
-      if (o) { Object.keys(r).forEach(k => { if (r[k] !== '' && r[k] != null) o[k] = r[k]; }); o.at = new Date().toISOString(); upd++; } else { L.push(Object.assign({ id: uid(), at: new Date().toISOString() }, r)); add++; } }
+  /* exact column names of the Samanvaya "CIAR Request" Excel download */
+  SAM: { 'request id': 'reqId', 'request type': 'type', 'execution date': 'exec', 'state': 'fState', 'district': 'fDist', 'police station': 'fPS', 'fir no': 'fir', 'gist of fir': 'brief', 'request detail': 'det',
+    'request for state': 'tState', 'request for district': 'tDist', 'requested for ps': 'tPS', 'request for ps': 'tPS', 'supervising sp/dcp name': 'sp', 'official no': 'spPh', 'official mail': 'spMail', 'endrosing by sp/dcp': 'endorse', 'endorsing by sp/dcp': 'endorse',
+    'rinserted_on': 'reqAt', 'rcomp_of': 'compBy', 'rcomp_mob': 'compMob', 'ract_tak': 'actCode', 'rtimetaken': 'tookD', 'rtimetaken2': 'tookTxt', 'request status': 'status', 'status': 'status' },
+  async importFile(f, dir0) {
+    const wb = /\.csv$/i.test(f.name) ? XLSX.read(await f.text(), { type: 'string', raw: true }) : XLSX.read(new Uint8Array(await f.arrayBuffer()), { type: 'array', cellDates: false });
+    const L = await this.list(), idx = new Map(L.filter(x => x.reqId).map(x => [x.dir + '|' + x.reqId, x])); let add = 0, upd = 0, sheets = 0;
+    for (const sn of wb.SheetNames) {
+      const A = XLSX.utils.sheet_to_json(wb.Sheets[sn], { header: 1, defval: '', raw: true });
+      const hi = A.findIndex(r => r.filter(c => /request|fir|status|state/i.test(String(c))).length >= 3); if (hi < 0) continue; sheets++;
+      const dir = /sent|raised/i.test(sn) ? 'raised' : /receiv/i.test(sn) ? 'received' : dir0;
+      const H = A[hi].map(h => String(h).trim()), map = {};
+      H.forEach((h, i) => { const k = this.SAM[h.toLowerCase().replace(/\s+/g, ' ')]; if (k && !(k in map)) map[k] = i; });
+      H.forEach((h, i) => { if (Object.values(map).includes(i)) return; const hit = this.COLS.find(([k, re]) => re.test(h) && !(k in map) && !(k === 'type' && /request\s*id/i.test(h) && !/type/i.test(h))); if (hit) map[hit[0]] = i; });
+      for (const row of A.slice(hi + 1)) { if (!row.some(c => String(c).trim())) continue;
+        const g = k => map[k] != null ? row[map[k]] : '', t = k => String(g(k) == null ? '' : g(k)).replace(/\s*View\s*Contact\s*/i, '').trim();
+        const r = { dir, reqId: t('reqId'), type: t('type') || 'Notice', exec: this.parse(g('exec')).slice(0, 10), fir: t('fir'), agency: /cbi|nia|\bed\b|i4c|central/i.test(t('fState')) ? 'Central Agency' : 'State Police' };
+        for (const k of ['fState', 'fDist', 'fPS', 'tState', 'tDist', 'tPS', 'sp', 'spMail', 'spPh', 'brief', 'det', 'resp', 'compBy', 'compMob', 'actCode', 'tookTxt']) r[k] = t(k);
+        if (map.endorse != null) r.endorse = /true|yes|1/i.test(t('endorse')) ? 'Yes' : 'No';
+        /* "Request Time : … Action Time : …" in one cell (screen copy) */
+        const both = t('reqAt').match(/Request\s*Time\s*:?\s*(.*?)\s*(?:Action\s*Time\s*:?\s*(.*))?$/i);
+        r.reqAt = this.parse(both ? both[1] : g('reqAt')); r.actAt = this.parse(both && both[2] ? both[2] : g('actAt'));
+        const td = g('tookD'), tdN = typeof td === 'number' ? td : /^\d+(\.\d+)?$/.test(String(td).trim()) ? +td : null;
+        if (!r.actAt && r.reqAt && tdN != null) r.actAt = this.parse(new Date(new Date(r.reqAt).getTime() + tdN * 864e5));
+        if (/\s(PENDING|COMPLETED|UNDER PROCESSING)\s*$/i.test(r.fir)) { if (map.status == null) r.status = this.stN(r.fir); r.fir = r.fir.replace(/\s(PENDING|COMPLETED|UNDER PROCESSING)\s*$/i, ''); }
+        /* status: from a status column, else from the Samanvaya fields – completed by an officer = Completed, some action time = Under Processing, nothing yet = Pending */
+        if (map.status != null && t('status')) r.status = this.stN(t('status')); else if (!r.status) r.status = r.compBy || r.actCode ? 'Completed' : (tdN != null || r.actAt) ? 'Under Processing' : 'Pending';
+        if (!r.reqId && !r.fir && !r.brief) continue; r.fState = this.stateN(r.fState); r.tState = this.stateN(r.tState);
+        const o = r.reqId && idx.get(dir + '|' + r.reqId);
+        if (o) { Object.keys(r).forEach(k => { if (r[k] !== '' && r[k] != null) o[k] = r[k]; }); o.at = new Date().toISOString(); upd++; }
+        else { const x = Object.assign({ id: uid(), at: new Date().toISOString() }, r); L.push(x); if (r.reqId) idx.set(dir + '|' + r.reqId, x); add++; } }
+    }
+    if (!sheets) throw new Error('Could not find the Request Details header row in this file');
     if (!add && !upd) throw new Error('No request rows found under the header');
     await Off.put('jmis'); return { add, upd };
   }
