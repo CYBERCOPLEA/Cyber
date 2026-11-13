@@ -8,7 +8,7 @@ const DocEdit = {
     ['justifyLeft', '⯇', 'Align Left'], ['justifyCenter', '≡', 'Align Center'], ['justifyRight', '⯈', 'Align Right'], ['justifyFull', '☰', 'Justify'], ['|'],
     ['insertUnorderedList', '• List', 'Bullets'], ['insertOrderedList', '1. List', 'Numbering'], ['indent', '→', 'Indent'], ['outdent', '←', 'Outdent'], ['|'],
     ['h', 'H', 'Heading'], ['bigger', 'A+', 'Bigger Text'], ['smaller', 'A−', 'Smaller Text'], ['row', '+ Row', 'Add A Table Row Below (click in a table first)'], ['delrow', '− Row', 'Delete This Table Row'], ['removeFormat', '⌫', 'Clear Formatting'], ['undo', '↶', 'Undo'], ['redo', '↷', 'Redo']],
-  FONTS: ['Arial', 'Arial Narrow', 'Times New Roman', 'Calibri', 'Cambria', 'Georgia', 'Verdana', 'Tahoma', 'Mangal', 'Kokila', 'Nirmala UI'],
+  get FONTS() { return DocFont.all(); },
   CSS: '.de-tb{display:flex;flex-wrap:wrap;gap:4px;align-items:center;margin:0 0 8px;padding:6px;border:1px solid var(--border,#cbd5e1);border-radius:8px}.de-tb .btn.sm,.de-tb button{min-width:30px;justify-content:center}.de-sep{width:1px;height:22px;background:var(--border,#cbd5e1);margin:0 3px}.de-col{display:inline-flex;align-items:center;gap:3px;font-size:12px;flex-direction:row}.de-col input{width:26px;height:22px;padding:0;border:0;background:none}.de-tb select{max-width:130px;height:28px}',
   /* o: { root: () => element being edited, doc: document (default this page), changed(), reset(), only: [keys], noFont } */
   bar(tb, o = {}) {
@@ -50,7 +50,7 @@ const DocEdit = {
     const doc = d.createElement('div'); doc.id = 'deDoc'; [...d.body.childNodes].forEach(n => { if (!(n.nodeType === 1 && n.matches('script'))) doc.appendChild(n); }); d.body.appendChild(doc);
     d.head.insertAdjacentHTML('beforeend', `<style id="deCss">${this.CSS}#deBar{position:sticky;top:0;z-index:99;background:#f8fafc;border-bottom:1px solid #cbd5e1;padding:6px 8px;font:13px Arial,sans-serif;color:#111;margin:-8px -8px 10px}#deBar button,#deBar select{font:13px Arial,sans-serif;padding:4px 8px;border:1px solid #94a3b8;border-radius:6px;background:#fff;cursor:pointer}#deBar .pri{background:#2563eb;color:#fff;border-color:#2563eb}#deBar .on{background:#f59e0b;color:#111}#deDoc[contenteditable=true]{outline:2px dashed #3b82f6;outline-offset:4px}#deDoc .np{display:none!important}@media print{#deBar{display:none!important}#deDoc{outline:0!important}}</style>`);
     const bar = d.createElement('div'); bar.id = 'deBar'; bar.className = 'np'; bar.contentEditable = 'false';
-    bar.innerHTML = `<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center"><button id="deEd" title="Change any text, header or table before printing / saving">✏ Edit</button><button class="pri" id="dePr">🖨 Print / Save as PDF</button><button id="deW">📘 Word</button><button id="deH">🌐 HTML</button><span style="opacity:.7">Edits made here go to Print, Word and HTML.</span></div><div id="deTb" style="display:none;margin-top:6px"></div>`;
+    bar.innerHTML = `<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center"><button id="deEd" title="Change any text, header or table before printing / saving">✏ Edit</button><button class="pri" id="dePr">🖨 Print</button><button id="deP">📕 PDF</button><button id="deW">📘 Word</button><button id="deH">🌐 HTML</button><button id="deX">📗 Excel</button><button id="deI">🖼 Image</button><span style="opacity:.7">👁 Preview · edits made here go to every format.</span></div><div id="deTb" style="display:none;margin-top:6px"></div>`;
     d.body.insertBefore(bar, doc);
     this.bar(d.getElementById('deTb'), { doc: d, root: () => doc });
     const ed = on => { doc.contentEditable = on ? 'true' : 'false'; d.getElementById('deTb').style.display = on ? '' : 'none'; const b = d.getElementById('deEd'); b.className = on ? 'on' : ''; b.textContent = on ? '✔ Done Editing' : '✏ Edit'; if (on) doc.focus(); };
@@ -60,6 +60,9 @@ const DocEdit = {
     const name = () => (d.title || 'document').replace(/[^\w\- ]+/g, ' ').trim().replace(/\s+/g, '_').slice(0, 80) || 'document';
     d.getElementById('deW').onclick = () => UI.download(name() + '.doc', out().replace('<html', '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"'), 'application/msword');
     d.getElementById('deH').onclick = () => UI.download(name() + '.html', out(), 'text/html');
+    d.getElementById('deX').onclick = () => { ed(false); ExportAll.excel(doc, d.title || 'report'); };
+    d.getElementById('deI').onclick = () => { ed(false); ExportAll.image(d, doc, d.title || 'report'); };
+    d.getElementById('deP').onclick = () => { ed(false); ExportAll.pdfOf(d, doc, d.title || 'report'); };
   }
 };
 

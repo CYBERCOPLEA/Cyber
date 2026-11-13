@@ -173,7 +173,7 @@ const Arrest = {
     if ($('#arNm', el)) $('#arNm', el).onclick = async () => { r.noticeDate = $('#arNd', el).value || today(); if (['wanted', 'abscond'].includes(r.status) || !r.status) r.status = 'notice'; r.upd = new Date().toISOString(); r.notice = r.notice || {}; r.notice[kind] = ta.value; await Off.put('accused'); await this.caseFlags(r); UI.toast('✅ Notice 35(3) marked served on ' + this.dmy(r.noticeDate)); redraw(); };
   },
   /* ---------- Criminal Dossier ---------- */
-  FONTS: ['Arial', 'Arial Narrow', 'Times New Roman', 'Calibri', 'Cambria', 'Georgia', 'Verdana', 'Tahoma', 'Bookman Old Style', 'Garamond', 'Century Gothic', 'Courier New', 'Mangal', 'Nirmala UI', 'Kokila', 'Aparajita', 'Utsaah', 'Noto Sans Devanagari'],
+  get FONTS() { return DocFont.all(); },
   async dossierHtml(r) {
     const cf = await Off.cfg(), row = (l, v) => v ? `<tr><th>${esc(l)}</th><td>${esc(String(v)).replace(/\n/g, '<br>')}</td></tr>` : '', sec = (t, rows) => rows.replace(/\s/g, '') ? `<h3>${t}</h3><table class="dz-t">${rows}</table>` : '';
     const c = this.caseOf(r);

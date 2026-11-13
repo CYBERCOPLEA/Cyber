@@ -159,7 +159,7 @@ const Formats = {
       D.push({ id: uid() + '', name: nm, tpl: F ? F.it.id : '', tplName: F ? F.cat[1] + ' · ' + F.it.name : '', text: out.value, created: new Date().toISOString(), updated: new Date().toISOString() }); saveCase(); UI.toast('Saved in Case File › Notice Drafts'); };
     $('#fmTask', el).onclick = () => { const F = cur(); S.data.tasks.push({ id: uid(), text: 'Follow up: ' + (F ? F.it.name : 'notice') + (NoticeKit.nameOf(to.value) ? ' – ' + NoticeKit.nameOf(to.value) : ''), due: new Date(Date.now() + 7 * 864e5).toISOString().slice(0, 10), done: false }); saveCase(); UI.toast('Task added (due in 7 days)'); };
     $('#fmEdit', el).onclick = () => U.id && this.editRaw(U.id, () => this.lib(el, lib));
-    $('#fmReset', el).onclick = () => { if (!UI.confirm('Go back to the original wording of this format?')) return; delete s.text[U.id]; saveMeta(); this.lib(el, lib); };
+    $('#fmReset', el).onclick = () => { if (!UI.confirm('Go back to the original wording of this format?')) return; const F = cur(); delete s.text[F ? F.it.key || F.it.id : U.id]; saveMeta(); this.lib(el, lib); };
     NoticeKit.tools($('#fmBtns', el), out, { vars: () => { const nm = NoticeKit.nameOf(to.value); return { bank: nm, platform: nm, company: nm, ref: $('#fmRef', el).value }; } });
     drawCats(); pick();
   },
@@ -172,14 +172,14 @@ const Formats = {
       <textarea id="fmRaw" class="nk-ta" style="min-height:380px">${esc(F.it.text)}</textarea>`,
       [{ label: 'Cancel', onClick: UI.closeModal }, { label: '💾 Save format', cls: 'primary', onClick: () => {
         const t = $('#fmRaw', b).value, n = $('#fmN', b).value.trim() || F.it.name;
-        if (F.it.built) { if (t !== F.it.orig) s.text[id] = t; else delete s.text[id]; s.name[id] = n; } else { const x = s.extra.find(y => y.id === id); x.text = t; x.name = n; }
+        if (F.it.built) { const k = F.it.key || id; if (t !== F.it.orig) s.text[k] = t; else delete s.text[k]; s.name[k] = n; } else { const x = s.extra.find(y => y.id === id); x.text = t; x.name = n; }
         saveMeta(); UI.closeModal(); UI.toast('Format saved'); done && done(); } }]);
     const ta = $('#fmRaw', b);
     $$('[data-v]', b).forEach(c => c.onclick = () => { const v = '{{' + c.dataset.v + '}}', p = ta.selectionStart; ta.value = ta.value.slice(0, p) + v + ta.value.slice(ta.selectionEnd); ta.focus(); ta.selectionStart = ta.selectionEnd = p + v.length; });
   },
   // rename / reorder / delete formats in one category (same tools as other lists)
   editList(lib, cat, done) {
-    const s = this.st(), c = this.cats(lib).find(x => x[0] === cat); let L = this.items(lib, cat).map(x => ({ id: x.id, name: x.name, built: x.built }));
+    const s = this.st(), c = this.cats(lib).find(x => x[0] === cat); let L = this.items(lib, cat).map(x => ({ id: x.id, key: x.key, name: x.name, built: x.built }));
     const ov = document.createElement('div'); ov.className = 'el-ov';
     ov.innerHTML = `<div class="el-box"><div class="el-hd"><b>✏ ${esc(c[1])} – formats</b><button class="btn sm" data-x>✕</button></div>
       <div class="small muted">Drag ⠿ or ▲ ▼ to reorder · type to rename · 🗑 to delete</div><div class="el-rows"></div>
@@ -194,7 +194,7 @@ const Formats = {
       else if (t.dataset.del !== undefined) { take(); const i = +t.dataset.del; if (confirm(`Delete "${L[i].name}"?`)) { gone.push(L[i]); L.splice(i, 1); draw(); } }
       else if (t.hasAttribute('data-rest')) { s.hide = s.hide.filter(id => !c[4].some(x => x[0] === id)); saveMeta(); close(); done && done(); }
       else if (t.hasAttribute('data-save')) { take();
-        L.forEach(x => { if (x.built) s.name[x.id] = x.name; else { const y = s.extra.find(z => z.id === x.id); if (y) y.name = x.name; } });
+        L.forEach(x => { if (x.built) s.name[x.key || x.id] = x.name; else { const y = s.extra.find(z => z.id === x.id); if (y) y.name = x.name; } });
         gone.forEach(x => { if (x.built) s.hide.push(x.id); else s.extra = s.extra.filter(z => z.id !== x.id); });
         s.order[lib + ':' + cat] = L.map(x => x.id); saveMeta(); close(); UI.toast('List saved'); done && done(); }
       else if (t.hasAttribute('data-x')) close(); });

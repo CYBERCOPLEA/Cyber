@@ -2232,3 +2232,4 @@ html.ed-user .nav-bottom,html.ed-user #sidebar [data-page="settings"]{display:no
 .jm-dt{display:flex;gap:6px;white-space:nowrap;font-size:12.5px}.jm-dt span{min-width:50px;opacity:.7}
 .jm-tip{position:fixed;z-index:9999;max-width:520px;background:#0b1220;color:#e5e7eb;border:1px solid #334155;border-radius:10px;padding:8px 10px;box-shadow:0 10px 30px rgba(0,0,0,.45);font-size:12.5px;pointer-events:none}.jm-tip table{border-collapse:collapse;margin:6px 0}.jm-tip td{padding:2px 6px;border-bottom:1px solid #1f2937;white-space:nowrap}
 .jm-sec{margin:10px 0 4px;font-weight:700;color:#60a5fa}.jm-w{grid-column:span 1}.jm-w textarea{width:100%}
+.df-bar .df-lg{display:flex;gap:0}.df-bar .df-lg .btn{border-radius:0;text-transform:none;letter-spacing:0}.df-bar .df-lg .btn:first-child{border-radius:8px 0 0 8px}.df-bar .df-lg .btn:last-child{border-radius:0 8px 8px 0}.df-bar .df-lg .btn.on{background:var(--accent,#2563eb);color:#fff;border-color:var(--accent,#2563eb)}

@@ -5,24 +5,34 @@
 function juris(d) { d = String(d || 'Ghaziabad').trim(); return /commissionerate|district|कमिश्नरेट|जनपद|जिला/i.test(d) ? d : 'Police Commissionerate ' + d; }
 /* Document font – one choice of font type, size and line spacing used by every notice, draft, press note, duty chart and report (screen view, Print / PDF and Word) */
 const DocFont = {
-  FONTS: [['English', ['Arial Narrow', 'Arial', 'Times New Roman', 'Calibri', 'Cambria', 'Georgia', 'Verdana', 'Tahoma', 'Bookman Old Style', 'Garamond', 'Century Gothic', 'Courier New']],
-    ['हिंदी / Hindi', ['Mangal', 'Nirmala UI', 'Kokila', 'Aparajita', 'Utsaah', 'Noto Sans Devanagari']]],
+  FONTS: [['English', ['Arial Narrow', 'Arial', 'Abadi', 'Times New Roman', 'Bookman Old Style', 'Calibri', 'Cambria', 'Georgia', 'Garamond', 'Century Gothic', 'Verdana', 'Tahoma', 'Courier New']],
+    ['हिंदी / Hindi', ['Nirmala UI', 'Utsaah', 'Kokila', 'Mangal', 'Aparajita', 'Sanskrit Text', 'Noto Sans Devanagari']]],
+  LANG: { en: ['English', 'Arial Narrow'], hi: ['हिन्दी', 'Nirmala UI'] },
+  all() { return this.FONTS.flatMap(([, L]) => L); },
   SIZES: [9, 10, 10.5, 11, 12, 13, 14, 16, 18, 20],
   LH: [['1', 'Single'], ['1.15', '1.15'], ['1.35', 'Normal'], ['1.5', '1.5'], ['2', 'Double']],
-  DEF: { f: 'Arial Narrow', s: 11, lh: 1.35 },
-  get() { const o = Object.assign({}, this.DEF, (typeof S !== 'undefined' && S.settings && S.settings.docFont) || {}); o.s = +o.s || 11; o.lh = +o.lh || 1.35; return o; },
+  DEF: { f: 'Arial Narrow', s: 11, lh: 1.35, lang: 'en' },
+  get() { const o = Object.assign({}, this.DEF, (typeof S !== 'undefined' && S.settings && S.settings.docFont) || {}); o.s = +o.s || 11; o.lh = +o.lh || 1.35; if (o.lang !== 'hi') o.lang = 'en'; return o; },
   css(f) { f = f || this.get().f; return `'${String(f).replace(/'/g, '')}', 'Nirmala UI', Mangal, 'Noto Sans Devanagari', Arial, sans-serif`; },
   apply() { const o = this.get(), r = document.documentElement.style; r.setProperty('--doc-font', this.css(o.f)); r.setProperty('--doc-size', o.s + 'pt'); r.setProperty('--doc-lh', o.lh); },
-  async set(k, v) { S.settings.docFont = Object.assign(this.get(), { [k]: k === 'f' ? v : +v }); this.apply(); await saveMeta(); $$('.df-bar').forEach(b => this.sync(b)); },
-  sync(b) { const o = this.get(); $('.df-f', b).value = o.f; $('.df-s', b).value = String(o.s); $('.df-l', b).value = String(o.lh); },
+  async set(k, v) { S.settings.docFont = Object.assign(this.get(), { [k]: k === 'f' || k === 'lang' ? v : +v }); this.apply(); await saveMeta(); $$('.df-bar').forEach(b => this.sync(b)); },
+  sync(b) { const o = this.get(); $('.df-f', b).value = o.f; $('.df-s', b).value = String(o.s); $('.df-l', b).value = String(o.lh); $$('[data-lg]', b).forEach(x => x.classList.toggle('on', x.dataset.lg === o.lang)); },
   bar(cls = '') { const o = this.get();
     return `<div class="df-bar ${cls}" title="Font used in notices, drafts, press notes, duty chart and reports – on screen, in Print / PDF and in Word"><span class="df-ic">🔤</span>
-      <label><span>Font Type</span><select class="df-f">${this.FONTS.map(([g, L]) => `<optgroup label="${g}">${L.map(f => `<option value="${f}" style="font-family:'${f}'">${f}</option>`).join('')}</optgroup>`).join('')}${this.FONTS.some(([, L]) => L.includes(o.f)) ? '' : `<option>${esc(o.f)}</option>`}</select></label>
+      <label title="Language of letter formats and notices – English or Hindi"><span>Language</span><span class="df-lg">${Object.entries(this.LANG).map(([k, [n]]) => `<button type="button" class="btn sm" data-lg="${k}">${n}</button>`).join('')}</span></label>
+      <label><span>Font Type</span><select class="df-f">${(o.lang === 'hi' ? this.FONTS.slice().reverse() : this.FONTS).map(([g, L]) => `<optgroup label="${g}">${L.map(f => `<option value="${f}" style="font-family:'${f}'">${f}</option>`).join('')}</optgroup>`).join('')}${this.FONTS.some(([, L]) => L.includes(o.f)) ? '' : `<option>${esc(o.f)}</option>`}</select></label>
       <label><span>Font Size</span><select class="df-s">${this.SIZES.map(s => `<option value="${s}">${s} pt</option>`).join('')}</select></label>
       <label><span>Spacing</span><select class="df-l">${this.LH.map(([v, l]) => `<option value="${v}">${l}</option>`).join('')}</select></label>
       <button class="btn sm df-r" title="Back to Arial Narrow 11 pt">↺</button><span class="df-pv">Aa अआ 123</span></div>`; },
+  // English / Hindi: letter formats switch to that language; the font moves to that language's group if needed
+  async setLang(lg) { const o = this.get(); if (o.lang === lg) return; const grp = this.FONTS[lg === 'hi' ? 1 : 0][1];
+    S.settings.docFont = Object.assign(o, { lang: lg }, grp.includes(o.f) ? {} : { f: this.LANG[lg][1] }); this.apply(); await saveMeta();
+    UI.toast(lg === 'hi' ? 'भाषा: हिन्दी – पत्र प्रारूप हिन्दी में, फ़ॉन्ट ' + S.settings.docFont.f : 'Language: English – letter formats in English, font ' + S.settings.docFont.f);
+    const inModal = [...document.querySelectorAll('.df-bar')].some(x => !document.getElementById('main') || !document.getElementById('main').contains(x));
+    $$('.df-bar').forEach(x => this.sync(x)); if (!inModal && typeof render === 'function') render(); },
   bind(b) { if (!b) return; this.sync(b); $('.df-f', b).onchange = e => this.set('f', e.target.value); $('.df-s', b).onchange = e => this.set('s', e.target.value); $('.df-l', b).onchange = e => this.set('lh', e.target.value);
-    $('.df-r', b).onclick = async () => { S.settings.docFont = Object.assign({}, this.DEF); this.apply(); await saveMeta(); $$('.df-bar').forEach(x => this.sync(x)); UI.toast('Font reset to Arial Narrow 11 pt'); }; }
+    $$('[data-lg]', b).forEach(x => x.onclick = () => this.setLang(x.dataset.lg));
+    $('.df-r', b).onclick = async () => { S.settings.docFont = Object.assign({}, this.DEF, { lang: this.get().lang }); this.apply(); await saveMeta(); $$('.df-bar').forEach(x => this.sync(x)); UI.toast('Font reset to Arial Narrow 11 pt'); }; }
 };
 const NoticeKit = {
   get FONT() { return DocFont.css(); },

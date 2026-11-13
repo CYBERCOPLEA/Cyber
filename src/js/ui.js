@@ -58,7 +58,7 @@ function Table(container, opt) {
         <span class="pill-group"><button data-r="az" class="${st.dir === 1 ? 'active' : ''}" title="Ascending">A → Z</button><button data-r="za" class="${st.dir === -1 ? 'active' : ''}" title="Descending">Z → A</button></span>
         <span class="spacer"></span>
         <span class="muted small">${fmtNum(rows.length)} ${rows.length === 1 ? 'row' : 'rows'}</span>
-        <button class="btn sm" data-r="csv">⬇ CSV</button>
+        <button class="btn sm" data-r="pv" title="See the whole table – then save as HTML, Word, PDF, Excel, Image or print">👁 Preview</button><button class="btn sm" data-r="csv">⬇ CSV</button>
         ${opt.tools || ''}
       </div>
       <div class="tbl-wrap" style="${opt.maxHeight ? 'max-height:' + opt.maxHeight : ''}"><table class="tbl"><thead><tr>${cols.map(c => `<th class="${c.num ? 'num' : ''}" data-k="${c.key}">${esc(c.label)}${st.sortKey === c.key ? (st.dir === 1 ? ' ▲' : ' ▼') : ''}</th>`).join('')}</tr></thead>
@@ -74,6 +74,7 @@ function Table(container, opt) {
     $('[data-r=sk]', container).onchange = e => { st.sortKey = e.target.value || null; render(); };
     $('[data-r=az]', container).onclick = () => { st.dir = 1; if (!st.sortKey) st.sortKey = cols[0].key; render(); };
     $('[data-r=za]', container).onclick = () => { st.dir = -1; if (!st.sortKey) st.sortKey = cols[0].key; render(); };
+    $('[data-r=pv]', container).onclick = () => ExportAll.table(opt.exportName || ExportAll.title(), cols, rowsNow());
     $('[data-r=csv]', container).onclick = () => UI.download((opt.exportName || 'export') + '.csv', UI.toCSV(cols.filter(c => !c.noexport), rowsNow()), 'text/csv');
     const pv = $('[data-r=prev]', container), nx = $('[data-r=next]', container);
     if (pv) pv.onclick = () => { st.page--; render(); }; if (nx) nx.onclick = () => { st.page++; render(); };

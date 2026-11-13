@@ -102,6 +102,10 @@ body{margin:0;background:${this.bg()};font-family:Segoe UI,Arial,sans-serif;colo
     try {
       if (kind === 'svg') return UI.download(this.file(o.name, 'svg'), o.str, 'image/svg+xml');
       if (kind === 'html') return UI.download(this.file(o.name, 'html'), this.html(o), 'text/html');
+      if (kind === 'xls') { const live = el.querySelector('table') ? el : null; return live ? ExportAll.excel(live, o.name) : UI.toast('No table on this tab – use Image, PDF or Word'); }
+      if (kind === 'pv' || kind === 'print' || kind === 'doc') { const c = await this.canvas(o, 8000), body = `<img src="${c.toDataURL('image/png')}" style="max-width:100%">`;
+        if (kind === 'doc') return ExportAll.word(`<html><head><meta charset="utf-8"><title>${o.name}</title></head><body><h2>${ExportAll.esc(o.name)}</h2>${body}</body></html>`, o.name);
+        return ExportAll.open(o.name, body, { print: kind === 'print' }); }
       const c = await this.canvas(o, kind === 'pdf' ? 5000 : 8000);
       if (kind === 'png') return c.toBlob(b => UI.download(this.file(o.name, 'png'), b));
       UI.download(this.file(o.name, 'pdf'), await this.pdf(c));
@@ -117,7 +121,7 @@ body{margin:0;background:${this.bg()};font-family:Segoe UI,Arial,sans-serif;colo
     const host = $('#main .ph-actions') || $('#main .page-title'); if (!host || host.querySelector('.hx-wrap')) return;
     const w = document.createElement('div'); w.className = 'hx-wrap';
     w.innerHTML = `<button type="button" class="hx-btn" title="Save this page or chart as a file"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg><span>Export</span><i>▾</i></button>
-      <div class="hx-menu hidden"><div class="hx-h">Save as</div>${[['html', '🌐', 'HTML', 'opens in any browser', '#3b82f6'], ['pdf', '📄', 'PDF', 'for print / case file', '#ef4444'], ['svg', '✏️', 'SVG', 'sharp at any zoom', '#10b981'], ['png', '🖼', 'PNG', 'picture', '#f97316']].map(([k, ic, a, b, c]) => `<button type="button" data-hx="${k}" style="--xc:${c}"><span class="hx-ic">${ic}</span><span><b>.${k}</b><small>${b}</small></span></button>`).join('')}
+      <div class="hx-menu hidden"><div class="hx-h">Save as</div>${[['pv', '👁', 'Preview', 'see it, edit, then save', '#8b5cf6'], ['html', '🌐', '.html', 'opens in any browser', '#3b82f6'], ['doc', '📘', 'Word', 'edit in MS Word', '#2563eb'], ['pdf', '📄', '.pdf', 'for print / case file', '#ef4444'], ['xls', '📗', 'Excel', 'tables on this tab', '#16a34a'], ['png', '🖼', 'Image', 'picture (.png)', '#f97316'], ['svg', '✏️', '.svg', 'sharp at any zoom', '#10b981'], ['print', '🖨', 'Print', 'straight to printer', '#64748b']].map(([k, ic, a, b, c]) => `<button type="button" data-hx="${k}" style="--xc:${c}"><span class="hx-ic">${ic}</span><span><b>${a}</b><small>${b}</small></span></button>`).join('')}
       <div class="hx-f">Chart on this tab, or the whole tab · made on this computer</div></div>`;
     const m = w.querySelector('.hx-menu');
     w.querySelector('.hx-btn').onclick = ev => { ev.stopPropagation(); m.classList.toggle('hidden'); };

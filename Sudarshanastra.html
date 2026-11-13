@@ -2240,6 +2240,7 @@ html.ed-user .nav-bottom,html.ed-user #sidebar [data-page="settings"]{display:no
 .jm-dt{display:flex;gap:6px;white-space:nowrap;font-size:12.5px}.jm-dt span{min-width:50px;opacity:.7}
 .jm-tip{position:fixed;z-index:9999;max-width:520px;background:#0b1220;color:#e5e7eb;border:1px solid #334155;border-radius:10px;padding:8px 10px;box-shadow:0 10px 30px rgba(0,0,0,.45);font-size:12.5px;pointer-events:none}.jm-tip table{border-collapse:collapse;margin:6px 0}.jm-tip td{padding:2px 6px;border-bottom:1px solid #1f2937;white-space:nowrap}
 .jm-sec{margin:10px 0 4px;font-weight:700;color:#60a5fa}.jm-w{grid-column:span 1}.jm-w textarea{width:100%}
+.df-bar .df-lg{display:flex;gap:0}.df-bar .df-lg .btn{border-radius:0;text-transform:none;letter-spacing:0}.df-bar .df-lg .btn:first-child{border-radius:8px 0 0 8px}.df-bar .df-lg .btn:last-child{border-radius:0 8px 8px 0}.df-bar .df-lg .btn.on{background:var(--accent,#2563eb);color:#fff;border-color:var(--accent,#2563eb)}
 
 </style>
 </head>
@@ -2288,7 +2289,7 @@ html.ed-user .nav-bottom,html.ed-user #sidebar [data-page="settings"]{display:no
         <div class="hp-feat" style="--fc:#06b6d4"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><div><b>Analytics</b><p>The same mobile, account, IP or e-mail across complaints, banks and platforms.</p></div></div>
         <div class="hp-feat" style="--fc:#eab308"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h5"/></svg></span><div><b>Case File &amp; Notices</b><p>Case reports, notices to banks and platforms, and CSV / PDF exports.</p></div></div>
     </section>
-    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-13 11:52 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
+    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-13 13:07 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
   </div>
 
   <div class="lg-wrap" id="lgWrap" aria-hidden="true">
@@ -3292,7 +3293,7 @@ function Table(container, opt) {
         <span class="pill-group"><button data-r="az" class="${st.dir === 1 ? 'active' : ''}" title="Ascending">A → Z</button><button data-r="za" class="${st.dir === -1 ? 'active' : ''}" title="Descending">Z → A</button></span>
         <span class="spacer"></span>
         <span class="muted small">${fmtNum(rows.length)} ${rows.length === 1 ? 'row' : 'rows'}</span>
-        <button class="btn sm" data-r="csv">⬇ CSV</button>
+        <button class="btn sm" data-r="pv" title="See the whole table – then save as HTML, Word, PDF, Excel, Image or print">👁 Preview</button><button class="btn sm" data-r="csv">⬇ CSV</button>
         ${opt.tools || ''}
       </div>
       <div class="tbl-wrap" style="${opt.maxHeight ? 'max-height:' + opt.maxHeight : ''}"><table class="tbl"><thead><tr>${cols.map(c => `<th class="${c.num ? 'num' : ''}" data-k="${c.key}">${esc(c.label)}${st.sortKey === c.key ? (st.dir === 1 ? ' ▲' : ' ▼') : ''}</th>`).join('')}</tr></thead>
@@ -3308,6 +3309,7 @@ function Table(container, opt) {
     $('[data-r=sk]', container).onchange = e => { st.sortKey = e.target.value || null; render(); };
     $('[data-r=az]', container).onclick = () => { st.dir = 1; if (!st.sortKey) st.sortKey = cols[0].key; render(); };
     $('[data-r=za]', container).onclick = () => { st.dir = -1; if (!st.sortKey) st.sortKey = cols[0].key; render(); };
+    $('[data-r=pv]', container).onclick = () => ExportAll.table(opt.exportName || ExportAll.title(), cols, rowsNow());
     $('[data-r=csv]', container).onclick = () => UI.download((opt.exportName || 'export') + '.csv', UI.toCSV(cols.filter(c => !c.noexport), rowsNow()), 'text/csv');
     const pv = $('[data-r=prev]', container), nx = $('[data-r=next]', container);
     if (pv) pv.onclick = () => { st.page--; render(); }; if (nx) nx.onclick = () => { st.page++; render(); };
@@ -8377,6 +8379,10 @@ body{margin:0;background:${this.bg()};font-family:Segoe UI,Arial,sans-serif;colo
     try {
       if (kind === 'svg') return UI.download(this.file(o.name, 'svg'), o.str, 'image/svg+xml');
       if (kind === 'html') return UI.download(this.file(o.name, 'html'), this.html(o), 'text/html');
+      if (kind === 'xls') { const live = el.querySelector('table') ? el : null; return live ? ExportAll.excel(live, o.name) : UI.toast('No table on this tab – use Image, PDF or Word'); }
+      if (kind === 'pv' || kind === 'print' || kind === 'doc') { const c = await this.canvas(o, 8000), body = `<img src="${c.toDataURL('image/png')}" style="max-width:100%">`;
+        if (kind === 'doc') return ExportAll.word(`<html><head><meta charset="utf-8"><title>${o.name}</title></head><body><h2>${ExportAll.esc(o.name)}</h2>${body}</body></html>`, o.name);
+        return ExportAll.open(o.name, body, { print: kind === 'print' }); }
       const c = await this.canvas(o, kind === 'pdf' ? 5000 : 8000);
       if (kind === 'png') return c.toBlob(b => UI.download(this.file(o.name, 'png'), b));
       UI.download(this.file(o.name, 'pdf'), await this.pdf(c));
@@ -8392,7 +8398,7 @@ body{margin:0;background:${this.bg()};font-family:Segoe UI,Arial,sans-serif;colo
     const host = $('#main .ph-actions') || $('#main .page-title'); if (!host || host.querySelector('.hx-wrap')) return;
     const w = document.createElement('div'); w.className = 'hx-wrap';
     w.innerHTML = `<button type="button" class="hx-btn" title="Save this page or chart as a file"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg><span>Export</span><i>▾</i></button>
-      <div class="hx-menu hidden"><div class="hx-h">Save as</div>${[['html', '🌐', 'HTML', 'opens in any browser', '#3b82f6'], ['pdf', '📄', 'PDF', 'for print / case file', '#ef4444'], ['svg', '✏️', 'SVG', 'sharp at any zoom', '#10b981'], ['png', '🖼', 'PNG', 'picture', '#f97316']].map(([k, ic, a, b, c]) => `<button type="button" data-hx="${k}" style="--xc:${c}"><span class="hx-ic">${ic}</span><span><b>.${k}</b><small>${b}</small></span></button>`).join('')}
+      <div class="hx-menu hidden"><div class="hx-h">Save as</div>${[['pv', '👁', 'Preview', 'see it, edit, then save', '#8b5cf6'], ['html', '🌐', '.html', 'opens in any browser', '#3b82f6'], ['doc', '📘', 'Word', 'edit in MS Word', '#2563eb'], ['pdf', '📄', '.pdf', 'for print / case file', '#ef4444'], ['xls', '📗', 'Excel', 'tables on this tab', '#16a34a'], ['png', '🖼', 'Image', 'picture (.png)', '#f97316'], ['svg', '✏️', '.svg', 'sharp at any zoom', '#10b981'], ['print', '🖨', 'Print', 'straight to printer', '#64748b']].map(([k, ic, a, b, c]) => `<button type="button" data-hx="${k}" style="--xc:${c}"><span class="hx-ic">${ic}</span><span><b>${a}</b><small>${b}</small></span></button>`).join('')}
       <div class="hx-f">Chart on this tab, or the whole tab · made on this computer</div></div>`;
     const m = w.querySelector('.hx-menu');
     w.querySelector('.hx-btn').onclick = ev => { ev.stopPropagation(); m.classList.toggle('hidden'); };
@@ -13929,24 +13935,34 @@ const EditList = {
 function juris(d) { d = String(d || 'Ghaziabad').trim(); return /commissionerate|district|कमिश्नरेट|जनपद|जिला/i.test(d) ? d : 'Police Commissionerate ' + d; }
 /* Document font – one choice of font type, size and line spacing used by every notice, draft, press note, duty chart and report (screen view, Print / PDF and Word) */
 const DocFont = {
-  FONTS: [['English', ['Arial Narrow', 'Arial', 'Times New Roman', 'Calibri', 'Cambria', 'Georgia', 'Verdana', 'Tahoma', 'Bookman Old Style', 'Garamond', 'Century Gothic', 'Courier New']],
-    ['हिंदी / Hindi', ['Mangal', 'Nirmala UI', 'Kokila', 'Aparajita', 'Utsaah', 'Noto Sans Devanagari']]],
+  FONTS: [['English', ['Arial Narrow', 'Arial', 'Abadi', 'Times New Roman', 'Bookman Old Style', 'Calibri', 'Cambria', 'Georgia', 'Garamond', 'Century Gothic', 'Verdana', 'Tahoma', 'Courier New']],
+    ['हिंदी / Hindi', ['Nirmala UI', 'Utsaah', 'Kokila', 'Mangal', 'Aparajita', 'Sanskrit Text', 'Noto Sans Devanagari']]],
+  LANG: { en: ['English', 'Arial Narrow'], hi: ['हिन्दी', 'Nirmala UI'] },
+  all() { return this.FONTS.flatMap(([, L]) => L); },
   SIZES: [9, 10, 10.5, 11, 12, 13, 14, 16, 18, 20],
   LH: [['1', 'Single'], ['1.15', '1.15'], ['1.35', 'Normal'], ['1.5', '1.5'], ['2', 'Double']],
-  DEF: { f: 'Arial Narrow', s: 11, lh: 1.35 },
-  get() { const o = Object.assign({}, this.DEF, (typeof S !== 'undefined' && S.settings && S.settings.docFont) || {}); o.s = +o.s || 11; o.lh = +o.lh || 1.35; return o; },
+  DEF: { f: 'Arial Narrow', s: 11, lh: 1.35, lang: 'en' },
+  get() { const o = Object.assign({}, this.DEF, (typeof S !== 'undefined' && S.settings && S.settings.docFont) || {}); o.s = +o.s || 11; o.lh = +o.lh || 1.35; if (o.lang !== 'hi') o.lang = 'en'; return o; },
   css(f) { f = f || this.get().f; return `'${String(f).replace(/'/g, '')}', 'Nirmala UI', Mangal, 'Noto Sans Devanagari', Arial, sans-serif`; },
   apply() { const o = this.get(), r = document.documentElement.style; r.setProperty('--doc-font', this.css(o.f)); r.setProperty('--doc-size', o.s + 'pt'); r.setProperty('--doc-lh', o.lh); },
-  async set(k, v) { S.settings.docFont = Object.assign(this.get(), { [k]: k === 'f' ? v : +v }); this.apply(); await saveMeta(); $$('.df-bar').forEach(b => this.sync(b)); },
-  sync(b) { const o = this.get(); $('.df-f', b).value = o.f; $('.df-s', b).value = String(o.s); $('.df-l', b).value = String(o.lh); },
+  async set(k, v) { S.settings.docFont = Object.assign(this.get(), { [k]: k === 'f' || k === 'lang' ? v : +v }); this.apply(); await saveMeta(); $$('.df-bar').forEach(b => this.sync(b)); },
+  sync(b) { const o = this.get(); $('.df-f', b).value = o.f; $('.df-s', b).value = String(o.s); $('.df-l', b).value = String(o.lh); $$('[data-lg]', b).forEach(x => x.classList.toggle('on', x.dataset.lg === o.lang)); },
   bar(cls = '') { const o = this.get();
     return `<div class="df-bar ${cls}" title="Font used in notices, drafts, press notes, duty chart and reports – on screen, in Print / PDF and in Word"><span class="df-ic">🔤</span>
-      <label><span>Font Type</span><select class="df-f">${this.FONTS.map(([g, L]) => `<optgroup label="${g}">${L.map(f => `<option value="${f}" style="font-family:'${f}'">${f}</option>`).join('')}</optgroup>`).join('')}${this.FONTS.some(([, L]) => L.includes(o.f)) ? '' : `<option>${esc(o.f)}</option>`}</select></label>
+      <label title="Language of letter formats and notices – English or Hindi"><span>Language</span><span class="df-lg">${Object.entries(this.LANG).map(([k, [n]]) => `<button type="button" class="btn sm" data-lg="${k}">${n}</button>`).join('')}</span></label>
+      <label><span>Font Type</span><select class="df-f">${(o.lang === 'hi' ? this.FONTS.slice().reverse() : this.FONTS).map(([g, L]) => `<optgroup label="${g}">${L.map(f => `<option value="${f}" style="font-family:'${f}'">${f}</option>`).join('')}</optgroup>`).join('')}${this.FONTS.some(([, L]) => L.includes(o.f)) ? '' : `<option>${esc(o.f)}</option>`}</select></label>
       <label><span>Font Size</span><select class="df-s">${this.SIZES.map(s => `<option value="${s}">${s} pt</option>`).join('')}</select></label>
       <label><span>Spacing</span><select class="df-l">${this.LH.map(([v, l]) => `<option value="${v}">${l}</option>`).join('')}</select></label>
       <button class="btn sm df-r" title="Back to Arial Narrow 11 pt">↺</button><span class="df-pv">Aa अआ 123</span></div>`; },
+  // English / Hindi: letter formats switch to that language; the font moves to that language's group if needed
+  async setLang(lg) { const o = this.get(); if (o.lang === lg) return; const grp = this.FONTS[lg === 'hi' ? 1 : 0][1];
+    S.settings.docFont = Object.assign(o, { lang: lg }, grp.includes(o.f) ? {} : { f: this.LANG[lg][1] }); this.apply(); await saveMeta();
+    UI.toast(lg === 'hi' ? 'भाषा: हिन्दी – पत्र प्रारूप हिन्दी में, फ़ॉन्ट ' + S.settings.docFont.f : 'Language: English – letter formats in English, font ' + S.settings.docFont.f);
+    const inModal = [...document.querySelectorAll('.df-bar')].some(x => !document.getElementById('main') || !document.getElementById('main').contains(x));
+    $$('.df-bar').forEach(x => this.sync(x)); if (!inModal && typeof render === 'function') render(); },
   bind(b) { if (!b) return; this.sync(b); $('.df-f', b).onchange = e => this.set('f', e.target.value); $('.df-s', b).onchange = e => this.set('s', e.target.value); $('.df-l', b).onchange = e => this.set('lh', e.target.value);
-    $('.df-r', b).onclick = async () => { S.settings.docFont = Object.assign({}, this.DEF); this.apply(); await saveMeta(); $$('.df-bar').forEach(x => this.sync(x)); UI.toast('Font reset to Arial Narrow 11 pt'); }; }
+    $$('[data-lg]', b).forEach(x => x.onclick = () => this.setLang(x.dataset.lg));
+    $('.df-r', b).onclick = async () => { S.settings.docFont = Object.assign({}, this.DEF, { lang: this.get().lang }); this.apply(); await saveMeta(); $$('.df-bar').forEach(x => this.sync(x)); UI.toast('Font reset to Arial Narrow 11 pt'); }; }
 };
 const NoticeKit = {
   get FONT() { return DocFont.css(); },
@@ -15908,7 +15924,7 @@ const Formats = {
       D.push({ id: uid() + '', name: nm, tpl: F ? F.it.id : '', tplName: F ? F.cat[1] + ' · ' + F.it.name : '', text: out.value, created: new Date().toISOString(), updated: new Date().toISOString() }); saveCase(); UI.toast('Saved in Case File › Notice Drafts'); };
     $('#fmTask', el).onclick = () => { const F = cur(); S.data.tasks.push({ id: uid(), text: 'Follow up: ' + (F ? F.it.name : 'notice') + (NoticeKit.nameOf(to.value) ? ' – ' + NoticeKit.nameOf(to.value) : ''), due: new Date(Date.now() + 7 * 864e5).toISOString().slice(0, 10), done: false }); saveCase(); UI.toast('Task added (due in 7 days)'); };
     $('#fmEdit', el).onclick = () => U.id && this.editRaw(U.id, () => this.lib(el, lib));
-    $('#fmReset', el).onclick = () => { if (!UI.confirm('Go back to the original wording of this format?')) return; delete s.text[U.id]; saveMeta(); this.lib(el, lib); };
+    $('#fmReset', el).onclick = () => { if (!UI.confirm('Go back to the original wording of this format?')) return; const F = cur(); delete s.text[F ? F.it.key || F.it.id : U.id]; saveMeta(); this.lib(el, lib); };
     NoticeKit.tools($('#fmBtns', el), out, { vars: () => { const nm = NoticeKit.nameOf(to.value); return { bank: nm, platform: nm, company: nm, ref: $('#fmRef', el).value }; } });
     drawCats(); pick();
   },
@@ -15921,14 +15937,14 @@ const Formats = {
       <textarea id="fmRaw" class="nk-ta" style="min-height:380px">${esc(F.it.text)}</textarea>`,
       [{ label: 'Cancel', onClick: UI.closeModal }, { label: '💾 Save format', cls: 'primary', onClick: () => {
         const t = $('#fmRaw', b).value, n = $('#fmN', b).value.trim() || F.it.name;
-        if (F.it.built) { if (t !== F.it.orig) s.text[id] = t; else delete s.text[id]; s.name[id] = n; } else { const x = s.extra.find(y => y.id === id); x.text = t; x.name = n; }
+        if (F.it.built) { const k = F.it.key || id; if (t !== F.it.orig) s.text[k] = t; else delete s.text[k]; s.name[k] = n; } else { const x = s.extra.find(y => y.id === id); x.text = t; x.name = n; }
         saveMeta(); UI.closeModal(); UI.toast('Format saved'); done && done(); } }]);
     const ta = $('#fmRaw', b);
     $$('[data-v]', b).forEach(c => c.onclick = () => { const v = '{{' + c.dataset.v + '}}', p = ta.selectionStart; ta.value = ta.value.slice(0, p) + v + ta.value.slice(ta.selectionEnd); ta.focus(); ta.selectionStart = ta.selectionEnd = p + v.length; });
   },
   // rename / reorder / delete formats in one category (same tools as other lists)
   editList(lib, cat, done) {
-    const s = this.st(), c = this.cats(lib).find(x => x[0] === cat); let L = this.items(lib, cat).map(x => ({ id: x.id, name: x.name, built: x.built }));
+    const s = this.st(), c = this.cats(lib).find(x => x[0] === cat); let L = this.items(lib, cat).map(x => ({ id: x.id, key: x.key, name: x.name, built: x.built }));
     const ov = document.createElement('div'); ov.className = 'el-ov';
     ov.innerHTML = `<div class="el-box"><div class="el-hd"><b>✏ ${esc(c[1])} – formats</b><button class="btn sm" data-x>✕</button></div>
       <div class="small muted">Drag ⠿ or ▲ ▼ to reorder · type to rename · 🗑 to delete</div><div class="el-rows"></div>
@@ -15943,7 +15959,7 @@ const Formats = {
       else if (t.dataset.del !== undefined) { take(); const i = +t.dataset.del; if (confirm(`Delete "${L[i].name}"?`)) { gone.push(L[i]); L.splice(i, 1); draw(); } }
       else if (t.hasAttribute('data-rest')) { s.hide = s.hide.filter(id => !c[4].some(x => x[0] === id)); saveMeta(); close(); done && done(); }
       else if (t.hasAttribute('data-save')) { take();
-        L.forEach(x => { if (x.built) s.name[x.id] = x.name; else { const y = s.extra.find(z => z.id === x.id); if (y) y.name = x.name; } });
+        L.forEach(x => { if (x.built) s.name[x.key || x.id] = x.name; else { const y = s.extra.find(z => z.id === x.id); if (y) y.name = x.name; } });
         gone.forEach(x => { if (x.built) s.hide.push(x.id); else s.extra = s.extra.filter(z => z.id !== x.id); });
         s.order[lib + ':' + cat] = L.map(x => x.id); saveMeta(); close(); UI.toast('List saved'); done && done(); }
       else if (t.hasAttribute('data-x')) close(); });
@@ -16015,6 +16031,93 @@ Object.assign(NoticeKit.REC, {
   const or = render; render = function () { const r = or.apply(this, arguments);
     $$('[data-cf]', subs).forEach(n => { const [p, s] = n.dataset.cf.split('|'); n.classList.toggle('active', S.page === p && (!s || (S.sub.formats || 'notice') === s)); });
     const on = S.page === 'others' || S.page === 'formats'; it.classList.toggle('active', on); if (on && !S.cfOpen) setOpen(true); return r; };
+})();
+
+</script>
+<script>
+/* formats_i18n.js – every letter format in English AND Hindi (हिन्दी). The language switch in the font bar
+   (English | हिन्दी) picks the version; your own edits are kept per language. */
+'use strict';
+(() => {
+  const HSIG = '\n\n\n({{io}})\n{{io_rank}}\nविवेचक\nथाना {{ps}}, {{juris}}\nमोबाइल: {{io_mobile}}   ई-मेल: {{io_email}}';
+  const HCLOSE = 'प्रकरण अपराध से अर्जित धनराशि एवं पीड़ित / पीड़ितों की आर्थिक क्षति से सम्बन्धित है; अतः वांछित सूचना प्राथमिकता के आधार पर नीचे दी गई ई-मेल आईडी पर उपलब्ध कराने का कष्ट करें।';
+  const L = (to, subject, body, close) => `पत्रांक: {{ref}}\nदिनांक: {{date}}\n\nसेवा में,\n${to}\n\nविषय: ${subject}\n\nमहोदय / महोदया,\n\n${body}\n\n${close || HCLOSE}${HSIG}`;
+  const M = (title, body) => `${title}\n\n${body}${HSIG}`;
+  const RE = 'थाना {{ps}}, {{juris}} पर {{section}} के अन्तर्गत पंजीकृत उपरोक्त अभियोग (NCRP Ack No. {{ack}}) की विवेचना के क्रम में';
+  const BK = 'नोडल अधिकारी / शाखा प्रबन्धक\n{{to}}', TS = 'नोडल अधिकारी (LEA)\n{{to}}';
+  const P = 'दिनांक ____________ से ____________ तक';
+  const HI = {
+    f_bk_freeze: ['डेबिट फ्रीज / लियन (धारा 106 BNSS)', L(BK, 'साइबर ठगी में प्रयुक्त खाता / खातों पर डेबिट फ्रीज / लियन लगाने हेतु अनुरोध – {{fir}}', `${RE} पाया गया है कि आपके बैंक में संचालित निम्न खाते / खातों में अपराध से अर्जित धनराशि प्राप्त हुई है:\n\n{{accounts}}\n\nभारतीय नागरिक सुरक्षा संहिता, 2023 की धारा 106 के अन्तर्गत आपसे अनुरोध है कि:\n1. उपरोक्त खाते / खातों पर विवादित धनराशि हेतु तत्काल डेबिट फ्रीज / लियन अंकित करें।\n2. खाते में उपलब्ध शेष धनराशि एवं होल्ड की गई धनराशि से अवगत कराएं।\n3. अधोहस्ताक्षरी की लिखित अनुमति के बिना कोई डेबिट, ट्रांसफर अथवा खाता बन्द न होने दें।\n4. खाता खोलने का फॉर्म / KYC एवं खाता खुलने की तिथि से स्टेटमेण्ट उपलब्ध कराएं।`)],
+    f_bk_benef: ['लाभार्थी खाता / KYC विवरण (धारा 94 BNSS)', L(BK, 'लाभार्थी खाते का विवरण एवं KYC उपलब्ध कराने हेतु अनुरोध – {{fir}}', `${RE} भारतीय नागरिक सुरक्षा संहिता, 2023 की धारा 94 के अन्तर्गत आपसे अनुरोध है कि निम्न खाते / खातों के सम्बन्ध में निम्नलिखित विवरण उपलब्ध कराएं:\n\n{{accounts}}\n\n1. KYC दस्तावेजों (पहचान पत्र, पते का प्रमाण, फोटो) सहित खाता खोलने का फॉर्म।\n2. खाता खुलने की तिथि से आज तक का खाता विवरण (स्टेटमेण्ट)।\n3. पंजीकृत मोबाइल नम्बर, ई-मेल आईडी एवं नॉमिनी का विवरण।\n4. नेट-बैंकिंग / मोबाइल-बैंकिंग / UPI लॉगिन के IP एड्रेस, दिनांक, समय एवं डिवाइस आईडी सहित।\n5. ATM / डेबिट कार्ड का विवरण एवं ATM निकासी के स्थान, CCTV की उपलब्धता सहित।\n6. लिंक UPI आईडी / VPA एवं जोड़े गए लाभार्थी।`)],
+    f_bk_unfreeze: ['धनराशि रिलीज / अनफ्रीज करना', L(BK, 'होल्ड की गई धनराशि रिलीज / अनफ्रीज करने हेतु अनुरोध – {{fir}}', `${RE} इस कार्यालय के अनुरोध पर निम्न खाते / खातों पर डेबिट फ्रीज / लियन लगाया गया था:\n\n{{accounts}}\n\nमाननीय न्यायालय के आदेश दिनांक ____________ के अनुपालन में / सत्यापन के उपरान्त आपसे अनुरोध है कि ₹________ की धनराशि पीड़ित के खाता संख्या ____________ (IFSC ________) में रिलीज करें / उपरोक्त खाते / खातों से डेबिट फ्रीज हटाएं तथा इसकी पुष्टि इस कार्यालय को भेजें।`)],
+    f_bk_cctv: ['ATM / शाखा की CCTV फुटेज', L(BK, 'CCTV फुटेज सुरक्षित रखने एवं उपलब्ध कराने हेतु अनुरोध – {{fir}}', `${RE} निम्न खाते / खातों / ATM से नकद निकासी / लेन-देन किए गए हैं:\n\n{{accounts}}\n\nआपसे अनुरोध है कि प्रत्येक लेन-देन के समय (±30 मिनट) की सम्बन्धित ATM / शाखा की CCTV फुटेज सुरक्षित रखते हुए ATM आईडी, पता, EJ / जर्नल प्रिण्ट एवं प्रयुक्त कार्ड के विवरण सहित उपलब्ध कराएं।`)],
+    f_bk_linked: ['लिंक खाते व डाटा (PAN / मोबाइल / ई-मेल)', L(BK, 'संदिग्ध पहचानकर्ताओं से लिंक समस्त खातों एवं डाटा हेतु अनुरोध – {{fir}}', `${RE} आपसे अनुरोध है कि अपने अभिलेखों में खोज कर निम्न पहचानकर्ताओं से लिंक समस्त खातों, कार्डों, ऋणों, लॉकरों एवं वॉलेट का विवरण उपलब्ध कराएं:\n\nमोबाइल नम्बर:\n{{mobiles}}\n\nई-मेल आईडी:\n{{emails}}\n\nPAN / आधार / अन्य पहचान पत्र: ____________\n\nप्रत्येक खाते का KYC, स्टेटमेण्ट, लिंक मोबाइल / ई-मेल, UPI आईडी, लॉगिन IP एवं वर्तमान शेष धनराशि उपलब्ध कराएं।`)],
+    f_bk_cc: ['क्रेडिट कार्ड विवरण', L(BK, 'क्रेडिट कार्ड का विवरण एवं लेन-देन उपलब्ध कराने हेतु अनुरोध – {{fir}}', `${RE} अपराध में निम्न क्रेडिट कार्ड / खातों का प्रयोग किया गया है:\n\nकार्ड संख्या / खाता: ____________\n{{accounts}}\n\nआपसे अनुरोध है कि निम्न विवरण उपलब्ध कराएं:\n1. कार्ड धारक का आवेदन फॉर्म, KYC दस्तावेज एवं फोटो सहित।\n2. ${P} का कार्ड स्टेटमेण्ट।\n3. प्रत्येक विवादित लेन-देन के मर्चेण्ट का नाम, MID / TID एवं स्थान।\n4. कार्ड का डिलीवरी पता, पंजीकृत मोबाइल / ई-मेल एवं उनमें परिवर्तन का इतिहास।\n5. ऑनलाइन लेन-देन के IP एड्रेस / डिवाइस विवरण एवं OTP प्राप्त करने वाला नम्बर।`)],
+    f_ts_cdr: ['CDR (कॉल डिटेल रिकॉर्ड)', L(TS, 'सेल-आईडी एवं IMEI सहित CDR उपलब्ध कराने हेतु अनुरोध – {{fir}}', `${RE} भारतीय नागरिक सुरक्षा संहिता, 2023 की धारा 94 के अन्तर्गत आपसे अनुरोध है कि निम्न मोबाइल नम्बर / नम्बरों की ${P} की कॉल डिटेल रिकॉर्ड (इनकमिंग, आउटगोइंग, SMS) सेल-आईडी / लोकेशन, IMEI एवं रोमिंग विवरण सहित उपलब्ध कराएं:\n\n{{mobiles}}`)],
+    f_ts_ipdr: ['IPDR (इण्टरनेट रिकॉर्ड)', L(TS, 'IPDR उपलब्ध कराने हेतु अनुरोध – {{fir}}', `${RE} आपसे अनुरोध है कि निम्न मोबाइल नम्बर / नम्बरों की ${P} की IPDR (सोर्स / पब्लिक IP, पोर्ट, डेस्टिनेशन IP, प्रारम्भ एवं समाप्ति समय, सेल-आईडी, IMEI) उपलब्ध कराएं:\n\n{{mobiles}}\n\nएवं / अथवा उन उपभोक्ताओं का विवरण जिन्हें दिए गए दिनांक-समय पर निम्न IP एड्रेस आवण्टित थे:\n\n{{ips}}`)],
+    f_ts_tdr: ['TDR (टावर डम्प)', L(TS, 'टावर डम्प डाटा उपलब्ध कराने हेतु अनुरोध – {{fir}}', `${RE} आपसे अनुरोध है कि निम्न स्थान / सेल-आईडी का टावर डम्प (सेल साइट का प्रयोग करने वाले समस्त मोबाइल नम्बर IMEI सहित) उपलब्ध कराएं:\n\nस्थान / सेल-आईडी: ____________\nदिनांक: ____________   समय: ____________ से ____________ तक (IST)\n\nकृपया डाटा सेल-आईडी, IMEI, कॉल का प्रकार एवं अवधि सहित Excel / CSV फॉर्मेट में उपलब्ध कराएं।`)],
+    f_ts_revip: ['VPN / प्रॉक्सी हेतु रिवर्स IP स्कैन', L('नोडल अधिकारी (LEA)\n{{to}}', 'IP / VPN / प्रॉक्सी के पीछे के उपभोक्ता का विवरण उपलब्ध कराने हेतु अनुरोध – {{fir}}', `${RE} पाया गया है कि अभियुक्त द्वारा निम्न IP एड्रेस से पीड़ित के खातों / प्लेटफॉर्म को एक्सेस किया गया:\n\n{{ips}}\n\nउक्त IP आपकी संस्था की VPN / प्रॉक्सी / होस्टिंग सेवा से सम्बन्धित प्रतीत होते हैं। आपसे अनुरोध है कि निम्न विवरण उपलब्ध कराएं:\n1. दिए गए दिनांक-समय पर IP का प्रयोग करने वाले उपभोक्ता का विवरण (नाम, ई-मेल, मोबाइल, भुगतान विवरण)।\n2. उस समय आपके सर्वर / एग्जिट नोड से जुड़े वास्तविक सोर्स IP एड्रेस।\n3. अकाउण्ट बनाने का विवरण, IP सहित लॉगिन इतिहास एवं भुगतान लेन-देन।\n4. समस्त लॉग्स 180 दिन तक सुरक्षित रखें।`)],
+    f_ts_own: ['स्वामित्व इतिहास / MNP', L(TS, 'मोबाइल नम्बर / नम्बरों का स्वामित्व इतिहास उपलब्ध कराने हेतु अनुरोध – {{fir}}', `${RE} आपसे अनुरोध है कि निम्न मोबाइल नम्बर / नम्बरों का प्रथम आवण्टन की तिथि से सम्पूर्ण स्वामित्व इतिहास, CAF, पहचान पत्र तथा एक्टिवेशन / डीएक्टिवेशन / पोर्ट-इन / पोर्ट-आउट (MNP) की तिथियों सहित उपलब्ध कराएं:\n\n{{mobiles}}`)],
+    f_ts_pos: ['POS / रिटेलर विवरण (SIM बिक्री)', L(TS, 'SIM के पॉइण्ट-ऑफ-सेल विवरण हेतु अनुरोध – {{fir}}', `${RE} आपसे अनुरोध है कि जिस पॉइण्ट-ऑफ-सेल (POS) / रिटेलर के माध्यम से निम्न SIM जारी किए गए उसका विवरण – POS का नाम, कोड, पता, मोबाइल, e-KYC करने वाला एजेण्ट, डिस्ट्रीब्यूटर – तथा ${P} उसी POS / एजेण्ट द्वारा एक्टिवेट किए गए अन्य समस्त SIM की सूची उपलब्ध कराएं:\n\n{{mobiles}}`)],
+    f_ts_rech: ['रिचार्ज इतिहास', L(TS, 'रिचार्ज इतिहास उपलब्ध कराने हेतु अनुरोध – {{fir}}', `${RE} आपसे अनुरोध है कि निम्न मोबाइल नम्बर / नम्बरों का ${P} का रिचार्ज इतिहास (दिनांक, समय, राशि, माध्यम – रिटेलर / UPI / कार्ड / वॉलेट, ट्रांजेक्शन आईडी, रिटेलर विवरण अथवा भुगतानकर्ता खाता / VPA) उपलब्ध कराएं:\n\n{{mobiles}}`)],
+    f_ts_imei: ['IMEI में प्रयुक्त नम्बर', L(TS, 'IMEI में प्रयुक्त मोबाइल नम्बरों हेतु अनुरोध – {{fir}}', `${RE} आपसे अनुरोध है कि ${P} निम्न हैण्डसेट IMEI में प्रयुक्त समस्त मोबाइल नम्बर, उपभोक्ता विवरण एवं प्रथम / अन्तिम प्रयोग की तिथि सहित उपलब्ध कराएं:\n\n{{imeis}}`)],
+    f_dl_parcel: ['डिलीवरी / कन्साइनमेण्ट विवरण', L('नोडल अधिकारी / शिकायत अधिकारी\n{{to}}', 'डिलीवरी एवं प्राप्तकर्ता का विवरण उपलब्ध कराने हेतु अनुरोध – {{fir}}', `${RE} निम्न ऑर्डर / कन्साइनमेण्ट / AWB नम्बर अपराध से सम्बन्धित हैं:\n\nऑर्डर / AWB संख्या: ____________\nप्रयुक्त मोबाइल / ई-मेल:\n{{mobiles}}\n\nआपसे अनुरोध है कि निम्न विवरण उपलब्ध कराएं:\n1. प्रेषक एवं प्राप्तकर्ता का नाम, पता, मोबाइल एवं ई-मेल।\n2. डिलीवरी का पता, दिनांक-समय, GPS लोकेशन एवं डिलीवरी का प्रमाण (फोटो / हस्ताक्षर / OTP)।\n3. डिलीवरी एक्जीक्यूटिव एवं हब का नाम व मोबाइल।\n4. भुगतान का माध्यम एवं लेन-देन विवरण (COD / UPI / कार्ड)।\n5. उसी पते / मोबाइल पर डिलीवर किए गए अन्य ऑर्डर।`)],
+    f_dl_cctv: ['हब / काउण्टर की CCTV', L('हब प्रबन्धक\n{{to}}', 'डिलीवरी हब की CCTV फुटेज सुरक्षित रखने हेतु अनुरोध – {{fir}}', `${RE} आपसे अनुरोध है कि हब / काउण्टर ____________ की दिनांक ____________ को ____________ से ____________ बजे तक की CCTV फुटेज, जब कन्साइनमेण्ट संख्या ____________ बुक / प्राप्त किया गया, सुरक्षित रखते हुए उपलब्ध कराएं।`)],
+    f_gm_bsi: ['Gmail / Google अकाउण्ट – उपभोक्ता विवरण व IP लॉग', L('नोडल अधिकारी (LEA Requests)\nGoogle LLC / Google India Pvt Ltd', 'उपभोक्ता सूचना एवं IP लॉग उपलब्ध कराने हेतु अनुरोध – {{fir}}', `${RE} पाया गया है कि अभियुक्त द्वारा निम्न Google अकाउण्ट का प्रयोग किया गया:\n\n{{emails}}\n\nभारतीय नागरिक सुरक्षा संहिता, 2023 की धारा 94 सपठित सूचना प्रौद्योगिकी अधिनियम, 2000 की धारा 79(3)(b) के अन्तर्गत आपसे अनुरोध है कि निम्न विवरण उपलब्ध कराएं:\n1. मूल उपभोक्ता सूचना – नाम, रिकवरी ई-मेल / फोन, अकाउण्ट बनाने की तिथि एवं IP।\n2. ${P} के लॉगिन / लॉगआउट IP एड्रेस, दिनांक-समय (IST) एवं पोर्ट सहित।\n3. लिंक अकाउण्ट, डिवाइस, Google Pay / YouTube / Play का विवरण।\n4. अकाउण्ट की सामग्री 180 दिन तक सुरक्षित रखें।`)],
+    f_gm_email: ['अन्य ई-मेल प्रदाता', L('नोडल अधिकारी\n{{to}}', 'ई-मेल अकाउण्ट का विवरण उपलब्ध कराने हेतु अनुरोध – {{fir}}', `${RE} अपराध में निम्न ई-मेल आईडी का प्रयोग किया गया है:\n\n{{emails}}\n\nआपसे अनुरोध है कि पंजीकरण विवरण, वैकल्पिक ई-मेल / मोबाइल, अकाउण्ट बनाने का IP, ${P} के लॉगिन IP लॉग दिनांक-समय सहित उपलब्ध कराएं तथा डाटा सुरक्षित रखें।`)],
+    f_gm_takedown: ['सामग्री हटाना / ब्लॉक (धारा 79(3)(b) IT Act)', L('शिकायत अधिकारी\n{{to}}', 'विधि-विरुद्ध सामग्री हटाने हेतु सूचना प्रौद्योगिकी अधिनियम, 2000 की धारा 79(3)(b) के अन्तर्गत नोटिस – {{fir}}', `${RE} पाया गया है कि आपके प्लेटफॉर्म पर निम्न URL / प्रोफाइल का प्रयोग साइबर ठगी / विधि-विरुद्ध गतिविधि हेतु किया जा रहा है:\n\n{{profiles}}\n\nआपको निर्देशित किया जाता है कि उपरोक्त सामग्री को शीघ्रातिशीघ्र हटाएं / उसकी पहुँच बन्द करें तथा विवेचना हेतु सम्बन्धित समस्त अभिलेख (उपभोक्ता विवरण, IP लॉग, सामग्री) सुरक्षित रखें।`)],
+    f_py_gpay: ['Google Pay – UPI आईडी / लेन-देन विवरण', L('नोडल अधिकारी\nGoogle Pay (Google India Digital Services Pvt Ltd)', 'UPI आईडी एवं लेन-देन विवरण उपलब्ध कराने हेतु अनुरोध – {{fir}}', `${RE} अपराध से अर्जित धनराशि प्राप्त करने हेतु निम्न UPI आईडी / मोबाइल नम्बरों का प्रयोग किया गया है:\n\n{{upis}}\n\n{{mobiles}}\n\nआपसे अनुरोध है कि निम्न विवरण उपलब्ध कराएं:\n1. पंजीकृत नाम, मोबाइल, ई-मेल एवं IFSC सहित लिंक बैंक खाते।\n2. ${P} का UTR / RRN सहित लेन-देन इतिहास।\n3. डिवाइस आईडी / IMEI, डिवाइस मॉडल एवं पंजीकरण व लेन-देन के IP एड्रेस।\n4. अकाउण्ट बनाने की तिथि एवं KYC, यदि कोई हो।`)],
+    f_py_upi: ['अन्य UPI ऐप / वॉलेट (PhonePe, Paytm…)', L('नोडल अधिकारी\n{{to}}', 'वॉलेट / UPI विवरण उपलब्ध कराने हेतु अनुरोध – {{fir}}', `${RE} अपराध में निम्न UPI आईडी / वॉलेट का प्रयोग किया गया है:\n\n{{upis}}\n\nआपसे अनुरोध है कि KYC, लिंक बैंक खाते, UTR सहित लेन-देन इतिहास, डिवाइस एवं IP विवरण उपलब्ध कराएं तथा वॉलेट से आगे के डेबिट रोकें।`)],
+    f_py_npci: ['NPCI – UPI लिंकेज', L('नोडल अधिकारी\nनेशनल पेमेण्ट्स कॉर्पोरेशन ऑफ इण्डिया (NPCI)', 'UPI लिंकेज विवरण उपलब्ध कराने हेतु अनुरोध – {{fir}}', `${RE} आपसे अनुरोध है कि निम्न UPI आईडी / मोबाइल से लिंक PSP / ऐप, बैंक एवं खाता तथा विवादित लेन-देनों की UTR ट्रेल उपलब्ध कराएं:\n\n{{upis}}\n\n{{mobiles}}`)],
+    f_jm_link: ['समन्वय – अन्तर्राज्यीय लिंकेज अनुरोध', L('नोडल अधिकारी\nभारतीय साइबर अपराध समन्वय केन्द्र (I4C), गृह मंत्रालय\n(समन्वय / JMIS)', 'संदिग्ध पहचानकर्ताओं के अन्तर्राज्यीय लिंकेज हेतु अनुरोध – {{fir}}', `${RE} अभियुक्त के निम्न पहचानकर्ता प्रकाश में आए हैं:\n\nखाता / खाते:\n{{accounts}}\n\nमोबाइल:\n{{mobiles}}\n\nUPI आईडी:\n{{upis}}\n\nआपसे अनुरोध है कि समन्वय पोर्टल पर इन पहचानकर्ताओं से लिंक अन्य राज्यों / जनपदों की शिकायतें / FIR उपलब्ध कराएं, ताकि विवेचना में समन्वय स्थापित कर अभियुक्त का पता लगाया जा सके।`)],
+    f_jm_atr: ['JMIS – कृत कार्यवाही आख्या', M('कृत कार्यवाही आख्या (JMIS)', `अभियोग: {{fir}}   थाना: {{ps}}   {{juris}}\nधारा: {{section}}\nNCRP Ack No.: {{ack}}\nदिनांक: {{date}}\n\n1. संक्षिप्त तथ्य: ____________\n2. ठगी की धनराशि: ₹________   होल्ड धनराशि: ₹________   वापस की गई: ₹________\n3. फ्रीज किए गए खाते:\n{{accounts}}\n4. ब्लॉक किए गए मोबाइल नम्बर / SIM:\n{{mobiles}}\n5. चिन्हित / गिरफ्तार अभियुक्त: ____________\n6. जारी नोटिस (35(3) BNSS / 94 BNSS): ____________\n7. विवेचना की वर्तमान स्थिति: ____________`)],
+    f_m_arrest: ['गिरफ्तारी मेमो (धारा 36 BNSS)', M('गिरफ्तारी मेमो\n(भारतीय नागरिक सुरक्षा संहिता, 2023 की धारा 36)', `1. अभियोग: {{fir}}   धारा: {{section}}   थाना: {{ps}}, {{juris}}\n2. गिरफ्तार व्यक्ति का नाम: {{name}}\n3. पिता / पति का नाम: {{father}}\n4. पता: {{address}}\n5. मोबाइल: {{mobile}}\n6. गिरफ्तारी का दिनांक एवं समय: ____________\n7. गिरफ्तारी का स्थान: ____________\n8. गिरफ्तारी के आधार (व्यक्ति को बताए गए): ____________\n9. गिरफ्तार करने वाले अधिकारी का नाम: {{io}}, {{io_rank}}\n10. प्रमाणित करने वाला साक्षी (परिवार का सदस्य / मोहल्ले का सम्भ्रान्त व्यक्ति):\n    नाम ____________  पता ____________  हस्ताक्षर ____________\n11. सूचित किए गए सम्बन्धी / मित्र (धारा 48 BNSS): नाम ____________  मोबाइल ____________  समय ____________\n12. चोट, यदि कोई हो (निरीक्षण मेमो): ____________\n13. अधिवक्ता से परामर्श के अधिकार की जानकारी दी गई: हाँ / नहीं\n\nगिरफ्तार व्यक्ति के हस्ताक्षर: ____________`)],
+    f_m_inform: ['गिरफ्तारी की सूचना सम्बन्धी को (धारा 48 BNSS)', M('गिरफ्तारी की सूचना\n(भारतीय नागरिक सुरक्षा संहिता, 2023 की धारा 48)', `सेवा में,\n____________ (गिरफ्तार व्यक्ति के सम्बन्धी / मित्र)\n\nआपको सूचित किया जाता है कि {{name}} पुत्र / पुत्री {{father}}, निवासी {{address}} को अभियोग {{fir}}, धारा {{section}}, थाना {{ps}}, {{juris}} में दिनांक ____________ को ____________ बजे गिरफ्तार किया गया है।\n\nगिरफ्तार व्यक्ति को 24 घण्टे के भीतर सक्षम न्यायालय के समक्ष प्रस्तुत किया जाएगा। आप नीचे दिए गए नम्बर पर अधोहस्ताक्षरी से सम्पर्क कर सकते हैं।`)],
+    f_m_search: ['जामा तलाशी मेमो', M('जामा तलाशी मेमो', `अभियोग: {{fir}}   थाना: {{ps}}   दिनांक: {{date}}\n\nगिरफ्तार व्यक्ति {{name}} पुत्र {{father}}, निवासी {{address}} की जामा तलाशी नीचे अंकित साक्षियों की उपस्थिति में ली गई, जिसमें निम्न वस्तुएं प्राप्त हुईं:\n\n1. मोबाइल फोन: मेक ____________ IMEI ____________ SIM ____________\n2. डेबिट / क्रेडिट कार्ड: ____________\n3. नकद: ₹________\n4. अन्य: ____________\n\nसाक्षी 1: ____________   साक्षी 2: ____________\nगिरफ्तार व्यक्ति के हस्ताक्षर: ____________`)],
+    f_m_353: ['उपस्थिति हेतु नोटिस – धारा 35(3) BNSS', M('भारतीय नागरिक सुरक्षा संहिता, 2023 की धारा 35(3) के अन्तर्गत नोटिस', `दिनांक: {{date}}\n\nसेवा में,\n{{name}}\nपुत्र {{father}}\n{{address}}\nमोबाइल: {{mobile}}\n\nविषय: धारा 35(3) BNSS, 2023 के अन्तर्गत नोटिस – {{fir}}\n\nचूँकि थाना {{ps}}, {{juris}} पर {{section}} के अन्तर्गत पंजीकृत उपरोक्त अभियोग की विवेचना के दौरान यह पाया गया है कि उक्त अपराध के सम्बन्ध में आपसे पूछताछ करने के युक्तियुक्त आधार हैं।\n\nअतः आपको धारा 35(3) BNSS के अन्तर्गत निर्देशित किया जाता है कि आप दिनांक ____ / ____ / ______ को ______ बजे थाना {{ps}} पर अधोहस्ताक्षरी के समक्ष उपस्थित हों तथा निम्न शर्तों का पालन करें:\n1. आप कोई अपराध नहीं करेंगे।\n2. आप साक्ष्य से छेड़छाड़ नहीं करेंगे और न ही किसी साक्षी को प्रभावित करेंगे।\n3. आवश्यकता पड़ने पर आप विवेचना में सहयोग करेंगे।\n4. आप अपना पहचान पत्र, प्रयोग में आने वाले मोबाइल फोन / SIM, बैंक पासबुक / चेक बुक / कार्ड एवं स्टेटमेण्ट साथ लेकर आएंगे।\n\nध्यान रहे कि धारा 35(5) एवं 35(6) BNSS के अनुसार इस नोटिस का पालन न करने पर आपको गिरफ्तार किया जा सकता है।`)],
+    f_m_353c: ['धारा 35(3) नोटिस की तामील / अनुपालन आख्या', M('तामील / अनुपालन आख्या – नोटिस अन्तर्गत धारा 35(3) BNSS', `अभियोग: {{fir}}   थाना: {{ps}}\nनोटिस प्राप्तकर्ता का नाम: {{name}}   मोबाइल: {{mobile}}\nपता: {{address}}\n\n1. नोटिस जारी करने की तिथि: ____________\n2. तामील का माध्यम (व्यक्तिगत / चस्पा / ई-मेल / WhatsApp): ____________\n3. उपस्थिति की तिथि: ____________\n4. शर्तों का पालन: हाँ / नहीं – विवरण ____________\n5. प्रस्तुत दस्तावेज / उपकरण: ____________\n6. अग्रिम कार्यवाही: ____________`)],
+    f_m_quest: ['संदिग्ध हेतु प्रश्नावली (साइबर ठगी)', M('प्रश्नावली – संदिग्ध से पूछताछ', `अभियोग: {{fir}}   थाना: {{ps}}   दिनांक: {{date}}\nनाम: {{name}}   पुत्र {{father}}\nपता: {{address}}   मोबाइल: {{mobile}}\n\n1. आप कौन-कौन से मोबाइल नम्बर, SIM एवं हैण्डसेट (IMEI) प्रयोग करते हैं / कर चुके हैं?\n2. आपके नाम पर कौन-कौन से बैंक खाते, UPI आईडी, वॉलेट एवं कार्ड हैं? उन्हें कौन संचालित करता है?\n3. खाता: {{acc}} – इसे किसने खुलवाया, चेक बुक / कार्ड / नेट-बैंकिंग किसके पास है तथा किस प्रतिफल के बदले?\n4. आपको निर्देश किसने दिए, किस ऐप (WhatsApp / Telegram) से तथा किन नम्बरों / यूजरनेम से?\n5. धनराशि कहाँ ट्रांसफर या निकाली गई? नकद किसने प्राप्त किया?\n6. प्राप्त कमीशन, राशि एवं माध्यम।\n7. उसी गिरोह को उपलब्ध कराए गए अन्य व्यक्ति, खाते अथवा SIM।\n8. प्रयुक्त सोशल मीडिया / ई-मेल अकाउण्ट।\n\nउत्तर: ____________\n\nसंदिग्ध के हस्ताक्षर: ____________`)],
+    f_m_stmt: ['साक्षी का बयान (धारा 180 BNSS)', M('बयान अन्तर्गत धारा 180 BNSS, 2023', `अभियोग: {{fir}}   थाना: {{ps}}   दिनांक: {{date}}\nनाम: {{name}}   पुत्र {{father}}\nपता: {{address}}   मोबाइल: {{mobile}}\n\nबयान:\n____________`)],
+    f_m_seize: ['फर्द बरामदगी / जब्ती मेमो (धारा 106 BNSS)', M('जब्ती मेमो (फर्द)\n(धारा 106 BNSS, 2023 – धारा 105 के अनुसार ऑडियो-वीडियो रिकॉर्डिंग सहित)', `अभियोग: {{fir}}   थाना: {{ps}}   दिनांक: {{date}}   समय: ______\nस्थान: ____________\nव्यक्ति से: {{name}} पुत्र {{father}}, निवासी {{address}}\n\nजब्त की गई वस्तुएं:\n1. मोबाइल फोन – मेक ____________ IMEI-1 ____________ IMEI-2 ____________ SIM ____________\n2. लैपटॉप / स्टोरेज – ____________ (हैश वैल्यू: ____________)\n3. बैंक दस्तावेज / कार्ड – ____________\n4. नकद – ₹________\n\nवस्तुओं को मोहर ______ से सील किया गया तथा नमूना मोहर संलग्न है। प्रति व्यक्ति को दी गई।\n\nसाक्षी 1: ____________   साक्षी 2: ____________\nव्यक्ति के हस्ताक्षर: ____________`)],
+    f_m_hash: ['डिजिटल साक्ष्य / धारा 63 BSA प्रमाण-पत्र', M('भारतीय साक्ष्य अधिनियम, 2023 की धारा 63(4) के अन्तर्गत प्रमाण-पत्र', `अभियोग: {{fir}}   थाना: {{ps}}\n\nमैं, {{io}}, {{io_rank}}, प्रमाणित करता / करती हूँ कि नीचे वर्णित इलेक्ट्रॉनिक अभिलेख कम्प्यूटर / उपकरण ____________ से प्राप्त किए गए, जो नियमित प्रयोग में था, तथा सूचना सामान्य कार्य-प्रक्रिया में दर्ज की गई थी।\n\nअभिलेख का विवरण: ____________\nउपकरण / स्रोत: ____________\nहैश वैल्यू (SHA-256): ____________\n\nस्थान: {{district}}   दिनांक: {{date}}`)]
+  };
+
+  /* English versions of the Hindi office letters */
+  const EH = '**Police Station Cyber Crime, Commissionerate Ghaziabad**\nEmail: cybercrimegz-up@nic.in        Office No.: +91-8929436699\n\nLetter No.: {{ref}}                                        Date: {{date}}\n\nTo,\n';
+  const ES = '\n\n\n({{io}})\n{{io_rank}}\nPolice Station Cyber Crime\nCommissionerate Ghaziabad.';
+  const DCP = 'The Deputy Commissioner of Police, [City / Crime]\nCommissionerate Ghaziabad.', SHO = 'The Station House Officer\nPolice Station [name of PS], Commissionerate Ghaziabad.', ADCP = 'The Additional Deputy Commissioner of Police, Crime\nCommissionerate Ghaziabad.';
+  const E = (to, subj, body, pre = '') => pre + EH + to + '\n\nSubject: ' + subj + '\n\nSir,\n' + body + ES;
+  const WHO = '[name of applicant] S/o / D/o / W/o [father / husband name], R/o [address]';
+  const EN = {
+    l_igrs: ['IGRS complaint – action taken report (to DCP)', E(DCP, 'Report on the action taken on IGRS complaint No. [IGRS No.] of applicant [name of applicant].', `With reference to letter No. [letter No.] dated [date] of [referring officer, e.g. Assistant Commissioner of Police ……], it is submitted that ${WHO} has made a complaint regarding [brief subject of the complaint].\n\nFor preservation of the electronic evidence and verification of the technical facts, a [type of notice] under Section 94 of the Bharatiya Nagarik Suraksha Sanhita, 2023 was issued on [date] to the competent officer of [platform / organisation]. [Number] reminders have also been sent since then, but [the reply is still awaited / details of the reply received]. Necessary legal action will be taken on receipt of the information.\n\nThe report is respectfully submitted.`)],
+    l_94req: ['Request for Sec 94 BNSS preservation-cum-production notice (to DCP)', E(DCP, 'Issue of notice under Section 94 BNSS, 2023 and Rule 3(1)(g) of the IT (Intermediary Guidelines and Digital Media Ethics Code) Rules, 2021 for preservation of backend logs and electronic records of the user account on [platform] in the complaint of applicant [name of applicant].', `It is respectfully submitted that ${WHO} has given a written complaint at Police Station Cyber Crime, Ghaziabad regarding [details of the complaint] in his / her user account on [platform].\n\nThe complaint shows the e-mail ID / user ID of the account as [e-mail / user ID]. The backend / server logs and related records from [from date] till date need to be preserved / obtained.\n\nAs digital evidence may be lost by automatic deletion, overwriting or the retention period, it is proposed that a notice be issued to the competent Nodal Officer / Law Enforcement Response Officer / Designated Indian Entity of [platform] to immediately preserve and provide, as per law, the following records:\n1. Backend / server logs and audit logs of the account.\n2. Account creation, login / logout and authentication records.\n3. Available IP addresses, timestamps, session and device / browser records.\n4. Audit trail of creation, modification, alteration and deletion of account data.\n5. Conversation / chat metadata and related system records.\n6. Account security, restriction, flagging and administrative-action logs.\n7. API / gateway / request and other relevant technical logs.\n8. Any other information that establishes the chronology and authenticity of the data.\n\nIn view of the sensitivity of the matter, kindly give necessary directions and issue a preservation-cum-production notice to the competent officer of [platform], so that further action can be taken as per rules.\n\nEnclosure: Copy of the written complaint of the applicant.`)],
+    l_url_req: ['Asking the PS for URL / link details (as per HQ letter)', E(SHO, 'Providing the actual URL / link and other necessary details of the [number] YouTube channels / applications referred to in the matter of [brief details].', `With reference to the above subject and letter [letter No., date], it is submitted that an enquiry is being made at Police Station [name of PS] regarding [details of the matter]. Headquarters [Director General of Police, Uttar Pradesh] has directed necessary action against the following channels / applications:\n1. [Name]\n2. [Name]\n3. [Name]\n\nMany similar channels, videos and applications exist with these names, so the content cannot be identified exactly on the basis of the name alone.\n\nYou are therefore requested to provide the following for each channel / application:\n1. Full name of the channel and its direct URL / link.\n2. Direct URL / link of the related videos / shorts.\n3. Full name of the application and its Play Store / other platform URL / link.\n4. Facts explaining the role of the content and the available digital evidence.\n\nIn view of the seriousness of the matter, kindly provide the above details to this police station at the earliest, so that necessary action can be taken through the SAHYOG portal as per rules.`)],
+    l_reminder: ['Reminder – required details not yet received', E(SHO, 'Reminder regarding [subject of the original letter].', `Kindly refer to the above subject and this office letter No. [letter No.] dated [date], by which you were requested to provide [required details, e.g. URL / link, digital evidence], but the required details have not been received so far.\n\nIt is pertinent to mention that [further action, e.g. removal of content through the SAHYOG portal] will be possible only after the said details are received.\n\nYou are therefore again requested to provide the required details to this office without delay, in view of the seriousness of the matter and the directions of [Headquarters / senior officers].`, '**Reminder: [number]**\n')],
+    l_fakeid_ps: ['Fake social media ID – report to PS with details', E(SHO, 'Enquiry report regarding a fake ID on social media.', `${WHO} has informed through a written complaint that an unknown person has created a fake ID [profile URL] on [platform] using his / her [photo / name] and is [posting objectionable content / demanding money].\n\nThe fake ID has been closed through SAHYOG portal Ack. [Ack No.] and the user details have been obtained from the platform. The registered mobile No. is [mobile No.], registered in the name of [holder name], R/o [address]. The IP log data has been sent to your official e-mail [PS e-mail].\n\nKindly take legal action in the matter at your level.`)],
+    l_fakeid_ip: ['Fake ID / UPI demand – holder identified from IP', E(SHO, 'Enquiry report regarding creation of a fake ID on social media.', `As per the written complaint of ${WHO} at Police Station Cyber Crime, a fake ID [profile URL] has been created in his / her name on [platform] and money is being demanded through UPI on mobile [mobile No.].\n\n[Platform / company] was contacted for the details of the holder of the fake ID. On scanning the IP [IP address] received, for the given date and time (IST), mobile No. [mobile No.] was found, registered in the name of [holder name], R/o [address].\n\nThe mobile No. [mobile No.] used for UPI is registered in the name of [holder name], R/o [address].\n\nAll details have been sent to your police station e-mail [PS e-mail]; further action is therefore expected from Police Station [name of PS].\n\nThe report is respectfully submitted.`)],
+    l_pan_link: ['Bank account / Demat / LIC linked with PAN – report to IO', E(SHO, 'Report regarding bank accounts, LIC, Demat and mutual funds related to Case Crime No. [case No.], Police Station [name of PS].', `The investigation of Case Crime No. [case No.] under section [sections] registered at Police Station [name of PS] is being done by [IO name and rank], in which details of all bank accounts / LIC / mutual funds related to the following PANs were requested:\n1. [Name] – PAN [PAN]\n2. [Name] – PAN [PAN]\n\nThe above PANs were scanned with all related banks, LIC and NSDL / CDSL, and the data received is as follows:\n\n1. Received from banks\nS.No. | Account No. | Account Holder | Bank | PAN\n1 | [ ] | [ ] | [ ] | [ ]\n\n2. Demat / BO accounts received from NSDL\nS.No. | PAN | BO Holder | DP | Client ID | Status | Linked Bank A/C\n1 | [ ] | [ ] | [ ] | [ ] | [ ] | [ ]\n\n3. Data received from CDSL\nPAN | Holder | DP/Depository | Linked Bank | Status\n[ ] | [ ] | [ ] | [ ] | [ ]\n\n4. Data received from LIC\nS.No. | Policy No | Name | DOC | Plan-Term | Premium | Status | Total Premium Paid\n1 | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ]\n\nThe report is respectfully submitted.`)],
+    l_aadhaar_link: ['Mobile & account linked with Aadhaar / PAN – report', E(SHO, 'Report on accounts and mobile numbers linked with Aadhaar and PAN related to Case Crime No. [case No.] under section [sections], Police Station [name of PS].', `In the investigation of Case Crime No. [case No.] under section [sections] registered at Police Station [name of PS], details of mobile numbers linked with Aadhaar [Aadhaar No.] and bank accounts linked with PAN [PAN] were requested.\n\nOn scanning Aadhaar No. [Aadhaar No.] with the telecom service providers, [no active mobile number was provided / mobile numbers ……… were received].\n\nOn scanning PAN [PAN] and Aadhaar [Aadhaar No.] with the banks, account No. [account No.] of [bank name] was provided, registered in the name of [holder name], R/o [address], registered mobile [mobile No.].\n\nThe report is submitted.`)],
+    l_imei_cdr: ['Mobile / IMEI / e-mail / IP / CAF – report to IO', E(SHO, 'Report regarding mobile numbers, e-mail, IP address and CAF ID related to Case Crime No. [case No.] under section [sections], Police Station [name of PS].', `The investigation of Case Crime No. [case No.] registered at Police Station [name of PS] is being done by [IO name and rank], in which (1) the CDR from [from date] till date and CAF ID of mobile No. [mobile No.], and the CDR and CAF ID of the numbers run in its IMEI, and (2) the creation, last login IP and recovery details of e-mail ID [e-mail] were requested.\n\nThe IMEIs [IMEI] were found from the CDR of mobile No. [mobile No.]; on scanning them with the TSPs, the following mobile numbers were received:\n\nMobile Number | Name | C/O | Address\n[ ] | [ ] | [ ] | [ ]\n\nDetails received from [company] for e-mail ID [e-mail]: [creation date, recovery mobile / e-mail, login IP].\n\nOn scanning the IP [IP address] received: [result].\n\nThe report is respectfully submitted.`)],
+    l_sm_noevid: ['Objectionable social media post – report when no evidence', E(ADCP, 'Report on the complaint of the applicant regarding objectionable comments on social media.', `With reference to the application referred to, it is submitted that applicant [name of applicant] has given an application for action regarding [details of objectionable content] posted on social media by [person / account concerned].\n\nFor enquiry / verification, the complainant was contacted several times on phone to provide the necessary digital evidence of the incident, but till date no concrete digital evidence has been provided by the complainant, in particular:\n1. URL / link of the post / video,\n2. Link of the social media account / profile concerned,\n3. Screenshots of the post / video,\n4. Original copy of the content or other digital evidence.\n\nIn the absence of evidence, independent identification, verification and technical examination of the content is not possible.\n\nThe report is therefore submitted that further action in the matter as per rules will be possible only after the complainant provides the necessary digital evidence.`)],
+    l_complaint_facts: ['Facts of the application – enquiry report (hack / harassment)', E('The Station House Officer\nPolice Station Cyber Crime, Commissionerate Ghaziabad.', 'Enquiry report on the application of [name of applicant].', `Facts given by the applicant regarding the application and the incident, by ${WHO}:-\n1. [Fact]\n2. [Fact]\n3. [Fact]\n\nAction taken in the enquiry:-\n1. [Technical check of mobile / e-mail / account]\n2. [Correspondence with the platform / company]\n\nConclusion: [conclusion of the enquiry]\n\nThe report is respectfully submitted.`)],
+    l_news_verify: ['News channel / page verification – point-wise report', E(ADCP, 'Point-wise report on the verification of [channel / page name].', `With reference to the letter of [sending officer, e.g. Deputy Director, Information and Public Relations Department], the point-wise report regarding the [Facebook / Instagram / YouTube] channel / page of ${WHO} is as follows:-\n\n1. Is the channel / page broadcasting baseless, negative, misleading or provocative news content?\nAnswer: [ ]\n\n2. Has the owner of the channel / page violated the IT Act 2000 and 2008 in any way?\nAnswer: [record on ICJS / ]\n\n3. Is the owner involved in serious crimes, immoral, anti-social or anti-national activities, or ever convicted?\nAnswer: [ ]\n\n4. Is the social image / influence of the owner anti-social or anti-national?\nAnswer: [the question relates to the PS / LIU of the place of residence]\n\n5. Does the channel / page have an established office? If yes, its details?\nAnswer: [ ]\n\n6. General reputation of the owner?\nAnswer: [ ]\n\nThe report is respectfully submitted.`)],
+    l_yt_remove: ['Removal of objectionable YouTube / social media content – report', E(ADCP, 'Enquiry report regarding sharing of [details] on social media.', `Kindly refer to your letter No. [letter No.], in which ${WHO} stated that the following URLs of objectionable content posted on [platform] are to be removed:\n1. [URL]\n2. [URL]\n\nCorrespondence was made on the SAHYOG portal for removal of all the above URLs; at present the content [has been removed / removal is in progress].\n\nThe report is respectfully submitted.`)],
+    l_gst: ['Fake GST firm / transactions from account – enquiry report', E(SHO, 'Enquiry report regarding transactions made by creating a fake GST.', `As per the written complaint of ${WHO} at Police Station Cyber Crime, a fake firm [firm name] GST [GSTIN] was created using his / her documents and transactions were made in [bank] account [account No.] in the year [year].\n\nOn correspondence with [GST office] about the said firm, the GST documents and the linked bank account [account No.] were provided. Analysis of the transaction statement received from the bank shows total credits of ₹[amount] and total debits of ₹[amount] ([number] transactions) from [from date] to [to date].\n\nAll details of the said GST holder have been sent to your police station e-mail [PS e-mail]; further action is therefore expected from Police Station [name of PS].\n\nThe report is respectfully submitted.`)]
+  };
+  Formats.I18N = { hi: HI, en: EN };
+})();
+
+/* language-aware lists: the switch picks the version; edits are kept per language */
+(() => {
+  const isHi = t => /[ऀ-ॿ]/.test(String(t || ''));
+  Formats.lang = () => (typeof DocFont !== 'undefined' && DocFont.get().lang) || 'en';
+  const oi = Formats.items;
+  Formats.items = function (lib, cat) {
+    const lg = this.lang(), s = this.st(), L = oi.call(this, lib, cat);
+    return L.map(it => { if (!it.built) return it; const nat = isHi(it.orig) ? 'hi' : 'en'; if (lg === nat) return it;
+      const alt = (this.I18N[lg] || {})[it.id]; if (!alt) return it; const k = it.id + '@' + lg;
+      return Object.assign({}, it, { name: s.name[k] || alt[0], text: s.text[k] ?? alt[1], orig: alt[1], edited: k in s.text, lang: lg, key: k }); });
+  };
 })();
 
 </script>
@@ -17381,7 +17484,7 @@ const Arrest = {
     if ($('#arNm', el)) $('#arNm', el).onclick = async () => { r.noticeDate = $('#arNd', el).value || today(); if (['wanted', 'abscond'].includes(r.status) || !r.status) r.status = 'notice'; r.upd = new Date().toISOString(); r.notice = r.notice || {}; r.notice[kind] = ta.value; await Off.put('accused'); await this.caseFlags(r); UI.toast('✅ Notice 35(3) marked served on ' + this.dmy(r.noticeDate)); redraw(); };
   },
   /* ---------- Criminal Dossier ---------- */
-  FONTS: ['Arial', 'Arial Narrow', 'Times New Roman', 'Calibri', 'Cambria', 'Georgia', 'Verdana', 'Tahoma', 'Bookman Old Style', 'Garamond', 'Century Gothic', 'Courier New', 'Mangal', 'Nirmala UI', 'Kokila', 'Aparajita', 'Utsaah', 'Noto Sans Devanagari'],
+  get FONTS() { return DocFont.all(); },
   async dossierHtml(r) {
     const cf = await Off.cfg(), row = (l, v) => v ? `<tr><th>${esc(l)}</th><td>${esc(String(v)).replace(/\n/g, '<br>')}</td></tr>` : '', sec = (t, rows) => rows.replace(/\s/g, '') ? `<h3>${t}</h3><table class="dz-t">${rows}</table>` : '';
     const c = this.caseOf(r);
@@ -17493,7 +17596,7 @@ const DocEdit = {
     ['justifyLeft', '⯇', 'Align Left'], ['justifyCenter', '≡', 'Align Center'], ['justifyRight', '⯈', 'Align Right'], ['justifyFull', '☰', 'Justify'], ['|'],
     ['insertUnorderedList', '• List', 'Bullets'], ['insertOrderedList', '1. List', 'Numbering'], ['indent', '→', 'Indent'], ['outdent', '←', 'Outdent'], ['|'],
     ['h', 'H', 'Heading'], ['bigger', 'A+', 'Bigger Text'], ['smaller', 'A−', 'Smaller Text'], ['row', '+ Row', 'Add A Table Row Below (click in a table first)'], ['delrow', '− Row', 'Delete This Table Row'], ['removeFormat', '⌫', 'Clear Formatting'], ['undo', '↶', 'Undo'], ['redo', '↷', 'Redo']],
-  FONTS: ['Arial', 'Arial Narrow', 'Times New Roman', 'Calibri', 'Cambria', 'Georgia', 'Verdana', 'Tahoma', 'Mangal', 'Kokila', 'Nirmala UI'],
+  get FONTS() { return DocFont.all(); },
   CSS: '.de-tb{display:flex;flex-wrap:wrap;gap:4px;align-items:center;margin:0 0 8px;padding:6px;border:1px solid var(--border,#cbd5e1);border-radius:8px}.de-tb .btn.sm,.de-tb button{min-width:30px;justify-content:center}.de-sep{width:1px;height:22px;background:var(--border,#cbd5e1);margin:0 3px}.de-col{display:inline-flex;align-items:center;gap:3px;font-size:12px;flex-direction:row}.de-col input{width:26px;height:22px;padding:0;border:0;background:none}.de-tb select{max-width:130px;height:28px}',
   /* o: { root: () => element being edited, doc: document (default this page), changed(), reset(), only: [keys], noFont } */
   bar(tb, o = {}) {
@@ -17535,7 +17638,7 @@ const DocEdit = {
     const doc = d.createElement('div'); doc.id = 'deDoc'; [...d.body.childNodes].forEach(n => { if (!(n.nodeType === 1 && n.matches('script'))) doc.appendChild(n); }); d.body.appendChild(doc);
     d.head.insertAdjacentHTML('beforeend', `<style id="deCss">${this.CSS}#deBar{position:sticky;top:0;z-index:99;background:#f8fafc;border-bottom:1px solid #cbd5e1;padding:6px 8px;font:13px Arial,sans-serif;color:#111;margin:-8px -8px 10px}#deBar button,#deBar select{font:13px Arial,sans-serif;padding:4px 8px;border:1px solid #94a3b8;border-radius:6px;background:#fff;cursor:pointer}#deBar .pri{background:#2563eb;color:#fff;border-color:#2563eb}#deBar .on{background:#f59e0b;color:#111}#deDoc[contenteditable=true]{outline:2px dashed #3b82f6;outline-offset:4px}#deDoc .np{display:none!important}@media print{#deBar{display:none!important}#deDoc{outline:0!important}}</style>`);
     const bar = d.createElement('div'); bar.id = 'deBar'; bar.className = 'np'; bar.contentEditable = 'false';
-    bar.innerHTML = `<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center"><button id="deEd" title="Change any text, header or table before printing / saving">✏ Edit</button><button class="pri" id="dePr">🖨 Print / Save as PDF</button><button id="deW">📘 Word</button><button id="deH">🌐 HTML</button><span style="opacity:.7">Edits made here go to Print, Word and HTML.</span></div><div id="deTb" style="display:none;margin-top:6px"></div>`;
+    bar.innerHTML = `<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center"><button id="deEd" title="Change any text, header or table before printing / saving">✏ Edit</button><button class="pri" id="dePr">🖨 Print</button><button id="deP">📕 PDF</button><button id="deW">📘 Word</button><button id="deH">🌐 HTML</button><button id="deX">📗 Excel</button><button id="deI">🖼 Image</button><span style="opacity:.7">👁 Preview · edits made here go to every format.</span></div><div id="deTb" style="display:none;margin-top:6px"></div>`;
     d.body.insertBefore(bar, doc);
     this.bar(d.getElementById('deTb'), { doc: d, root: () => doc });
     const ed = on => { doc.contentEditable = on ? 'true' : 'false'; d.getElementById('deTb').style.display = on ? '' : 'none'; const b = d.getElementById('deEd'); b.className = on ? 'on' : ''; b.textContent = on ? '✔ Done Editing' : '✏ Edit'; if (on) doc.focus(); };
@@ -17545,6 +17648,9 @@ const DocEdit = {
     const name = () => (d.title || 'document').replace(/[^\w\- ]+/g, ' ').trim().replace(/\s+/g, '_').slice(0, 80) || 'document';
     d.getElementById('deW').onclick = () => UI.download(name() + '.doc', out().replace('<html', '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"'), 'application/msword');
     d.getElementById('deH').onclick = () => UI.download(name() + '.html', out(), 'text/html');
+    d.getElementById('deX').onclick = () => { ed(false); ExportAll.excel(doc, d.title || 'report'); };
+    d.getElementById('deI').onclick = () => { ed(false); ExportAll.image(d, doc, d.title || 'report'); };
+    d.getElementById('deP').onclick = () => { ed(false); ExportAll.pdfOf(d, doc, d.title || 'report'); };
   }
 };
 
@@ -17575,6 +17681,95 @@ const DocEdit = {
       return r; };
   }
 })();
+
+</script>
+<script>
+/* exportall.js – every export / report in the tool can be seen in Preview and saved as HTML, Word, PDF, Excel, Image, or printed.
+   Everything is made in this browser – nothing is sent online. */
+'use strict';
+const ExportAll = {
+  fname(t, ext) { return (String(t || 'report').replace(/[^\wऀ-ॿ\- ]+/g, ' ').trim().replace(/\s+/g, '_').slice(0, 80) || 'report') + '_' + new Date().toISOString().slice(0, 10) + '.' + ext; },
+  esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); },
+  CSS: `@page{size:A4;margin:1.4cm}body{font-family:${"'Arial Narrow', Arial, 'Nirmala UI', Mangal, sans-serif"};font-size:11pt;color:#000;background:#fff;margin:8px}h2{font-size:15pt;margin:4px 0 8px;text-align:center}.xm{font-size:9pt;color:#555;text-align:center;margin-bottom:10px}table{border-collapse:collapse;width:100%;margin:6px 0 12px}th,td{border:1px solid #000;padding:3px 6px;text-align:left;vertical-align:top;font-size:10pt}th{background:#e5e7eb}`,
+  // a preview window: the shared bar (Edit, Print, PDF, Word, HTML, Excel, Image) is added to it
+  open(title, body, o = {}) {
+    const w = window.open('', '_blank'); if (!w) { UI.toast('Allow pop-ups for this page to see the preview'); return null; }
+    const font = typeof DocFont !== 'undefined' ? DocFont.css() : 'Arial';
+    w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>${this.esc(title)}</title><style>${this.CSS}body{font-family:${font}}${o.css || ''}</style></head><body>${o.bare ? '' : `<h2>${this.esc(title)}</h2><div class="xm">SudarshanAshtra · ${this.esc(new Date().toLocaleString('en-IN'))} · for official police use only</div>`}${body}</body></html>`);
+    this.last = w; w.document.close(); if (o.print) setTimeout(() => { try { w.focus(); w.print(); } catch (e) { } }, 700);
+    return w;
+  },
+  tableHtml(cols, rows) {
+    const v = (c, r) => c.csv ? c.csv(r) : c.fmt ? c.fmt(r[c.key], r) : r[c.key];
+    return `<table><thead><tr>${cols.map(c => `<th>${this.esc(c.label)}</th>`).join('')}</tr></thead><tbody>${rows.map(r => `<tr>${cols.map(c => `<td>${this.esc(v(c, r))}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+  },
+  table(title, cols, rows) { cols = cols.filter(c => !c.noexport); return this.open(title, `<div class="xm">${rows.length} rows</div>` + this.tableHtml(cols, rows)); },
+  // tables inside any element (live page or preview window) as one Excel book
+  excel(root, title) {
+    if (typeof XLSX === 'undefined') return UI.toast('Excel library not loaded');
+    const T = [...root.querySelectorAll('table')], wb = XLSX.utils.book_new();
+    if (T.length) T.forEach((t, i) => { const c = t.cloneNode(true); c.querySelectorAll('.np,button,input,select').forEach(x => x.remove()); XLSX.utils.book_append_sheet(wb, XLSX.utils.table_to_sheet(c, { raw: true }), ('Table ' + (i + 1)).slice(0, 31)); });
+    else XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(String(root.innerText || root.textContent || '').split('\n').map(x => x.trim()).filter(Boolean).map(x => [x])), 'Report');
+    UI.download(this.fname(title, 'xlsx'), new Blob([XLSX.write(wb, { bookType: 'xlsx', type: 'array' })], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }));
+  },
+  word(html, title) { UI.download(this.fname(title, 'doc'), html.replace('<html', '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"'), 'application/msword'); },
+  // the document drawn as a picture (white page)
+  canvas(d, root, maxH = 30000) {
+    return new Promise((res, rej) => {
+      const W = Math.max(root.scrollWidth, 600), H = Math.max(root.scrollHeight, 100), cs = d.defaultView.getComputedStyle(d.body);
+      const c = root.cloneNode(true); c.querySelectorAll('#deBar,.np,script,#deCss').forEach(x => x.remove()); c.removeAttribute('contenteditable');
+      const wrap = d.createElement('div'); wrap.setAttribute('xmlns', 'http://www.w3.org/1999/xhtml');
+      wrap.setAttribute('style', `width:${W}px;background:#fff;color:#000;font-family:${cs.fontFamily};font-size:${cs.fontSize};line-height:${cs.lineHeight};padding:0;margin:0`);
+      const st = d.createElement('style'); st.textContent = [...d.querySelectorAll('style')].filter(s => s.id !== 'deCss').map(s => s.textContent).join('\n').replace(/@media print[^{]*\{([^{}]*\{[^}]*\})*[^}]*\}/g, ''); wrap.appendChild(st); wrap.appendChild(c);
+      const str = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}"><foreignObject x="0" y="0" width="${W}" height="${H}">${new XMLSerializer().serializeToString(wrap)}</foreignObject></svg>`;
+      const img = new Image(), sc = Math.max(.3, Math.min(2, maxH / H));
+      img.onload = () => { const cv = document.createElement('canvas'); cv.width = Math.round(W * sc); cv.height = Math.round(H * sc); const x = cv.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, cv.width, cv.height); x.scale(sc, sc); x.drawImage(img, 0, 0); res(cv); };
+      img.onerror = () => rej(new Error('Could not draw the picture'));
+      img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(str);
+    });
+  },
+  // A4 PDF: the picture cut into pages – no library needed
+  async pdf(cv) {
+    const PW = 595.28, PH = 841.89, M = 28, cw = PW - 2 * M, ch = PH - 2 * M, k = cw / cv.width, sliceH = Math.floor(ch / k), pages = [];
+    for (let y = 0; y < cv.height; y += sliceH) { const h = Math.min(sliceH, cv.height - y), s = document.createElement('canvas'); s.width = cv.width; s.height = h; const x = s.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, s.width, h); x.drawImage(cv, 0, y, cv.width, h, 0, 0, cv.width, h);
+      pages.push({ w: s.width, h, jpg: new Uint8Array(await (await new Promise(r => s.toBlob(r, 'image/jpeg', .9))).arrayBuffer()) }); }
+    const enc = new TextEncoder(), parts = [], offs = []; let len = 0;
+    const put = x => { const b = typeof x === 'string' ? enc.encode(x) : x; parts.push(b); len += b.length; };
+    const obj = (n, f) => { offs[n] = len; put(`${n} 0 obj\n`); f(); put('\nendobj\n'); };
+    put('%PDF-1.4\n%\xE2\xE3\xCF\xD3\n'); const N = pages.length, kids = pages.map((p, i) => `${3 + i * 3} 0 R`).join(' ');
+    obj(1, () => put('<< /Type /Catalog /Pages 2 0 R >>')); obj(2, () => put(`<< /Type /Pages /Kids [${kids}] /Count ${N} >>`));
+    pages.forEach((p, i) => { const n = 3 + i * 3, ph = +(p.h * k).toFixed(2), cs = `q ${cw.toFixed(2)} 0 0 ${ph} ${M} ${(PH - M - ph).toFixed(2)} cm /Im${i} Do Q`;
+      obj(n, () => put(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${PW} ${PH}] /Resources << /XObject << /Im${i} ${n + 2} 0 R >> >> /Contents ${n + 1} 0 R >>`));
+      obj(n + 1, () => put(`<< /Length ${cs.length} >>\nstream\n${cs}\nendstream`));
+      obj(n + 2, () => { put(`<< /Type /XObject /Subtype /Image /Width ${p.w} /Height ${p.h} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${p.jpg.length} >>\nstream\n`); put(p.jpg); put('\nendstream'); }); });
+    const T = 3 + N * 3, x = len; put(`xref\n0 ${T}\n0000000000 65535 f \n` + Array.from({ length: T - 1 }, (_, i) => String(offs[i + 1]).padStart(10, '0') + ' 00000 n \n').join(''));
+    put(`trailer\n<< /Size ${T} /Root 1 0 R >>\nstartxref\n${x}\n%%EOF`);
+    return new Blob(parts, { type: 'application/pdf' });
+  },
+  async image(d, root, title) { try { const cv = await this.canvas(d, root); cv.toBlob(b => UI.download(this.fname(title, 'png'), b)); } catch (e) { UI.toast('Image failed: ' + e.message); } },
+  async pdfOf(d, root, title) { try { UI.toast('Making PDF…'); UI.download(this.fname(title, 'pdf'), await this.pdf(await this.canvas(d, root, 60000))); } catch (e) { UI.toast('PDF failed: ' + e.message + ' – use Print › Save as PDF'); } },
+
+  /* every CSV / Excel button that sits with a table gets a 👁 Preview next to it */
+  scan() {
+    $$('button').forEach(b => {
+      if (b.dataset.xpv || b.dataset.r === 'csv' || b.closest('#deBar,.hx-menu,.xp-pv')) return; const t = b.textContent;
+      if (!/\b(CSV|Excel|XLSX)\b/i.test(t) || /import|choose|upload|📥/i.test(t)) return;
+      const box = b.closest('.card, .modal, .el-box, #tabBody') || b.parentNode; if (!box || !box.querySelector('table')) return;
+      b.dataset.xpv = '1'; if (b.previousElementSibling && b.previousElementSibling.classList.contains('xp-pv')) return;
+      const p = document.createElement('button'); p.type = 'button'; p.className = (b.className || 'btn') + ' xp-pv'; p.textContent = '👁 Preview'; p.title = 'See it first – then save as HTML, Word, PDF, Excel, Image or print';
+      p.onclick = () => this.box(box); b.parentNode.insertBefore(p, b);
+    });
+  },
+  title() { const h = $('#main .page-head h2'), t = $('#main .tabs .tab.active'); return [h && h.textContent.trim(), t && t.childNodes[0] && t.childNodes[0].textContent.trim()].filter(Boolean).join(' – ') || 'Report'; },
+  box(box) {
+    const hd = box.querySelector('h3, h4, .card-title, b'), T = [...box.querySelectorAll('table')];
+    const html = T.map(t => { const c = t.cloneNode(true); c.removeAttribute('class'); c.querySelectorAll('button,input,select,.np').forEach(x => x.remove()); c.querySelectorAll('[class],[style]').forEach(x => { x.removeAttribute('class'); x.removeAttribute('style'); }); return c.outerHTML; }).join('');
+    this.open(this.title() + (hd && hd.textContent.trim().length < 80 ? ' – ' + hd.textContent.trim() : ''), html);
+  }
+};
+(() => { let q = 0; const run = () => { q = 0; try { ExportAll.scan(); } catch (e) { } };
+  const mo = new MutationObserver(() => { if (!q) q = requestAnimationFrame(run); });
+  const st = () => mo.observe(document.body, { childList: true, subtree: true }); if (document.body) st(); else document.addEventListener('DOMContentLoaded', st); })();
 
 </script>
 <script>
