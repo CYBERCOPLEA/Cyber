@@ -2280,6 +2280,7 @@ html.no-contacts .ct-item,html.no-contacts .ct-subs{display:none!important}
 .tabs .ct-sep{align-self:center;opacity:.6;font-weight:700;margin:0 2px}.tabs .ct-ch{border:1px solid var(--c);background:color-mix(in srgb,var(--c) 14%,transparent);color:inherit;border-radius:999px;padding:6px 12px;font-size:12.5px;cursor:pointer;white-space:nowrap}.tabs .ct-ch b{margin-left:4px;opacity:.85}.tabs .ct-ch.on{background:var(--c);color:#fff}
 .eo-act{display:inline-flex;gap:4px;white-space:nowrap}
 #topWho{display:flex;flex-direction:column;line-height:1.15;font-size:11px;opacity:.9;margin-right:8px;align-self:center;min-width:104px;flex:0 1 auto;max-width:190px;overflow:hidden}#topWho>span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#topWho b{font-weight:700}#topWho small{opacity:.7;font-size:10px}#topbar .gsearch{flex:0 1 220px;min-width:110px}#topbar .gsearch #gsearch{width:100%!important;min-width:0}
+.pb-flt{padding:10px 14px}.pb-flt label{display:flex;flex-direction:column;gap:3px;font-size:12px}.pf-g{display:flex;flex-direction:column;gap:3px}.pf-seg{display:inline-flex;border:1px solid var(--border);border-radius:8px;overflow:hidden}.pf-seg button{background:transparent;color:inherit;border:0;border-right:1px solid var(--border);padding:6px 9px;font-size:12px;cursor:pointer}.pf-seg button:last-child{border-right:0}.pf-seg button.on{background:#dc2626;color:#fff}
 
 </style>
 </head>
@@ -2328,7 +2329,7 @@ html.no-contacts .ct-item,html.no-contacts .ct-subs{display:none!important}
         <div class="hp-feat" style="--fc:#06b6d4"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><div><b>Analytics</b><p>The same mobile, account, IP or e-mail across complaints, banks and platforms.</p></div></div>
         <div class="hp-feat" style="--fc:#eab308"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h5"/></svg></span><div><b>Case File &amp; Notices</b><p>Case reports, notices to banks and platforms, and CSV / PDF exports.</p></div></div>
     </section>
-    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-13 15:18 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
+    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · by <b>Vijay Tomar</b> (@lea_tomar) · v2.0 · Build 2026-11-13 15:31 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
   </div>
 
   <div class="lg-wrap" id="lgWrap" aria-hidden="true">
@@ -18569,25 +18570,65 @@ const PRB = {
   },
   hits(r, V) { const s = new Map(); this.ids(r).forEach(([, k]) => (V.get(k) || []).forEach(v => s.set(v.key, v))); return [...s.values()]; },
   /* gangs: rows joined by the same mobile, IMEI, account, NCRP complaint or the same spot (~100 m) */
-  gangs(D) {
-    const P = D.map((_, i) => i), f = i => P[i] === i ? i : (P[i] = f(P[i])), u = (a, b) => { a = f(a); b = f(b); if (a !== b) P[a] = b; }, K = new Map(), why = new Map();
-    D.forEach((r, i) => { const ks = this.ids(r).map(x => x[1]); if (r.lat != null && (r.k === 'loc' || r.k === 'pos')) ks.push('g:' + r.lat.toFixed(3) + ',' + r.lng.toFixed(3)); if (r.atm) ks.push('t:' + this.na(r.atm));
-      ks.forEach(k => { if (K.has(k)) { u(i, K.get(k)); why.set(k, (why.get(k) || 1) + 1); } else K.set(k, i); }); });
-    const G = new Map(); D.forEach((r, i) => { const g = f(i); (G.get(g) || G.set(g, []).get(g)).push(r); });
-    return [...G.values()].map(R => { const m = [...new Set(R.map(r => r.mobile).filter(Boolean))], im = [...new Set(R.map(r => r.imei).filter(Boolean))], ac = [...new Set(R.map(r => r.acc).filter(Boolean))], ak = [...new Set(R.flatMap(r => r.acks))];
+  /* gangs: rows joined by the same mobile, IMEI, account, NCRP complaint, ATM – or standing within F.m metres of each other (group calling) */
+  dist(a, b) { const R = 6371000, x = (b.lng - a.lng) * Math.PI / 180 * Math.cos((a.lat + b.lat) / 2 * Math.PI / 180), y = (b.lat - a.lat) * Math.PI / 180; return Math.sqrt(x * x + y * y) * R; },
+  gangs(D, mm) {
+    mm = mm == null ? this.flt().m : +mm || 0;
+    const P = D.map((_, i) => i), f = i => { while (P[i] !== i) { P[i] = P[P[i]]; i = P[i]; } return i; }, u = (a, b) => { a = f(a); b = f(b); if (a !== b) P[a] = b; }, K = new Map(), why = new Map(), near = new Set();
+    const keys = r => { const a = this.ids(r).map(x => x[1]); if (r.atm) a.push('t:' + this.na(r.atm)); return a; };
+    D.forEach((r, i) => keys(r).forEach(k => { if (K.has(k)) { u(i, K.get(k)); why.set(k, (why.get(k) || 1) + 1); } else K.set(k, i); }));
+    if (mm > 0) { const deg = mm / 111320, C = new Map(), pts = D.map((r, i) => [r, i]).filter(([r]) => r.lat != null && (r.k === 'loc' || r.k === 'pos'));
+      const ck = (a, b) => a + ',' + b; pts.forEach(([r, i]) => { const a = Math.floor(r.lat / deg), b = Math.floor(r.lng / deg); (C.get(ck(a, b)) || C.set(ck(a, b), []).get(ck(a, b))).push(i); });
+      pts.forEach(([r, i]) => { const a = Math.floor(r.lat / deg), b = Math.floor(r.lng / deg); for (let da = -1; da <= 1; da++) for (let db = -2; db <= 2; db++) for (const j of C.get(ck(a + da, b + db)) || []) if (j > i && this.dist(r, D[j]) <= mm && (D[j].mobile !== r.mobile || !r.mobile)) { u(i, j); near.add(i); near.add(j); } }); }
+    const G = new Map(); D.forEach((r, i) => { const g = f(i); (G.get(g) || G.set(g, []).get(g)).push(i); });
+    return [...G.values()].map(I => { const R = I.map(i => D[i]), m = [...new Set(R.map(r => r.mobile).filter(Boolean))], im = [...new Set(R.map(r => r.imei).filter(Boolean))], ac = [...new Set(R.map(r => r.acc).filter(Boolean))], ak = [...new Set(R.flatMap(r => r.acks))];
       if (m.length + ac.length < 2 && !(im.length && m.length > 1)) return null;
-      const ks = new Set(R.flatMap(r => { const a = this.ids(r).map(x => x[1]); if (r.lat != null && (r.k === 'loc' || r.k === 'pos')) a.push('g:' + r.lat.toFixed(3) + ',' + r.lng.toFixed(3)); if (r.atm) a.push('t:' + this.na(r.atm)); return a; }).filter(k => (why.get(k) || 0) > 1));
-      const rs = [...new Set([...ks].map(k => ({ m: '📱 Same Mobile', i: '📟 Same IMEI (Many SIMs)', a: '🏦 Same Account', k: '🧾 Same Complaint', g: '📍 Same Spot (Group Calling)', t: '🏧 Same ATM' }[k[0]])))];
-      const key = [...m, ...ac].sort()[0], auto = rs.some(x => /IMEI/.test(x)) ? this.GCAT[1] : rs.some(x => /Spot/.test(x)) ? this.GCAT[0] : rs.some(x => /ATM/.test(x)) || R.some(r => r.k === 'atm' || r.k === 'chq') ? this.GCAT[3] : R.some(r => r.k === 'pos') ? this.GCAT[4] : ac.length ? this.GCAT[2] : this.GCAT[7];
-      return { key, R, m, im, ac, ak, rs, auto, comp: R.reduce((s, r) => s + (r.total || 0), 0), kinds: [...new Set(R.map(r => r.k))] }; }).filter(Boolean).sort((a, b) => b.R.length - a.R.length || b.comp - a.comp);
+      const ks = new Set(R.flatMap(keys).filter(k => (why.get(k) || 0) > 1)), rs = [...new Set([...ks].map(k => ({ m: '📱 Same Mobile', i: '📟 Same IMEI (Many SIMs)', a: '🏦 Same Account', k: '🧾 Same Complaint', t: '🏧 Same ATM' }[k[0]])))];
+      if (I.some(i => near.has(i))) rs.push(`📍 Within ${mm} m (Group Calling)`);
+      const key = [...m, ...ac].sort()[0], auto = rs.some(x => /IMEI/.test(x)) ? this.GCAT[1] : rs.some(x => /Within/.test(x)) ? this.GCAT[0] : rs.some(x => /ATM/.test(x)) || R.some(r => r.k === 'atm' || r.k === 'chq') ? this.GCAT[3] : R.some(r => r.k === 'pos') ? this.GCAT[4] : ac.length ? this.GCAT[2] : this.GCAT[7];
+      const P2 = R.filter(r => r.lat != null), span = P2.length > 1 ? Math.round(Math.max(...P2.map(a => Math.max(...P2.map(b => this.dist(a, b)))))) : 0;
+      return { key, R, m, im, ac, ak, rs, auto, span, comp: R.reduce((s, r) => s + (r.total || 0), 0), kinds: [...new Set(R.map(r => r.k))] }; }).filter(Boolean).sort((a, b) => b.R.length - a.R.length || b.comp - a.comp);
+  },
+  /* view filters – date, time of day, day / night, weekdays, complaints, gang distance (kept on this computer) */
+  FD: { from: '', to: '', tod: 'all', h1: '', h2: '', dow: [], minc: 0, m: 100 },
+  flt() { if (!this._f) { try { this._f = Object.assign({}, this.FD, JSON.parse(localStorage.getItem('sud-prbf') || '{}')); } catch (e) { this._f = Object.assign({}, this.FD); } } return this._f; },
+  fset(o) { Object.assign(this.flt(), o); try { localStorage.setItem('sud-prbf', JSON.stringify(this._f)); } catch (e) { } render(); },
+  timed(F) { return !!(F.from || F.to || F.tod !== 'all' || F.dow.length); },
+  pass(r, F) {
+    if (F.minc && (r.total || 0) < F.minc) return false; if (!this.timed(F)) return true; if (!r.time) return false;
+    const d = new Date(r.time), h = d.getHours() + d.getMinutes() / 60, ymd = this.ymd(r.time);
+    if (F.from && ymd < F.from) return false; if (F.to && ymd > F.to) return false; if (F.dow.length && !F.dow.includes(d.getDay())) return false;
+    if (F.tod === 'day' && !(h >= 6 && h < 18)) return false; if (F.tod === 'night' && h >= 6 && h < 18) return false;
+    if (F.tod === 'hrs' && F.h1 !== '' && F.h2 !== '') { const a = +F.h1, b = +F.h2; if (a <= b ? !(h >= a && h < b) : !(h >= a || h < b)) return false; }
+    return true; },
+  ymd(t) { const d = new Date(t), q = n => String(n).padStart(2, '0'); return `${d.getFullYear()}-${q(d.getMonth() + 1)}-${q(d.getDate())}`; },
+  fbar(n, tot, cur) { const F = this.flt(), DW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], hrs = [...Array(24)].map((_, i) => i);
+    return `<div class="card pb-flt"><div class="row" style="gap:10px;flex-wrap:wrap;align-items:flex-end">
+      <label>From<input type="date" id="pfF" value="${esc(F.from)}"></label><label>To<input type="date" id="pfT" value="${esc(F.to)}"></label>
+      <div class="pf-g"><span class="small">Time</span><div class="pf-seg">${[['all', '🕒 All'], ['day', '☀️ Day 6–18'], ['night', '🌙 Night 18–6'], ['hrs', '⏱ Hours']].map(([k, l]) => `<button class="${F.tod === k ? 'on' : ''}" data-pft="${k}">${l}</button>`).join('')}</div></div>
+      ${F.tod === 'hrs' ? `<label>From Hour<select id="pfH1">${hrs.map(h => `<option ${String(F.h1) === String(h) ? 'selected' : ''}>${h}</option>`).join('')}</select></label><label>To Hour<select id="pfH2">${hrs.map(h => `<option ${String(F.h2) === String(h) ? 'selected' : ''}>${h}</option>`).join('')}</select></label>` : ''}
+      <div class="pf-g"><span class="small">Days</span><div class="pf-seg">${DW.map((d, i) => `<button class="${F.dow.includes(i) ? 'on' : ''}" data-pfd="${i}">${d}</button>`).join('')}</div></div>
+      <label>Min. Complaints<input type="number" id="pfC" min="0" value="${F.minc || ''}" style="width:80px" placeholder="0"></label>
+      <label title="Suspect points standing this close are joined into one gang / group (group calling)">👥 Gang Distance <b id="pfMv">${F.m} m</b><input type="range" id="pfM" min="0" max="800" step="25" value="${F.m}" style="width:160px"></label>
+      <button class="btn sm" id="pfX">✖ Reset</button><span class="small muted grow" style="text-align:right">Showing <b>${fmtNum(n)}</b> of ${fmtNum(tot)} rows${this.timed(F) ? ' · rows without a date / time are hidden while a time filter is on' : ''}</span></div></div>`; },
+  fbind(el) {
+    const F = this.flt(), v = id => $('#' + id, el);
+    v('pfF').onchange = e => this.fset({ from: e.target.value }); v('pfT').onchange = e => this.fset({ to: e.target.value });
+    $$('[data-pft]', el).forEach(b => b.onclick = () => this.fset({ tod: b.dataset.pft, h1: F.h1 === '' ? 22 : F.h1, h2: F.h2 === '' ? 4 : F.h2 }));
+    $$('[data-pfd]', el).forEach(b => b.onclick = () => { const d = +b.dataset.pfd, a = F.dow.includes(d) ? F.dow.filter(x => x !== d) : [...F.dow, d]; this.fset({ dow: a }); });
+    if (v('pfH1')) { v('pfH1').onchange = e => this.fset({ h1: +e.target.value }); v('pfH2').onchange = e => this.fset({ h2: +e.target.value }); }
+    v('pfC').onchange = e => this.fset({ minc: Math.max(0, +e.target.value || 0) });
+    v('pfM').oninput = e => { v('pfMv').textContent = e.target.value + ' m'; }; v('pfM').onchange = e => this.fset({ m: +e.target.value });
+    v('pfX').onclick = () => { this._f = Object.assign({}, this.FD, { dow: [] }); try { localStorage.removeItem('sud-prbf'); } catch (e) { } render(); };
   },
   async meta() { return Off.get('prbGang', {}); },
   gl(g, M) { const o = M[g.key] || {}; return { cat: o.cat || g.auto, name: o.name || '', note: o.note || '' }; },
   /* ---------- page ---------- */
   async page(main) {
-    const { cur, body } = tabs(main, 'prb', [['glance', '📊 At A Glance'], ...this.K.map(([k, ic, l]) => [k, ic + ' ' + l]), ['gang', '👥 Gangs / Groups']], '🛰 Pratibimb Cases');
+    let { cur, body } = tabs(main, 'prb', [['glance', '📊 At A Glance'], ...this.K.map(([k, ic, l]) => [k, ic + ' ' + l]), ['gang', '👥 Gangs / Groups']], '🛰 Pratibimb Cases');
     body.innerHTML = '<div class="card muted">Reading Pratibimb data and matching with every case…</div>';
-    const D = await this.data(), V = await this.ix(), G = this.gangs(D), M = await this.meta(); if (S.page !== 'prb') return;
+    const D0 = await this.data(), F = this.flt(), D = D0.filter(r => this.pass(r, F)), V = await this.ix(), G = this.gangs(D), M = await this.meta(); if (S.page !== 'prb') return;
+    if (D0.length) { body.innerHTML = this.fbar(cur === 'glance' || cur === 'gang' ? D.length : D.filter(r => r.k === cur).length, cur === 'glance' || cur === 'gang' ? D0.length : D0.filter(r => r.k === cur).length, cur) + '<div id="pbBody"></div>'; this.fbind(body); body = $('#pbBody', body); }
     D.forEach(r => { r._h = this.hits(r, V); }); const gOf = new Map(); G.forEach((g, i) => g.R.forEach(r => gOf.set(r.id, i))); this._G = G; this._gOf = gOf;
     if (cur === 'glance') return this.glance(body, D, G, M);
     if (cur === 'gang') return this.gangPage(body, G, M);
@@ -18710,7 +18751,7 @@ const PRB = {
   async gangPage(el, G, M) {
     const st = this.st(), cats = EditList.items('prb-gcat', this.GCAT), V = st.gc ? G.filter(g => this.gl(g, M).cat === st.gc) : G;
     el.innerHTML = `<div class="card"><div class="row" style="gap:8px;flex-wrap:wrap;align-items:center"><h3 class="grow" style="margin:0">👥 Gangs / Groups <span class="badge">${V.length}</span></h3>${st.gc ? `<span class="tg-sp" style="--c:#0f766e">${esc(st.gc)}</span><button class="btn sm" id="pbGx">✖ All Categories</button>` : ''}</div>
-      <p class="small muted" style="margin:6px 0 0">Rows that share a mobile, IMEI (many SIMs in one phone), account, NCRP complaint, ATM or the same spot (~100 m – group calling) are joined into one group. Give each a category and a name; the categories list is yours to edit.</p>
+      <p class="small muted" style="margin:6px 0 0">Rows that share a mobile, IMEI (many SIMs in one phone), account, NCRP complaint, ATM, or stand within <b>${this.flt().m} m</b> of each other (group calling – change it with 👥 Gang Distance above) are joined into one group. Give each a category and a name; the categories list is yours to edit.</p>
       ${G.length ? `<div class="grid g2" style="margin-top:10px"><div>${Trend.ring(this.cnt(G, g => this.gl(g, M).cat), st.gc || '', 'data-pbg', G.length, 'groups')}</div><div>${this.bar(this.cnt(G, g => g.rs).slice(0, 8), 'data-pbw', '#0f766e')}</div></div>` : ''}</div>
       <div class="card"><div id="pbGT"></div></div>`;
     if ($('#pbGx', el)) $('#pbGx', el).onclick = () => { st.gc = ''; render(); };
@@ -18719,6 +18760,7 @@ const PRB = {
     Table($('#pbGT', el), { rows: V, pageSize: 25, exportName: 'pratibimb_gangs', noNd: true, onRow: g => this.gang(g, M, cats), columns: [
       { key: 'id', label: 'Group', sortVal: g => G.indexOf(g), csv: g => 'G' + (G.indexOf(g) + 1), render: g => { const o = this.gl(g, M); return `<b>👥 G${G.indexOf(g) + 1}</b>${o.name ? ' ' + esc(o.name) : ''}<div><span class="tg-sp" style="--c:#0f766e">${esc(o.cat)}</span></div>`; } },
       { key: 'rs', label: 'Joined By', csv: g => g.rs.join(', '), render: g => g.rs.map(x => `<div class="small">${esc(x)}</div>`).join('') },
+      { key: 'span', label: 'Spread', num: true, csv: g => g.span ? g.span + ' m' : '', render: g => g.span ? (g.span >= 1000 ? (g.span / 1000).toFixed(1) + ' km' : g.span + ' m') : '' },
       { key: 'm', label: 'Mobiles', sortVal: g => g.m.length, csv: g => g.m.join(' '), render: g => `<b>${g.m.length}</b> <span class="small mono">${esc(g.m.slice(0, 4).join(', '))}${g.m.length > 4 ? ' …' : ''}</span>` },
       { key: 'im', label: 'IMEIs', sortVal: g => g.im.length, csv: g => g.im.join(' '), render: g => g.im.length ? `<b>${g.im.length}</b> <span class="small mono">${esc(g.im.slice(0, 2).join(', '))}</span>` : '' },
       { key: 'ac', label: 'Accounts', sortVal: g => g.ac.length, csv: g => g.ac.join(' '), render: g => g.ac.length ? `<b>${g.ac.length}</b> <span class="small mono">${esc(g.ac.slice(0, 2).join(', '))}</span>` : '' },
@@ -18742,9 +18784,9 @@ addEventListener('scroll', () => PRB.tip(null), true);
 /* Analytics drop-down: "Pratibimb Cases" (with its 5 sheets) just above Target */
 (() => {
   const subs = $('.tel-subs'), tg = subs && $('[data-tx="target"]', subs); if (!tg) return;
-  tg.insertAdjacentHTML('beforebegin', `<div class="nav-sub pb-h" data-tx="prb" style="--pc:#dc2626" title="I4C Pratibimb: suspect locations, cheque / ATM withdrawals, bank branches, SIM – POS"><i></i><span>Pratibimb Cases ▸</span></div>${PRB.K.map(([k, , l, c]) => `<div class="nav-sub pb-n" data-pbn="${k}" style="--pc:${c}"><i></i><span>${l}</span></div>`).join('')}`);
+  tg.insertAdjacentHTML('beforebegin', `<div class="nav-sub pb-h" data-tx="prb" style="--pc:#dc2626" title="I4C Pratibimb: suspect locations, cheque / ATM withdrawals, bank branches, SIM – POS"><i></i><span>Pratibimb Cases</span></div>${PRB.K.map(([k, , l, c]) => `<div class="nav-sub pb-n" data-pbn="${k}" style="--pc:${c}"><i></i><span>${l}</span></div>`).join('')}`);
   const num = () => { let i = 0; $$('.nav-sub', subs).forEach(n => { const s = $('span', n); if (!s || n.classList.contains('pb-n') || n.classList.contains('nc-edit')) return; s.textContent = (++i) + '. ' + s.textContent.replace(/^\d+\.\s*/, ''); }); }; num();
-  const h = $('.pb-h', subs), show = on => { S.pbOpen = on; $$('.pb-n', subs).forEach(n => n.classList.toggle('pb-off', !on)); const s = $('span', h); s.textContent = s.textContent.replace(/[▸▾]/, on ? '▾' : '▸'); }; show(false);
+  const h = $('.pb-h', subs), show = on => { S.pbOpen = on; $$('.pb-n', subs).forEach(n => n.classList.toggle('pb-off', !on)); }; show(false);
   h.onclick = e => { e.stopPropagation(); if (S.page === 'prb') show(!S.pbOpen); else { show(true); S.sub.prb = 'glance'; go('prb'); } };
   $$('.pb-n', subs).forEach(n => n.onclick = e => { e.stopPropagation(); S.sub.prb = n.dataset.pbn; go('prb', n.dataset.pbn); });
   /* the menu keeps its items in their first-seen order: give every item its place as it now stands, so the 5 sheets stay under Pratibimb Cases */
