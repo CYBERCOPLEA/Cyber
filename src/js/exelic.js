@@ -42,7 +42,7 @@ const ExeLic = {
   },
   async sign(r) {
     const sk = await this.signer();
-    const p = { v: 1, lid: r.lid, seq: r.seq, n: r.name, rk: r.rank || '', ps: r.ps || '', dist: r.dist || '', st: r.st || '', mob: r.mob || '', mid: r.mid, tier: r.tier, from: r.from, to: r.to, hide: r.hide || [], xr: r.xr || [], iss: new Date().toISOString(), u: r.u || '' };
+    const p = { v: 1, lid: r.lid, seq: r.seq, n: r.name, rk: r.rank || '', ps: r.ps || '', dist: r.dist || '', st: r.st || '', mob: r.mob || '', em: r.email || '', mid: r.mid, tier: r.tier, from: r.from, to: r.to, hide: r.hide || [], xr: r.xr || [], iss: new Date().toISOString(), u: r.u || '' };
     const body = this.b64u(this.utf8(JSON.stringify(p)));
     return this.PRE + '.' + body + '.' + this.b64u(nacl.sign.detached(this.utf8(body), sk));
   },
@@ -115,7 +115,7 @@ const ExeLic = {
   /* ---------- Add / Edit ---------- */
   edit(r, main, pre) {
     const D = this.defs(), isNew = !r, x = r ? Object.assign({}, r) : { tier: 'normal', from: this.istToday(), days: D.normal.days, hide: D.normal.hide.slice(), xr: D.normal.xr.slice() };
-    if (pre && isNew) Object.assign(x, { name: pre.n || '', rank: pre.rk || '', ps: pre.ps || '', dist: pre.dist || '', st: pre.st || '', mob: pre.mob || '', mid: this.normMid(pre.mid) });
+    if (pre && isNew) Object.assign(x, { email: pre.em || '', name: pre.n || '', rank: pre.rk || '', ps: pre.ps || '', dist: pre.dist || '', st: pre.st || '', mob: pre.mob || '', mid: this.normMid(pre.mid) });
     if (!isNew) x.days = this.daysBetween(x.from, x.to) + 1;
     const b = UI.modal(isNew ? '➕ Add EXE User (Desktop Licence)' : '✏ Change Licence – ' + r.lid, `
       ${isNew ? `<div class="ex-req"><b>1.</b> Paste the <b>Request Code</b> the user sent from the EXE (it fills everything below):<textarea id="exReq" rows="2" placeholder="SUDREQ1.…">${pre ? esc(pre.code || '') : ''}</textarea></div>` : ''}
@@ -123,6 +123,7 @@ const ExeLic = {
         <label>Name<input id="exN" value="${esc(x.name || '')}"></label><label>Rank / Post<input id="exRk" value="${esc(x.rank || '')}"></label>
         <label>Posting / Police Station / Unit<input id="exPs" value="${esc(x.ps || '')}"></label><label>District / Commissionerate<input id="exDi" value="${esc(x.dist || '')}"></label>
         <label>State<input id="exSt" value="${esc(x.st || '')}"></label><label>Mobile<input id="exMo" value="${esc(x.mob || '')}"></label>
+        <label class="ex-w">E-mail <span class="small muted">${pre && pre.em ? (pre.emv ? '✔ checked by OTP' : '⚠ not checked yet') : '(for password reset by e-mail)'}</span><input id="exEm" type="email" value="${esc(x.email || '')}" data-nov></label>
         <label class="ex-w">Machine ID of the user's computer <span class="small muted">(shown on the EXE's first screen)</span><input id="exMid" class="mono" placeholder="SA-XXXX-XXXX-XXXX-XXXX" value="${esc(x.mid || '')}"></label>
       </div>
       <div class="ex-grid ex-plan">
@@ -140,7 +141,7 @@ const ExeLic = {
     $('#exF', b).onchange = to; $('#exD', b).oninput = to;
     $('#exTo', b).onchange = () => { const f = $('#exF', b).value, t = $('#exTo', b).value; if (f && t) $('#exD', b).value = Math.max(1, this.daysBetween(f, t) + 1); };
     $('#exT', b).onchange = () => { const d = D[$('#exT', b).value]; $('#exD', b).value = d.days; to(); $('#exTr', b).innerHTML = Plans.treeHtml(d.hide); Plans.treeBind($('#exTr', b)); $$('[data-xr]', b).forEach(c => { c.checked = d.xr.includes(c.dataset.xr); }); };
-    if ($('#exReq', b)) $('#exReq', b).oninput = () => { const q = this.parseReq($('#exReq', b).value); if (!q) return; [['exN', q.n], ['exRk', q.rk], ['exPs', q.ps], ['exDi', q.dist], ['exSt', q.st], ['exMo', q.mob], ['exMid', q.mid]].forEach(([i, v]) => { if (v) $('#' + i, b).value = v; }); UI.toast('✔ Request Code read – choose the category and days'); };
+    if ($('#exReq', b)) $('#exReq', b).oninput = () => { const q = this.parseReq($('#exReq', b).value); if (!q) return; [['exN', q.n], ['exRk', q.rk], ['exPs', q.ps], ['exDi', q.dist], ['exSt', q.st], ['exMo', q.mob], ['exEm', q.em], ['exMid', q.mid]].forEach(([i, v]) => { if (v) $('#' + i, b).value = v; }); UI.toast('✔ Request Code read – choose the category and days'); };
     const go2 = async () => {
       const e = t => { $('#exErr', b).textContent = t; }, mid = this.normMid($('#exMid', b).value), name = $('#exN', b).value.trim(), f = $('#exF', b).value, t = $('#exTo', b).value;
       if (!name) return e('Enter the user’s name'); if (!mid) return e('Machine ID must look like SA-XXXX-XXXX-XXXX-XXXX (paste the Request Code)');
@@ -148,11 +149,11 @@ const ExeLic = {
       const dup = this.list().find(o => o.mid === mid && o.status !== 'Deleted' && (!r || o.lid !== r.lid)); if (dup && !UI.confirm(`This computer already has licence ${dup.lid} (${dup.name}). Make another one for it anyway?`)) return;
       const n = r || { lid: this.rid(), seq: 0, status: 'Active', made: new Date().toISOString() };
       const old = r ? { tier: r.tier, to: r.to, mid: r.mid } : null;
-      Object.assign(n, { name, rank: $('#exRk', b).value.trim(), ps: $('#exPs', b).value.trim(), dist: $('#exDi', b).value.trim(), st: $('#exSt', b).value.trim(), mob: $('#exMo', b).value.trim(), mid, tier: $('#exT', b).value, from: f, to: t, hide: Plans.treeRead($('#exTr', b)), xr: $$('[data-xr]', b).filter(c => c.checked).map(c => c.dataset.xr) });
+      Object.assign(n, { name, rank: $('#exRk', b).value.trim(), ps: $('#exPs', b).value.trim(), dist: $('#exDi', b).value.trim(), st: $('#exSt', b).value.trim(), mob: $('#exMo', b).value.trim(), email: $('#exEm', b).value.trim().toLowerCase(), mid, tier: $('#exT', b).value, from: f, to: t, hide: Plans.treeRead($('#exTr', b)), xr: $$('[data-xr]', b).filter(c => c.checked).map(c => c.dataset.xr) });
       e('⏳ Signing the licence…');
       try { await this.issue(n, isNew ? 'Added' : 'Changed', isNew ? `${n.tier}, ${this.dmy(f)} → ${this.dmy(t)}` : [old.tier !== n.tier && 'category ' + old.tier + ' → ' + n.tier, old.to !== n.to && 'valid to ' + this.dmy(n.to), old.mid !== n.mid && 'moved to computer ' + n.mid].filter(Boolean).join(', ') || 'sections / details'); } catch (x) { return e('❌ ' + x.message); }
       if (isNew) this.list().push(n); await this.save();
-      if (isNew) this.reqGone(n.mid);
+      if (isNew) this.reqGone(n.mid, 'Licence');
       UI.closeModal(); this.draw(main); this.share(n, isNew ? '✅ Licence Made – Send This To ' + n.name : '🔑 New Licence Key – ' + n.name);
     };
   },
@@ -198,8 +199,27 @@ const ExeLic = {
   one(r, main) {
     const b = UI.modal('🖥 ' + [r.rank, r.name].filter(Boolean).join(' '), `<table class="tbl ad-kv"><tr><th>Licence</th><td class="mono"><b>${esc(r.lid)}</b> · issue #${r.seq}</td></tr><tr><th>Status</th><td>${this.stBadge(r)}</td></tr><tr><th>Category</th><td>${Plans.badge(r.tier)}</td></tr><tr><th>Valid</th><td>${this.dmy(r.from)} → <b>${this.dmy(r.to)}</b></td></tr><tr><th>Posting</th><td>${esc([r.ps, r.dist, r.st].filter(Boolean).join(', ') || '—')}</td></tr><tr><th>Mobile</th><td>${esc(r.mob || '—')}</td></tr><tr><th>Computer</th><td class="mono">${esc(r.mid)}</td></tr><tr><th>Last Seen Online</th><td>${r.seen ? Users.dt(r.seen) + (r.build ? ' · build ' + esc(r.build) : '') : '—'}</td></tr><tr><th>Extra Rights</th><td>${(r.xr || []).map(k => esc((this.XR.find(z => z[0] === k) || [k, k])[1])).join(', ') || '—'}</td></tr><tr><th>Hidden Sections</th><td>${(r.hide || []).length || 'none'}</td></tr></table>
       <h4 style="margin:12px 0 6px">📜 History</h4><div class="ex-hist">${(r.hist || []).map(h => `<div><span class="small muted">${Users.dt(h.at)}</span> <b>${esc(h.act)}</b> <span class="small">${esc(h.det)}</span></div>`).join('') || '<span class="muted small">—</span>'}</div>`,
-      [{ label: '🔑 Key', onClick: () => this.share(r) }, { label: '⏩ Extend', onClick: () => this.extend(r, main) }, { label: '✏ Change', onClick: () => this.edit(r, main) }, { label: 'Close', onClick: UI.closeModal }]);
+      [{ label: '🔑 Key', onClick: () => this.share(r) }, { label: '🔓 Password Reset Code', onClick: () => this.resetCode(r) }, { label: '⏩ Extend', onClick: () => this.extend(r, main) }, { label: '✏ Change', onClick: () => this.edit(r, main) }, { label: 'Close', onClick: UI.closeModal }]);
     return b;
+  },
+  /* one-time password reset code for one EXE (Super Admin only): SADR1.<json {t,lid,mid,exp,n}>.<signature>, valid 48 hours */
+  async resetCode(r, q) {
+    let code; try { const sk = await this.signer(); const body = this.b64u(this.utf8(JSON.stringify({ t: 'reset', lid: r.lid, mid: r.mid, exp: Date.now() + 48 * 3600e3, n: this.rid().slice(4) }))); code = 'SADR1.' + body + '.' + this.b64u(nacl.sign.detached(this.utf8(body), sk)); } catch (e) { return UI.toast('❌ ' + e.message, 6000); }
+    this.hist(r, 'Password reset code', 'valid 48 hours'); await this.save();
+    if (q) { this.reqGone(q.mid, 'Password Reset'); Users.admin('reqset', { mid: q.mid, status: 'Done', type: 'Password Reset' }).catch(() => { }); }
+    const txt = `SudarshanAshtra – password reset code\nFor: ${[r.rank, r.name].filter(Boolean).join(' ')} (${r.lid})\nOn the login screen press "Forgot password?" › "I have a reset code", paste this code and choose a new password. It works once, on your computer only, for 48 hours.\n\n${code}\n\n– SudarshanAshtra Super Admin`;
+    const b = UI.modal('🔓 Password Reset Code – ' + r.name, `<p class="small">Send this code to <b>${esc([r.rank, r.name].filter(Boolean).join(' '))}</b>. It works once, only on computer <span class="mono">${esc(r.mid)}</span>, for 48 hours.</p><textarea readonly class="mono ex-key" rows="4">${esc(code)}</textarea>`,
+      [{ label: '📋 Copy Message', cls: 'primary', onClick: async () => { try { await navigator.clipboard.writeText(txt); UI.toast('Copied – paste it in WhatsApp / e-mail'); } catch (e) { UI.toast('Copy failed – select the code and copy'); } } },
+        { label: '🟢 WhatsApp', onClick: () => window.open('https://wa.me/' + (String(r.mob || '').replace(/\D/g, '').replace(/^(\d{10})$/, '91$1')) + '?text=' + encodeURIComponent(txt), '_blank', 'noopener') },
+        { label: 'Done', onClick: UI.closeModal }]);
+    const ta = $('.ex-key', b); ta.onclick = () => ta.select();
+  },
+  verifyReset(code, lid, mid) {   // used on the EXE
+    const m = String(code || '').trim().match(/^SADR1\.([A-Za-z0-9_-]+)\.([A-Za-z0-9_-]+)$/); if (!m || typeof nacl === 'undefined') return 'This is not a reset code from the Super Admin';
+    let o; try { if (!nacl.sign.detached.verify(this.utf8(m[1]), this.unb64u(m[2]), this.unhex(this.PUB))) return 'This reset code is not genuine'; o = JSON.parse(new TextDecoder().decode(this.unb64u(m[1]))); } catch (e) { return 'This reset code is damaged – copy it again'; }
+    if (o.t !== 'reset' || o.lid !== lid || o.mid !== mid) return 'This reset code is for another licence or computer';
+    if (!(o.exp > Date.now())) return 'This reset code has expired – ask the Super Admin for a new one';
+    return o;
   },
   setupUrl() { return (S.settings && S.settings.exeSetupUrl) || 'https://drive.google.com/file/d/1n601SQf1vr2OmqlduABBrDc88Rcmvjjk/view?usp=sharing'; },
   setupInfo() {
@@ -218,7 +238,7 @@ const ExeLic = {
   REQ_K: 'sud-exreq',
   reqs() { try { const a = JSON.parse(localStorage.getItem(this.REQ_K) || '[]'); return Array.isArray(a) ? a : []; } catch (e) { return []; } },
   reqKeep(a) { localStorage.setItem(this.REQ_K, JSON.stringify(a)); this.bell(); },
-  reqGone(mid) { this.reqKeep(this.reqs().filter(q => q.mid !== mid)); },
+  reqGone(mid, ty) { this.reqKeep(this.reqs().filter(q => !(q.mid === mid && (!ty || (q.type || 'Licence') === ty)))); },
   async reqPoll() {
     if (SUD_ED !== 'admin' || !Role.admin() || this._reqBusy) return; this._reqBusy = 1;
     try {
@@ -226,13 +246,13 @@ const ExeLic = {
       const d = await Users.admin('reqlist', {}); if (!d || !Array.isArray(d.req)) throw new Error('Unknown request');
       this._reqWhy = ''; const mine = this.list();
       const a = d.req.filter(q => q && q.mid).filter(q => {
-        const done = mine.find(o => o.mid === q.mid && o.status !== 'Deleted' && (o.at || '') > (q.at || ''));
-        if (done) Users.admin('reqset', { mid: q.mid, status: 'Done' }).catch(() => { });
+        const done = (q.type || 'Licence') === 'Licence' && mine.find(o => o.mid === q.mid && o.status !== 'Deleted' && (o.at || '') > (q.at || ''));
+        if (done) Users.admin('reqset', { mid: q.mid, status: 'Done', type: 'Licence' }).catch(() => { });
         return !done;
       }).sort((x, y) => (y.at || '').localeCompare(x.at || ''));
-      const old = new Set(this.reqs().map(q => q.mid + '|' + q.at)), fresh = a.filter(q => !old.has(q.mid + '|' + q.at));
+      const old = new Set(this.reqs().map(q => q.mid + '|' + q.at + '|' + (q.type || ''))), fresh = a.filter(q => !old.has(q.mid + '|' + q.at + '|' + (q.type || '')));
       this.reqKeep(a);
-      if (fresh.length && this._reqSeen) UI.toast(`🔔 ${fresh.length === 1 ? (fresh[0].n || 'A new user') + ' is asking' : fresh.length + ' new users are asking'} for an EXE licence – click the bell`, 7000);
+      if (fresh.length && this._reqSeen) UI.toast(`🔔 ${fresh.length === 1 ? (fresh[0].n || 'A user') + ' is asking for ' + (fresh[0].type === 'Password Reset' ? 'a password reset code' : 'an EXE licence') : fresh.length + ' new EXE requests'} – click the bell`, 7000);
       this._reqSeen = 1;
     } catch (e) { this._reqWhy = /Unknown request|op/i.test(e.message) ? 'old' : 'err'; }
     finally { this._reqBusy = 0; this.bell(); }
@@ -253,10 +273,10 @@ const ExeLic = {
         : w === 'err' ? '<div class="note warn">Could not reach your Google Sheet just now (no internet?). This is the last list.</div>' : '';
     const rows = a.map((q, i) => `<tr class="ex-rq" data-i="${i}" title="Open Super Admin Control › EXE Users with these details filled in">
       <td><b>${esc([q.rk, q.n].filter(Boolean).join(' ') || '—')}</b><div class="small muted">${esc([q.ps, q.dist, q.st].filter(Boolean).join(', '))}</div></td>
-      <td class="mono">${esc(q.mob || '')}</td><td class="mono small">${esc(q.mid)}</td>
+      <td class="mono">${esc(q.mob || '')}${q.em ? `<div class="small">${esc(q.em)} ${q.emv ? '<span class="good" title="E-mail checked by OTP">✔</span>' : '<span class="muted" title="E-mail not checked">?</span>'}</div>` : ''}</td><td class="mono small">${esc(q.mid)}${q.type === 'Password Reset' ? `<div><span class="badge warn">🔑 Password Reset · ${esc(q.lid || '')}</span></div>` : ''}</td>
       <td class="small">${esc(this.reqWhen(q.at))}${q.times > 1 ? ` <span class="badge" title="The user pressed Send ${q.times} times">${q.times}×</span>` : ''}</td>
-      <td style="white-space:nowrap"><button class="btn sm primary" data-a="add">➕ Add User</button> <button class="btn sm" data-a="no" title="Remove this request (no licence)">✖</button></td></tr>`).join('');
-    const b = UI.modal('🔔 New EXE Users Asking For A Licence', `${note}${a.length
+      <td style="white-space:nowrap">${q.type === 'Password Reset' ? '<button class="btn sm primary" data-a="rst">🔑 Send Reset Code</button>' : '<button class="btn sm primary" data-a="add">➕ Add User</button>'} <button class="btn sm" data-a="no" title="Remove this request (no licence)">✖</button></td></tr>`).join('');
+    const b = UI.modal('🔔 EXE Requests – New Licences And Password Resets', `${note}${a.length
       ? `<p class="small muted">Click a user to open Super Admin Control › 🖥 EXE Users with Name, Rank, Posting, District, State, Mobile, Machine ID and Request Code filled in. Choose the category and days, then make the licence.</p>
         <div class="tbl-wrap"><table class="tbl ex-rqt"><thead><tr><th>User</th><th>Mobile</th><th>Machine ID</th><th>Asked On</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`
       : '<p>No new requests right now.</p><p class="small muted">When a new user fills the form on the EXE’s first screen and presses <b>📨 Send Request</b>, the request shows here with a red number on the bell.</p>'}`,
@@ -265,8 +285,9 @@ const ExeLic = {
       const q = a[+tr.dataset.i], bt = ev.target.closest('[data-a]');
       if (bt && bt.dataset.a === 'no') {
         ev.stopPropagation(); if (!UI.confirm(`Remove the request of ${q.n || q.mid}? (No licence is made.)`)) return;
-        this.reqGone(q.mid); Users.admin('reqset', { mid: q.mid, status: 'Dismissed' }).catch(() => { }); this.reqOpen(); return;
+        this.reqGone(q.mid, q.type || 'Licence'); Users.admin('reqset', { mid: q.mid, status: 'Dismissed', type: q.type || 'Licence' }).catch(() => { }); this.reqOpen(); return;
       }
+      if (q.type === 'Password Reset') { const r = this.list().find(o => o.lid === q.lid && o.mid === q.mid) || this.list().find(o => o.mid === q.mid && o.status !== 'Deleted'); if (!r) return UI.toast('No licence for this computer in your register'); this.resetCode(r, q); return; }
       this.reqAdd(q);
     });
   },

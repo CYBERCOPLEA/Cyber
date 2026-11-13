@@ -7,6 +7,7 @@ contextBridge.exposeInMainWorld('SudDesk', {
   setLicence: key => ipcRenderer.invoke('desk:setLicence', String(key || '')),
   checkOnline: () => ipcRenderer.invoke('desk:checkOnline'),
   sendReq: o => ipcRenderer.invoke('desk:sendReq', o),
+  gs: b => ipcRenderer.invoke('desk:gs', b),
   checkUpdate: () => ipcRenderer.invoke('desk:checkUpdate'),
   applyUpdate: () => ipcRenderer.invoke('desk:applyUpdate'),
   open: url => ipcRenderer.invoke('desk:open', String(url || '')),

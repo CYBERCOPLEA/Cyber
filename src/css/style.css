@@ -2337,3 +2337,5 @@ html.ed-desk #topbar{gap:7px}
 @keyframes dkb{to{visibility:visible;opacity:.45}}
 .dk-must{margin-top:10px;padding:10px 12px;border-radius:10px;border:1px solid #f59e0b;background:rgba(245,158,11,.12);font-size:13px;line-height:1.45}
 .dk-flash p{margin:6px 0}
+/* EXE: Forgot password choices */
+.dk-fg{display:flex;flex-direction:column;gap:4px}.dk-fg .btn{justify-content:flex-start;margin-top:8px}.dk-fg .small{margin-left:4px}
