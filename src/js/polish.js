@@ -72,7 +72,7 @@ const Polish = {
   },
   topIcons() {
     const dc = $('#btnDelCase'); if (dc && !dc.classList.contains('ic-only')) { dc.classList.add('ic-only'); dc.textContent = '🗑'; dc.title = 'Delete Case Data – remove a case and all its data from this computer (asks for your password; keeps a backup file)'; dc.setAttribute('aria-label', 'Delete Case Data'); }
-    const u = $('#dkUpd'); if (u && !u.querySelector('.upd-ic')) { const t = u.textContent.replace(/^[\s⬆↑]+/, '').trim() || 'Update'; u.innerHTML = '<span class="upd-ic" aria-hidden="true"></span><span>' + esc(t) + '</span>'; }
+    const u = $('#dkUpd'); if (u && !u.querySelector('.upd-ic')) { const nw = u.querySelector('.dk-new'); if (nw) nw.remove(); const t = u.textContent.replace(/^[\s⬆↑]+/, '').trim() || 'Update'; u.innerHTML = '<span class="upd-ic" aria-hidden="true"></span><span>' + esc(t) + '</span>'; if (nw) u.appendChild(nw); }
   },
   async refresh() {
     const b = $('#btnRefresh'); if (b) b.classList.add('spin');
