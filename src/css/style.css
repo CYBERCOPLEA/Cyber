@@ -2552,3 +2552,44 @@ html[data-theme="light"] .rx-note:not(.rx-home) *:not(.rx-tag):not(.rx-tag *){co
 html:not([data-theme="light"]) .ff-jump{color:#6ee7b7!important}
 @media (max-width:1300px){.ff-t small{display:none}.ff-step{min-width:120px}}
 .ff-cards #trImp{display:none!important}
+/* ===== Money Trail & Bank › Bank Statements ===== */
+.bs-src-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.bs-o{display:flex;flex-direction:column;align-items:flex-start;padding:8px 16px;border-radius:12px;border:1.5px solid rgba(100,116,139,.4);background:rgba(100,116,139,.1);color:inherit;font-weight:800;cursor:pointer}
+.bs-o small{font-weight:500;font-size:11px;opacity:.8}
+.bs-o.on{background:linear-gradient(135deg,#1d4ed8,#2563eb);border-color:#2563eb;color:#fff}
+.bs-scope{display:inline-flex;gap:14px;margin-left:6px;padding:6px 12px;border-radius:10px;background:rgba(4,120,87,.1);font-weight:700}
+.bs-scope label{display:inline-flex;align-items:center;gap:5px;cursor:pointer}
+.bs-new{display:flex;align-items:center;gap:14px;margin-top:10px;padding:10px 12px;border-radius:10px;background:rgba(37,99,235,.08);font-size:13px}
+.bs-new>div{flex:1}
+.bs-views{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 10px}
+.bs-v{padding:7px 13px;border-radius:999px;border:1.5px solid rgba(100,116,139,.4);background:transparent;color:inherit;font-weight:700;cursor:pointer}
+.bs-v.on{background:#047857;border-color:#047857;color:#fff}
+.bs-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:10px}
+.bs-k{display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:12px 14px;border-radius:14px;border:1.5px solid rgba(100,116,139,.3);background:rgba(100,116,139,.08);color:inherit;cursor:pointer;text-align:left;transition:transform .12s}
+.bs-k:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.15)}
+.bs-k small{font-size:11.5px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;opacity:.8}
+.bs-k b{font-size:22px}
+.bs-k-cr b{color:#16a34a}.bs-k-dr b,.bs-k-cash b{color:#dc2626}.bs-k-common b,.bs-k-ncrp b{color:#d97706}
+.bs-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:1200px){.bs-kpis{grid-template-columns:repeat(2,1fr)}.bs-2{grid-template-columns:1fr}}
+/* ===== Dashboard › 🪞 Case Mirror ===== */
+.mir-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.mir-h h3{margin:0}
+.mir-x{display:inline-flex;align-items:center;gap:6px;font-weight:700;font-size:13px;padding:5px 12px;border-radius:999px;background:rgba(220,38,38,.1);cursor:pointer}
+.mir-k{display:grid;grid-template-columns:repeat(9,1fr);gap:8px;margin-bottom:12px}
+.mir-kb{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:9px 10px;border-radius:12px;border:1.5px solid rgba(100,116,139,.3);background:rgba(100,116,139,.08);color:inherit;cursor:pointer;text-align:left;min-width:0}
+.mir-kb:hover{transform:translateY(-2px);box-shadow:0 6px 14px rgba(0,0,0,.15)}
+.mir-kb span{font-size:16px}.mir-kb small{font-size:10.5px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;opacity:.8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.mir-kb b{font-size:17px;white-space:nowrap}
+.mir-g{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:12px}
+.mir-t{position:relative;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:6px;padding:9px 10px;border-radius:12px;border:1.5px solid rgba(37,99,235,.35);background:rgba(37,99,235,.07);color:inherit;cursor:pointer;text-align:left;min-width:0}
+.mir-t:hover{transform:translateY(-2px);box-shadow:0 6px 14px rgba(37,99,235,.2)}
+.mir-t.none{opacity:.55;border-style:dashed}
+.mir-t.hot{border-color:#dc2626;background:rgba(220,38,38,.08)}
+.mir-ic{font-size:17px}.mir-l{font-size:12px;font-weight:700;line-height:1.2;min-width:0}
+.mir-t b{font-size:16px}
+.mir-t em{position:absolute;top:-8px;right:-4px;font-style:normal;font-size:10.5px;font-weight:800;background:#dc2626;color:#fff;padding:1px 6px;border-radius:999px}
+.mir-2{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:10px}
+.mir-2 h4,.mir-net-h h4{margin:4px 0 6px}
+@media (max-width:1500px){.mir-k{grid-template-columns:repeat(5,1fr)}.mir-g{grid-template-columns:repeat(5,1fr)}}
+@media (max-width:1150px){.mir-g{grid-template-columns:repeat(3,1fr)}.mir-2{grid-template-columns:1fr}}

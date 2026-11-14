@@ -131,7 +131,8 @@ const Reports = {
 function go(page, sub) { S.page = page; if (sub) S.sub[page] = sub; UI.closeDrawer(); render(); }
 function render() {
   $$('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.page === S.page));
-  const main = $('#main'); main.scrollTop = 0;
+  const main = $("#main"); main.scrollTop = 0;
+  if (!S.data) { main.innerHTML = "<div class=\"card muted\">Open or create a case first.</div>"; return; }
   try { (Pages[S.page] || Pages.dashboard)(main); } catch (e) { console.error(e); main.innerHTML = `<div class="card err">Error: ${esc(e.message)}</div>`; }
   const d = S.data; $('#sideInfo').innerHTML = `<b>${esc(activeCase().name || '')}</b><br>${d.txns.length} txns · ${d.kyc.length} KYC<br>${d.social.length} social · ${typeof Trail !== 'undefined' ? Trail.complaints().length : d.ncrp.length} complaints<br><br>🔒 Data stays on this computer.`;
 }
