@@ -2563,6 +2563,47 @@ html[data-theme="light"] .rx-note:not(.rx-home) *:not(.rx-tag):not(.rx-tag *){co
 html:not([data-theme="light"]) .ff-jump{color:#6ee7b7!important}
 @media (max-width:1300px){.ff-t small{display:none}.ff-step{min-width:120px}}
 .ff-cards #trImp{display:none!important}
+/* ===== Money Trail & Bank › Bank Statements ===== */
+.bs-src-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.bs-o{display:flex;flex-direction:column;align-items:flex-start;padding:8px 16px;border-radius:12px;border:1.5px solid rgba(100,116,139,.4);background:rgba(100,116,139,.1);color:inherit;font-weight:800;cursor:pointer}
+.bs-o small{font-weight:500;font-size:11px;opacity:.8}
+.bs-o.on{background:linear-gradient(135deg,#1d4ed8,#2563eb);border-color:#2563eb;color:#fff}
+.bs-scope{display:inline-flex;gap:14px;margin-left:6px;padding:6px 12px;border-radius:10px;background:rgba(4,120,87,.1);font-weight:700}
+.bs-scope label{display:inline-flex;align-items:center;gap:5px;cursor:pointer}
+.bs-new{display:flex;align-items:center;gap:14px;margin-top:10px;padding:10px 12px;border-radius:10px;background:rgba(37,99,235,.08);font-size:13px}
+.bs-new>div{flex:1}
+.bs-views{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 10px}
+.bs-v{padding:7px 13px;border-radius:999px;border:1.5px solid rgba(100,116,139,.4);background:transparent;color:inherit;font-weight:700;cursor:pointer}
+.bs-v.on{background:#047857;border-color:#047857;color:#fff}
+.bs-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:10px}
+.bs-k{display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:12px 14px;border-radius:14px;border:1.5px solid rgba(100,116,139,.3);background:rgba(100,116,139,.08);color:inherit;cursor:pointer;text-align:left;transition:transform .12s}
+.bs-k:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.15)}
+.bs-k small{font-size:11.5px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;opacity:.8}
+.bs-k b{font-size:22px}
+.bs-k-cr b{color:#16a34a}.bs-k-dr b,.bs-k-cash b{color:#dc2626}.bs-k-common b,.bs-k-ncrp b{color:#d97706}
+.bs-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:1200px){.bs-kpis{grid-template-columns:repeat(2,1fr)}.bs-2{grid-template-columns:1fr}}
+/* ===== Dashboard › 🪞 Case Mirror ===== */
+.mir-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.mir-h h3{margin:0}
+.mir-x{display:inline-flex;align-items:center;gap:6px;font-weight:700;font-size:13px;padding:5px 12px;border-radius:999px;background:rgba(220,38,38,.1);cursor:pointer}
+.mir-k{display:grid;grid-template-columns:repeat(9,1fr);gap:8px;margin-bottom:12px}
+.mir-kb{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:9px 10px;border-radius:12px;border:1.5px solid rgba(100,116,139,.3);background:rgba(100,116,139,.08);color:inherit;cursor:pointer;text-align:left;min-width:0}
+.mir-kb:hover{transform:translateY(-2px);box-shadow:0 6px 14px rgba(0,0,0,.15)}
+.mir-kb span{font-size:16px}.mir-kb small{font-size:10.5px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;opacity:.8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.mir-kb b{font-size:17px;white-space:nowrap}
+.mir-g{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:12px}
+.mir-t{position:relative;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:6px;padding:9px 10px;border-radius:12px;border:1.5px solid rgba(37,99,235,.35);background:rgba(37,99,235,.07);color:inherit;cursor:pointer;text-align:left;min-width:0}
+.mir-t:hover{transform:translateY(-2px);box-shadow:0 6px 14px rgba(37,99,235,.2)}
+.mir-t.none{opacity:.55;border-style:dashed}
+.mir-t.hot{border-color:#dc2626;background:rgba(220,38,38,.08)}
+.mir-ic{font-size:17px}.mir-l{font-size:12px;font-weight:700;line-height:1.2;min-width:0}
+.mir-t b{font-size:16px}
+.mir-t em{position:absolute;top:-8px;right:-4px;font-style:normal;font-size:10.5px;font-weight:800;background:#dc2626;color:#fff;padding:1px 6px;border-radius:999px}
+.mir-2{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:10px}
+.mir-2 h4,.mir-net-h h4{margin:4px 0 6px}
+@media (max-width:1500px){.mir-k{grid-template-columns:repeat(5,1fr)}.mir-g{grid-template-columns:repeat(5,1fr)}}
+@media (max-width:1150px){.mir-g{grid-template-columns:repeat(3,1fr)}.mir-2{grid-template-columns:1fr}}
 
 </style>
 </head>
@@ -2613,7 +2654,7 @@ html:not([data-theme="light"]) .ff-jump{color:#6ee7b7!important}
         <div class="hp-feat" style="--fc:#06b6d4"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><div><b>Analytics</b><p>The same mobile, account, IP or e-mail across complaints, banks and platforms.</p></div></div>
         <div class="hp-feat" style="--fc:#eab308"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h5"/></svg></span><div><b>Case File &amp; Notices</b><p>Case reports, notices to banks and platforms, and CSV / PDF exports.</p></div></div>
     </section>
-    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · <b>One Platform | Every Investigation | Complete Resolution</b> · v2.0 · Build 2026-11-14 10:32 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
+    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · <b>One Platform | Every Investigation | Complete Resolution</b> · v2.0 · Build 2026-11-14 13:21 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
   </div>
 
   <div class="lg-wrap" id="lgWrap" aria-hidden="true">
@@ -5765,7 +5806,8 @@ const Reports = {
 function go(page, sub) { S.page = page; if (sub) S.sub[page] = sub; UI.closeDrawer(); render(); }
 function render() {
   $$('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.page === S.page));
-  const main = $('#main'); main.scrollTop = 0;
+  const main = $("#main"); main.scrollTop = 0;
+  if (!S.data) { main.innerHTML = "<div class=\"card muted\">Open or create a case first.</div>"; return; }
   try { (Pages[S.page] || Pages.dashboard)(main); } catch (e) { console.error(e); main.innerHTML = `<div class="card err">Error: ${esc(e.message)}</div>`; }
   const d = S.data; $('#sideInfo').innerHTML = `<b>${esc(activeCase().name || '')}</b><br>${d.txns.length} txns · ${d.kyc.length} KYC<br>${d.social.length} social · ${typeof Trail !== 'undefined' ? Trail.complaints().length : d.ncrp.length} complaints<br><br>🔒 Data stays on this computer.`;
 }
@@ -20840,6 +20882,257 @@ Pages.trail = main => { const v = S.sub.trail; S.sub.financial = FinFlow.OLD[v] 
     const fn = $('.nav-sub[data-fin="financial"]'); if (fn && fn.dataset.ncOrig !== 'Money Trail & Bank') { fn.dataset.ncOrig = 'Money Trail & Bank'; fn.title = 'One page in 6 steps: import, NCRP ↔ FIR, layer trail, match & common, suspect accounts, chart & notices'; const sp = fn.querySelector(':scope > span'); if (sp) sp.textContent = 'Money Trail & Bank'; try { NavCustom.apply(); } catch (e) { } }
     return r; };
 })();
+
+</script>
+<script>
+/* bankstmt.js – Money Trail & Bank › 1 Import Data › 🏦 Bank Statements (Vijay, 14-11-2026).
+   Two sources: 📁 From Case File (statements already imported – this case or all cases) or ⬆ New Import received from the bank.
+   Reads every statement row's description / narration (UPI id, account, IFSC, name, mode) and shows: at a glance, each statement
+   account, every beneficiary / counterparty, common beneficiaries (in 2+ statements or 2+ cases), charts, network and all rows.
+   Every number and row opens its transactions. Data stays on this computer. */
+'use strict';
+const BankStmt = {
+  st() { return this._s || (this._s = { src: 'case', scope: 'one', v: 'glance', q: '' }); },
+  _all: null,
+  async allRows() {
+    const key = S.cases.map(c => c.id + ':' + c.name).join(',') + '|' + (S.data && S.data.txns ? S.data.txns.length : 0);
+    if (this._all && this._all.key === key) return this._all.rows;
+    const R = [];
+    for (const c of S.cases) { let d = null;
+      try { d = c.id === S.caseId && S.data && !isScope(S.caseId) ? S.data : await DB.get('case:' + c.id); } catch (e) { d = null; }
+      for (const t of ((d && d.txns) || [])) if (t._type === 'stmt') R.push(Object.assign({}, t, { _case: c.name || c.fir || c.id, _caseId: c.id })); }
+    this._all = { key, rows: R }; return R;
+  },
+  oneRows() { const c = activeCase() || {}; return ((S.data && S.data.txns) || []).filter(t => t._type === 'stmt').map(t => t._case ? t : Object.assign({}, t, { _case: c.name || c.fir || '' })); },
+  holder: t => t.action === 'Debit' ? t.from_acc : t.to_acc,
+  cp: t => t.action === 'Debit' ? t.to_acc : t.from_acc,
+  kindOf(cp) { return !cp || cp === 'UNIDENTIFIED' ? 'none' : /^CASH-OUT/.test(cp) ? 'cash' : /@/.test(cp) ? 'upi' : /^NAME:/.test(cp) ? 'name' : 'acc'; },
+  model(R) {
+    const H = new Map(), C = new Map(), D = new Map(), M = new Map();
+    const ncrp = new Set(); for (const t of ((S.data && S.data.txns) || [])) if (t._type !== 'stmt') { if (t.to_acc) ncrp.add(t.to_acc); if (t.from_acc) ncrp.add(t.from_acc); }
+    const kyc = new Map(((S.data && S.data.kyc) || []).filter(k => k.acc).map(k => [k.acc, k]));
+    for (const t of R) {
+      const h = this.holder(t) || '?', cp = this.cp(t) || 'UNIDENTIFIED', cr = t.action === 'Credit', a = Math.abs(t.amount || 0), d = String(t.date || '').slice(0, 10);
+      if (!H.has(h)) H.set(h, { acc: h, name: '', bank: '', ifsc: '', n: 0, cr: 0, dr: 0, cash: 0, first: '', last: '', cps: new Set(), cases: new Set(), files: new Set(), recs: [] });
+      const x = H.get(h); x.n++; x[cr ? 'cr' : 'dr'] += a; if (/^CASH-OUT/.test(cp)) x.cash += a; x.cps.add(cp); x.cases.add(t._case || ''); x.files.add(t._src || ''); x.recs.push(t);
+      x.name = x.name || (cr ? t.to_name : t.from_name) || ''; x.bank = x.bank || (cr ? t.to_bank : t.from_bank) || ''; x.ifsc = x.ifsc || (cr ? t.to_ifsc : t.from_ifsc) || '';
+      if (d && (!x.first || d < x.first)) x.first = d; if (d && d > x.last) x.last = d;
+      if (!C.has(cp)) C.set(cp, { cp, kind: this.kindOf(cp), name: '', bank: '', ifsc: '', n: 0, cr: 0, dr: 0, holders: new Set(), cases: new Set(), first: '', last: '', recs: [], narr: '' });
+      const y = C.get(cp); y.n++; y[cr ? 'cr' : 'dr'] += a; y.holders.add(h); y.cases.add(t._case || ''); y.recs.push(t);
+      y.name = y.name || (cr ? t.from_name : t.to_name) || ''; y.bank = y.bank || (cr ? t.from_bank : t.to_bank) || ''; y.ifsc = y.ifsc || (cr ? t.from_ifsc : t.to_ifsc) || ''; y.narr = y.narr || t.remarks || '';
+      if (d && (!y.first || d < y.first)) y.first = d; if (d && d > y.last) y.last = d;
+      if (d) { if (!D.has(d)) D.set(d, { d, cr: 0, dr: 0, n: 0, recs: [] }); const z = D.get(d); z[cr ? 'cr' : 'dr'] += a; z.n++; z.recs.push(t); }
+      const md = t.mode || 'Other'; if (!M.has(md)) M.set(md, { mode: md, n: 0, amt: 0, recs: [] }); const m = M.get(md); m.n++; m.amt += a; m.recs.push(t);
+    }
+    for (const y of C.values()) { const k = kyc.get(y.cp); y.ncrp = ncrp.has(y.cp); y.kyc = k ? [k.name, k.mobile, k.pan].filter(Boolean).join(' · ') : ''; if (k && !y.name) y.name = k.name || ''; }
+    for (const x of H.values()) { const k = kyc.get(x.acc); x.kyc = k ? [k.name, k.mobile, k.pan, k.address].filter(Boolean).join(' · ') : ''; x.ncrp = ncrp.has(x.acc); }
+    const cps = [...C.values()].filter(y => y.kind !== 'none');
+    const common = cps.filter(y => y.kind !== 'cash' && (y.holders.size >= 2 || [...y.cases].filter(Boolean).length >= 2));
+    return { R, H: [...H.values()], C: cps, none: C.get('UNIDENTIFIED'), common, D: [...D.values()].sort((a, b) => a.d.localeCompare(b.d)), M: [...M.values()].sort((a, b) => b.amt - a.amt),
+      cr: sum(R.filter(t => t.action === 'Credit'), t => Math.abs(t.amount || 0)), dr: sum(R.filter(t => t.action !== 'Credit'), t => Math.abs(t.amount || 0)), cash: sum(cps.filter(y => y.kind === 'cash'), y => y.dr) };
+  },
+  recs(title, rows) { const b = UI.drawer(title, `<p class="muted small">${fmtNum(rows.length)} rows · ${fmtINR(sum(rows, t => Math.abs(t.amount || 0)))}</p><div id="bsDr"></div>`); txnTable($('#bsDr', b), rows, 200); },
+  cpLabel: y => y.kind === 'cash' ? '💵 ' + y.cp.replace(/^CASH-OUT:/, 'Cash / ') : y.kind === 'upi' ? '📱 ' + y.cp : y.kind === 'name' ? '👤 ' + y.cp.slice(5) : y.cp,
+  async render(el) {
+    const st = this.st(), all = st.src === 'case' && st.scope === 'all';
+    el.innerHTML = `<div class="card bs-src"><div class="bs-src-row"><b>Statements from</b>
+        <button type="button" class="bs-o${st.src === 'case' ? ' on' : ''}" data-src="case">📁 Case File <small>statements already imported</small></button>
+        <button type="button" class="bs-o${st.src === 'new' ? ' on' : ''}" data-src="new">⬆ New Import <small>statement received from the bank</small></button>
+        ${st.src === 'case' ? `<span class="bs-scope"><label><input type="radio" name="bsSc" value="one" ${!all ? 'checked' : ''}> This case</label><label><input type="radio" name="bsSc" value="all" ${all ? 'checked' : ''}> All cases (${S.cases.length})</label></span>` : ''}</div>
+        ${st.src === 'new' ? `<div class="bs-new"><div>Import the statement (CSV / Excel / PDF from any bank) and the beneficiary / KYC details sent by the bank. Columns are matched automatically and every narration is read for UPI ID, account, IFSC, name and mode. The statement is saved in this case.</div><button class="btn primary" id="bsImp">⬆ Import Bank Statement / KYC</button></div>` : ''}</div>
+      <div id="bsBody"><div class="card muted">Reading statements…</div></div>`;
+    $$('[data-src]', el).forEach(b => b.onclick = () => { st.src = b.dataset.src; this.render(el); });
+    $$('input[name=bsSc]', el).forEach(r => r.onchange = () => { st.scope = r.value; this.render(el); });
+    const imp = $('#bsImp', el); if (imp) imp.onclick = () => openImport(['stmt', 'kyc'], () => { st.src = 'case'; st.scope = 'one'; render(); });
+    const R = all || isScope(S.caseId) ? await this.allRows().catch(() => this.oneRows()) : this.oneRows();
+    this.body($('#bsBody', el), this.model(R), all || isScope(S.caseId));
+  },
+  body(el, m, multi) {
+    const st = this.st();
+    if (!m.R.length) { el.innerHTML = `<div class="card bs-empty"><h3>No bank statement ${multi ? 'in any case' : 'in this case'} yet</h3><div class="sub">Choose <b>⬆ New Import</b> above and add the statement the bank sent (CSV / Excel / PDF). ${multi ? '' : 'Or choose <b>All cases</b> to see statements of your other cases.'}</div></div>`; return; }
+    const V = [['glance', '📊 At a Glance'], ['acc', '🏦 Statement Accounts', m.H.length], ['cp', '👥 Beneficiaries / Counterparties', m.C.length], ['common', '🔗 Common Beneficiaries', m.common.length], ['charts', '📈 Charts'], ['net', '🕸 Network'], ['rows', '📄 All Rows', m.R.length]];
+    if (!V.some(v => v[0] === st.v)) st.v = 'glance';
+    el.innerHTML = `<div class="bs-views">${V.map(([k, l, n]) => `<button type="button" class="bs-v${k === st.v ? ' on' : ''}" data-v="${k}">${l}${n != null ? ` <span class="tcount">${fmtNum(n)}</span>` : ''}</button>`).join('')}</div><div id="bsV"></div>`;
+    $$('[data-v]', el).forEach(b => b.onclick = () => { st.v = b.dataset.v; this.body(el, m, multi); });
+    this.V[st.v].call(this, $('#bsV', el), m, multi, v => { st.v = v; this.body(el, m, multi); });
+  },
+  V: {
+    glance(el, m, multi, to) {
+      const named = m.C.filter(y => y.kind !== 'cash'), ncrp = m.C.filter(y => y.ncrp), top = named.slice().sort((a, b) => b.dr - a.dr).slice(0, 8), topIn = named.slice().sort((a, b) => b.cr - a.cr).slice(0, 8);
+      const K = [['Statement Accounts', fmtNum(m.H.length), 'acc', () => to('acc')], ['Rows Read', fmtNum(m.R.length), 'rows', () => to('rows')], ['Money In (Credit)', fmtINR(m.cr), 'cr', () => this.recs('Credits', m.R.filter(t => t.action === 'Credit'))], ['Money Out (Debit)', fmtINR(m.dr), 'dr', () => this.recs('Debits', m.R.filter(t => t.action !== 'Credit'))],
+        ['Cash / ATM Out', fmtINR(m.cash), 'cash', () => this.recs('Cash / ATM withdrawals', m.C.filter(y => y.kind === 'cash').flatMap(y => y.recs))], ['Beneficiaries Found', fmtNum(named.length), 'cp', () => to('cp')], ['Common Beneficiaries', fmtNum(m.common.length), 'common', () => to('common')], ['Also In NCRP Trail', fmtNum(ncrp.length), 'ncrp', () => this.recs('Counterparties also in the NCRP trail', ncrp.flatMap(y => y.recs))]];
+      el.innerHTML = `<div class="bs-kpis">${K.map((k, i) => `<button type="button" class="bs-k bs-k-${k[2]}" data-k="${i}" title="Click to see the rows"><small>${k[0]}</small><b>${k[1]}</b></button>`).join('')}</div>
+        ${m.none ? `<div class="note small">${fmtNum(m.none.n)} row(s) had no UPI ID, account or name in the narration (${fmtINR(m.none.cr + m.none.dr)}). <a href="#" id="bsNone">See them</a></div>` : ''}
+        <div class="bs-2"><div class="card"><h3>💸 Top Money Sent To</h3><div id="bsTo"></div></div><div class="card"><h3>💰 Top Money Received From</h3><div id="bsFrom"></div></div></div>
+        <div class="bs-2"><div class="card"><h3>Payment Mode</h3><div id="bsMode"></div></div><div class="card"><h3>Statement Accounts</h3><div id="bsAccs"></div></div></div>`;
+      $$('[data-k]', el).forEach(b => b.onclick = () => K[+b.dataset.k][3]());
+      const nn = $('#bsNone', el); if (nn) nn.onclick = e => { e.preventDefault(); this.recs('Narration not readable', m.none.recs); };
+      Charts.hbar($('#bsTo', el), top.map(y => ({ label: this.cpLabel(y), value: y.dr, sub: y.n + ' txns', recs: y.recs })), { fmt: fmtINR, onClick: d => this.recs('Sent to ' + d.label, d.recs) });
+      Charts.hbar($('#bsFrom', el), topIn.filter(y => y.cr).map(y => ({ label: this.cpLabel(y), value: y.cr, sub: y.n + ' txns', recs: y.recs })), { fmt: fmtINR, onClick: d => this.recs('Received from ' + d.label, d.recs) });
+      Charts.donut($('#bsMode', el), m.M.map(x => ({ label: x.mode, value: x.amt, sub: x.n + ' txns', recs: x.recs })), { fmt: fmtINR, onClick: d => this.recs('Mode ' + d.label, d.recs) });
+      Charts.hbar($('#bsAccs', el), m.H.map(x => ({ label: x.acc + (x.name ? ' · ' + x.name : ''), value: x.cr + x.dr, sub: x.n + ' rows', recs: x.recs })), { fmt: fmtINR, onClick: d => this.recs(d.label, d.recs) });
+    },
+    acc(el, m, multi) {
+      el.innerHTML = `<div class="card"><h3>Statement Accounts</h3><div class="sub">One row per account whose statement was imported. Click a row for its transactions.</div><div id="bsT"></div></div>`;
+      Table($('#bsT', el), { rows: m.H.map(x => ({ ...x, ncps: x.cps.size, case: [...x.cases].filter(Boolean).join(', ') })), exportName: 'statement_accounts', sortKey: 'dr', sortDir: -1, onRow: r => this.recs('Statement ' + r.acc, r.recs), columns: [
+        { key: 'acc', label: 'Account', render: r => accLink(r.acc) }, { key: 'name', label: 'Holder' }, { key: 'bank', label: 'Bank' }, { key: 'ifsc', label: 'IFSC' },
+        { key: 'first', label: 'From' }, { key: 'last', label: 'To' }, { key: 'n', label: 'Rows', num: true }, { key: 'cr', label: 'Credit', num: true, fmt: fmtINR }, { key: 'dr', label: 'Debit', num: true, fmt: fmtINR },
+        { key: 'cash', label: 'Cash / ATM', num: true, fmt: v => v ? fmtINR(v) : '' }, { key: 'ncps', label: 'Counterparties', num: true },
+        { key: 'kyc', label: 'KYC (Bank)', render: r => r.kyc ? `<span class="small">${esc(r.kyc)}</span>` : '<span class="badge warn">No KYC</span>' }, { key: 'ncrp', label: 'In NCRP', render: r => r.ncrp ? '<span class="badge bad">Yes</span>' : '' },
+        ...(multi ? [{ key: 'case', label: 'Case' }] : [])], after: typeof bindAccLinks === 'function' ? bindAccLinks : undefined });
+    },
+    cp(el, m, multi, to, only) {
+      const L = only || m.C;
+      el.innerHTML = `<div class="card"><h3>${only ? '🔗 Common Beneficiaries' : '👥 Beneficiaries / Counterparties'}</h3><div class="sub">${only ? 'The same UPI ID, account or name in 2 or more statements' + (multi ? ' or cases' : '') + ' – the strongest link between suspects.' : 'Read from each row\'s description / narration: UPI ID, account number, IFSC and name. "Sent" = money that left the statement account to them; "Received" = money that came from them.'} Click a row for every transaction.</div><div id="bsT"></div></div>`;
+      Table($('#bsT', el), { rows: L.map(y => ({ ...y, label: this.cpLabel(y), nh: y.holders.size, nc: [...y.cases].filter(Boolean).length, case: [...y.cases].filter(Boolean).join(', ') })), exportName: only ? 'common_beneficiaries' : 'statement_counterparties', sortKey: only ? 'nh' : 'dr', sortDir: -1, onRow: r => this.recs(r.label, r.recs), columns: [
+        { key: 'label', label: 'Beneficiary (UPI / Account / Name)', render: r => r.kind === 'acc' ? accLink(r.cp) : `<b>${esc(r.label)}</b>` }, { key: 'name', label: 'Name' }, { key: 'bank', label: 'Bank' }, { key: 'ifsc', label: 'IFSC' },
+        { key: 'dr', label: 'Sent', num: true, fmt: v => v ? fmtINR(v) : '' }, { key: 'cr', label: 'Received', num: true, fmt: v => v ? fmtINR(v) : '' }, { key: 'n', label: 'Txns', num: true },
+        { key: 'nh', label: 'Statements', num: true, render: r => r.nh > 1 ? `<span class="badge bad">${r.nh}</span>` : r.nh }, ...(multi ? [{ key: 'nc', label: 'Cases', num: true, render: r => r.nc > 1 ? `<span class="badge bad">${r.nc}</span>` : r.nc }, { key: 'case', label: 'Case Names' }] : []),
+        { key: 'first', label: 'First' }, { key: 'last', label: 'Last' },
+        { key: 'kyc', label: 'KYC (Bank)', render: r => r.kyc ? `<span class="small">${esc(r.kyc)}</span>` : '' }, { key: 'ncrp', label: 'In NCRP', render: r => r.ncrp ? '<span class="badge bad">Yes</span>' : '' },
+        { key: 'narr', label: 'Sample Narration', render: r => `<span class="small muted">${esc(String(r.narr).slice(0, 70))}</span>` }], after: typeof bindAccLinks === 'function' ? bindAccLinks : undefined });
+    },
+    common(el, m, multi, to) {
+      if (!m.common.length) { el.innerHTML = `<div class="card"><h3>🔗 Common Beneficiaries</h3><div class="sub">No beneficiary appears in 2 or more statements${multi ? ' or cases' : ''} yet. ${multi ? '' : 'Choose <b>All cases</b> above to compare with your other cases.'}</div></div>`; return; }
+      BankStmt.V.cp.call(this, el, m, multi, to, m.common);
+    },
+    charts(el, m) {
+      el.innerHTML = `<div class="card"><h3>Money In and Out per Day</h3><div id="bsDay" class="bs-ch"></div></div><div class="bs-2"><div class="card"><h3>Credit by Statement Account</h3><div id="bsC1"></div></div><div class="card"><h3>Debit by Statement Account</h3><div id="bsC2"></div></div></div>`;
+      Charts.vbar($('#bsDay', el), m.D.map(z => ({ label: z.d.slice(5), value: z.cr + z.dr, sub: `In ${fmtINR(z.cr)} · Out ${fmtINR(z.dr)} · ${z.n} txns`, recs: z.recs })), { fmt: fmtINR, onClick: d => this.recs('Day ' + d.label, d.recs) });
+      Charts.hbar($('#bsC1', el), m.H.filter(x => x.cr).map(x => ({ label: x.acc, value: x.cr, recs: x.recs.filter(t => t.action === 'Credit') })), { fmt: fmtINR, onClick: d => this.recs('Credits ' + d.label, d.recs) });
+      Charts.hbar($('#bsC2', el), m.H.filter(x => x.dr).map(x => ({ label: x.acc, value: x.dr, recs: x.recs.filter(t => t.action !== 'Credit') })), { fmt: fmtINR, onClick: d => this.recs('Debits ' + d.label, d.recs) });
+    },
+    net(el, m) {
+      const cps = m.C.slice().sort((a, b) => (b.holders.size - a.holders.size) || (b.cr + b.dr - a.cr - a.dr)).slice(0, 160), keep = new Set(cps.map(y => y.cp));
+      const nodes = [...m.H.map(x => ({ id: x.acc, label: x.acc, sub: [x.name, x.bank].filter(Boolean).join(' · '), kind: x.ncrp ? 'risk' : 'victim', value: x.cr + x.dr, title: `Statement account ${x.acc}\n${x.name || ''}` })),
+        ...cps.filter(y => !m.H.some(x => x.acc === y.cp)).map(y => ({ id: y.cp, label: this.cpLabel(y).replace(/^\S+ /, ''), sub: y.name || y.bank || '', kind: y.kind === 'cash' ? 'cash' : y.holders.size > 1 ? 'risk' : y.ncrp ? 'hold' : 'account', value: y.cr + y.dr, title: `${y.cp}\nSent ${fmtINR(y.dr)} · Received ${fmtINR(y.cr)}` }))];
+      const E = new Map(); for (const t of m.R) { const h = this.holder(t), c = this.cp(t); if (!keep.has(c) && !m.H.some(x => x.acc === c)) continue; const [f, to] = t.action === 'Credit' ? [c, h] : [h, c], k = f + '>' + to; if (!E.has(k)) E.set(k, { from: f, to, amount: 0, count: 0, txns: [] }); const e = E.get(k); e.amount += Math.abs(t.amount || 0); e.count++; e.txns.push(t); }
+      el.innerHTML = `<div class="card"><h3>🕸 Statement Network</h3><div class="sub">Statement accounts in the middle, every beneficiary around them. <b>Red</b> = in 2+ statements (common) or also in the NCRP trail; <b>orange</b> = cash / ATM. Click a dot for its transactions.${m.C.length > 160 ? ' Showing the 160 biggest of ' + m.C.length + '.' : ''}</div><div class="graph-box" id="bsNet" style="height:560px"></div></div>`;
+      try { Graph.mount($('#bsNet', el), nodes, [...E.values()], { mode: 'net', labels: true, onNode: n => { const y = m.C.find(z => z.cp === n.id), x = m.H.find(z => z.acc === n.id); this.recs(n.id, (x || y || { recs: [] }).recs); } }); } catch (e) { $('#bsNet', el).innerHTML = `<div class="muted">Network could not be drawn: ${esc(e.message)}</div>`; }
+    },
+    rows(el, m, multi) {
+      const st = this.st();
+      el.innerHTML = `<div class="card"><div class="row"><h3 class="grow">All Statement Rows</h3><input id="bsQ" placeholder="Find in narration, UPI, account, name, UTR…" value="${esc(st.q)}" style="width:320px"></div><div id="bsT"></div></div>`;
+      const draw = () => { const q = st.q.trim().toLowerCase(); txnTable($('#bsT', el), q ? m.R.filter(t => [t.remarks, t.to_acc, t.from_acc, t.to_name, t.from_name, t.txn_id, t.cp_upi, t._case].join(' ').toLowerCase().includes(q)) : m.R, 200); };
+      $('#bsQ', el).oninput = e => { st.q = e.target.value; clearTimeout(this._qt); this._qt = setTimeout(draw, 250); }; draw();
+    }
+  }
+};
+/* Step 1 of Money Trail & Bank: All Transactions & Files · 🏦 Bank Statements · KYC / Beneficiary */
+(() => { if (typeof FinFlow === 'undefined') return; const s = FinFlow.STEPS.find(x => x[0] === 'import'); if (!s) return;
+  s[4].splice(1, 0, ['stmt', '🏦 Bank Statements', el => BankStmt.render(el)]); FinFlow.OLD.stmt = 'stmt'; FinFlow.OLD.statements = 'stmt';
+  s[3] = 'NCRP bank action sheet, bank statements (analysed from the narration), money trail made in Excel by EO / IO, KYC'; })();
+
+</script>
+<script>
+/* mirror.js – Dashboard › 🪞 Case Mirror (Vijay, 14-11-2026): one view that mirrors every case –
+   the case open in the CASE box, or All / FIR / NCRP cases – with money (fraud, hold, refund), work (done / pending),
+   and every target found anywhere in the cases: state, district, mobile, alternate number, e-mail, account, IFSC, UPI,
+   Aadhaar, PAN, CKYC, IMEI, IP, relation (S/O, D/O, W/O, C/O), POS name / code / unique ID / mobile, POS agent,
+   bank staff who opened the account, photos. "Cross-Case" = the same value in 2 or more cases.
+   Hover a box for its top values, click it for all of them; click a value to track it everywhere. Read on this computer only. */
+'use strict';
+const Mirror = {
+  T: [
+    ['state', '🗺', 'State'], ['district', '📍', 'District'], ['mobile', '📱', 'Mobile'], ['alt', '📞', 'Alternate Number'], ['email', '✉️', 'E-mail'],
+    ['account', '🏦', 'Account'], ['ifsc', '🏛', 'IFSC'], ['upi', '💸', 'UPI ID'], ['aadhaar', '🆔', 'Aadhaar'], ['pan', '🪪', 'PAN'], ['ckyc', '🧾', 'CKYC'],
+    ['imei', '📟', 'IMEI'], ['ip', '🖧', 'IP Address'], ['rel', '👪', 'S/O · D/O · W/O · C/O'], ['pos', '🏪', 'POS Name / Code'], ['posu', '🔢', 'POS Unique Code'],
+    ['posm', '☎', 'POS Number'], ['agent', '🧑‍💼', 'POS Agent'], ['staff', '🏢', 'Bank Staff (A/c Opening)'], ['photo', '🖼', 'Photos (CAF)'], ['url', '🌐', 'URL / APK']
+  ],
+  st() { return this._s || (this._s = { cross: false }); },
+  /* one case → records { t, v, n (name), s (source) } */
+  one(c, d) {
+    const out = [], put = (t, v, s, n) => { v = String(v == null ? '' : v).replace(/\s+/g, ' ').trim(); if (!v || v.length < 2 || /^(na|n\/a|nil|null|none|-+|_+|0)$/i.test(v)) return; out.push({ t, v, s: s || '', n: n || '' }); };
+    try { for (const r of Off.harvest(d, c)) { const t = r.type === 'whatsapp' ? 'mobile' : r.type === 'apk' ? 'url' : r.type; if (this.T.some(x => x[0] === t)) put(t, r.value, r.source, r.name); } } catch (e) { }
+    for (const k of d.kyc || []) { put('state', String(k.state || '').toUpperCase(), 'KYC', k.name); put('district', String(k.district || '').toUpperCase(), 'KYC', k.name); put('ckyc', k.ckyc, 'KYC', k.name);
+      for (const [key, val] of Object.entries(k)) if (/open(ed|ing)?_?by|employee|staff|\brm\b|relationship_?manager|sourced_?by|introduc/i.test(key)) put('staff', val, 'KYC ' + (k.bank || ''), k.name);
+      const rel = String(k.father || k.relation || ''); if (rel) put('rel', rel, 'KYC', k.name); }
+    for (const t of d.txns || []) { if (t._type === 'stmt') continue; put('state', String(t.state || '').toUpperCase(), 'Money trail'); put('district', String(t.district || '').toUpperCase(), 'Money trail'); }
+    for (const f of d.caf || []) { const n = f.name || '';
+      put('mobile', f.mobile, 'CAF', n); put('alt', f.alt, 'CAF', n); put('aadhaar', f.aadhaar, 'CAF', n); put('email', f.email, 'CAF', n);
+      if (f.father) put('rel', (f.relation || f.rel_type || (/\b(w\/o|wife)\b/i.test(f.father) ? 'W/O' : /\bd\/o\b/i.test(f.father) ? 'D/O' : /\bc\/o\b/i.test(f.father) ? 'C/O' : 'S/O')) + ' ' + String(f.father).replace(/^(s|d|w|c)\/o\s*/i, ''), 'CAF', n);
+      if (f.pos_name || f.pos_code) put('pos', [f.pos_name, f.pos_code && '(' + f.pos_code + ')'].filter(Boolean).join(' '), 'CAF', n);
+      put('posu', f.pos_ucode, 'CAF', f.pos_name); put('posm', f.pos_mobile, 'CAF', f.pos_name); put('agent', f.pos_agent, 'CAF', f.pos_name);
+      for (const p of f.photos || []) if (p && p.hash && p.kind !== 'scan') out.push({ t: 'photo', v: p.hash, s: 'CAF ' + (f.mobile || ''), n, th: p.thumb || '' });
+      const st = String(f.address || '').match(/\b(UTTAR PRADESH|BIHAR|RAJASTHAN|JHARKHAND|WEST BENGAL|HARYANA|DELHI|MAHARASHTRA|GUJARAT|MADHYA PRADESH|ODISHA|ASSAM|PUNJAB|KARNATAKA|TAMIL NADU|TELANGANA|ANDHRA PRADESH|KERALA|UTTARAKHAND|CHHATTISGARH|HIMACHAL PRADESH|JAMMU|GOA|TRIPURA|MANIPUR|MEGHALAYA|NAGALAND|MIZORAM|SIKKIM|ARUNACHAL PRADESH)\b/i);
+      if (st) put('state', st[1].toUpperCase(), 'CAF', n); }
+    for (const n of d.ncrp || []) for (const [k, v] of Object.entries(n)) { if (/suspect.*state|accused.*state/i.test(k)) put('state', String(v).toUpperCase(), 'NCRP'); if (/suspect.*district|accused.*district/i.test(k)) put('district', String(v).toUpperCase(), 'NCRP'); }
+    let amount = 0, hold = 0, comps = 0;
+    try { const keep = S.data; S.data = d; Analysis.invalidate(); const L = Trail.complaints(); comps = L.length || (d.ncrp || []).length; amount = sum(d.ncrp || [], r => +r.amount || 0) || sum(L, x => +x.amount || 0); hold = sum(L, x => +x.hold || 0); S.data = keep; Analysis.invalidate(); } catch (e) { }
+    const seen = new Set(); return { R: out.filter(r => { const k = r.t + '|' + r.v.toLowerCase() + '|' + r.s; if (seen.has(k)) return false; seen.add(k); return true; }), amount, hold, comps };
+  },
+  async collect() {
+    const key = S.cases.map(c => c.id + ':' + c.name + ':' + (c.final ? 1 : 0)).join(',');
+    if (this._d && this._d.key === key && Date.now() - this._d.t < 30000) return this._d;
+    const C = [];
+    for (const c of S.cases) {
+      let r = null;
+      try { r = c.id === S.caseId && S.data && !isScope(S.caseId) ? this.one(c, S.data) : await Vault.sum(c.id, 'mir', 'v1|' + JSON.stringify(c), async () => { const d = await DB.get('case:' + c.id); return d ? this.one(c, Object.assign(emptyCase(), d)) : { R: [], amount: 0, hold: 0, comps: 0 }; }); } catch (e) { r = { R: [], amount: 0, hold: 0, comps: 0 }; }
+      C.push({ c, ...r }); await new Promise(z => setTimeout(z, 0));
+    }
+    let good = []; try { good = await Off.get('good', []); } catch (e) { }
+    const nf = f => String(f || '').toUpperCase().replace(/\s+/g, '').replace(/^FIR(NO\.?)?/, ''), refundOf = c => c.fir ? sum(good.filter(g => g.fir && nf(g.fir) === nf(c.fir)), g => +g.refunded || 0) : 0;
+    C.forEach(x => { x.refund = refundOf(x.c); x.pend = typeof AllDash !== 'undefined' ? AllDash.pend(x.c) : true; x.fin = typeof AllDash !== 'undefined' ? AllDash.fin(x.c) : ''; });
+    /* value index across every case */
+    const V = new Map();
+    for (const x of C) for (const r of x.R) { const k = r.t + '|' + r.v.toLowerCase(); let g = V.get(k); if (!g) V.set(k, g = { t: r.t, v: r.v, cases: new Set(), names: new Set(), srcs: new Set(), th: r.th || '' }); g.cases.add(x.c.id); if (r.n) g.names.add(r.n); if (r.s) g.srcs.add(r.s); }
+    return (this._d = { key, t: Date.now(), C, V: [...V.values()] });
+  },
+  ids() { return isScope(S.caseId) ? new Set((typeof AllMode !== 'undefined' ? AllMode.list() : S.cases).map(c => c.id)) : new Set([S.caseId]); },
+  nameOf: id => { const c = S.cases.find(x => x.id === id) || {}; return (typeof AllMode !== 'undefined' && AllMode.caseLabel ? AllMode.caseLabel(c) : c.name) || id; },
+  async mount(main) {
+    const host = $('#main .dash-hero, #main .hero-card'); if (!host || $('#mirBox')) return;
+    host.insertAdjacentHTML('afterend', `<div class="card mir" id="mirBox"><div class="mir-h"><h3>🪞 Case Mirror</h3><span class="muted small" id="mirSc"></span><span class="grow"></span><label class="mir-x"><input type="checkbox" id="mirCross" ${this.st().cross ? 'checked' : ''}> Only Cross-Case (same value in 2+ cases)</label></div><div id="mirB"><div class="muted">Reading every case…</div></div></div>`);
+    $('#mirCross').onchange = e => { this.st().cross = e.target.checked; this.draw(); };
+    this._tok = {}; const tok = this._tok; const D = await this.collect(); if (tok !== this._tok || !$('#mirB')) return; this.draw(D);
+  },
+  draw(D) {
+    D = D || this._d; const el = $('#mirB'); if (!el || !D) return;
+    const ids = this.ids(), cross = this.st().cross, X = D.C.filter(x => ids.has(x.c.id));
+    const vals = D.V.filter(g => [...g.cases].some(id => ids.has(id)) && (!cross || g.cases.size >= 2));
+    $('#mirSc').textContent = ids.size === 1 ? '· this case, compared with all ' + D.C.length + ' cases' : '· ' + X.length + ' cases';
+    const done = X.filter(x => !x.pend).length, money = (k) => sum(X, x => x[k] || 0), byT = groupBy(vals, g => g.t);
+    const K = [['📁', 'Cases', fmtNum(X.length), () => this.cases(X)], ['✅', 'Done', fmtNum(done), () => this.cases(X.filter(x => !x.pend))], ['⏳', 'Pending', fmtNum(X.length - done), () => this.cases(X.filter(x => x.pend))],
+      ['🧾', 'Complaints', fmtNum(sum(X, x => x.comps || 0)), () => this.cases(X)], ['💰', 'Fraud Amount', fmtINR(money('amount')), () => this.cases(X, 'amount')], ['🔒', 'On Hold', fmtINR(money('hold')), () => this.cases(X, 'hold')],
+      ['↩', 'Refunded', fmtINR(money('refund')), () => this.cases(X, 'refund')], ['🎯', cross ? 'Cross-Case Targets' : 'Targets Found', fmtNum(vals.length), () => this.list('All targets', vals)], ['🔗', 'In 2+ Cases', fmtNum(vals.filter(g => g.cases.size >= 2).length), () => this.list('Cross-case targets', vals.filter(g => g.cases.size >= 2))]];
+    el.innerHTML = `<div class="mir-k">${K.map((k, i) => `<button type="button" class="mir-kb" data-mk="${i}"><span>${k[0]}</span><small>${k[1]}</small><b>${k[2]}</b></button>`).join('')}</div>
+      <div class="mir-g">${this.T.map(([t, ic, l]) => { const L = (byT.get(t) || []).sort((a, b) => b.cases.size - a.cases.size || b.names.size - a.names.size), cc = L.filter(g => g.cases.size >= 2).length;
+        const tip = L.length ? L.slice(0, 6).map(g => (t === 'photo' ? 'Photo ' + g.v.slice(0, 8) : g.v) + (g.cases.size > 1 ? '  · ' + g.cases.size + ' cases' : '')).join('\n') + (L.length > 6 ? '\n… ' + (L.length - 6) + ' more – click' : '') : 'None found yet';
+        return `<button type="button" class="mir-t${L.length ? '' : ' none'}${cc ? ' hot' : ''}" data-mt="${t}" title="${esc(l + '\n' + tip)}"><span class="mir-ic">${ic}</span><span class="mir-l">${esc(l)}</span><b>${fmtNum(L.length)}</b>${cc ? `<em title="Same value in 2+ cases">🔗 ${cc}</em>` : ''}</button>`; }).join('')}</div>
+      <div class="mir-2"><div><h4>Targets by State</h4><div id="mirSt"></div></div><div><h4>Targets by District</h4><div id="mirDi"></div></div><div><h4>Fraud Amount by Case</h4><div id="mirAm"></div></div></div>
+      <div class="mir-net-h"><h4>🕸 Case Network <span class="muted small">cases joined by the same mobile, account, UPI, PAN, Aadhaar, POS…</span></h4></div><div class="graph-box" id="mirNet" style="height:430px"></div>`;
+    $$('[data-mk]', el).forEach(b => b.onclick = () => K[+b.dataset.mk][3]());
+    $$('[data-mt]', el).forEach(b => b.onclick = () => { const t = b.dataset.mt, L = byT.get(t) || []; this.list((this.T.find(x => x[0] === t) || [])[2], L); });
+    const hb = (id, rows, o) => { const box = $(id, el); if (!rows.length) { box.innerHTML = '<div class="muted small">None found yet</div>'; return; } Charts.hbar(box, rows.slice(0, 12), o); };
+    hb('#mirSt', (byT.get('state') || []).map(g => ({ label: g.v, value: g.cases.size, sub: g.cases.size + ' case(s)', g })).sort((a, b) => b.value - a.value), { fmt: v => v + ' case(s)', onClick: d => this.list('State ' + d.label, [d.g]) });
+    hb('#mirDi', (byT.get('district') || []).map(g => ({ label: g.v, value: g.cases.size, sub: g.cases.size + ' case(s)', g })).sort((a, b) => b.value - a.value), { fmt: v => v + ' case(s)', onClick: d => this.list('District ' + d.label, [d.g]) });
+    hb('#mirAm', X.filter(x => x.amount).map(x => ({ label: this.nameOf(x.c.id), value: x.amount, sub: 'Hold ' + fmtINR(x.hold || 0), x })).sort((a, b) => b.value - a.value), { fmt: fmtINR, onClick: d => this.open(d.x.c.id) });
+    this.net(D, ids);
+  },
+  net(D, ids) {
+    const box = $('#mirNet'); if (!box) return;
+    const link = D.V.filter(g => g.cases.size >= 2 && !/^(state|district|ifsc)$/.test(g.t) && [...g.cases].some(id => ids.has(id))).sort((a, b) => b.cases.size - a.cases.size).slice(0, 120);
+    if (!link.length) { box.style.height = 'auto'; box.innerHTML = `<div class="muted small" style="padding:14px">No mobile, account, UPI, PAN, Aadhaar or POS is shared between ${ids.size === 1 ? 'this case and another case' : 'these cases'} yet. When one appears it is drawn here and marked 🔗 on the boxes above.</div>`; return; }
+    const cs = new Set(link.flatMap(g => [...g.cases])), nodes = [...[...cs].map(id => ({ id: 'C:' + id, label: this.nameOf(id), sub: 'Case', kind: ids.has(id) ? 'victim' : 'account', value: 10 })),
+      ...link.map(g => ({ id: 'V:' + g.t + ':' + g.v, label: g.t === 'photo' ? 'Same photo' : g.v, sub: (this.T.find(x => x[0] === g.t) || [])[2] || g.t, kind: 'risk', value: g.cases.size * 3 }))];
+    const edges = link.flatMap(g => [...g.cases].map(id => ({ from: 'C:' + id, to: 'V:' + g.t + ':' + g.v, amount: 1, count: 1, txns: [] })));
+    try { Graph.mount(box, nodes, edges, { mode: 'net', labels: true, onNode: n => { if (n.id.startsWith('C:')) this.open(n.id.slice(2)); else { const g = link.find(x => 'V:' + x.t + ':' + x.v === n.id); if (g) this.list(g.v, [g]); } } }); } catch (e) { box.innerHTML = `<div class="muted">Network could not be drawn: ${esc(e.message)}</div>`; }
+  },
+  open(id) { if (id === S.caseId) return; if (typeof switchCase === 'function') switchCase(id).then(() => go('dashboard')); },
+  cases(X, k) {
+    const b = UI.drawer('Cases', '<div id="mirC"></div>');
+    Table($('#mirC', b), { rows: X.map(x => ({ id: x.c.id, name: this.nameOf(x.c.id), fir: x.c.fir || '', ps: x.c.ps || '', io: x.c.io || '', st: x.pend ? 'Pending' : 'Done', fin: x.fin || '', comps: x.comps || 0, amount: x.amount || 0, hold: x.hold || 0, refund: x.refund || 0, tg: x.R.length })), sortKey: k || 'amount', sortDir: -1, exportName: 'mirror_cases',
+      onRow: r => this.open(r.id), columns: [{ key: 'name', label: 'Case', render: r => `<b>${esc(r.name)}</b>` }, { key: 'ps', label: 'PS' }, { key: 'io', label: 'IO' }, { key: 'st', label: 'Status', render: r => `<span class="badge ${r.st === 'Done' ? 'ok' : 'warn'}">${r.st}${r.fin ? ' · ' + esc(r.fin) : ''}</span>` },
+        { key: 'comps', label: 'Complaints', num: true }, { key: 'amount', label: 'Fraud', num: true, fmt: v => v ? fmtINR(v) : '' }, { key: 'hold', label: 'Hold', num: true, fmt: v => v ? fmtINR(v) : '' }, { key: 'refund', label: 'Refund', num: true, fmt: v => v ? fmtINR(v) : '' }, { key: 'tg', label: 'Targets', num: true }] });
+  },
+  list(title, L) {
+    const b = UI.drawer(title + ' (' + L.length + ')', '<div class="muted small">Click a value to track it in every case, page and file.</div><div id="mirL"></div>');
+    Table($('#mirL', b), { rows: L.map(g => ({ g, type: (this.T.find(x => x[0] === g.t) || [])[2] || g.t, v: g.v, n: g.cases.size, cases: [...g.cases].map(id => this.nameOf(id)).join(', '), names: [...g.names].slice(0, 4).join(', '), srcs: [...g.srcs].slice(0, 4).join(', ') })), sortKey: 'n', sortDir: -1, exportName: 'mirror_targets', pageSize: 50,
+      onRow: r => { if (r.g.t === 'photo') return; if (typeof Dash2 !== 'undefined' && Dash2.track) { $('#drawer').classList.remove('open'); Dash2.track(r.v); } },
+      columns: [{ key: 'v', label: 'Value', render: r => r.g.t === 'photo' && r.g.th ? `<img src="${r.g.th}" alt="" style="height:46px;border-radius:6px">` : `<b class="mono">${esc(r.v)}</b>` }, { key: 'type', label: 'Type' }, { key: 'n', label: 'Cases', num: true, render: r => r.n > 1 ? `<span class="badge bad">🔗 ${r.n}</span>` : r.n }, { key: 'cases', label: 'Case Names' }, { key: 'names', label: 'Names' }, { key: 'srcs', label: 'Found In' }] });
+  }
+};
+(() => { const pd = Pages.dashboard; Pages.dashboard = function (main) { const r = pd.apply(this, arguments); let n = 0; const t = () => { if (S.page !== 'dashboard') return; if ($('#main .dash-hero, #main .hero-card')) { try { Mirror.mount(main); } catch (e) { console.warn('mirror', e); } } else if (n++ < 40) setTimeout(t, 250); }; setTimeout(t, 0); return r; }; })();
 
 </script>
 <script>
