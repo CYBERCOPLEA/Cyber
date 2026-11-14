@@ -30,9 +30,24 @@ const Mirror = {
       const st = String(f.address || '').match(/\b(UTTAR PRADESH|BIHAR|RAJASTHAN|JHARKHAND|WEST BENGAL|HARYANA|DELHI|MAHARASHTRA|GUJARAT|MADHYA PRADESH|ODISHA|ASSAM|PUNJAB|KARNATAKA|TAMIL NADU|TELANGANA|ANDHRA PRADESH|KERALA|UTTARAKHAND|CHHATTISGARH|HIMACHAL PRADESH|JAMMU|GOA|TRIPURA|MANIPUR|MEGHALAYA|NAGALAND|MIZORAM|SIKKIM|ARUNACHAL PRADESH)\b/i);
       if (st) put('state', st[1].toUpperCase(), 'CAF', n); }
     for (const n of d.ncrp || []) for (const [k, v] of Object.entries(n)) { if (/suspect.*state|accused.*state/i.test(k)) put('state', String(v).toUpperCase(), 'NCRP'); if (/suspect.*district|accused.*district/i.test(k)) put('district', String(v).toUpperCase(), 'NCRP'); }
-    let amount = 0, hold = 0, comps = 0;
+    /* District: KYC / money-trail columns are often empty, so also read the target's address (CAF, KYC, NCRP suspect),
+       the PIN code in it, and the branch district of every IFSC in the case (Vijay 14-11: "target by district not shown") */
+    const geo = (txt, s, n) => { try { const g = Geo.find(txt); if (!g) return; put('district', g.district, s + (g.how && g.how !== 'Address' ? ' · ' + g.how : ''), n); if (g.state) put('state', g.state, s, n); } catch (e) { } };
+    for (const f of d.caf || []) geo(f.address, 'CAF address', f.name);
+    for (const k of d.kyc || []) for (const [key, val] of Object.entries(k)) if (/addr/i.test(key) && val) geo(val, 'KYC address', k.name);
+    for (const n of d.ncrp || []) for (const [k, v] of Object.entries(n)) if (/(suspect|accused).*(addr|location|district)/i.test(k) && v) geo(v, 'NCRP suspect');
+    const ifs = new Set(); (d.kyc || []).forEach(k => k.ifsc && ifs.add(String(k.ifsc).toUpperCase().trim())); (d.txns || []).forEach(t => { if (t._type !== 'stmt' && t.to_ifsc) ifs.add(String(t.to_ifsc).toUpperCase().trim()); if (t.to_ifsc_district) put('district', Geo.name(t.to_ifsc_district), 'IFSC branch (' + (t.to_ifsc || '') + ')'); });
+    out.filter(r => r.t === 'ifsc').forEach(r => ifs.add(String(r.v).toUpperCase().trim()));
+    try { if (typeof IFSCDB !== 'undefined') for (const i of ifs) { const b = IFSCDB.get(i); if (b && b.district) { put('district', Geo.name(b.district), 'IFSC branch ' + i, b.branch || ''); if (b.state) put('state', String(b.state).toUpperCase(), 'IFSC branch ' + i); } } } catch (e) { }
+    let amount = 0, hold = 0, comps = 0, amtSrc = '';
     try { const keep = S.data; S.data = d; Analysis.invalidate(); const L = Trail.complaints(); comps = L.length || (d.ncrp || []).length; amount = sum(d.ncrp || [], r => +r.amount || 0) || sum(L, x => +x.amount || 0); hold = sum(L, x => +x.hold || 0); S.data = keep; Analysis.invalidate(); } catch (e) { }
-    const seen = new Set(); return { R: out.filter(r => { const k = r.t + '|' + r.v.toLowerCase() + '|' + r.s; if (seen.has(k)) return false; seen.add(k); return true; }), amount, hold, comps };
+    if (amount) amtSrc = 'NCRP complaints';
+    if (!hold) hold = sum(d.ncrp || [], r => +(r.hold || r.hold_amount || r.lien || 0) || 0);
+    if (!amount) { amount = sum((d.txns || []).filter(t => t._type !== 'stmt' && +t.layer === 1), t => Math.abs(+t.amount || 0)); if (amount) amtSrc = 'Money trail (victim → layer 1)'; }
+    if (!amount) { const cc = d.cctns || {}, T = [cc.fir && cc.fir.text, ...(cc.cd || []).slice(0, 3).map(x => x.text)].filter(Boolean).join('\n'); let mx = 0;
+      for (const m of T.matchAll(/(?:₹|\bRS\.?|\bINR\b|RUPEES?|रुपये|रूपये|रु0?\.?)\s*[:\-]?\s*(\d{1,3}(?:,\d{2,3})+|\d{3,9})(?:\.\d+)?\s*(?:\/-)?/gi)) { const v = +m[1].replace(/,/g, ''); if (v > mx && v < 1e10) mx = v; }
+      if (mx) { amount = mx; amtSrc = 'FIR / case diary text'; } }
+    const seen = new Set(); return { R: out.filter(r => { const k = r.t + '|' + r.v.toLowerCase() + '|' + r.s; if (seen.has(k)) return false; seen.add(k); return true; }), amount, hold, comps, amtSrc };
   },
   async collect() {
     const key = S.cases.map(c => c.id + ':' + c.name + ':' + (c.final ? 1 : 0)).join(',');
@@ -40,9 +55,13 @@ const Mirror = {
     const C = [];
     for (const c of S.cases) {
       let r = null;
-      try { r = c.id === S.caseId && S.data && !isScope(S.caseId) ? this.one(c, S.data) : await Vault.sum(c.id, 'mir', 'v1|' + JSON.stringify(c), async () => { const d = await DB.get('case:' + c.id); return d ? this.one(c, Object.assign(emptyCase(), d)) : { R: [], amount: 0, hold: 0, comps: 0 }; }); } catch (e) { r = { R: [], amount: 0, hold: 0, comps: 0 }; }
+      try { r = c.id === S.caseId && S.data && !isScope(S.caseId) ? this.one(c, S.data) : await Vault.sum(c.id, 'mir', 'v2|' + (typeof IFSCDB !== 'undefined' && IFSCDB.ok() ? 'i' : '') + JSON.stringify(c), async () => { const d = await DB.get('case:' + c.id); return d ? this.one(c, Object.assign(emptyCase(), d)) : { R: [], amount: 0, hold: 0, comps: 0 }; }); } catch (e) { r = { R: [], amount: 0, hold: 0, comps: 0 }; }
       C.push({ c, ...r }); await new Promise(z => setTimeout(z, 0));
     }
+    try { const P = await Off.get('prb', []); if (P && P.length) { const ix = new Map(), nk = v => String(v || '').replace(/\D/g, '').slice(-10);
+        for (const r of P) { const ds = r.district || '', stt = r.state || ''; if (!ds && !stt) continue; for (const v of [r.mobile && 'm' + nk(r.mobile), r.imei && 'i' + String(r.imei).replace(/\D/g, '').slice(0, 14), r.acc && 'a' + String(r.acc).replace(/\s/g, '')].filter(Boolean)) { let a = ix.get(v); if (!a) ix.set(v, a = []); if (a.length < 30) a.push(r); } }
+        for (const x of C) { const add = [], seen = new Set(); for (const t of x.R) { const k = t.t === 'mobile' || t.t === 'alt' ? 'm' + nk(t.v) : t.t === 'imei' ? 'i' + String(t.v).replace(/\D/g, '').slice(0, 14) : t.t === 'account' ? 'a' + String(t.v).replace(/\s/g, '') : ''; for (const r of (k && ix.get(k)) || []) { const id = (r.district || '') + '|' + (r.state || '') + '|' + t.v; if (seen.has(id)) continue; seen.add(id); if (r.district) add.push({ t: 'district', v: Geo.name(r.district), s: 'Pratibimb (' + t.v + ')', n: r.name || '' }); if (r.state) add.push({ t: 'state', v: String(r.state).toUpperCase(), s: 'Pratibimb', n: r.name || '' }); } }
+          if (add.length) x.R = x.R.concat(add); } } } catch (e) { }
     let good = []; try { good = await Off.get('good', []); } catch (e) { }
     const nf = f => String(f || '').toUpperCase().replace(/\s+/g, '').replace(/^FIR(NO\.?)?/, ''), refundOf = c => c.fir ? sum(good.filter(g => g.fir && nf(g.fir) === nf(c.fir)), g => +g.refunded || 0) : 0;
     C.forEach(x => { x.refund = refundOf(x.c); x.pend = typeof AllDash !== 'undefined' ? AllDash.pend(x.c) : true; x.fin = typeof AllDash !== 'undefined' ? AllDash.fin(x.c) : ''; });
@@ -76,10 +95,11 @@ const Mirror = {
       <div class="mir-net-h"><h4>🕸 Case Network <span class="muted small">cases joined by the same mobile, account, UPI, PAN, Aadhaar, POS…</span></h4></div><div class="graph-box" id="mirNet" style="height:430px"></div>`;
     $$('[data-mk]', el).forEach(b => b.onclick = () => K[+b.dataset.mk][3]());
     $$('[data-mt]', el).forEach(b => b.onclick = () => { const t = b.dataset.mt, L = byT.get(t) || []; this.list((this.T.find(x => x[0] === t) || [])[2], L); });
-    const hb = (id, rows, o) => { const box = $(id, el); if (!rows.length) { box.innerHTML = '<div class="muted small">None found yet</div>'; return; } Charts.hbar(box, rows.slice(0, 12), o); };
+    const EM = { '#mirSt': 'No state found yet in KYC, CAF address, IFSC branch, NCRP suspect details or Pratibimb.', '#mirDi': 'No district found yet. It is read from KYC, the address in CAF / KYC (Dist., PIN or district name), the IFSC branch (load the IFSC list in Tools for this) and Pratibimb rows of the same mobile / IMEI / account.', '#mirAm': 'No fraud amount yet. It comes from the NCRP complaint sheet, else the money trail (victim → layer 1), else the amount written in the FIR / case diary (₹ / Rs. / रुपये).' };
+    const hb = (id, rows, o) => { const box = $(id, el); if (!rows.length) { box.innerHTML = '<div class="muted small">' + (EM[id] || 'None found yet') + '</div>'; return; } Charts.hbar(box, rows.slice(0, 12), o); };
     hb('#mirSt', (byT.get('state') || []).map(g => ({ label: g.v, value: g.cases.size, sub: g.cases.size + ' case(s)', g })).sort((a, b) => b.value - a.value), { fmt: v => v + ' case(s)', onClick: d => this.list('State ' + d.label, [d.g]) });
     hb('#mirDi', (byT.get('district') || []).map(g => ({ label: g.v, value: g.cases.size, sub: g.cases.size + ' case(s)', g })).sort((a, b) => b.value - a.value), { fmt: v => v + ' case(s)', onClick: d => this.list('District ' + d.label, [d.g]) });
-    hb('#mirAm', X.filter(x => x.amount).map(x => ({ label: this.nameOf(x.c.id), value: x.amount, sub: 'Hold ' + fmtINR(x.hold || 0), x })).sort((a, b) => b.value - a.value), { fmt: fmtINR, onClick: d => this.open(d.x.c.id) });
+    hb('#mirAm', X.filter(x => x.amount).map(x => ({ label: this.nameOf(x.c.id), value: x.amount, sub: 'Hold ' + fmtINR(x.hold || 0) + (x.amtSrc ? ' · from ' + x.amtSrc : ''), x })).sort((a, b) => b.value - a.value), { fmt: fmtINR, onClick: d => this.open(d.x.c.id) });
     this.net(D, ids);
   },
   net(D, ids) {

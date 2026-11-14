@@ -2593,3 +2593,32 @@ html:not([data-theme="light"]) .ff-jump{color:#6ee7b7!important}
 .mir-2 h4,.mir-net-h h4{margin:4px 0 6px}
 @media (max-width:1500px){.mir-k{grid-template-columns:repeat(5,1fr)}.mir-g{grid-template-columns:repeat(5,1fr)}}
 @media (max-width:1150px){.mir-g{grid-template-columns:repeat(3,1fr)}.mir-2{grid-template-columns:1fr}}
+/* empty page: documents first, empty boxes folded */
+.df-p.df-top{border-color:#7c3aed!important;box-shadow:0 0 0 1px rgba(124,58,237,.35),0 8px 22px rgba(124,58,237,.18)}
+.df-emp{margin:10px 0;border:1.5px dashed rgba(100,116,139,.45);border-radius:12px;padding:8px 12px}
+.df-emp>summary{cursor:pointer;display:flex;align-items:center;gap:10px;flex-wrap:wrap;list-style:none}
+.df-emp>summary::-webkit-details-marker{display:none}
+.df-emp>summary::before{content:'▸';font-size:14px;transition:transform .15s}
+.df-emp[open]>summary::before{transform:rotate(90deg)}
+.df-emp>summary .df-imp{margin-left:auto}
+.df-emp[open]{padding-bottom:12px}
+
+/* Pratibimb count cards are buttons: hover preview, click filters the rows */
+button.lr-k[data-pbk]{cursor:pointer;font:inherit;color:inherit;text-align:left;transition:transform .12s, box-shadow .12s}
+button.lr-k[data-pbk]:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.25)}
+button.lr-k[data-pbk].on{outline:2px solid var(--c);outline-offset:1px}
+
+/* ↗ New Tab on graphs / charts, and the full-screen view in that tab */
+.ft-host{position:relative}.card.ft-host>.ft-btn.ft-c{position:absolute;top:8px;right:8px;z-index:3;opacity:.55;padding:2px 8px}.card.ft-host:hover>.ft-btn.ft-c{opacity:1}
+.ft-btn span{font-size:11px}.graph-box>.ft-btn.ft-g{position:relative;z-index:3;margin-left:6px}
+body.ft-body{overflow:hidden}body.ft-body .ft-btn{display:none}
+#ftBar{position:fixed;top:0;left:0;right:0;height:50px;z-index:46;display:flex;align-items:center;gap:6px;padding:0 12px;background:var(--surface-1,#111a2e);border-bottom:1px solid var(--border,#1e2a44);box-shadow:0 4px 14px rgba(0,0,0,.3)}
+#ftBar .ft-t{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:34vw}#ftBar .ft-h{font-size:11.5px;color:var(--text-muted,#94a3b8);white-space:nowrap}#ftBar .grow{flex:1}
+#ftQ{width:210px;padding:5px 8px;border-radius:8px;border:1px solid var(--border,#334155);background:var(--surface-2,#0f172a);color:inherit}
+.ft-on{position:fixed!important;top:50px!important;left:0!important;right:0!important;bottom:0!important;width:auto!important;height:auto!important;max-height:none!important;margin:0!important;z-index:44;overflow:auto;border-radius:0!important;background:var(--bg,#0b1220)}
+.card.ft-on{padding:20px!important}.graph-box.ft-on{padding:0!important;border:0!important}body.ft-body .fv-btn{display:none!important}.ft-on.graph-box > .ex-wrap{top:12px;bottom:auto;right:18px}.ft-on.graph-box > .ex-wrap .ex-menu{top:calc(100% + 6px);bottom:auto}
+.ft-in{transform-origin:0 0}
+.ft-dim{opacity:.18!important;transition:opacity .15s}.ft-hit{opacity:1!important;filter:drop-shadow(0 0 4px #facc15)}
+tr.ft-hit,.jm-bar.ft-hit,.lr-k.ft-hit,.mir-t.ft-hit{outline:2px solid #facc15;outline-offset:1px}
+@media print{#ftBar{display:none}.ft-on{position:static!important;overflow:visible}}
+.ft-blk>.ft-btn.ft-c{position:absolute;top:0;right:0;z-index:3;opacity:.55;padding:2px 8px}.ft-blk:hover>.ft-btn.ft-c{opacity:1}.ft-blk.ft-on{padding:20px!important}

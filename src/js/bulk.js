@@ -147,7 +147,11 @@ PAGE_META.nodalm = { group: 'EO – Enquiry Officer', title: 'Nodal / Escrow Lis
 Pages.nodalm = main => NodalM.page(main);
 (() => { const eos = $('.eo-subs'), lr = eos && $('[data-eo="letters"]', eos); if (!lr) return;
   lr.insertAdjacentHTML('afterend', `<div class="nav-sub" data-eo="nodalm" style="--pc:#7c3aed" title="Nodal / escrow accounts – one list for all cases"><i></i><span>Nodal / Escrow List</span></div>`);
-  const n = $('[data-eo="nodalm"]', eos); n.onclick = () => go('nodalm'); $$('.nav-sub', eos).forEach((x, i) => { x.dataset.ncI = i; });
+  const n = $('[data-eo="nodalm"]', eos); n.onclick = () => go('nodalm');
+  /* NCRP Suspect Search (suspect repository: mobile, e-mail, account, UPI, social media, app / URL) – right after Nodal / Escrow List (Vijay 14-11) */
+  n.insertAdjacentHTML('afterend', `<div class="nav-sub" data-eo="ssearch" style="--pc:#dc2626" title="NCRP Suspect Search (cybercrime.gov.in) – check a mobile, e-mail, bank account, UPI, social media handle, app or URL in the national suspect repository (opens the government website)"><i></i><span>Suspect Search ↗</span></div>`);
+  $('[data-eo="ssearch"]', eos).onclick = e => { e.stopPropagation(); const u = 'https://cybercrime.gov.in/suspect-search'; try { window.open(u, '_blank', 'noopener'); } catch (x) { location.href = u; } };
+  $$('.nav-sub', eos).forEach((x, i) => { x.dataset.ncI = i; });
   const r0 = render; render = function () { const r = r0.apply(this, arguments); if (S.page === 'nodalm') { const it = $('.eo-item'); if (it) { it.classList.add('active', 'open'); eos.classList.add('open'); S.eoOpen = true; } } return r; }; })();
 /* ---------- 3. EO: import existing enquiries (Excel / CSV / Word table) ---------- */
 Object.assign(EO, {
