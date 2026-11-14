@@ -1,0 +1,33 @@
+# Publishes the scrambled public copy of SudarshanAshtra to the public repository CYBERCOPLEA/SudarshanAshtra
+# (GitHub Pages: https://cybercoplea.github.io/SudarshanAshtra/). Runs only in the private source repository.
+# Needs the secret PUBLIC_SITE_TOKEN: a fine-grained token with "Contents: Read and write" on the public repository only.
+name: Publish public site
+on:
+  push:
+    branches: [main]
+    paths: ['Sudarshanastra.html', 'User.html', 'index.html', 'staff.html', 'data/**', 'desktop/latest.json', 'tools/publish.js', 'THIRD-PARTY-NOTICES.md']
+  workflow_dispatch:
+concurrency: { group: publish-public, cancel-in-progress: false }
+jobs:
+  publish:
+    if: github.event.repository.name != 'SudarshanAshtra'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - name: Make the scrambled copy
+        run: |
+          mkdir -p /tmp/tz && npm i --prefix /tmp/tz --no-save --silent terser@5
+          TERSER_DIR=/tmp/tz node tools/publish.js /tmp/public
+      - name: Push it to the public repository (one commit, no history)
+        env: { TOKEN: '${{ secrets.PUBLIC_SITE_TOKEN }}' }
+        run: |
+          test -n "$TOKEN" || { echo "::error::Secret PUBLIC_SITE_TOKEN is missing"; exit 1; }
+          cd /tmp/public
+          git init -q -b main
+          git config user.name "SudarshanAshtra"
+          git config user.email "sudarshanashtra@users.noreply.github.com"
+          git add -A
+          git commit -q -m "SudarshanAshtra build $(grep -o 'build [^)]*' index.html | head -1)"
+          git push -q --force "https://x-access-token:${TOKEN}@github.com/CYBERCOPLEA/SudarshanAshtra.git" main

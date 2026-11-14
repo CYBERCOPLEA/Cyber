@@ -2486,6 +2486,9 @@ html.ed-user:not(.ed-desk) #xtAdd{display:none!important}
 .hp-top .hp-btn.big{font-weight:800;letter-spacing:.2px}
 .hp-top .hp-btn.big .hp-lt{font-weight:800}
 .hp-top .hp-btn.big>:first-child{width:20px!important;height:20px!important;padding:6px;box-sizing:content-box;border-radius:50%;background-color:#7c2d12!important;background-size:72% 72%!important;background-position:center!important;background-repeat:no-repeat!important;flex:none;box-shadow:0 0 0 2px rgba(255,255,255,.85),0 1px 4px rgba(124,45,18,.35)}
+/* EXE: tiny NEW badge on the Update button when a new version is waiting */
+#dkUpd{position:relative;overflow:visible}
+#dkUpd.dk-new::after{content:'NEW';position:absolute;top:-7px;right:-6px;padding:1px 4px;border-radius:6px;background:#dc2626;color:#fff;font-size:8.5px;font-weight:800;letter-spacing:.4px;line-height:1.2;box-shadow:0 0 0 2px var(--bg,#0b1220);pointer-events:none;animation:none}
 
 /* ===== 13-11 late: home header lines aligned, police badge dot free, logo 15% smaller ===== */
 .hp-kicker{width:max-content;max-width:100%;font-size:clamp(14px,1.2vw,19px);padding-right:22px}
