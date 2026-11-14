@@ -516,15 +516,16 @@ Pages.offx = main => { const { cur, body } = tabs(main, 'offx', [['crime', '🗃
 /* sidebar: OFFICE drop-down (Search in Local Drive moves inside it) */
 (() => {
   const nav = $('#sidebar'), ls = nav && $('.nav-item[data-page="lsearch"]', nav); if (!ls) return;
-  const SUB = [['lsearch', '', 'Search in Local Drive', '#6366f1'], ['offx', 'crime', 'Master Crime Data', '#ef4444'], ['offx', 'daily', 'Daily Crime', '#f43f5e'], ['offx', 'good', 'Good Work', '#eab308'], ['offx', 'press', 'Press Note', '#ec4899'], ['offx', 'duty', 'Duty Chart', '#22c55e'], ['offx', 'files', 'Upload +', '#06b6d4']];
+  const SUB = [['lsearch', '', 'Search in Local Drive', '#6366f1'], ['offx', 'crime', 'Master Crime Data', '#ef4444'], ['offx', 'daily', 'Daily Crime', '#f43f5e'], ['offx', 'good', 'Good Work', '#eab308'], ['offx', 'press', 'Press Note', '#ec4899'], ['offx', 'duty', 'Duty Chart', '#22c55e'], ['ext', 'https://cybercrime.gov.in/safety-tips', 'Safety Tips ↗', '#0ea5e9'], ['offx', 'files', 'Upload +', '#06b6d4']];
   ls.insertAdjacentHTML('beforebegin', `<div class="nav-item offx-item" title="Office work: local search, good work, press note, crime data, duty chart, files" style="--c:#14b8a6"><span class="nib">🏢</span><span>Office Work</span><span class="nav-chev">▾</span></div><div class="nav-subs offx-subs">${SUB.map(([p, s, l, c], i) => `<div class="nav-sub" data-ox="${p}|${s}" style="--pc:${c}"><i></i><span>${i + 1}. ${l}</span></div>`).join('')}</div>`);
   ls.style.display = 'none';
   const it = $('.offx-item', nav), subs = $('.offx-subs', nav), setOpen = on => { S.oxOpen = on; subs.classList.toggle('open', on); it.classList.toggle('open', on); };
   setOpen(false);
   it.addEventListener('click', e => { e.stopImmediatePropagation(); setOpen(!S.oxOpen); }, true);
-  $$('[data-ox]', subs).forEach(n => n.onclick = () => { const [p, s] = n.dataset.ox.split('|'); go(p, s || undefined); });
+  $$('[data-ox]', subs).forEach(n => n.onclick = () => { const i = n.dataset.ox.indexOf('|'), p = n.dataset.ox.slice(0, i), s = n.dataset.ox.slice(i + 1); if (p === 'ext') { try { window.open(s, '_blank', 'noopener'); } catch (e) { location.href = s; } return; } go(p, s || undefined); });
+  const stp = $('[data-ox^="ext|"]', subs); if (stp) stp.title = 'NCRP (cybercrime.gov.in) Safety Tips – official cyber safety advice for the public, awareness talks and press notes (opens the government website)';
   const or = render; render = function () { const r = or.apply(this, arguments);
-    $$('[data-ox]', subs).forEach(n => { const [p, s] = n.dataset.ox.split('|'); n.classList.toggle('active', S.page === p && (!s || (S.sub.offx || 'crime') === s)); });
+    $$('[data-ox]:not([data-ox^="ext|"])', subs).forEach(n => { const [p, s] = n.dataset.ox.split('|'); n.classList.toggle('active', S.page === p && (!s || (S.sub.offx || 'crime') === s)); });
     const on = S.page === 'offx' || S.page === 'lsearch'; it.classList.toggle('active', on); if (on && !S.oxOpen) setOpen(true); return r; };
 })();
 

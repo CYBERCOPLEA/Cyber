@@ -79,15 +79,20 @@ const Contacts = {
 PAGE_META.contacts = { group: 'Office', title: 'Contacts', desc: 'Intermediaries (bank, social media, fintech / payment gateway, merchant, UPI, telecom) and UP Cyber Police – nodal officers, e-mails, portals and phone numbers in one place.', order: ['all', 'int', 'pol', ...Contacts.CAT.map(x => x[0])], names: Object.fromEntries([['all', '📇 All'], ['int', '🏢 Intermediary'], ['pol', '👮 Police / Govt.'], ...Contacts.CAT.map(x => [x[0], x[1] + ' ' + x[2]])]) };
 Pages.contacts = main => { if (!Role.can('contacts')) { main.innerHTML = '<div class="card" style="margin:20px"><h3>🔒 Contacts</h3><p class="muted">The Super Admin has not given you Contacts. Ask the SudarshanAshtra Super Admin if you need it.</p></div>'; return; }
   const sb = S.sub.contacts || 'all', c = Contacts.CAT.find(x => x[0] === sb), { cur, body } = tabs(main, 'contacts', [['all', '📇 All'], ['int', '🏢 Intermediary'], ['pol', '👮 Police / Govt.']], 'Contacts');
-  if (c) { $$('.tab', main).forEach(t => t.classList.toggle('active', t.dataset.t === c[4])); } Contacts.page(body, c ? sb : cur); };
+  if (c) { $$('.tab', main).forEach(t => t.classList.toggle('active', t.dataset.t === c[4])); } Contacts.page(body, c ? sb : cur);
+  const ph = $('.page-head .ph-actions', main) || $('.page-head', main); if (ph && !$('#ctTrust', main)) { ph.insertAdjacentHTML('beforeend', '<button type="button" class="btn" id="ctTrust" title="DoT Sanchar Saathi – Trusted Contact Details of banks / financial institutions: search by name, website, e-mail or number">🛡 Trusted Contact (Sanchar Saathi) ↗</button>'); $('#ctTrust', main).onclick = () => Contacts.trusted(); } };
+/* DoT Sanchar Saathi "Trusted Contact Details": check that a bank / FI phone, e-mail or website is genuine (Vijay 14-11) */
+Contacts.TRUST = 'https://sancharsaathi.gov.in/FinancialInstitutions/fiHome.jsp';
+Contacts.trusted = () => { try { window.open(Contacts.TRUST, '_blank', 'noopener'); } catch (e) { location.href = Contacts.TRUST; } };
 /* sidebar: 📇 Contacts drop-down right after Office Work, then ➕ Add Contacts */
 (() => {
   const nav = $('#sidebar'), ox = nav && $('.offx-subs', nav); if (!ox) return;
-  const SUB = [['all', 'All Contacts', '#6366f1'], ['add', '+ Add Contacts', '#16a34a']];
+  const SUB = [['all', 'All Contacts', '#6366f1'], ['add', '+ Add Contacts', '#16a34a'], ['trust', 'Trusted Contact (Sanchar Saathi) ↗', '#0891b2']];
   ox.insertAdjacentHTML('afterend', `<div class="nav-item ct-item" title="Contacts: intermediaries (bank, social media, fintech, merchant, UPI…) and UP Cyber Police" style="--c:#6366f1"><span class="nib">📇</span><span>Contacts</span><span class="nav-chev">▾</span></div><div class="nav-subs ct-subs">${SUB.map(([s, l, c], i) => `<div class="nav-sub" data-ctn="${s}" style="--pc:${c}" ${s === 'add' ? 'title="Add a contact – choose Intermediary / Police category"' : ''}><i></i><span>${i + 1}. ${l}</span></div>`).join('')}</div>`);
   const it = $('.ct-item', nav), subs = $('.ct-subs', nav), setOpen = on => { S.ctOpen = on; subs.classList.toggle('open', on); it.classList.toggle('open', on); };
   setOpen(false); it.addEventListener('click', e => { e.stopImmediatePropagation(); setOpen(!S.ctOpen); }, true);
-  $$('[data-ctn]', subs).forEach(n => n.onclick = n.dataset.ctn === 'add' ? null : () => go('contacts', 'all'));
+  $$('[data-ctn]', subs).forEach(n => n.onclick = n.dataset.ctn === 'add' ? null : n.dataset.ctn === 'trust' ? () => Contacts.trusted() : () => go('contacts', 'all'));
+  $('[data-ctn="trust"]', subs).title = 'DoT Sanchar Saathi – Trusted Contact Details: official phone numbers, e-mails and websites of banks / financial institutions (opens the government website)';
   $('[data-ctn="add"]', subs).addEventListener('click', e => { e.stopImmediatePropagation(); if (!Role.can('contacts')) return Role.deny('add Contacts'); Contacts.edit({ cat: S.page === 'contacts' && Contacts.CAT.some(x => x[0] === S.sub.contacts) ? S.sub.contacts : 'bank' }, () => { if (S.page === 'contacts') render(); else go('contacts', 'all'); }); }, true);
   const or = render; render = function () { const r = or.apply(this, arguments);
     $$('[data-ctn]', subs).forEach(n => n.classList.toggle('active', S.page === 'contacts' && n.dataset.ctn === 'all'));

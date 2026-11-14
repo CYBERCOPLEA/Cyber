@@ -2604,6 +2604,35 @@ html:not([data-theme="light"]) .ff-jump{color:#6ee7b7!important}
 .mir-2 h4,.mir-net-h h4{margin:4px 0 6px}
 @media (max-width:1500px){.mir-k{grid-template-columns:repeat(5,1fr)}.mir-g{grid-template-columns:repeat(5,1fr)}}
 @media (max-width:1150px){.mir-g{grid-template-columns:repeat(3,1fr)}.mir-2{grid-template-columns:1fr}}
+/* empty page: documents first, empty boxes folded */
+.df-p.df-top{border-color:#7c3aed!important;box-shadow:0 0 0 1px rgba(124,58,237,.35),0 8px 22px rgba(124,58,237,.18)}
+.df-emp{margin:10px 0;border:1.5px dashed rgba(100,116,139,.45);border-radius:12px;padding:8px 12px}
+.df-emp>summary{cursor:pointer;display:flex;align-items:center;gap:10px;flex-wrap:wrap;list-style:none}
+.df-emp>summary::-webkit-details-marker{display:none}
+.df-emp>summary::before{content:'▸';font-size:14px;transition:transform .15s}
+.df-emp[open]>summary::before{transform:rotate(90deg)}
+.df-emp>summary .df-imp{margin-left:auto}
+.df-emp[open]{padding-bottom:12px}
+
+/* Pratibimb count cards are buttons: hover preview, click filters the rows */
+button.lr-k[data-pbk]{cursor:pointer;font:inherit;color:inherit;text-align:left;transition:transform .12s, box-shadow .12s}
+button.lr-k[data-pbk]:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.25)}
+button.lr-k[data-pbk].on{outline:2px solid var(--c);outline-offset:1px}
+
+/* ↗ New Tab on graphs / charts, and the full-screen view in that tab */
+.ft-host{position:relative}.card.ft-host>.ft-btn.ft-c{position:absolute;top:8px;right:8px;z-index:3;opacity:.55;padding:2px 8px}.card.ft-host:hover>.ft-btn.ft-c{opacity:1}
+.ft-btn span{font-size:11px}.graph-box>.ft-btn.ft-g{position:relative;z-index:3;margin-left:6px}
+body.ft-body{overflow:hidden}body.ft-body .ft-btn{display:none}
+#ftBar{position:fixed;top:0;left:0;right:0;height:50px;z-index:46;display:flex;align-items:center;gap:6px;padding:0 12px;background:var(--surface-1,#111a2e);border-bottom:1px solid var(--border,#1e2a44);box-shadow:0 4px 14px rgba(0,0,0,.3)}
+#ftBar .ft-t{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:34vw}#ftBar .ft-h{font-size:11.5px;color:var(--text-muted,#94a3b8);white-space:nowrap}#ftBar .grow{flex:1}
+#ftQ{width:210px;padding:5px 8px;border-radius:8px;border:1px solid var(--border,#334155);background:var(--surface-2,#0f172a);color:inherit}
+.ft-on{position:fixed!important;top:50px!important;left:0!important;right:0!important;bottom:0!important;width:auto!important;height:auto!important;max-height:none!important;margin:0!important;z-index:44;overflow:auto;border-radius:0!important;background:var(--bg,#0b1220)}
+.card.ft-on{padding:20px!important}.graph-box.ft-on{padding:0!important;border:0!important}body.ft-body .fv-btn{display:none!important}.ft-on.graph-box > .ex-wrap{top:12px;bottom:auto;right:18px}.ft-on.graph-box > .ex-wrap .ex-menu{top:calc(100% + 6px);bottom:auto}
+.ft-in{transform-origin:0 0}
+.ft-dim{opacity:.18!important;transition:opacity .15s}.ft-hit{opacity:1!important;filter:drop-shadow(0 0 4px #facc15)}
+tr.ft-hit,.jm-bar.ft-hit,.lr-k.ft-hit,.mir-t.ft-hit{outline:2px solid #facc15;outline-offset:1px}
+@media print{#ftBar{display:none}.ft-on{position:static!important;overflow:visible}}
+.ft-blk>.ft-btn.ft-c{position:absolute;top:0;right:0;z-index:3;opacity:.55;padding:2px 8px}.ft-blk:hover>.ft-btn.ft-c{opacity:1}.ft-blk.ft-on{padding:20px!important}
 
 </style>
 </head>
@@ -2654,7 +2683,7 @@ html:not([data-theme="light"]) .ff-jump{color:#6ee7b7!important}
         <div class="hp-feat" style="--fc:#06b6d4"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><div><b>Analytics</b><p>The same mobile, account, IP or e-mail across complaints, banks and platforms.</p></div></div>
         <div class="hp-feat" style="--fc:#eab308"><span class="hp-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h5"/></svg></span><div><b>Case File &amp; Notices</b><p>Case reports, notices to banks and platforms, and CSV / PDF exports.</p></div></div>
     </section>
-    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · <b>One Platform | Every Investigation | Complete Resolution</b> · v2.0 · Build 2026-11-14 13:21 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
+    <footer class="hp-foot"><b>SudarshanAshtra</b> <span lang="hi">(सुदर्शनास्त्र)</span> – Cyber Crime Analysis &amp; Tracking · <b>One Platform | Every Investigation | Complete Resolution</b> · v2.0 · Build 2026-11-14 18:12 IST · Works in Chrome / Edge · Only analyses records you lawfully hold · All data stays inside this browser on this computer</footer>
   </div>
 
   <div class="lg-wrap" id="lgWrap" aria-hidden="true">
@@ -8671,6 +8700,133 @@ const FullView = {
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && FullView.cur && !document.fullscreenElement) FullView.close(); });
   // leaving the page closes it
   const og = go; go = function () { if (FullView.cur) FullView.close(); return og.apply(this, arguments); };
+})();
+
+</script>
+<script>
+/* fulltab.js – "↗ New Tab" on every graph, flow chart, mind map, network and chart of the tool (Vijay 14-11:
+   "all types graph, flow chart, network should open in a new full-screen tab … hover / click / inside … more functions").
+   The new tab is the same tool (same data on this computer, nothing is uploaded), opened on the same page, with only that
+   view filling the screen and a tool bar: search & highlight, bigger / smaller, fit, CSV of the values, PNG / SVG picture, print. */
+'use strict';
+const FullTab = {
+  /* what gets the button: graph boxes (network / flow / mind map) and cards that hold a chart */
+  graphs(root) { return $$('.graph-box', root); },
+  has: c => !!(c.querySelector('svg.chart, canvas, .jm-bars, .jm-arc, svg [data-tip]') || $$('[data-tip]', c).length >= 2 || [...c.querySelectorAll('svg')].some(s => { const r = s.getBoundingClientRect(); return r.width >= 120 && r.height >= 90; })),
+  /* a heading + chart block inside a bigger card (e.g. Case Mirror: Targets by State / District / Fraud Amount) */
+  blocks(root) { return $$('h4', root).map(h => h.parentElement).filter(b => b && !b.classList.contains('card') && !b.closest('.graph-box') && b.closest('.card') && this.has(b) && !b.querySelector('h4 ~ * h4')); },
+  charts(root) {
+    const B = this.blocks(root);
+    return $$('.card', root).filter(c => !c.querySelector('.graph-box') && !c.closest('.graph-box') && !c.closest('#ftBar') && !c.querySelector('.card') && B.filter(b => c.contains(b)).length < 2 && this.has(c)).concat(B.filter(b => B.filter(x => x.closest('.card') === b.closest('.card')).length >= 2));
+  },
+  kind: el => el.classList.contains('graph-box') ? 'g' : 'c',
+  title(el) { const c = el.querySelector(':scope > h4, :scope > h3') ? el : el.closest('.card') || el, h = c.querySelector(':scope > h4, :scope > h3') || c.querySelector('h3, h2, .card-title'); return h ? h.textContent.replace(/\s+/g, ' ').replace(/↗ New Tab|Full view|Exit full view/g, '').trim().slice(0, 90) : ''; },
+  scan() {
+    if (document.body.classList.contains('ft-body')) return; const main = $('#main'); if (!main) return;
+    for (const el of this.graphs(main)) { if (el.querySelector(':scope > .ft-btn')) continue; this.btn(el, true); }
+    for (const el of this.charts(main)) { if (el.querySelector(':scope > .ft-btn')) continue; this.btn(el, false); if (!el.classList.contains('card')) el.classList.add('ft-blk'); }
+  },
+  btn(el, g) {
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'btn sm ft-btn' + (g ? ' ft-g' : ' ft-c');
+    b.title = 'Open this ' + (g ? 'network / flow chart' : 'chart') + ' alone in a new full-screen tab – hover, click and drill-down keep working, plus search, zoom, CSV, picture and print';
+    b.innerHTML = '↗<span> New Tab</span>'; b.onclick = e => { e.stopPropagation(); e.preventDefault(); this.open(el); };
+    el.classList.add('ft-host'); if (g) { const fv = el.querySelector(':scope > .fv-btn'); fv ? fv.after(b) : el.prepend(b); } else el.prepend(b);
+  },
+  open(el) {
+    const k = this.kind(el), L = k === 'g' ? this.graphs($('#main')) : this.charts($('#main')), id = uid();
+    const loc = { caseId: S.caseId, page: S.page, sub: JSON.parse(JSON.stringify(S.sub || {})), k, idx: L.indexOf(el), title: this.title(el), at: Date.now() };
+    try { localStorage.setItem('sud-ft-' + id, JSON.stringify(loc)); Object.keys(localStorage).filter(x => /^sud-ft-/.test(x)).forEach(x => { try { if (Date.now() - JSON.parse(localStorage.getItem(x)).at > 864e5) localStorage.removeItem(x); } catch (e) { localStorage.removeItem(x); } }); } catch (e) { }
+    try { Sess.touch(true); } catch (e) { }
+    const url = location.href.split('#')[0] + '#ft=' + id; let w = null; try { w = window.open(url, '_blank'); } catch (e) { }
+    if (!w && typeof FullView !== 'undefined' && k === 'g') FullView.open(el);   // a new tab is not allowed here: full screen in place
+  },
+  /* ---------- in the new tab ---------- */
+  want() { const m = location.hash.match(/ft=([\w-]+)/); if (!m) return null; try { return JSON.parse(localStorage.getItem('sud-ft-' + m[1]) || 'null'); } catch (e) { return null; } },
+  async boot() {
+    const W = this.want(); if (!W) return; this.W = W;
+    const t0 = Date.now(); while (Date.now() - t0 < 6e5 && ($('#app').classList.contains('hidden') || !S.data)) await new Promise(r => setTimeout(r, 400));
+    if ($('#app').classList.contains('hidden')) return;
+    await new Promise(r => setTimeout(r, 1500));   // let the tool finish opening its own start page first
+    try { UI.closeModal(); } catch (e) { }
+    if (W.caseId && W.caseId !== '__none' && S.caseId !== W.caseId) { try { await switchCase(W.caseId); await new Promise(r => setTimeout(r, 800)); } catch (e) { } }
+    S.sub = Object.assign(S.sub || {}, W.sub || {}); try { go(W.page, (W.sub || {})[W.page]); } catch (e) { }
+    let el = null; const t1 = Date.now();
+    while (!el && Date.now() - t1 < 20000) { await new Promise(r => setTimeout(r, 400)); if (S.page !== W.page) { try { go(W.page, (W.sub || {})[W.page]); } catch (e) { } continue; } const L = W.k === 'g' ? this.graphs($('#main')) : this.charts($('#main')); el = (W.title && L.find(x => this.title(x) === W.title)) || L[W.idx] || null; }
+    if (!el) { UI.toast('That view was not found on this page – showing the whole page', 5000); return; }
+    this.focus(el);
+  },
+  /* the page drew itself again (a click, a filter): find the same view and keep it full screen */
+  relocate() {
+    if (!this.el || this.el.isConnected || !this.W) return; const L = this.W.k === 'g' ? this.graphs($('#main')) : this.charts($('#main'));
+    const el = (this.W.title && L.find(x => this.title(x) === this.W.title)) || L[this.W.idx]; if (!el) return;
+    this.el = el; el.classList.add('ft-on'); const z = this.z; if (this.W.k === 'c') { this.inner().style.zoom = z; } else this.fit();
+    const q = $('#ftQ'); if (q && q.value) this.find(q.value);
+  },
+  focus(el) {
+    if ($('#ftBar')) $('#ftBar').remove();
+    this.el = el; document.body.classList.add('ft-body'); el.classList.add('ft-on'); document.title = '↗ ' + (this.W.title || 'View') + ' – SudarshanAshtra';
+    const bar = document.createElement('div'); bar.id = 'ftBar';
+    bar.innerHTML = `<b class="ft-t">↗ ${esc(this.W.title || (this.W.k === 'g' ? 'Network / Flow Chart' : 'Chart'))}</b><span class="ft-h">hover = details · click = drill-down${this.W.k === 'g' ? ' · scroll = zoom · drag = move' : ''}</span><span class="grow"></span>
+      <input id="ftQ" placeholder="🔍 Search & highlight…" title="Highlights every label / node / bar that contains this text and dims the rest"><span id="ftN" class="ft-h"></span>
+      <button class="btn sm" data-ft="out" title="Smaller">A−</button><button class="btn sm" data-ft="in" title="Bigger">A+</button><button class="btn sm" data-ft="fit" title="Fit to the screen">⤢ Fit</button>
+      <button class="btn sm" data-ft="csv" title="The values / names shown, as an Excel-readable CSV">⬇ CSV</button><button class="btn sm" data-ft="png" title="Picture of this view">⬇ PNG</button><button class="btn sm" data-ft="svg" title="Sharp picture (SVG) – for reports">⬇ SVG</button><button class="btn sm" data-ft="print">🖨 Print</button>
+      <button class="btn sm" data-ft="all" title="Show the whole page of the tool in this tab">☰ Whole Page</button><button class="btn sm danger" data-ft="x" title="Close this tab">✖ Close</button>`;
+    document.body.appendChild(bar);
+    $('#ftQ').oninput = e => this.find(e.target.value);
+    $$('[data-ft]', bar).forEach(b => b.onclick = () => this.act(b.dataset.ft));
+    this.z = 1; this.fit(); addEventListener('resize', () => this.W.k !== 'g' && this.fit());
+  },
+  inner() { const el = this.el; let w = el.querySelector(':scope > .ft-in'); if (!w && this.W.k === 'c') { w = document.createElement('div'); w.className = 'ft-in'; [...el.childNodes].filter(n => !(n.classList && n.classList.contains('ft-btn'))).forEach(n => w.appendChild(n)); el.appendChild(w); } return w; },
+  fit() {
+    const el = this.el; if (!el) return; window.dispatchEvent(new Event('resize'));
+    if (this.W.k === 'g') { [200, 700].forEach(t => setTimeout(() => { const f = el.querySelector('[data-z="fit"]'); if (f) f.click(); }, t)); return; }
+    const w = this.inner(); w.style.zoom = 1; const r = w.getBoundingClientRect(), aw = el.clientWidth - 40, ah = el.clientHeight - 30;
+    this.z = Math.max(.6, Math.min(3, aw / Math.max(1, r.width), ah / Math.max(1, r.height))); w.style.zoom = this.z;
+  },
+  act(a) {
+    const el = this.el;
+    if (a === 'x') { window.close(); setTimeout(() => this.act('all'), 300); return; }
+    if (a === 'all') { document.body.classList.remove('ft-body'); el.classList.remove('ft-on'); const w = el.querySelector(':scope > .ft-in'); if (w) w.style.zoom = 1; $('#ftBar') && $('#ftBar').remove(); this.el = null; history.replaceState(null, '', location.href.split('#')[0]); this.scan(); return; }
+    if (a === 'fit') return this.fit();
+    if (a === 'in' || a === 'out') { if (this.W.k === 'g') { const b = el.querySelector(`[data-z="${a}"]`); if (b) b.click(); return; } this.z = Math.max(.4, Math.min(5, this.z * (a === 'in' ? 1.2 : 1 / 1.2))); this.inner().style.zoom = this.z; return; }
+    if (a === 'print') return window.print();
+    if (a === 'csv') { const R = this.rows(); if (!R.length) return UI.toast('No values found in this view'); const c = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+      return this.dl(new Blob(['﻿' + [['Name / Label', 'Value', 'Details'].map(c).join(',')].concat(R.map(r => r.map(c).join(','))).join('\r\n')], { type: 'text/csv' }), this.fname() + '.csv'); }
+    if (a === 'png' || a === 'svg') { const s = this.svg(); if (!s) return UI.toast('No picture in this view');
+      if (a === 'svg') return this.dl(new Blob([s.txt], { type: 'image/svg+xml' }), this.fname() + '.svg');
+      const img = new Image(); img.onload = () => { const k = 2, cv = document.createElement('canvas'); cv.width = s.w * k; cv.height = s.h * k; const x = cv.getContext('2d'); x.fillStyle = getComputedStyle(document.body).backgroundColor || '#0b1220'; x.fillRect(0, 0, cv.width, cv.height); x.drawImage(img, 0, 0, cv.width, cv.height); cv.toBlob(b => this.dl(b, this.fname() + '.png')); };
+      img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(s.txt); }
+  },
+  fname() { return (this.W.title || 'view').replace(/[^\wऀ-ॿ]+/g, '_').replace(/^_|_$/g, '').slice(0, 60) || 'view'; },
+  dl(blob, name) { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 2000); },
+  /* the values in the view: chart bars (data-tip), Pratibimb / Mirror bars, graph nodes */
+  rows() {
+    const el = this.el, R = [], txt = h => { const d = document.createElement('div'); d.innerHTML = String(h || '').replace(/<br\s*\/?>/gi, ' | '); return d.textContent.trim(); };
+    $$('[data-tip]', el).forEach(n => { const p = String(n.dataset.tip).split(/<br\s*\/?>/i); R.push([txt(p[0]), txt(p[1] || ''), txt(p.slice(2).join('<br>'))]); });
+    $$('.jm-bar', el).forEach(n => R.push([(n.querySelector('.jm-bn') || {}).textContent || '', (n.querySelector('b') || {}).textContent || '', '']));
+    if (!R.length) $$('.nodes > g, g.node', el).forEach(n => { const t = [...n.querySelectorAll('text')].map(x => x.textContent.trim()).filter(Boolean); if (t.length) R.push([t[0], t.slice(1).join(' · '), n.getAttribute('data-id') || '']); });
+    if (!R.length) $$('tbody tr', el).forEach(tr => { const t = [...tr.children].map(td => td.textContent.trim()); R.push([t[0], t[1] || '', t.slice(2).join(' · ')]); });
+    return R.filter(r => r[0] || r[1]);
+  },
+  /* biggest svg of the view with its colours / fonts written in, so the picture looks like the screen */
+  svg() {
+    const S0 = $$('svg', this.el).filter(s => !s.closest('button')).map(s => ({ s, r: s.getBoundingClientRect() })).sort((a, b) => b.r.width * b.r.height - a.r.width * a.r.height)[0]; if (!S0 || S0.r.width < 40) return null;
+    const src = S0.s, cl = src.cloneNode(true), A = [src, ...src.querySelectorAll('*')], B = [cl, ...cl.querySelectorAll('*')];
+    A.forEach((n, i) => { const cs = getComputedStyle(n), d = B[i]; if (!d || !d.style) return; ['fill', 'stroke', 'stroke-width', 'opacity', 'font-size', 'font-family', 'font-weight', 'stroke-dasharray', 'display'].forEach(p => { const v = cs.getPropertyValue(p); if (v) d.style.setProperty(p, v); }); });
+    const w = Math.round(S0.r.width), h = Math.round(S0.r.height); cl.setAttribute('xmlns', 'http://www.w3.org/2000/svg'); cl.setAttribute('width', w); cl.setAttribute('height', h);
+    return { txt: new XMLSerializer().serializeToString(cl), w, h };
+  },
+  find(q) {
+    const el = this.el; q = String(q || '').trim().toLowerCase(); const N = [...$$('[data-tip], .jm-bar, .nodes > g, g.node, .jm-arc, tbody tr, .mir-t, .lr-k', el)];
+    N.forEach(n => n.classList.remove('ft-hit', 'ft-dim')); if (!q) { $('#ftN').textContent = ''; return; }
+    let k = 0; N.forEach(n => { const t = (n.textContent + ' ' + (n.dataset.tip || '') + ' ' + (n.getAttribute('data-id') || '') + ' ' + Object.values(n.dataset || {}).join(' ')).toLowerCase(); const hit = t.includes(q); n.classList.add(hit ? 'ft-hit' : 'ft-dim'); if (hit) k++; });
+    $('#ftN').textContent = k + ' found';
+  }
+};
+(() => {
+  let t = 0; const later = () => { if (FullTab.el && !FullTab.el.isConnected) { try { FullTab.relocate(); } catch (e) { } } clearTimeout(t); t = setTimeout(() => { try { FullTab.scan(); } catch (e) { } }, 200); };
+  const m = $('#main'); if (m) new MutationObserver(later).observe(m, { childList: true, subtree: true });
+  if (/[#&]ft=/.test(location.hash)) addEventListener('load', () => setTimeout(() => FullTab.boot().catch(e => console.warn('FullTab', e)), 300));
 })();
 
 </script>
@@ -17057,15 +17213,16 @@ Pages.offx = main => { const { cur, body } = tabs(main, 'offx', [['crime', '🗃
 /* sidebar: OFFICE drop-down (Search in Local Drive moves inside it) */
 (() => {
   const nav = $('#sidebar'), ls = nav && $('.nav-item[data-page="lsearch"]', nav); if (!ls) return;
-  const SUB = [['lsearch', '', 'Search in Local Drive', '#6366f1'], ['offx', 'crime', 'Master Crime Data', '#ef4444'], ['offx', 'daily', 'Daily Crime', '#f43f5e'], ['offx', 'good', 'Good Work', '#eab308'], ['offx', 'press', 'Press Note', '#ec4899'], ['offx', 'duty', 'Duty Chart', '#22c55e'], ['offx', 'files', 'Upload +', '#06b6d4']];
+  const SUB = [['lsearch', '', 'Search in Local Drive', '#6366f1'], ['offx', 'crime', 'Master Crime Data', '#ef4444'], ['offx', 'daily', 'Daily Crime', '#f43f5e'], ['offx', 'good', 'Good Work', '#eab308'], ['offx', 'press', 'Press Note', '#ec4899'], ['offx', 'duty', 'Duty Chart', '#22c55e'], ['ext', 'https://cybercrime.gov.in/safety-tips', 'Safety Tips ↗', '#0ea5e9'], ['offx', 'files', 'Upload +', '#06b6d4']];
   ls.insertAdjacentHTML('beforebegin', `<div class="nav-item offx-item" title="Office work: local search, good work, press note, crime data, duty chart, files" style="--c:#14b8a6"><span class="nib">🏢</span><span>Office Work</span><span class="nav-chev">▾</span></div><div class="nav-subs offx-subs">${SUB.map(([p, s, l, c], i) => `<div class="nav-sub" data-ox="${p}|${s}" style="--pc:${c}"><i></i><span>${i + 1}. ${l}</span></div>`).join('')}</div>`);
   ls.style.display = 'none';
   const it = $('.offx-item', nav), subs = $('.offx-subs', nav), setOpen = on => { S.oxOpen = on; subs.classList.toggle('open', on); it.classList.toggle('open', on); };
   setOpen(false);
   it.addEventListener('click', e => { e.stopImmediatePropagation(); setOpen(!S.oxOpen); }, true);
-  $$('[data-ox]', subs).forEach(n => n.onclick = () => { const [p, s] = n.dataset.ox.split('|'); go(p, s || undefined); });
+  $$('[data-ox]', subs).forEach(n => n.onclick = () => { const i = n.dataset.ox.indexOf('|'), p = n.dataset.ox.slice(0, i), s = n.dataset.ox.slice(i + 1); if (p === 'ext') { try { window.open(s, '_blank', 'noopener'); } catch (e) { location.href = s; } return; } go(p, s || undefined); });
+  const stp = $('[data-ox^="ext|"]', subs); if (stp) stp.title = 'NCRP (cybercrime.gov.in) Safety Tips – official cyber safety advice for the public, awareness talks and press notes (opens the government website)';
   const or = render; render = function () { const r = or.apply(this, arguments);
-    $$('[data-ox]', subs).forEach(n => { const [p, s] = n.dataset.ox.split('|'); n.classList.toggle('active', S.page === p && (!s || (S.sub.offx || 'crime') === s)); });
+    $$('[data-ox]:not([data-ox^="ext|"])', subs).forEach(n => { const [p, s] = n.dataset.ox.split('|'); n.classList.toggle('active', S.page === p && (!s || (S.sub.offx || 'crime') === s)); });
     const on = S.page === 'offx' || S.page === 'lsearch'; it.classList.toggle('active', on); if (on && !S.oxOpen) setOpen(true); return r; };
 })();
 
@@ -18716,7 +18873,11 @@ PAGE_META.nodalm = { group: 'EO – Enquiry Officer', title: 'Nodal / Escrow Lis
 Pages.nodalm = main => NodalM.page(main);
 (() => { const eos = $('.eo-subs'), lr = eos && $('[data-eo="letters"]', eos); if (!lr) return;
   lr.insertAdjacentHTML('afterend', `<div class="nav-sub" data-eo="nodalm" style="--pc:#7c3aed" title="Nodal / escrow accounts – one list for all cases"><i></i><span>Nodal / Escrow List</span></div>`);
-  const n = $('[data-eo="nodalm"]', eos); n.onclick = () => go('nodalm'); $$('.nav-sub', eos).forEach((x, i) => { x.dataset.ncI = i; });
+  const n = $('[data-eo="nodalm"]', eos); n.onclick = () => go('nodalm');
+  /* NCRP Suspect Search (suspect repository: mobile, e-mail, account, UPI, social media, app / URL) – right after Nodal / Escrow List (Vijay 14-11) */
+  n.insertAdjacentHTML('afterend', `<div class="nav-sub" data-eo="ssearch" style="--pc:#dc2626" title="NCRP Suspect Search (cybercrime.gov.in) – check a mobile, e-mail, bank account, UPI, social media handle, app or URL in the national suspect repository (opens the government website)"><i></i><span>Suspect Search ↗</span></div>`);
+  $('[data-eo="ssearch"]', eos).onclick = e => { e.stopPropagation(); const u = 'https://cybercrime.gov.in/suspect-search'; try { window.open(u, '_blank', 'noopener'); } catch (x) { location.href = u; } };
+  $$('.nav-sub', eos).forEach((x, i) => { x.dataset.ncI = i; });
   const r0 = render; render = function () { const r = r0.apply(this, arguments); if (S.page === 'nodalm') { const it = $('.eo-item'); if (it) { it.classList.add('active', 'open'); eos.classList.add('open'); S.eoOpen = true; } } return r; }; })();
 /* ---------- 3. EO: import existing enquiries (Excel / CSV / Word table) ---------- */
 Object.assign(EO, {
@@ -18867,15 +19028,20 @@ const Contacts = {
 PAGE_META.contacts = { group: 'Office', title: 'Contacts', desc: 'Intermediaries (bank, social media, fintech / payment gateway, merchant, UPI, telecom) and UP Cyber Police – nodal officers, e-mails, portals and phone numbers in one place.', order: ['all', 'int', 'pol', ...Contacts.CAT.map(x => x[0])], names: Object.fromEntries([['all', '📇 All'], ['int', '🏢 Intermediary'], ['pol', '👮 Police / Govt.'], ...Contacts.CAT.map(x => [x[0], x[1] + ' ' + x[2]])]) };
 Pages.contacts = main => { if (!Role.can('contacts')) { main.innerHTML = '<div class="card" style="margin:20px"><h3>🔒 Contacts</h3><p class="muted">The Super Admin has not given you Contacts. Ask the SudarshanAshtra Super Admin if you need it.</p></div>'; return; }
   const sb = S.sub.contacts || 'all', c = Contacts.CAT.find(x => x[0] === sb), { cur, body } = tabs(main, 'contacts', [['all', '📇 All'], ['int', '🏢 Intermediary'], ['pol', '👮 Police / Govt.']], 'Contacts');
-  if (c) { $$('.tab', main).forEach(t => t.classList.toggle('active', t.dataset.t === c[4])); } Contacts.page(body, c ? sb : cur); };
+  if (c) { $$('.tab', main).forEach(t => t.classList.toggle('active', t.dataset.t === c[4])); } Contacts.page(body, c ? sb : cur);
+  const ph = $('.page-head .ph-actions', main) || $('.page-head', main); if (ph && !$('#ctTrust', main)) { ph.insertAdjacentHTML('beforeend', '<button type="button" class="btn" id="ctTrust" title="DoT Sanchar Saathi – Trusted Contact Details of banks / financial institutions: search by name, website, e-mail or number">🛡 Trusted Contact (Sanchar Saathi) ↗</button>'); $('#ctTrust', main).onclick = () => Contacts.trusted(); } };
+/* DoT Sanchar Saathi "Trusted Contact Details": check that a bank / FI phone, e-mail or website is genuine (Vijay 14-11) */
+Contacts.TRUST = 'https://sancharsaathi.gov.in/FinancialInstitutions/fiHome.jsp';
+Contacts.trusted = () => { try { window.open(Contacts.TRUST, '_blank', 'noopener'); } catch (e) { location.href = Contacts.TRUST; } };
 /* sidebar: 📇 Contacts drop-down right after Office Work, then ➕ Add Contacts */
 (() => {
   const nav = $('#sidebar'), ox = nav && $('.offx-subs', nav); if (!ox) return;
-  const SUB = [['all', 'All Contacts', '#6366f1'], ['add', '+ Add Contacts', '#16a34a']];
+  const SUB = [['all', 'All Contacts', '#6366f1'], ['add', '+ Add Contacts', '#16a34a'], ['trust', 'Trusted Contact (Sanchar Saathi) ↗', '#0891b2']];
   ox.insertAdjacentHTML('afterend', `<div class="nav-item ct-item" title="Contacts: intermediaries (bank, social media, fintech, merchant, UPI…) and UP Cyber Police" style="--c:#6366f1"><span class="nib">📇</span><span>Contacts</span><span class="nav-chev">▾</span></div><div class="nav-subs ct-subs">${SUB.map(([s, l, c], i) => `<div class="nav-sub" data-ctn="${s}" style="--pc:${c}" ${s === 'add' ? 'title="Add a contact – choose Intermediary / Police category"' : ''}><i></i><span>${i + 1}. ${l}</span></div>`).join('')}</div>`);
   const it = $('.ct-item', nav), subs = $('.ct-subs', nav), setOpen = on => { S.ctOpen = on; subs.classList.toggle('open', on); it.classList.toggle('open', on); };
   setOpen(false); it.addEventListener('click', e => { e.stopImmediatePropagation(); setOpen(!S.ctOpen); }, true);
-  $$('[data-ctn]', subs).forEach(n => n.onclick = n.dataset.ctn === 'add' ? null : () => go('contacts', 'all'));
+  $$('[data-ctn]', subs).forEach(n => n.onclick = n.dataset.ctn === 'add' ? null : n.dataset.ctn === 'trust' ? () => Contacts.trusted() : () => go('contacts', 'all'));
+  $('[data-ctn="trust"]', subs).title = 'DoT Sanchar Saathi – Trusted Contact Details: official phone numbers, e-mails and websites of banks / financial institutions (opens the government website)';
   $('[data-ctn="add"]', subs).addEventListener('click', e => { e.stopImmediatePropagation(); if (!Role.can('contacts')) return Role.deny('add Contacts'); Contacts.edit({ cat: S.page === 'contacts' && Contacts.CAT.some(x => x[0] === S.sub.contacts) ? S.sub.contacts : 'bank' }, () => { if (S.page === 'contacts') render(); else go('contacts', 'all'); }); }, true);
   const or = render; render = function () { const r = or.apply(this, arguments);
     $$('[data-ctn]', subs).forEach(n => n.classList.toggle('active', S.page === 'contacts' && n.dataset.ctn === 'all'));
@@ -19002,6 +19168,7 @@ const PRB = {
   async page(main) {
     let { cur, body } = tabs(main, 'prb', [['glance', '📊 At A Glance'], ...this.K.map(([k, ic, l]) => [k, ic + ' ' + l]), ['gang', '👥 Gangs / Groups']], '🛰 Pratibimb Cases');
     body.innerHTML = '<div class="card muted">Reading Pratibimb data and matching with every case…</div>';
+    { const ph = $('.page-head .ph-actions', main) || $('.page-head', main); if (ph && !$('#pbFull', main) && typeof PRBMap !== 'undefined') { ph.insertAdjacentHTML('afterbegin', '<button type="button" class="btn primary" id="pbFull" title="All suspect / target locations of every Pratibimb sheet on one big map in a new tab – filter by sheet, date, day / night, weekday, operator, home circle, roaming, gang, case, area, complaints (offline)">🗺 Full Map (New Tab) ↗</button>'); $('#pbFull', main).onclick = () => PRBMap.open(); } }
     const D0 = await this.data(), F = this.flt(), D = D0.filter(r => this.pass(r, F)), V = await this.ix(), G = this.gangs(D), M = await this.meta(); if (S.page !== 'prb') return;
     if (D0.length) { body.innerHTML = this.fbar(cur === 'glance' || cur === 'gang' ? D.length : D.filter(r => r.k === cur).length, cur === 'glance' || cur === 'gang' ? D0.length : D0.filter(r => r.k === cur).length, cur) + '<div id="pbBody"></div>'; this.fbind(body); body = $('#pbBody', body); }
     D.forEach(r => { r._h = this.hits(r, V); }); const gOf = new Map(); G.forEach((g, i) => g.R.forEach(r => gOf.set(r.id, i))); this._G = G; this._gOf = gOf;
@@ -19011,7 +19178,30 @@ const PRB = {
   },
   bar(list, attr, col) { const mx = Math.max(1, ...list.map(x => x.n)); return `<div class="jm-bars">${list.map(x => `<button class="jm-bar" ${attr}="${esc(x.k)}"><span class="jm-bn">${esc(x.l || x.k)}</span><span class="jm-bt" style="width:${x.n / mx * 100}%"><i class="u" style="flex:1;${col ? 'background:' + col : ''}"></i></span><b>${x.n}</b></button>`).join('') || '<div class="small muted">—</div>'}</div>`; },
   cnt(R, f) { const m = new Map(); R.forEach(r => [].concat(f(r)).filter(Boolean).forEach(v => m.set(v, (m.get(v) || 0) + 1))); return [...m].map(([k, n]) => ({ k, n })).sort((a, b) => b.n - a.n); },
-  area(r) { return r.district || r.state || (r.lat != null ? 'Grid ' + r.lat.toFixed(2) + ', ' + r.lng.toFixed(2) : '') || '—'; },
+  tc: s => String(s || '').toLowerCase().replace(/\b[a-z]/g, c => c.toUpperCase()),
+  /* nearest known locality for the row's lat / long (offline list in geodist.js) */
+  nr(r) { if (r.lat == null || typeof Geo === 'undefined') return null; const W = this._nr || (this._nr = new WeakMap()); if (!W.has(r)) W.set(r, Geo.near(r.lat, r.lng, 6)); return W.get(r); },
+  area(r) { const n = this.nr(r); if (n) return n.n + ' · ' + this.tc(n.d); return r.district || r.state || (r.lat != null ? 'Grid ' + r.lat.toFixed(2) + ', ' + r.lng.toFixed(2) : '') || '—'; },
+  /* operator + home circle of the row's SIM: the sheet's own Operator / TSP / Circle / IMSI column, else CAF / CDR of this case */
+  tmap() {
+    if (this._tm && this._tmc === S.caseId && this._tmn === ((S.data && S.data.caf || []).length + (S.data && S.data.tel || []).length)) return this._tm;
+    const M = new Map(), d = S.data || {}, put = (m, o) => { m = this.nm(m); if (m.length < 10 || !(o.op || o.circle)) return; const x = M.get(m) || {}; M.set(m, { op: x.op || o.op, circle: x.circle || o.circle, how: x.how || o.how }); };
+    const stC = st => { st = String(st || '').toUpperCase(); if (!st || typeof Geo === 'undefined') return ''; const k = Object.keys(Geo.CST).find(c => c !== 'UP' && c !== 'UP EAST' && c !== 'UP WEST' && Geo.CST[c].includes(st)); return k || (st === 'UTTAR PRADESH' || st === 'UTTARAKHAND' ? 'UP' : st); };
+    try { for (const f of d.caf || []) { let st = ''; try { const g = Geo.find(f.address); st = g && g.state; } catch (e) { } put(f.mobile, { op: Geo.op(f.operator || f.tsp || ''), circle: Geo.circle(f.circle || f.lsa || '') || stC(st), how: 'CAF' }); } } catch (e) { }
+    try { for (const t of d.tel || []) if (t.other && t.bop) put(t.other, { op: Geo.op(t.bop), circle: Geo.circle(t.bop), how: 'CDR (LRN)' }); } catch (e) { }
+    this._tmc = S.caseId; this._tmn = (d.caf || []).length + (d.tel || []).length; return (this._tm = M);
+  },
+  tsp(r) {
+    const W = this._tw || (this._tw = new WeakMap()); if (W.has(r)) return W.get(r); let op = '', circle = '', how = '';
+    if (typeof Geo !== 'undefined') { for (const [h, v] of Object.entries(r.raw || {})) { if (!v) continue; const n = h.toLowerCase().replace(/[^a-z]/g, '');
+        if (/imsi/.test(n)) { const x = Geo.imsi(v); if (x) { op = op || x.op; circle = circle || x.circle; how = how || 'IMSI'; } }
+        else if (/operator|tsp|serviceprovider|telecom|network|carrier|lsa|circle|homestate|simstate|^sp$|^isp$/.test(n)) { const o = Geo.op(v), c = Geo.circle(v); if (o && !op) op = o; if (c && !circle) circle = c; if ((o || c) && !how) how = h; } }
+      if ((!op || !circle) && r.mobile) { const k = this.tmap().get(r.mobile); if (k) { op = op || k.op || ''; circle = circle || k.circle || ''; how = how || k.how; } } }
+    const o = { op, circle, how }; W.set(r, o); return o;
+  },
+  /* outside its home circle: located in Delhi-NCR with a non-Delhi SIM, or in another state than the circle covers */
+  roam(r) { const t = this.tsp(r); if (!t.circle) return false; const ncr = typeof Geo !== 'undefined' && Geo.ncr(r.lat, r.lng); if (ncr) return t.circle !== 'DELHI';
+    const st = String(r.state || (this.nr(r) ? '' : '')).toUpperCase(); if (!st) return false; return !((Geo.CST[t.circle] || [t.circle]).includes(st)); },
   glance(el, D, G, M) {
     const st = this.st(), com = this.common(D);
     el.innerHTML = `<div class="card"><div class="row" style="gap:8px;flex-wrap:wrap;align-items:center"><h3 class="grow" style="margin:0">📊 Pratibimb At A Glance <span class="small muted">imported on this computer only</span></h3><button class="btn primary" id="pbImp" title="Any Pratibimb Excel – the kind is found from its columns">📥 Import Pratibimb Excel</button></div>
@@ -19023,7 +19213,8 @@ const PRB = {
         <div class="card"><h3>👥 Gangs By Category</h3>${this.bar(this.cnt(G, g => this.gl(g, M).cat).slice(0, 10), 'data-pbg', '#0f766e')}</div></div>
       <div class="card"><h3>🎯 Common Targets <span class="badge">${com.length}</span> <span class="small muted">in your cases / Target, or in 2+ Pratibimb sheets – act on these first</span></h3><div id="pbCom"></div></div>` : '<div class="card muted">No Pratibimb sheet yet. On the I4C Pratibimb page press the Excel button, then import the file here (or in its own tab above).</div>'}`;
     $('#pbImp', el).onclick = () => this.imp('', () => render());
-    $$('[data-pbk]', el).forEach(b => b.onclick = () => { if (b.dataset.pbk === 'common') { $('#pbCom', el) && $('#pbCom', el).scrollIntoView({ behavior: 'smooth' }); return; } S.sub.prb = b.dataset.pbk; render(); });
+    this.hov(el, '[data-pbk]', b => b.dataset.pbk === 'gang' ? G.flatMap(g => g.R) : b.dataset.pbk === 'common' ? D.filter(r => r._h && r._h.length) : D.filter(r => r.k === b.dataset.pbk), () => { });
+    $$('[data-pbk]', el).forEach(b => b.onclick = () => { this.tip(null); if (b.dataset.pbk === 'common') { $('#pbCom', el) && $('#pbCom', el).scrollIntoView({ behavior: 'smooth' }); return; } S.sub.prb = b.dataset.pbk; render(); });
     const R = k => D.filter(r => r.k === (this.K.find(x => x[2] === k) || [])[0]);
     this.hov(el, '[data-pbr]', b => R(b.dataset.pbr), b => { S.sub.prb = this.K.find(x => x[2] === b.dataset.pbr)[0]; render(); });
     this.hov(el, '[data-pba]', b => D.filter(r => this.area(r) === b.dataset.pba), b => { const r = D.find(r => this.area(r) === b.dataset.pba); this.st().f = { t: 'area', v: b.dataset.pba }; S.sub.prb = r ? r.k : 'loc'; render(); });
@@ -19051,16 +19242,22 @@ const PRB = {
   /* one sheet kind */
   kind(el, k, R0, G, M) {
     const st = this.st(), [, ic, l, c, url] = this.k(k), f = st.f && st.f.k === k ? st.f : (st.f = null);
-    const R = f ? R0.filter(r => f.t === 'area' ? this.area(r) === f.v : f.t === 'id' ? this.ids(r).some(x => x[2] === f.v) : f.t === 'cell' ? r.lat != null && r.lat.toFixed(2) + ',' + r.lng.toFixed(2) === f.v : true) : R0;
+    const KP = { all: () => true, mob: r => r.mobile, imei: r => r.imei, acc: r => r.acc, comp: r => r.total > 0, hit: r => r._h.length, gang: r => this._gOf.has(r.id), roam: r => this.roam(r), opk: r => this.tsp(r).op || this.tsp(r).circle };
+    const KL = { all: 'All Rows', mob: 'Rows With A Mobile', imei: 'Rows With An IMEI', acc: 'Rows With An Account', comp: 'Rows With Complaints', hit: 'Matched In Your Cases / Target', gang: 'In A Gang / Group', roam: 'In Roaming (Outside Home Circle)', opk: 'Operator / Circle Known' };
+    const opOf = r => this.tsp(r).op || 'Operator Not Known', hmOf = r => this.tsp(r).circle || '';
+    const R = f ? R0.filter(r => f.t === 'area' ? this.area(r) === f.v : f.t === 'id' ? this.ids(r).some(x => x[2] === f.v) : f.t === 'cell' ? r.lat != null && r.lat.toFixed(2) + ',' + r.lng.toFixed(2) === f.v : f.t === 'kpi' ? !!(KP[f.v] || KP.all)(r) : f.t === 'op' ? opOf(r) === f.v : f.t === 'home' ? this.roam(r) && hmOf(r) === f.v : true) : R0;
+    const rm = R.filter(r => this.roam(r)).length, opk = R.filter(KP.opk).length, RR = R0.filter(r => this.roam(r));
     const has = fk => R0.some(r => fk === 'ncrp' ? r.acks.length : r[fk]), um = new Set(R.map(r => r.mobile).filter(Boolean)).size, ui = new Set(R.map(r => r.imei).filter(Boolean)).size, ua = new Set(R.map(r => r.acc).filter(Boolean)).size;
     const comp = R.reduce((s, r) => s + (r.total || 0), 0), hit = R.filter(r => r._h.length).length, ing = R.filter(r => this._gOf.has(r.id)).length;
     el.innerHTML = `<div class="card"><div class="row" style="gap:8px;flex-wrap:wrap;align-items:center"><h3 class="grow" style="margin:0">${ic} ${esc(l)} <span class="badge">${fmtNum(R.length)}</span></h3>
         <a class="btn" href="${url}" target="_blank" rel="noopener" title="Opens the I4C Pratibimb page (your JCCT login) – press its Excel button, then import the file here">🌐 Open In I4C Pratibimb ↗</a><button class="btn primary" id="pbImp">📥 Import ${esc(l)} Excel</button>${R0.length ? '<button class="btn danger" id="pbClr" title="Remove this sheet\'s rows from this computer">🗑 Clear</button>' : ''}</div>
-      ${f ? `<div class="row" style="gap:6px;margin-top:8px"><span class="tg-sp" style="--c:${c}">Showing: ${esc(f.t === 'cell' ? 'Spot ' + f.v : f.v)}</span><button class="btn sm" id="pbFx">✖ Show All</button></div>` : ''}
-      <div class="lr-ks" style="margin-top:12px">${[['📄', R.length, 'Rows', c], ['📱', um, 'Unique Mobiles', '#dc2626'], ['📟', ui, 'Unique IMEIs', '#7c3aed'], ['🏦', ua, 'Unique Accounts', '#2563eb'], ['🧾', comp, 'Complaints Linked', '#ea580c'], ['🎯', hit, 'Matched In Your Cases / Target', '#be123c'], ['👥', ing, 'In A Gang / Group', '#0f766e']].filter((x, i) => i < 1 || x[1] || i >= 4).map(([i, n, t, cc]) => `<div class="lr-k" style="--c:${cc};cursor:default"><span>${i}</span><b>${fmtNum(n)}</b><small>${t}</small></div>`).join('')}</div></div>
+      ${f ? `<div class="row" style="gap:6px;margin-top:8px"><span class="tg-sp" style="--c:${c}">Showing: ${esc(f.t === 'cell' ? 'Spot ' + this.spot(R0, f.v) : f.t === 'kpi' ? KL[f.v] || f.v : f.t === 'home' ? 'In Roaming · SIM From ' + f.v : f.t === 'op' ? 'Operator ' + f.v : f.v)} · ${fmtNum(R.length)} row(s)</span><button class="btn sm" id="pbFx">✖ Show All</button></div>` : ''}
+      <div class="lr-ks" style="margin-top:12px">${[['📄', R.length, 'Rows', c, 'all'], ['📱', um, 'Unique Mobiles', '#dc2626', 'mob'], ['📟', ui, 'Unique IMEIs', '#7c3aed', 'imei'], ['🏦', ua, 'Unique Accounts', '#2563eb', 'acc'], ['🧾', comp, 'Complaints Linked', '#ea580c', 'comp'], ['🎯', hit, 'Matched In Your Cases / Target', '#be123c', 'hit'], ['👥', ing, 'In A Gang / Group', '#0f766e', 'gang'], ['🛰', rm, 'In Roaming (SIM From Another Circle)', '#9333ea', 'roam'], ['📶', opk, 'Operator / Circle Known', '#0891b2', 'opk']].filter((x, i) => i < 1 || x[1] || (i >= 4 && i <= 7)).map(([i, n, t, cc, kk]) => `<button type="button" class="lr-k${f && f.t === 'kpi' && f.v === kk ? ' on' : ''}" data-pbk="${kk}" style="--c:${cc}" title="Hover: preview the rows · Click: show only these rows below (click again for all)"><span>${i}</span><b>${fmtNum(n)}</b><small>${t}</small></button>`).join('')}</div></div>
       ${R0.length ? `<div class="grid g2"><div class="card"><h3>🗺 Point Map <span class="small muted">offline · hover a point · click for actions · bigger = more complaints</span></h3><div id="pbMap"></div></div>
         <div class="card"><h3>🔥 Hotspots <span class="small muted">same ~1 km area – click to filter</span></h3>${this.bar(this.cnt(R0.filter(r => r.lat != null), r => r.lat.toFixed(2) + ',' + r.lng.toFixed(2)).slice(0, 10).map(x => ({ ...x, l: this.spot(R0, x.k) })), 'data-pbc', c)}</div>
-        <div class="card"><h3>🗂 By District / Area</h3>${Trend.ring(this.cnt(R0, r => this.area(r)), f && f.t === 'area' ? f.v : '', 'data-pba', R0.length, 'rows')}</div>
+        <div class="card"><h3>🗂 By Area <span class="small muted">nearest locality to each lat / long (within 6 km), else district – click to filter</span></h3>${Trend.ring(this.cnt(R0, r => this.area(r)), f && f.t === 'area' ? f.v : '', 'data-pba', R0.length, 'rows')}</div>
+        <div class="card"><h3>📶 Common Operator <span class="small muted">from the sheet's Operator / TSP / Circle / IMSI column, else CAF / CDR of this case</span></h3>${R0.some(KP.opk) ? Trend.ring(this.cnt(R0, opOf), f && f.t === 'op' ? f.v : '', 'data-pbo', R0.length, 'rows') : `<div class="small muted">This sheet has no Operator / TSP / Circle / IMSI column, and these numbers are not in the CAF or CDR of this case, so the operator is not known yet. Import the sheet with that column, or the CAF / CDR of these numbers, and this ring fills by itself.</div>`}</div>
+        <div class="card"><h3>🛰 In Roaming <span class="small muted">now in Delhi-NCR (or another state) but the SIM's home circle is elsewhere – UP East / West, Haryana, MP, Maharashtra …</span></h3>${RR.length ? this.bar(this.cnt(RR, hmOf).map(x => ({ ...x, l: 'SIM From ' + this.tc(x.k) })), 'data-pbh', '#9333ea') : `<div class="small muted">${R0.some(r => this.tsp(r).circle) ? 'No number is outside its home circle in this sheet.' : 'The home circle of these numbers is not known yet (no Operator / Circle / IMSI column in the sheet, and not in the CAF / CDR of this case).'}</div>`}</div>
         <div class="card"><h3>🔁 Repeated Mobile / IMEI / Account</h3>${this.bar(this.cnt(R0, r => this.ids(r).filter(x => x[0] !== '🧾').map(x => x[2])).filter(x => x.n > 1).slice(0, 12), 'data-pbi', '#dc2626')}</div></div>
       <div class="card"><div id="pbTb"></div></div>` : `<div class="card muted">No ${esc(l)} sheet yet. Press <b>🌐 Open In I4C Pratibimb</b>, set the dates / State / District, press its Excel button, then <b>📥 Import</b> the file here.</div>`}`;
     $('#pbImp', el).onclick = () => this.imp(k, () => render());
@@ -19070,17 +19267,22 @@ const PRB = {
     this.hov(el, '[data-pbc]', b => R0.filter(r => r.lat != null && r.lat.toFixed(2) + ',' + r.lng.toFixed(2) === b.dataset.pbc), b => { st.f = { k, t: 'cell', v: b.dataset.pbc }; render(); });
     this.hov(el, '[data-pba]', b => R0.filter(r => this.area(r) === b.dataset.pba), b => { st.f = f && f.v === b.dataset.pba ? null : { k, t: 'area', v: b.dataset.pba }; render(); });
     this.hov(el, '[data-pbi]', b => R0.filter(r => this.ids(r).some(x => x[2] === b.dataset.pbi)), b => { st.f = { k, t: 'id', v: b.dataset.pbi }; render(); });
+    this.hov(el, '[data-pbk]', b => R0.filter(KP[b.dataset.pbk] || KP.all), b => { const v = b.dataset.pbk; st.f = v === 'all' || (f && f.t === 'kpi' && f.v === v) ? null : { k, t: 'kpi', v }; render(); setTimeout(() => { const t = $('#pbTb'); if (t && v !== 'all') t.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 60); });
+    this.hov(el, '[data-pbo]', b => R0.filter(r => opOf(r) === b.dataset.pbo), b => { st.f = f && f.t === 'op' && f.v === b.dataset.pbo ? null : { k, t: 'op', v: b.dataset.pbo }; render(); });
+    this.hov(el, '[data-pbh]', b => RR.filter(r => hmOf(r) === b.dataset.pbh), b => { st.f = { k, t: 'home', v: b.dataset.pbh }; render(); });
     this.map($('#pbMap', el), R, c);
     const F = ['mobile', 'imei', 'acc', 'name', 'bank', 'ifsc', 'branch', 'atm', 'chq', 'pos', 'amt'].filter(has);
     Table($('#pbTb', el), { rows: R, pageSize: 50, exportName: 'pratibimb_' + k, noNd: true, onRow: r => this.card(r), columns: [
       ...F.map(fk => ({ key: fk, label: this.L[fk], num: fk === 'amt', render: r => fk === 'amt' ? (r.amt ? fmtINR(r.amt) : '') : `<span class="${/mobile|imei|acc|ifsc/.test(fk) ? 'mono' : ''}">${esc(r[fk] || '')}</span>` })),
       { key: 'addr', label: 'Location', csv: r => [r.lat != null ? r.lat + ',' + r.lng : '', r.addr].filter(Boolean).join(' '), render: r => `${r.lat != null ? `<a href="https://www.google.com/maps?q=${r.lat},${r.lng}" target="_blank" rel="noopener" onclick="event.stopPropagation()">📍 ${r.lat.toFixed(5)}, ${r.lng.toFixed(5)}</a>` : ''}${r.addr && !/^https?:/i.test(r.addr) ? `<div class="small">${esc(r.addr.slice(0, 90))}</div>` : ''}${r.district || r.state ? `<div class="small muted">${esc([r.district, r.state].filter(Boolean).join(', '))}</div>` : ''}` },
+      { key: 'near', label: 'Near (Area)', sortVal: r => this.area(r), csv: r => { const n = this.nr(r); return n ? 'Near ' + n.n + ' (~' + n.km.toFixed(1) + ' km), ' + this.tc(n.d) : (r.district || ''); }, render: r => { const n = this.nr(r); return n ? `<b>${esc(n.n)}</b><div class="small muted">~${n.km.toFixed(1)} km · ${esc(this.tc(n.d))}</div>` : esc(r.district || ''); } },
+      { key: 'tsp', label: 'Operator / Home Circle', sortVal: r => (this.tsp(r).op || '~') + (this.tsp(r).circle || ''), csv: r => [this.tsp(r).op, this.tsp(r).circle].filter(Boolean).join(' · '), render: r => { const t = this.tsp(r); return t.op || t.circle ? `${esc(t.op || '')}${t.circle ? `<div class="small">${esc(this.tc(t.circle))}${this.roam(r) ? ' <span class="tg-sp" style="--c:#9333ea">🛰 Roaming</span>' : ''}</div>` : ''}<div class="small muted">${esc(t.how || '')}</div>` : '<span class="muted">—</span>'; } },
       { key: 'time', label: 'Fetch / Txn Time', sortVal: r => r.time, csv: r => r.time ? new Date(r.time).toLocaleString('en-IN') : '', render: r => r.time ? esc(new Date(r.time).toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })) : '' },
       { key: 'total', label: 'Complaints', num: true, render: r => `<b>${r.total || ''}</b>${(r.acks || []).length ? `<div class="small mono">${esc((r.acks || []).slice(0, 2).join(', '))}${(r.acks || []).length > 2 ? ' +' + ((r.acks || []).length - 2) : ''}</div>` : ''}` },
       { key: 'hit', label: 'In Your Cases', sortVal: r => r._h.length, csv: r => r._h.map(h => h.l).join('; '), render: r => r._h.length ? r._h.slice(0, 2).map(h => `<div class="small"><b>${esc(h.l)}</b></div>`).join('') : '<span class="muted">—</span>' },
       { key: 'gang', label: 'Gang / Group', sortVal: r => this._gOf.has(r.id) ? 1 : 0, csv: r => this._gOf.has(r.id) ? 'G' + (this._gOf.get(r.id) + 1) : '', render: r => this._gOf.has(r.id) ? `<span class="tg-sp" style="--c:#0f766e">👥 G${this._gOf.get(r.id) + 1} · ${esc(this.gl(this._G[this._gOf.get(r.id)], M).cat.split(' (')[0])}</span>` : '' }] });
   },
-  spot(R, cell) { const r = R.find(r => r.lat != null && r.lat.toFixed(2) + ',' + r.lng.toFixed(2) === cell); return (r && (r.district || (r.addr && !/^https?:/i.test(r.addr) ? r.addr.slice(0, 40) : ''))) || '📍 ' + cell; },
+  spot(R, cell) { const r = R.find(r => r.lat != null && r.lat.toFixed(2) + ',' + r.lng.toFixed(2) === cell); const n = r && this.nr(r); if (n) return 'Near ' + n.n + ' (~' + n.km.toFixed(1) + ' km) · ' + this.tc(n.d); return (r && (r.district || (r.addr && !/^https?:/i.test(r.addr) ? r.addr.slice(0, 40) : ''))) || '📍 ' + cell; },
   /* offline point map: no map tiles are fetched, nothing leaves the computer */
   map(el, R, col) {
     const P = R.filter(r => r.lat != null && Math.abs(r.lat) <= 90 && Math.abs(r.lng) <= 180); if (!P.length) { el.innerHTML = '<div class="small muted">No coordinates in these rows.</div>'; return; }
@@ -19257,6 +19459,22 @@ const DataFind = {
       ...(AllMode.on() ? [{ key: 'nc', label: 'Cases', num: true, csv: r => r.cases.join(' | '), render: r => `<span title="${esc(r.cases.join(' | '))}">${r.nc > 1 ? `<b class="bad-t">${r.nc}</b>` : r.nc}</span>` }] : []),
       { key: 'go', label: 'Track', sortVal: () => '', csv: () => '', render: () => '<span class="btn sm">🎯 Track</span>' }] });
   },
+  /* the page's own sheet is empty: show what the documents hold FIRST, and fold the empty boxes / tables away
+     (Vijay 14-11: "no data on top, but the same page has data below – improve it") */
+  lift(main, p) {
+    const box = $('#dfPg', main), host = $('#tabBody', main) || main; if (!box || box.parentElement === null) return; if ($('.bs-src', host)) return;
+    const keep = x => x === box || x.matches('.imp-off,.page-head,.tabs,.ff-steps,.ff-tabs,.df-emp,.bs-src') || (x.classList.contains('note') && /offline/i.test(x.textContent));
+    const rest = [...host.children].filter(x => !keep(x) && !x.contains(box));
+    const first = [...host.children].find(x => !x.matches('.imp-off,.page-head,.tabs,.ff-steps,.ff-tabs') && !(x.classList.contains('note') && /offline/i.test(x.textContent)) && x !== box) || null;
+    host.insertBefore(box, first && first !== box ? first : null);
+    box.classList.add('df-top');
+    if (!rest.length) return;
+    const what = p === 'social' ? 'social-media reply' : p === 'financial' ? 'bank statement / money trail / KYC sheet' : 'NCRP / money-trail sheet';
+    const det = document.createElement('details'); det.className = 'df-emp';
+    det.innerHTML = `<summary><b>📂 Empty sections of this page</b> <span class="muted small">– no ${what} imported yet, so they show 0. Open to see them, or import the sheet to fill them.</span><button type="button" class="btn sm primary df-imp">⬆ Import Sheet</button></summary>`;
+    rest.forEach(x => det.appendChild(x)); box.after(det);
+    const ib = $('.df-imp', det); ib.onclick = e => { e.preventDefault(); e.stopPropagation(); const k = p === 'social' ? ['social'] : p === 'financial' ? ['txn', 'ncrp', 'stmt', 'kyc'] : ['txn', 'ncrp']; try { openImport(k, render); } catch (x) { } };
+  },
   /* page hooks */
   empty(p, d) { return p === 'financial' ? !d.kyc.length && !d.txns.length : p === 'ncrp' ? !d.ncrp.length && !d.txns.length : p === 'trail' ? !d.txns.length : p === 'social' ? !d.social.length && !(d.google || []).length : false; }
 };
@@ -19268,6 +19486,7 @@ const DataFind = {
       const p = S.page, d = S.data || {}, main = $('#main');
       if (d._loading) return r;
       if (DataFind.PAGE[p] && (d.idents || []).length && DataFind.empty(p, d)) DataFind.panel(main, DataFind.PAGE[p], { id: 'Pg', why: `This page has no ${p === 'social' ? 'social-media reply' : p === 'financial' ? 'bank / KYC sheet' : 'NCRP / money-trail sheet'} yet, but the documents of ${AllMode.on() ? 'your cases' : 'this case'} name these – track them now, and import the sheet for the full trail.` });
+      if ($('#dfPg', main)) DataFind.lift(main, p);
       if (p === 'dashboard' && S.cases.length) DataFind.check(main);
       if (p === 'cctns' && (S.sub.cctns || 'diary') === 'diary' && AllMode.on()) { const c = $('.card', main); if (c) { const w = document.createElement('div'); c.after(w); DataFind.check(w); } }
     } catch (e) { console.warn('datafind', e); }
@@ -21025,6 +21244,250 @@ const BankStmt = {
 
 </script>
 <script>
+/* geodist.js – find the DISTRICT (and its state) written inside an address or any text, fully offline.
+   Order: "Dist./District/जिला XYZ" written in the text → PIN code (from the IFSC branch list, when it is saved
+   on this computer) → a district name in the text (the one nearest the end wins, as Indian addresses end with
+   district, state, PIN). Names that are also common words / person names (Anand, Sagar, Basti, Rampur …)
+   are only taken when written after "Dist.". */
+'use strict';
+const Geo = {
+  L: {
+    'UTTAR PRADESH': 'AGRA,ALIGARH,AMBEDKAR NAGAR,AMETHI,AMROHA,AURAIYA,AYODHYA,FAIZABAD,AZAMGARH,BAGHPAT,BAHRAICH,BALLIA,BALRAMPUR,BANDA,BARABANKI,BAREILLY,BHADOHI,SANT RAVIDAS NAGAR,BIJNOR,BUDAUN,BADAUN,BULANDSHAHR,CHANDAULI,CHITRAKOOT,DEORIA,ETAH,ETAWAH,FARRUKHABAD,FATEHPUR,FIROZABAD,GAUTAM BUDDHA NAGAR,GAUTAM BUDH NAGAR,NOIDA,GREATER NOIDA,GHAZIABAD,GHAZIPUR,GONDA,GORAKHPUR,HAMIRPUR,HAPUR,HARDOI,HATHRAS,JALAUN,JAUNPUR,JHANSI,KANNAUJ,KANPUR DEHAT,KANPUR NAGAR,KANPUR,KASGANJ,KAUSHAMBI,KUSHINAGAR,LAKHIMPUR KHERI,LAKHIMPUR,LALITPUR,LUCKNOW,MAHARAJGANJ,MAHOBA,MAINPURI,MATHURA,MEERUT,MIRZAPUR,MORADABAD,MUZAFFARNAGAR,PILIBHIT,PRATAPGARH,PRAYAGRAJ,ALLAHABAD,RAEBARELI,RAE BARELI,SAHARANPUR,SAMBHAL,SANT KABIR NAGAR,SHAHJAHANPUR,SHAMLI,SHRAVASTI,SIDDHARTHNAGAR,SITAPUR,SONBHADRA,SULTANPUR,UNNAO,VARANASI',
+    'DELHI': 'NEW DELHI,NORTH DELHI,SOUTH DELHI,EAST DELHI,WEST DELHI,CENTRAL DELHI,NORTH EAST DELHI,NORTH WEST DELHI,SOUTH WEST DELHI,SOUTH EAST DELHI,SHAHDARA,DWARKA,ROHINI,OUTER NORTH DELHI',
+    'HARYANA': 'AMBALA,BHIWANI,CHARKHI DADRI,FARIDABAD,FATEHABAD,GURUGRAM,GURGAON,HISAR,HISSAR,JHAJJAR,JIND,KAITHAL,KARNAL,KURUKSHETRA,MAHENDRAGARH,MEWAT,NUH,PALWAL,PANCHKULA,PANIPAT,REWARI,ROHTAK,SIRSA,SONIPAT,SONEPAT,YAMUNANAGAR,YAMUNA NAGAR',
+    'RAJASTHAN': 'AJMER,ALWAR,BANSWARA,BARAN,BARMER,BHARATPUR,BHILWARA,BIKANER,BUNDI,CHITTORGARH,CHURU,DAUSA,DHOLPUR,DUNGARPUR,HANUMANGARH,JAIPUR,JAISALMER,JALORE,JHALAWAR,JHUNJHUNU,JODHPUR,KARAULI,KOTA,NAGAUR,PALI,PRATAPGARH,RAJSAMAND,SAWAI MADHOPUR,SIKAR,SIROHI,SRI GANGANAGAR,GANGANAGAR,TONK,UDAIPUR,DEEG,KHAIRTHAL,KOTPUTLI,BEHROR',
+    'BIHAR': 'ARARIA,ARWAL,AURANGABAD,BANKA,BEGUSARAI,BHAGALPUR,BHOJPUR,BUXAR,DARBHANGA,EAST CHAMPARAN,MOTIHARI,GAYA,GOPALGANJ,JAMUI,JEHANABAD,KAIMUR,KATIHAR,KHAGARIA,KISHANGANJ,LAKHISARAI,MADHEPURA,MADHUBANI,MUNGER,MUZAFFARPUR,NALANDA,NAWADA,PATNA,PURNIA,PURNEA,ROHTAS,SAHARSA,SAMASTIPUR,SHEIKHPURA,SHEOHAR,SITAMARHI,SIWAN,SUPAUL,VAISHALI,WEST CHAMPARAN,BETTIAH',
+    'JHARKHAND': 'BOKARO,CHATRA,DEOGHAR,DHANBAD,DUMKA,EAST SINGHBHUM,JAMSHEDPUR,GARHWA,GIRIDIH,GODDA,GUMLA,HAZARIBAGH,JAMTARA,KHUNTI,KODERMA,LATEHAR,LOHARDAGA,PAKUR,PALAMU,RAMGARH,RANCHI,SAHEBGANJ,SAHIBGANJ,SERAIKELA,SIMDEGA,WEST SINGHBHUM,CHAIBASA',
+    'MADHYA PRADESH': 'AGAR MALWA,ALIRAJPUR,ANUPPUR,ASHOKNAGAR,BALAGHAT,BARWANI,BETUL,BHIND,BHOPAL,BURHANPUR,CHHATARPUR,CHHINDWARA,DAMOH,DATIA,DEWAS,DHAR,DINDORI,GUNA,GWALIOR,HARDA,HOSHANGABAD,NARMADAPURAM,INDORE,JABALPUR,JHABUA,KATNI,KHANDWA,KHARGONE,MANDLA,MANDSAUR,MORENA,NARSINGHPUR,NEEMUCH,NIWARI,PANNA,RAISEN,RAJGARH,RATLAM,REWA,SATNA,SEHORE,SEONI,SHAHDOL,SHAJAPUR,SHEOPUR,SHIVPURI,SIDHI,SINGRAULI,TIKAMGARH,UJJAIN,UMARIA,VIDISHA',
+    'WEST BENGAL': 'ALIPURDUAR,BANKURA,BIRBHUM,COOCH BEHAR,DAKSHIN DINAJPUR,DARJEELING,HOOGHLY,HOWRAH,JALPAIGURI,JHARGRAM,KALIMPONG,KOLKATA,MALDA,MURSHIDABAD,NADIA,NORTH 24 PARGANAS,SOUTH 24 PARGANAS,PASCHIM BARDHAMAN,PURBA BARDHAMAN,BARDHAMAN,BURDWAN,ASANSOL,PASCHIM MEDINIPUR,PURBA MEDINIPUR,MEDINIPUR,PURULIA,UTTAR DINAJPUR',
+    'ODISHA': 'ANGUL,BALANGIR,BALASORE,BALESHWAR,BARGARH,BHADRAK,BOUDH,CUTTACK,DEOGARH,DHENKANAL,GAJAPATI,GANJAM,JAGATSINGHPUR,JAJPUR,JHARSUGUDA,KALAHANDI,KANDHAMAL,KENDRAPARA,KENDUJHAR,KEONJHAR,KHORDHA,KHURDA,BHUBANESWAR,KORAPUT,MALKANGIRI,MAYURBHANJ,NABARANGPUR,NAYAGARH,NUAPADA,PURI,RAYAGADA,SAMBALPUR,SONEPUR,SUNDARGARH,ROURKELA',
+    'GUJARAT': 'AHMEDABAD,AMRELI,ARAVALLI,BANASKANTHA,BHARUCH,BHAVNAGAR,BOTAD,CHHOTA UDAIPUR,DAHOD,DANG,DEVBHOOMI DWARKA,GANDHINAGAR,GIR SOMNATH,JAMNAGAR,JUNAGADH,KHEDA,KUTCH,KACHCHH,MAHISAGAR,MEHSANA,MORBI,NARMADA,NAVSARI,PANCHMAHAL,PATAN,PORBANDAR,RAJKOT,SABARKANTHA,SURAT,SURENDRANAGAR,TAPI,VADODARA,BARODA,VALSAD',
+    'MAHARASHTRA': 'AHMEDNAGAR,AHILYANAGAR,AKOLA,AMRAVATI,BEED,BHANDARA,BULDHANA,CHANDRAPUR,DHULE,GADCHIROLI,GONDIA,HINGOLI,JALGAON,JALNA,KOLHAPUR,LATUR,MUMBAI,MUMBAI SUBURBAN,NAGPUR,NANDED,NANDURBAR,NASHIK,NASIK,OSMANABAD,DHARASHIV,PALGHAR,PARBHANI,PUNE,RAIGAD,RATNAGIRI,SANGLI,SATARA,SINDHUDURG,SOLAPUR,THANE,WARDHA,WASHIM,YAVATMAL,CHHATRAPATI SAMBHAJINAGAR,NAVI MUMBAI',
+    'PUNJAB': 'AMRITSAR,BARNALA,BATHINDA,BHATINDA,FARIDKOT,FATEHGARH SAHIB,FAZILKA,FEROZEPUR,FIROZPUR,GURDASPUR,HOSHIARPUR,JALANDHAR,KAPURTHALA,LUDHIANA,MALERKOTLA,MANSA,MOGA,MOHALI,SAS NAGAR,MUKTSAR,PATHANKOT,PATIALA,RUPNAGAR,ROPAR,SANGRUR,NAWANSHAHR,TARN TARAN',
+    'UTTARAKHAND': 'ALMORA,BAGESHWAR,CHAMOLI,CHAMPAWAT,DEHRADUN,HARIDWAR,NAINITAL,HALDWANI,PAURI GARHWAL,PITHORAGARH,RUDRAPRAYAG,TEHRI GARHWAL,UDHAM SINGH NAGAR,RUDRAPUR,UTTARKASHI',
+    'ASSAM': 'BARPETA,BONGAIGAON,CACHAR,DARRANG,DHEMAJI,DHUBRI,DIBRUGARH,GOALPARA,GOLAGHAT,HAILAKANDI,JORHAT,KAMRUP,KAMRUP METRO,GUWAHATI,KARBI ANGLONG,KARIMGANJ,KOKRAJHAR,LAKHIMPUR,MORIGAON,NAGAON,NALBARI,SIVASAGAR,SONITPUR,TINSUKIA,UDALGURI',
+    'KARNATAKA': 'BAGALKOT,BALLARI,BELLARY,BELAGAVI,BELGAUM,BENGALURU,BANGALORE,BENGALURU RURAL,BIDAR,CHAMARAJANAGAR,CHIKKABALLAPUR,CHIKKAMAGALURU,CHITRADURGA,DAKSHINA KANNADA,MANGALURU,MANGALORE,DAVANAGERE,DHARWAD,HUBLI,GADAG,HASSAN,HAVERI,KALABURAGI,GULBARGA,KODAGU,KOLAR,KOPPAL,MANDYA,MYSURU,MYSORE,RAICHUR,RAMANAGARA,SHIVAMOGGA,SHIMOGA,TUMAKURU,TUMKUR,UDUPI,UTTARA KANNADA,VIJAYAPURA,BIJAPUR,YADGIR',
+    'TELANGANA': 'HYDERABAD,RANGAREDDY,RANGA REDDY,MEDCHAL,SECUNDERABAD,ADILABAD,KARIMNAGAR,KHAMMAM,MAHABUBNAGAR,NALGONDA,NIZAMABAD,WARANGAL,SANGAREDDY,SIDDIPET,SURYAPET',
+    'ANDHRA PRADESH': 'ANANTAPUR,ANANTHAPURAMU,CHITTOOR,EAST GODAVARI,WEST GODAVARI,GUNTUR,KADAPA,KRISHNA,VIJAYAWADA,KURNOOL,NELLORE,PRAKASAM,ONGOLE,SRIKAKULAM,VISAKHAPATNAM,VIZAG,VIZIANAGARAM,TIRUPATI',
+    'TAMIL NADU': 'CHENNAI,COIMBATORE,CUDDALORE,DINDIGUL,ERODE,KANCHIPURAM,KANYAKUMARI,KARUR,MADURAI,NAGAPATTINAM,NAMAKKAL,PUDUKKOTTAI,RAMANATHAPURAM,SALEM,SIVAGANGA,THANJAVUR,THENI,THOOTHUKUDI,TUTICORIN,TIRUCHIRAPPALLI,TRICHY,TIRUNELVELI,TIRUPPUR,TIRUVALLUR,TIRUVANNAMALAI,VELLORE,VILLUPURAM,VIRUDHUNAGAR',
+    'KERALA': 'ALAPPUZHA,ERNAKULAM,KOCHI,IDUKKI,KANNUR,KASARAGOD,KOLLAM,KOTTAYAM,KOZHIKODE,CALICUT,MALAPPURAM,PALAKKAD,PATHANAMTHITTA,THIRUVANANTHAPURAM,TRIVANDRUM,THRISSUR,WAYANAD',
+    'CHHATTISGARH': 'BALOD,BALODA BAZAR,BASTAR,JAGDALPUR,BEMETARA,BILASPUR,DANTEWADA,DHAMTARI,DURG,BHILAI,JANJGIR,JASHPUR,KANKER,KAWARDHA,KORBA,KORIYA,MAHASAMUND,MUNGELI,RAIGARH,RAIPUR,RAJNANDGAON,SURAJPUR,SURGUJA,AMBIKAPUR',
+    'HIMACHAL PRADESH': 'BILASPUR,CHAMBA,HAMIRPUR,KANGRA,KINNAUR,KULLU,LAHAUL,MANDI,SHIMLA,SIRMAUR,SOLAN,UNA',
+    'JAMMU AND KASHMIR': 'JAMMU,SRINAGAR,ANANTNAG,BARAMULLA,KATHUA,UDHAMPUR,RAJOURI,POONCH,KUPWARA,PULWAMA,SOPORE',
+    'CHANDIGARH': 'CHANDIGARH', 'GOA': 'NORTH GOA,SOUTH GOA,PANAJI,MARGAO'
+  },
+  /* common words / person names: only after "Dist." */
+  WEAK: new Set(['ANAND', 'SAGAR', 'BASTI', 'RAMPUR', 'SARAN', 'MAU', 'ARA', 'NUH', 'UNA', 'DHAR', 'PALI', 'DANG', 'TAPI', 'PURI', 'MANDI', 'KRISHNA', 'NARMADA', 'GUNA', 'REWA', 'TONK', 'KOTA', 'GAYA', 'DURG', 'PATAN', 'BEED', 'KOLAR', 'HASSAN', 'MANSA', 'MOGA', 'DEEG', 'BARAN', 'BANDA', 'ETAH', 'JIND', 'SIWAN', 'SIROHI', 'CHAMBA', 'LAKHIMPUR', 'BILASPUR', 'HAMIRPUR', 'PRATAPGARH', 'AURANGABAD', 'DEOGARH', 'RAIGARH', 'RAJGARH']),
+  EXTRA_WEAK: ['SAGAR', 'MAU', 'BASTI', 'RAMPUR', 'SARAN', 'ANAND', 'ARA'], // real districts only reachable by "Dist."
+  idx() {
+    if (this._i) return this._i;
+    const M = new Map(); for (const [st, s] of Object.entries(this.L)) for (const d of s.split(',')) if (!M.has(d)) M.set(d, st);
+    this.EXTRA_WEAK.forEach(d => { if (!M.has(d)) M.set(d, ''); });
+    const strong = [...M.keys()].filter(d => !this.WEAK.has(d)).sort((a, b) => b.length - a.length);
+    return (this._i = { M, rx: new RegExp('(?:^|[^A-Z])(' + strong.map(d => d.replace(/ /g, '\\s+')).join('|') + ')(?![A-Z])', 'g') });
+  },
+  /* the name a district is shown with (old / city names folded into the district) */
+  ALIAS: { 'NOIDA': 'GAUTAM BUDDHA NAGAR', 'GREATER NOIDA': 'GAUTAM BUDDHA NAGAR', 'GAUTAM BUDH NAGAR': 'GAUTAM BUDDHA NAGAR', 'FAIZABAD': 'AYODHYA', 'ALLAHABAD': 'PRAYAGRAJ', 'BADAUN': 'BUDAUN', 'SANT RAVIDAS NAGAR': 'BHADOHI', 'RAE BARELI': 'RAEBARELI', 'KANPUR': 'KANPUR NAGAR', 'LAKHIMPUR KHERI': 'LAKHIMPUR KHERI', 'GURGAON': 'GURUGRAM', 'HISSAR': 'HISAR', 'SONEPAT': 'SONIPAT', 'YAMUNA NAGAR': 'YAMUNANAGAR', 'NUH': 'NUH (MEWAT)', 'MEWAT': 'NUH (MEWAT)', 'GANGANAGAR': 'SRI GANGANAGAR', 'MOTIHARI': 'EAST CHAMPARAN', 'BETTIAH': 'WEST CHAMPARAN', 'PURNEA': 'PURNIA', 'JAMSHEDPUR': 'EAST SINGHBHUM', 'CHAIBASA': 'WEST SINGHBHUM', 'SAHIBGANJ': 'SAHEBGANJ', 'NARMADAPURAM': 'HOSHANGABAD', 'BURDWAN': 'PURBA BARDHAMAN', 'BARDHAMAN': 'PURBA BARDHAMAN', 'ASANSOL': 'PASCHIM BARDHAMAN', 'BALESHWAR': 'BALASORE', 'KEONJHAR': 'KENDUJHAR', 'KHURDA': 'KHORDHA', 'BHUBANESWAR': 'KHORDHA', 'ROURKELA': 'SUNDARGARH', 'BARODA': 'VADODARA', 'KACHCHH': 'KUTCH', 'NASIK': 'NASHIK', 'DHARASHIV': 'OSMANABAD', 'AHILYANAGAR': 'AHMEDNAGAR', 'NAVI MUMBAI': 'THANE', 'BHATINDA': 'BATHINDA', 'FIROZPUR': 'FEROZEPUR', 'SAS NAGAR': 'MOHALI', 'ROPAR': 'RUPNAGAR', 'HALDWANI': 'NAINITAL', 'RUDRAPUR': 'UDHAM SINGH NAGAR', 'GUWAHATI': 'KAMRUP METRO', 'BANGALORE': 'BENGALURU', 'BELLARY': 'BALLARI', 'BELGAUM': 'BELAGAVI', 'MANGALORE': 'DAKSHINA KANNADA', 'MANGALURU': 'DAKSHINA KANNADA', 'HUBLI': 'DHARWAD', 'GULBARGA': 'KALABURAGI', 'MYSORE': 'MYSURU', 'SHIMOGA': 'SHIVAMOGGA', 'TUMKUR': 'TUMAKURU', 'BIJAPUR': 'VIJAYAPURA', 'RANGA REDDY': 'RANGAREDDY', 'SECUNDERABAD': 'HYDERABAD', 'ANANTHAPURAMU': 'ANANTAPUR', 'VIJAYAWADA': 'KRISHNA', 'ONGOLE': 'PRAKASAM', 'VIZAG': 'VISAKHAPATNAM', 'TUTICORIN': 'THOOTHUKUDI', 'TRICHY': 'TIRUCHIRAPPALLI', 'KOCHI': 'ERNAKULAM', 'CALICUT': 'KOZHIKODE', 'TRIVANDRUM': 'THIRUVANANTHAPURAM', 'JAGDALPUR': 'BASTAR', 'BHILAI': 'DURG', 'AMBIKAPUR': 'SURGUJA', 'SOPORE': 'BARAMULLA', 'PANAJI': 'NORTH GOA', 'MARGAO': 'SOUTH GOA', 'DWARKA': 'SOUTH WEST DELHI', 'ROHINI': 'NORTH WEST DELHI', 'BEHROR': 'KOTPUTLI' },
+  name(d) { d = String(d || '').toUpperCase().replace(/\s+/g, ' ').trim(); return this.ALIAS[d] || d; },
+  /* PIN code → district, from the saved IFSC branch list (offline) */
+  pin(p) {
+    if (typeof IFSCDB === 'undefined' || !IFSCDB.ok()) return null;
+    if (!this._p || this._pn !== IFSCDB.rows.length) { const P = new Map(); for (const l of IFSCDB.rows) { const f = l.split('|'), m = String(f[6] || '').match(/\b([1-8]\d{5})\b(?!.*\b[1-8]\d{5}\b)/); if (m && f[3] && !P.has(m[1])) P.set(m[1], { district: f[3], state: f[4] }); } this._p = P; this._pn = IFSCDB.rows.length; }
+    return this._p.get(String(p)) || null;
+  },
+  /* text → { district, state, how } or null */
+  find(text) {
+    const T = String(text || '').toUpperCase(); if (T.length < 3) return null;
+    const { M, rx } = this.idx();
+    const ex = T.match(/(?:\bDIST(?:RICT|T)?\b\.?|\bDISTT\b\.?|जिला|जनपद|\bJILA\b|\bZILA\b|\bJANPAD\b)\s*[:\-–.]?\s*([A-Z][A-Z ]{1,40})/);
+    if (ex) { const w = ex[1].trim().split(/\s+/); for (let n = Math.min(4, w.length); n >= 1; n--) { const k = w.slice(0, n).join(' '); if (M.has(k)) return { district: this.name(k), state: M.get(k), how: 'Dist.' }; } }
+    const pm = T.match(/\b([1-8]\d{2})\s?(\d{3})\b(?!.*\b[1-8]\d{2}\s?\d{3}\b)/); if (pm) { const p = this.pin(pm[1] + pm[2]); if (p && p.district) return { district: this.name(p.district), state: String(p.state || '').toUpperCase(), how: 'PIN ' + pm[1] + pm[2] }; }
+    let last = null, m; rx.lastIndex = 0; while ((m = rx.exec(T))) { last = m[1].replace(/\s+/g, ' '); rx.lastIndex = m.index + m[0].length; }
+    return last ? { district: this.name(last), state: M.get(last) || '', how: 'Address' } : null;
+  }
+};
+
+/* nearby locality for a lat / long – an offline list of Delhi-NCR localities (approx. centre points) plus a few
+   well-known cyber-fraud hubs. A point gets the nearest one within 6 km ("Near Indirapuram ~1.2 km"). */
+Object.assign(Geo, {
+  P: `Indirapuram,28.6415,77.3712,GHAZIABAD;Vaishali,28.6450,77.3400,GHAZIABAD;Kaushambi,28.6400,77.3230,GHAZIABAD;Vasundhara,28.6600,77.3600,GHAZIABAD;Raj Nagar Extension,28.6990,77.4250,GHAZIABAD;Raj Nagar,28.6830,77.4430,GHAZIABAD;Kavi Nagar,28.6720,77.4530,GHAZIABAD;Ghaziabad City (Ghanta Ghar),28.6692,77.4538,GHAZIABAD;Sahibabad,28.6780,77.3550,GHAZIABAD;Shalimar Garden,28.6870,77.3380,GHAZIABAD;Loni,28.7520,77.2890,GHAZIABAD;Tronica City,28.7650,77.3150,GHAZIABAD;Khoda Colony,28.6200,77.3370,GHAZIABAD;Vijay Nagar,28.6550,77.4380,GHAZIABAD;Crossings Republik,28.6300,77.4370,GHAZIABAD;Pratap Vihar,28.6450,77.4180,GHAZIABAD;Muradnagar,28.7800,77.5000,GHAZIABAD;Modinagar,28.8300,77.5700,GHAZIABAD;Dasna,28.6800,77.5200,GHAZIABAD;Masuri,28.7000,77.4900,GHAZIABAD;Nandgram,28.6950,77.4500,GHAZIABAD;Govindpuram,28.7080,77.4720,GHAZIABAD;Mohan Nagar,28.6750,77.3870,GHAZIABAD;Lal Kuan,28.6250,77.4700,GHAZIABAD;Dundahera (NH-9),28.6250,77.5000,GHAZIABAD;Noida Sector 18,28.5700,77.3260,GAUTAM BUDDHA NAGAR;Noida Sector 62,28.6270,77.3650,GAUTAM BUDDHA NAGAR;Noida Sector 63,28.6280,77.3830,GAUTAM BUDDHA NAGAR;Noida City Centre,28.5740,77.3560,GAUTAM BUDDHA NAGAR;Noida Sector 15,28.5850,77.3110,GAUTAM BUDDHA NAGAR;Noida Sector 50,28.5700,77.3650,GAUTAM BUDDHA NAGAR;Mamura (Sector 66),28.6080,77.3790,GAUTAM BUDDHA NAGAR;Noida Extension,28.5960,77.4400,GAUTAM BUDDHA NAGAR;Noida Sector 137,28.5100,77.4070,GAUTAM BUDDHA NAGAR;Greater Noida (Pari Chowk),28.4650,77.5100,GAUTAM BUDDHA NAGAR;Dadri,28.5500,77.5530,GAUTAM BUDDHA NAGAR;Dankaur,28.3500,77.5500,GAUTAM BUDDHA NAGAR;Jewar,28.1200,77.5600,GAUTAM BUDDHA NAGAR;Anand Vihar,28.6470,77.3160,EAST DELHI;Laxmi Nagar,28.6310,77.2770,EAST DELHI;Preet Vihar,28.6400,77.2950,EAST DELHI;Mayur Vihar,28.6050,77.2950,EAST DELHI;Kondli,28.6150,77.3220,EAST DELHI;Krishna Nagar,28.6570,77.2810,SHAHDARA;Shahdara,28.6730,77.2890,SHAHDARA;Dilshad Garden,28.6830,77.3170,SHAHDARA;Seemapuri,28.6870,77.3200,SHAHDARA;Seelampur,28.6680,77.2690,NORTH EAST DELHI;Gokulpuri,28.7050,77.2850,NORTH EAST DELHI;Mustafabad,28.7160,77.2760,NORTH EAST DELHI;Karawal Nagar,28.7300,77.2750,NORTH EAST DELHI;Khajuri Khas,28.7240,77.2580,NORTH EAST DELHI;Burari,28.7500,77.2000,NORTH DELHI;Mukherjee Nagar,28.7060,77.2080,NORTH WEST DELHI;Jahangirpuri,28.7290,77.1650,NORTH WEST DELHI;Pitampura,28.7020,77.1310,NORTH WEST DELHI;Rohini,28.7380,77.0820,NORTH WEST DELHI;Narela,28.8530,77.0920,NORTH DELHI;Bawana,28.7980,77.0340,NORTH WEST DELHI;Chandni Chowk,28.6560,77.2310,CENTRAL DELHI;Paharganj,28.6440,77.2130,CENTRAL DELHI;Karol Bagh,28.6510,77.1900,CENTRAL DELHI;Connaught Place,28.6315,77.2167,NEW DELHI;Patel Nagar,28.6510,77.1690,WEST DELHI;Punjabi Bagh,28.6680,77.1310,WEST DELHI;Rajouri Garden,28.6490,77.1220,WEST DELHI;Tilak Nagar,28.6400,77.0960,WEST DELHI;Janakpuri,28.6210,77.0870,WEST DELHI;Uttam Nagar,28.6210,77.0560,WEST DELHI;Nangloi,28.6800,77.0650,WEST DELHI;Mundka,28.6830,77.0300,WEST DELHI;Dwarka,28.5920,77.0460,SOUTH WEST DELHI;Palam,28.5890,77.0880,SOUTH WEST DELHI;Najafgarh,28.6090,76.9800,SOUTH WEST DELHI;Vasant Kunj,28.5200,77.1580,SOUTH WEST DELHI;Mehrauli,28.5180,77.1790,SOUTH DELHI;Saket,28.5240,77.2060,SOUTH DELHI;Sangam Vihar,28.4990,77.2440,SOUTH DELHI;Lajpat Nagar,28.5680,77.2430,SOUTH EAST DELHI;Nehru Place,28.5490,77.2520,SOUTH EAST DELHI;Kalkaji,28.5390,77.2590,SOUTH EAST DELHI;Jamia Nagar / Okhla,28.5620,77.2820,SOUTH EAST DELHI;Badarpur,28.4930,77.3030,SOUTH EAST DELHI;Gurugram Cyber City,28.4950,77.0890,GURUGRAM;Gurugram Sector 29,28.4670,77.0640,GURUGRAM;Sohna,28.2470,77.0650,GURUGRAM;Manesar,28.3590,76.9360,GURUGRAM;Faridabad,28.4100,77.3100,FARIDABAD;Ballabgarh,28.3400,77.3200,FARIDABAD;Bahadurgarh,28.6920,76.9240,JHAJJAR;Sonipat,28.9930,77.0150,SONIPAT;Palwal,28.1440,77.3260,PALWAL;Nuh,28.1030,77.0010,NUH (MEWAT);Firozpur Jhirka,27.7880,76.9450,NUH (MEWAT);Punhana,27.8600,77.2000,NUH (MEWAT);Hapur,28.7300,77.7800,HAPUR;Pilkhuwa,28.7120,77.6560,HAPUR;Meerut,28.9845,77.7064,MEERUT;Bulandshahr,28.4070,77.8490,BULANDSHAHR;Sikandrabad,28.4510,77.6950,BULANDSHAHR;Baghpat,28.9450,77.2180,BAGHPAT;Khekra,28.8650,77.2800,BAGHPAT;Alwar,27.5530,76.6346,ALWAR;Bharatpur,27.2170,77.4900,BHARATPUR;Mathura,27.4924,77.6737,MATHURA;Govardhan,27.4970,77.4630,MATHURA;Kosi Kalan,27.7940,77.4370,MATHURA;Jamtara,23.9630,86.8030,JAMTARA;Deoghar,24.4820,86.6950,DEOGHAR;Bihar Sharif (Nalanda),25.1980,85.5180,NALANDA;Nawada,24.8860,85.5430,NAWADA`.split(';').map(x => { const f = x.split(','); return { n: f[0], lat: +f[1], lng: +f[2], d: f[3] }; }),
+  km(a, b, c, d) { const R = 6371, x = (d - b) * Math.PI / 180 * Math.cos((a + c) / 2 * Math.PI / 180), y = (c - a) * Math.PI / 180; return Math.sqrt(x * x + y * y) * R; },
+  near(lat, lng, max) { if (lat == null || lng == null || isNaN(lat)) return null; let best = null, bd = 1e9; for (const p of this.P) { const k = this.km(lat, lng, p.lat, p.lng); if (k < bd) { bd = k; best = p; } } return best && bd <= (max || 6) ? { n: best.n, d: best.d, km: bd } : null; },
+  ncr(lat, lng) { return lat != null && lat >= 28.15 && lat <= 29.05 && lng >= 76.8 && lng <= 77.85; },
+  /* telecom circles (LSA): operator / circle text or IMSI → { op, circle } */
+  CIR: [['DELHI', /DELHI|\bDL\b|NCR/], ['MUMBAI', /MUMBAI|BOMBAY/], ['KOLKATA', /KOLKATA|CALCUTTA/], ['CHENNAI', /CHENNAI|MADRAS/], ['UP EAST', /U\.?P\.?\s*\(?\s*E(AST)?\b|UP-?E\b|UPE\b|UTTAR PRADESH\s*\(?\s*E/], ['UP WEST', /U\.?P\.?\s*\(?\s*W(EST)?\b|UP-?W\b|UPW\b|UTTAR PRADESH\s*\(?\s*W|UTTARAKHAND/],
+    ['HARYANA', /HARYANA|\bHR\b/], ['PUNJAB', /PUNJAB|\bPB\b|CHANDIGARH/], ['RAJASTHAN', /RAJASTHAN|\bRJ\b/], ['MADHYA PRADESH', /MADHYA|\bMP\b|CHHATTISGARH|\bCG\b/], ['MAHARASHTRA', /MAHARASHTRA|\bMH\b|\bGOA\b/], ['GUJARAT', /GUJARAT|\bGJ\b/],
+    ['BIHAR', /BIHAR|JHARKHAND|\bBR\b|\bJH\b/], ['ODISHA', /ORISSA|ODISHA|\bOR\b|\bOD\b/], ['WEST BENGAL', /WEST BENGAL|\bWB\b/], ['ASSAM', /ASSAM|\bAS\b/], ['NORTH EAST', /NORTH\s*EAST|\bNE\b/], ['ANDHRA PRADESH', /ANDHRA|TELANGANA|\bAP\b|\bTS\b/],
+    ['KARNATAKA', /KARNATAKA|\bKA\b/], ['KERALA', /KERALA|\bKL\b/], ['TAMIL NADU', /TAMIL|\bTN\b/], ['HIMACHAL PRADESH', /HIMACHAL|\bHP\b/], ['JAMMU & KASHMIR', /JAMMU|KASHMIR|\bJK\b|J&K/], ['UP', /UTTAR PRADESH|\bUP\b/]],
+  OPS: [['Jio', /JIO|RELIANCE\s*JIO|RJIL/], ['Airtel', /AIRTEL|BHARTI/], ['Vi (Vodafone Idea)', /VODA|IDEA|\bVI\b|VIL\b/], ['BSNL', /BSNL|CELLONE/], ['MTNL', /MTNL|DOLPHIN/], ['Reliance (RCOM)', /RELIANCE|RCOM/], ['Aircel', /AIRCEL/], ['Tata', /TATA|DOCOMO/]],
+  IMSI: { '404': '01V HARYANA,02A PUNJAB,03A HIMACHAL PRADESH,04I DELHI,05V GUJARAT,07I ANDHRA PRADESH,10A DELHI,11V DELHI,12I HARYANA,13V ANDHRA PRADESH,14I PUNJAB,15V UP EAST,16A NORTH EAST,19I KERALA,20V MUMBAI,22I MAHARASHTRA,24I GUJARAT,27V MAHARASHTRA,30V KOLKATA,31A KOLKATA,34B HARYANA,38B ASSAM,40A CHENNAI,43V TAMIL NADU,44I KARNATAKA,45A KARNATAKA,46V KERALA,49A ANDHRA PRADESH,51B HIMACHAL PRADESH,53B PUNJAB,54B UP WEST,55B UP EAST,56I UP WEST,57B GUJARAT,58B MADHYA PRADESH,59B RAJASTHAN,60V RAJASTHAN,62B JAMMU & KASHMIR,64B CHENNAI,66B MAHARASHTRA,68M DELHI,69M MUMBAI,70A RAJASTHAN,71B KARNATAKA,72B KERALA,73B ANDHRA PRADESH,74B WEST BENGAL,75B BIHAR,76B ODISHA,77B NORTH EAST,78I MADHYA PRADESH,80B TAMIL NADU,81B KOLKATA,82I HIMACHAL PRADESH,84V CHENNAI,86V KARNATAKA,87I RAJASTHAN,88V PUNJAB,89I UP EAST,90A MAHARASHTRA,92A MUMBAI,93A MADHYA PRADESH,94A TAMIL NADU,95A KERALA,96A HARYANA,97A UP WEST,98A GUJARAT',
+    '405': '51A WEST BENGAL,52A BIHAR,53A ODISHA,54A UP EAST,55A JAMMU & KASHMIR,56A ASSAM,66V UP WEST,67V WEST BENGAL,70I BIHAR,750V JAMMU & KASHMIR,751V ASSAM,752V BIHAR,753V ODISHA,754V HIMACHAL PRADESH,755V NORTH EAST,756V MADHYA PRADESH,799I MUMBAI,845I ASSAM,846I JAMMU & KASHMIR,848I KOLKATA,849I NORTH EAST,850I ODISHA,852I TAMIL NADU,853I WEST BENGAL,854J ANDHRA PRADESH,855J ASSAM,856J BIHAR,857J GUJARAT,858J HARYANA,859J HIMACHAL PRADESH,860J JAMMU & KASHMIR,861J KARNATAKA,862J KERALA,863J MADHYA PRADESH,864J MAHARASHTRA,865J NORTH EAST,866J ODISHA,867J PUNJAB,868J RAJASTHAN,869J TAMIL NADU,870J UP WEST,871J UP EAST,872J DELHI,873J KOLKATA,874J MUMBAI' },
+  OPL: { A: 'Airtel', V: 'Vi (Vodafone Idea)', I: 'Vi (Vodafone Idea)', B: 'BSNL', M: 'MTNL', J: 'Jio' },
+  imsi(v) {
+    const s = String(v || '').replace(/\D/g, ''); if (s.length < 6 || !/^40[45]/.test(s)) return null;
+    if (!this._im) { this._im = {}; for (const [mcc, L] of Object.entries(this.IMSI)) for (const x of L.split(',')) { const m = x.match(/^(\d+)([A-Z])\s(.+)$/); this._im[mcc + m[1]] = { op: this.OPL[m[2]], circle: m[3] }; } }
+    return this._im[s.slice(0, 6)] || this._im[s.slice(0, 5)] || null;
+  },
+  op(t) { t = String(t || '').toUpperCase(); const o = this.OPS.find(([, re]) => re.test(t)); return o ? o[0] : ''; },
+  circle(t) { t = ' ' + String(t || '').toUpperCase().replace(/[_\-–]/g, ' ') + ' '; const c = this.CIR.find(([, re]) => re.test(t)); return c ? c[0] : ''; },
+  /* the states a circle covers (to tell whether a SIM is outside its home circle) */
+  CST: { 'DELHI': ['DELHI'], 'MUMBAI': ['MAHARASHTRA'], 'MAHARASHTRA': ['MAHARASHTRA', 'GOA'], 'KOLKATA': ['WEST BENGAL'], 'WEST BENGAL': ['WEST BENGAL', 'SIKKIM'], 'CHENNAI': ['TAMIL NADU'], 'TAMIL NADU': ['TAMIL NADU', 'PUDUCHERRY'], 'UP EAST': ['UTTAR PRADESH'], 'UP WEST': ['UTTAR PRADESH', 'UTTARAKHAND'], 'UP': ['UTTAR PRADESH', 'UTTARAKHAND'], 'MADHYA PRADESH': ['MADHYA PRADESH', 'CHHATTISGARH'], 'BIHAR': ['BIHAR', 'JHARKHAND'], 'ANDHRA PRADESH': ['ANDHRA PRADESH', 'TELANGANA'], 'PUNJAB': ['PUNJAB', 'CHANDIGARH'], 'NORTH EAST': ['ARUNACHAL PRADESH', 'MANIPUR', 'MEGHALAYA', 'MIZORAM', 'NAGALAND', 'TRIPURA'], 'JAMMU & KASHMIR': ['JAMMU AND KASHMIR', 'JAMMU & KASHMIR', 'LADAKH'] }
+});
+
+</script>
+<script>
+/* prbmap.js – Pratibimb › 🗺 Full Map: every suspect / target location of all Pratibimb sheets in a fresh full tab,
+   with choose / filter (sheet, date, day / night, hours, weekday, operator, home circle, roaming, gang, matched case,
+   area, complaints, search). Fully offline: no map tiles are fetched, the page is built on this computer and opened
+   as a local tab (Vijay 14-11: "suspect all location should open in a new fresh full tab … map with filter"). */
+'use strict';
+const PRBMap = {
+  async rows() {
+    const D = await PRB.data(), V = await PRB.ix(), G = PRB.gangs(D), M = await PRB.meta(), gOf = new Map(); G.forEach((g, i) => g.R.forEach(r => gOf.set(r.id, i)));
+    const K = {}; PRB.K.forEach(([k, ic, l, c]) => { K[k] = { ic, l, c }; });
+    return D.filter(r => r.lat != null && Math.abs(r.lat) <= 90 && Math.abs(r.lng) <= 180).map(r => { const h = PRB.hits(r, V), t = PRB.tsp(r), n = PRB.nr(r), gi = gOf.has(r.id) ? gOf.get(r.id) : -1;
+      return { id: r.id, k: r.k, mobile: r.mobile || '', imei: r.imei || '', acc: r.acc || '', name: r.name || '', bank: r.bank || '', ifsc: r.ifsc || '', branch: r.branch || '', atm: r.atm || '', pos: r.pos || '', amt: r.amt || 0,
+        lat: r.lat, lng: r.lng, t: r.time || 0, total: r.total || 0, acks: (r.acks || []).slice(0, 5), area: PRB.area(r), near: n ? n.n + ' (~' + n.km.toFixed(1) + ' km)' : '', district: r.district || '', state: r.state || '',
+        addr: r.addr && !/^https?:/i.test(r.addr) ? r.addr.slice(0, 120) : '', op: t.op || '', circle: t.circle || '', roam: PRB.roam(r) ? 1 : 0, gang: gi + 1, gcat: gi >= 0 ? PRB.gl(G[gi], M).cat : '', cases: h.map(x => x.l) }; });
+  },
+  async open() {
+    UI.toast('🗺 Building the full map on this computer…');
+    let R = []; try { R = await this.rows(); } catch (e) { UI.toast('Could not read Pratibimb rows: ' + e.message, 5000); return; }
+    if (!R.length) { UI.toast('No Pratibimb row with Lat / Long yet – import a Pratibimb sheet first', 5000); return; }
+    const K = {}; PRB.K.forEach(([k, ic, l, c]) => { K[k] = { ic, l, c }; });
+    const ref = typeof Geo !== 'undefined' ? Geo.P.map(p => [p.n, p.lat, p.lng]) : [];
+    const html = this.html(R, K, ref), url = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
+    let w = null; try { w = window.open(url, '_blank'); } catch (e) { }
+    if (!w) this.overlay(html);
+    setTimeout(() => URL.revokeObjectURL(url), 120000);
+  },
+  /* when a new tab is not allowed (some desktop setups): the same map full-screen inside the tool */
+  overlay(html) {
+    let o = $('#pmOv'); if (o) o.remove(); o = document.createElement('div'); o.id = 'pmOv';
+    o.style.cssText = 'position:fixed;inset:0;z-index:99999;background:#0b1220';
+    o.innerHTML = '<button id="pmOvX" style="position:absolute;top:8px;right:12px;z-index:2;padding:6px 14px;border-radius:8px;border:0;background:#dc2626;color:#fff;font-weight:700;cursor:pointer">✖ Close Map</button><iframe style="border:0;width:100%;height:100%"></iframe>';
+    document.body.appendChild(o); $('iframe', o).srcdoc = html; $('#pmOvX').onclick = () => o.remove();
+  },
+  html(R, K, ref) {
+    const J = s => JSON.stringify(s).replace(/</g, '\\u003c');
+    return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>🗺 SudarshanAshtra – Suspect Locations Full Map</title><meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+*{box-sizing:border-box}body{margin:0;font:13px/1.35 system-ui,Segoe UI,Arial,sans-serif;background:#0b1220;color:#e2e8f0;height:100vh;display:flex;flex-direction:column;overflow:hidden}
+header{display:flex;align-items:center;gap:12px;padding:8px 14px;background:#111a2e;border-bottom:1px solid #1e2a44}header h1{font-size:16px;margin:0}header .s{color:#94a3b8;font-size:12px}
+.wrap{flex:1;display:flex;min-height:0}aside{width:300px;overflow:auto;padding:10px 12px;background:#0f172a;border-right:1px solid #1e2a44}aside h4{margin:12px 0 5px;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#94a3b8}
+.ck{display:flex;flex-wrap:wrap;gap:4px}.ck label{display:flex;align-items:center;gap:4px;padding:3px 7px;border:1px solid #24324f;border-radius:14px;cursor:pointer;font-size:12px;background:#111c33}.ck label i{width:9px;height:9px;border-radius:50%;display:inline-block}
+input[type=text],input[type=date],input[type=number],select{width:100%;padding:5px 7px;border-radius:7px;border:1px solid #24324f;background:#111c33;color:#e2e8f0;font:inherit}.two{display:flex;gap:6px}
+.btn{padding:5px 10px;border-radius:7px;border:1px solid #2b3a5c;background:#1b2a4a;color:#e2e8f0;cursor:pointer;font:inherit}.btn.p{background:#2563eb;border-color:#2563eb}
+main{flex:1;position:relative;min-width:0}canvas{width:100%;height:100%;display:block;cursor:grab}canvas.drag{cursor:grabbing}
+#list{width:360px;overflow:auto;background:#0f172a;border-left:1px solid #1e2a44}#list .it{padding:7px 10px;border-bottom:1px solid #1a2540;cursor:pointer}#list .it:hover,#list .it.on{background:#16233f}
+.mono{font-family:Consolas,monospace}.mut{color:#94a3b8;font-size:11.5px}.tag{display:inline-block;padding:0 6px;border-radius:9px;font-size:11px;margin-right:3px;border:1px solid}
+#tip{position:fixed;pointer-events:none;background:#020617ee;border:1px solid #334155;border-radius:8px;padding:7px 9px;max-width:380px;display:none;z-index:5;font-size:12px}
+#kp{display:flex;gap:6px;flex-wrap:wrap}#kp b{font-size:15px}#kp div{background:#111c33;border:1px solid #24324f;border-radius:8px;padding:3px 9px}
+.leg{position:absolute;left:10px;bottom:10px;background:#020617cc;border:1px solid #1e2a44;border-radius:8px;padding:6px 9px;font-size:11.5px}.zm{position:absolute;right:10px;top:10px;display:flex;flex-direction:column;gap:4px}
+</style></head><body>
+<header><h1>🗺 Suspect Locations – Full Map</h1><span class="s">Pratibimb sheets · offline map (no map tiles, nothing leaves this computer) · scroll = zoom · drag = move · hover / click a point</span><span style="flex:1"></span><div id="kp"></div></header>
+<div class="wrap"><aside>
+<h4>Search</h4><input type="text" id="q" placeholder="Mobile, IMEI, account, name, area…">
+<h4>Sheet</h4><div class="ck" id="fk"></div>
+<h4>Date</h4><div class="two"><input type="date" id="d1"><input type="date" id="d2"></div>
+<h4>Time Of Day</h4><select id="tod"><option value="">All</option><option value="day">Day (6 am – 6 pm)</option><option value="night">Night (6 pm – 6 am)</option><option value="late">Late Night (11 pm – 5 am)</option></select>
+<h4>Weekday</h4><div class="ck" id="fw"></div>
+<h4>Operator</h4><select id="op"></select>
+<h4>Home Circle Of The SIM</h4><select id="ci"></select>
+<h4>Area</h4><select id="ar"></select>
+<h4>Matched Case / Target</h4><select id="cs"></select>
+<h4>Gang / Group</h4><select id="gg"></select>
+<h4>Only</h4><div class="ck"><label><input type="checkbox" id="oR"> 🛰 Roaming</label><label><input type="checkbox" id="oG"> 👥 In A Gang</label><label><input type="checkbox" id="oH"> 🎯 In Your Cases</label></div>
+<h4>Min. Complaints</h4><input type="number" id="mc" min="0" value="0">
+<h4>Show</h4><div class="ck"><label><input type="checkbox" id="sHeat"> 🔥 Hotspot Circles</label><label><input type="checkbox" id="sRef" checked> 🏙 Locality Names</label><label><input type="checkbox" id="sLine"> 🔗 Join Same Mobile / IMEI</label></div>
+<div style="margin-top:12px;display:flex;gap:6px;flex-wrap:wrap"><button class="btn" id="rs">↺ Reset</button><button class="btn" id="fit">⤢ Fit All</button><button class="btn p" id="csv">⬇ CSV (Shown)</button></div>
+</aside>
+<main><canvas id="cv"></canvas><div class="zm"><button class="btn" id="zi">＋</button><button class="btn" id="zo">－</button></div><div class="leg" id="leg"></div></main>
+<div id="list"></div></div><div id="tip"></div>
+<script>
+const R = ${J(R)}, K = ${J(K)}, REF = ${J(ref)};
+const $ = s => document.querySelector(s), esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])), tc = s => String(s || '').toLowerCase().replace(/\\b[a-z]/g, c => c.toUpperCase());
+const DW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], uniq = a => [...new Set(a.filter(Boolean))].sort();
+const ymd = t => { const d = new Date(t), q = n => String(n).padStart(2, '0'); return d.getFullYear() + '-' + q(d.getMonth() + 1) + '-' + q(d.getDate()); };
+const opt = (el, L, all) => { $(el).innerHTML = '<option value="">' + all + '</option>' + L.map(x => '<option value="' + esc(x[0]) + '">' + esc(x[1]) + '</option>').join(''); };
+const cnt = f => { const m = new Map(); R.forEach(r => [].concat(f(r)).filter(Boolean).forEach(v => m.set(v, (m.get(v) || 0) + 1))); return [...m].sort((a, b) => b[1] - a[1]); };
+$('#fk').innerHTML = Object.entries(K).filter(([k]) => R.some(r => r.k === k)).map(([k, x]) => '<label><input type="checkbox" data-k="' + k + '" checked><i style="background:' + x.c + '"></i>' + x.ic + ' ' + esc(x.l) + ' (' + R.filter(r => r.k === k).length + ')</label>').join('');
+$('#fw').innerHTML = DW.map((d, i) => '<label><input type="checkbox" data-w="' + i + '">' + d + '</label>').join('');
+opt('#op', cnt(r => r.op || 'Not Known').map(([k, n]) => [k, k + ' (' + n + ')']), 'All Operators');
+opt('#ci', cnt(r => r.circle || 'Not Known').map(([k, n]) => [k, tc(k) + ' (' + n + ')']), 'All Circles');
+opt('#ar', cnt(r => r.area).map(([k, n]) => [k, k + ' (' + n + ')']), 'All Areas');
+opt('#cs', cnt(r => r.cases).map(([k, n]) => [k, k + ' (' + n + ')']), 'All / None');
+opt('#gg', cnt(r => r.gang ? 'G' + r.gang + ' · ' + r.gcat : '').map(([k, n]) => [k, k + ' (' + n + ')']), 'All');
+$('#leg').innerHTML = Object.entries(K).filter(([k]) => R.some(r => r.k === k)).map(([k, x]) => '<span style="margin-right:9px"><i style="display:inline-block;width:9px;height:9px;border-radius:50%;background:' + x.c + '"></i> ' + esc(x.l) + '</span>').join('') + '<br><span style="color:#c084fc">◯ purple ring = roaming</span> · <span style="color:#2dd4bf">◯ teal ring = gang</span> · <span style="color:#f87171">◯ red ring = in your cases</span> · bigger = more complaints';
+let F = [];
+function pass(r) {
+  const q = $('#q').value.trim().toLowerCase(); if (q && ![r.mobile, r.imei, r.acc, r.name, r.area, r.addr, r.district, r.bank, r.ifsc, r.atm, r.pos, r.op, r.circle, ...r.cases, ...r.acks].join(' ').toLowerCase().includes(q)) return false;
+  if (!document.querySelector('#fk [data-k="' + r.k + '"]').checked) return false;
+  const d1 = $('#d1').value, d2 = $('#d2').value, tod = $('#tod').value, W = [...document.querySelectorAll('#fw input:checked')].map(x => +x.dataset.w);
+  if (d1 || d2 || tod || W.length) { if (!r.t) return false; const d = new Date(r.t), h = d.getHours() + d.getMinutes() / 60, y = ymd(r.t);
+    if (d1 && y < d1) return false; if (d2 && y > d2) return false; if (W.length && !W.includes(d.getDay())) return false;
+    if (tod === 'day' && !(h >= 6 && h < 18)) return false; if (tod === 'night' && h >= 6 && h < 18) return false; if (tod === 'late' && !(h >= 23 || h < 5)) return false; }
+  const op = $('#op').value, ci = $('#ci').value, ar = $('#ar').value, cs = $('#cs').value, gg = $('#gg').value;
+  if (op && (r.op || 'Not Known') !== op) return false; if (ci && (r.circle || 'Not Known') !== ci) return false; if (ar && r.area !== ar) return false; if (cs && !r.cases.includes(cs)) return false; if (gg && (r.gang ? 'G' + r.gang + ' · ' + r.gcat : '') !== gg) return false;
+  if ($('#oR').checked && !r.roam) return false; if ($('#oG').checked && !r.gang) return false; if ($('#oH').checked && !r.cases.length) return false; if ((+$('#mc').value || 0) > r.total) return false;
+  return true;
+}
+/* view: lat / long → screen */
+const cv = $('#cv'), cx = cv.getContext('2d'); let W = 0, H = 0, V = { lat: 28.6, lng: 77.3, s: 2000 }, sel = null, hov = null;
+const cosl = () => Math.cos(V.lat * Math.PI / 180), P = (lat, lng) => [W / 2 + (lng - V.lng) * V.s * cosl(), H / 2 - (lat - V.lat) * V.s];
+function size() { const r = cv.getBoundingClientRect(), dp = devicePixelRatio || 1; W = r.width; H = r.height; cv.width = W * dp; cv.height = H * dp; cx.setTransform(dp, 0, 0, dp, 0, 0); draw(); }
+function fit(L) { L = L && L.length ? L : R; const la = L.map(r => r.lat), lo = L.map(r => r.lng), y0 = Math.min(...la), y1 = Math.max(...la), x0 = Math.min(...lo), x1 = Math.max(...lo);
+  V.lat = (y0 + y1) / 2; V.lng = (x0 + x1) / 2; V.s = Math.min((W - 140) / Math.max((x1 - x0) * cosl(), 0.004), (H - 160) / Math.max(y1 - y0, 0.004)); V.lat -= 20 / V.s; draw(); }
+const rad = r => 4 + Math.min(9, Math.sqrt(r.total || 0) * 2);
+function draw() {
+  cx.clearRect(0, 0, W, H); cx.fillStyle = '#0b1220'; cx.fillRect(0, 0, W, H);
+  /* grid every ~ nice km */ const kmPx = V.s / 111, step = [0.5, 1, 2, 5, 10, 20, 50, 100, 200, 500].find(k => k * kmPx > 90) || 1000, dl = step / 111;
+  cx.strokeStyle = '#16213a'; cx.lineWidth = 1; const [ax, ay] = P(Math.floor((V.lat - H / 2 / V.s) / dl) * dl, Math.floor((V.lng - W / 2 / V.s / cosl()) / (dl / cosl())) * (dl / cosl()));
+  for (let x = ax; x < W; x += dl / cosl() * V.s * cosl()) { cx.beginPath(); cx.moveTo(x, 0); cx.lineTo(x, H); cx.stroke(); } for (let y = ay; y > 0; y -= dl * V.s) { cx.beginPath(); cx.moveTo(0, y); cx.lineTo(W, y); cx.stroke(); }
+  cx.fillStyle = '#94a3b8'; cx.font = '11px system-ui'; cx.fillRect(W - 20 - step * kmPx, H - 18, step * kmPx, 3); cx.fillText(step + ' km', W - 20 - step * kmPx, H - 24);
+  if ($('#sRef').checked) { cx.font = '11px system-ui'; const used = []; for (const [n, la, lo] of REF) { const [x, y] = P(la, lo); if (x < -50 || y < -20 || x > W + 50 || y > H + 20) continue; cx.fillStyle = '#475569'; cx.beginPath(); cx.arc(x, y, 2.5, 0, 7); cx.fill(); if (used.some(([a, b]) => Math.abs(a - x) < 90 && Math.abs(b - y) < 14)) continue; used.push([x, y]); cx.fillStyle = '#64748b'; cx.fillText(n, x + 5, y + 4); } }
+  if ($('#sHeat').checked) { const m = new Map(); F.forEach(r => { const k = r.lat.toFixed(2) + ',' + r.lng.toFixed(2); const o = m.get(k) || { n: 0, la: 0, lo: 0 }; o.n++; o.la += r.lat; o.lo += r.lng; m.set(k, o); });
+    for (const o of m.values()) { const [x, y] = P(o.la / o.n, o.lo / o.n), rr = Math.max(14, Math.sqrt(o.n) * 14); const g = cx.createRadialGradient(x, y, 0, x, y, rr); g.addColorStop(0, 'rgba(239,68,68,.45)'); g.addColorStop(1, 'rgba(239,68,68,0)'); cx.fillStyle = g; cx.beginPath(); cx.arc(x, y, rr, 0, 7); cx.fill(); if (o.n > 1) { cx.fillStyle = '#fecaca'; cx.font = 'bold 11px system-ui'; cx.fillText(o.n, x + rr * .5, y - rr * .5); } } }
+  if ($('#sLine').checked) { const g = new Map(); F.forEach(r => [r.mobile && 'm' + r.mobile, r.imei && 'i' + r.imei.slice(0, 14)].filter(Boolean).forEach(k => { const a = g.get(k) || []; a.push(r); g.set(k, a); }));
+    cx.strokeStyle = 'rgba(250,204,21,.55)'; cx.lineWidth = 1.5; for (const a of g.values()) if (a.length > 1) { a.sort((x, y) => x.t - y.t); cx.beginPath(); a.forEach((r, i) => { const [x, y] = P(r.lat, r.lng); i ? cx.lineTo(x, y) : cx.moveTo(x, y); }); cx.stroke(); } }
+  for (const r of F) { const [x, y] = P(r.lat, r.lng); if (x < -20 || y < -20 || x > W + 20 || y > H + 20) continue; const rr = rad(r);
+    cx.globalAlpha = .85; cx.fillStyle = (K[r.k] || {}).c || '#38bdf8'; cx.beginPath(); cx.arc(x, y, rr, 0, 7); cx.fill(); cx.globalAlpha = 1;
+    let ring = rr + 2; const rg = c => { cx.strokeStyle = c; cx.lineWidth = 2; cx.beginPath(); cx.arc(x, y, ring, 0, 7); cx.stroke(); ring += 3; };
+    if (r.cases.length) rg('#f87171'); if (r.gang) rg('#2dd4bf'); if (r.roam) rg('#c084fc'); if (r === sel || r === hov) rg('#fff'); }
+}
+const at = (mx, my) => { let b = null, bd = 1e9; for (const r of F) { const [x, y] = P(r.lat, r.lng), d = Math.hypot(x - mx, y - my); if (d < rad(r) + 5 && d < bd) { bd = d; b = r; } } return b; };
+const same = r => F.filter(x => Math.abs(x.lat - r.lat) < 1e-4 && Math.abs(x.lng - r.lng) < 1e-4);
+const line = r => [r.mobile && '📱 ' + r.mobile, r.imei && '📟 ' + r.imei, r.acc && '🏦 ' + r.acc, r.atm && '🏧 ' + r.atm, r.branch && '🏛 ' + r.branch, r.pos && '📶 ' + r.pos].filter(Boolean).join(' · ');
+const when = t => t ? new Date(t).toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
+const card = r => '<div><b>' + (K[r.k] || {}).ic + ' ' + esc(line(r) || 'Point') + '</b></div><div>' + esc(r.near ? 'Near ' + r.near : r.area) + (r.district ? ' · ' + esc(tc(r.district)) : '') + '</div>' + (r.addr ? '<div class="mut">' + esc(r.addr) + '</div>' : '')
+  + '<div class="mut">' + [when(r.t), r.total ? r.total + ' complaint(s)' : '', r.op, r.circle && 'SIM circle ' + tc(r.circle)].filter(Boolean).map(esc).join(' · ') + '</div>'
+  + '<div>' + (r.roam ? '<span class="tag" style="color:#c084fc">🛰 Roaming</span>' : '') + (r.gang ? '<span class="tag" style="color:#2dd4bf">👥 G' + r.gang + ' ' + esc(r.gcat) + '</span>' : '') + r.cases.map(c => '<span class="tag" style="color:#f87171">' + esc(c) + '</span>').join('') + '</div>'
+  + '<div class="mono mut">' + r.lat.toFixed(5) + ', ' + r.lng.toFixed(5) + '</div>';
+function list() { const L = F.slice().sort((a, b) => (b.total - a.total) || (b.t - a.t)).slice(0, 600);
+  $('#list').innerHTML = '<div style="padding:8px 10px" class="mut">' + F.length + ' location(s) shown' + (F.length > 600 ? ' – first 600 listed' : '') + ' · click to go to it</div>' + L.map(r => '<div class="it' + (r === sel ? ' on' : '') + '" data-id="' + esc(r.id) + '">' + card(r) + (r === sel ? '<div style="margin-top:4px"><a href="https://www.google.com/maps?q=' + r.lat + ',' + r.lng + '" target="_blank" rel="noopener" style="color:#60a5fa">Open this point in Google Maps ↗</a></div>' : '') + '</div>').join('');
+  document.querySelectorAll('#list .it').forEach(e => e.onclick = ev => { if (ev.target.tagName === 'A') return; const r = R.find(x => x.id === e.dataset.id); sel = r; V.lat = r.lat; V.lng = r.lng; V.s = Math.max(V.s, 40000); draw(); list(); }); }
+function kp() { const n = k => F.filter(k).length; $('#kp').innerHTML = [['📍', F.length, 'Shown'], ['📱', new Set(F.map(r => r.mobile).filter(Boolean)).size, 'Mobiles'], ['🛰', n(r => r.roam), 'Roaming'], ['👥', n(r => r.gang), 'In Gangs'], ['🎯', n(r => r.cases.length), 'In Cases']].map(([i, v, t]) => '<div>' + i + ' <b>' + v + '</b> <span class="mut">' + t + '</span></div>').join(''); }
+function apply(keep) { F = R.filter(pass); if (sel && !F.includes(sel)) sel = null; kp(); list(); if (!keep) fit(F); else draw(); }
+document.querySelectorAll('aside input, aside select').forEach(e => e.addEventListener(e.type === 'text' ? 'input' : 'change', () => apply(['sHeat', 'sRef', 'sLine'].includes(e.id))));
+$('#rs').onclick = () => { document.querySelectorAll('aside input[type=text],aside input[type=date]').forEach(e => e.value = ''); document.querySelectorAll('aside select').forEach(e => e.value = ''); document.querySelectorAll('#fk input').forEach(e => e.checked = true); document.querySelectorAll('#fw input,#oR,#oG,#oH').forEach(e => e.checked = false); $('#mc').value = 0; apply(); };
+$('#fit').onclick = () => fit(F); $('#zi').onclick = () => { V.s *= 1.6; draw(); }; $('#zo').onclick = () => { V.s /= 1.6; draw(); };
+$('#csv').onclick = () => { const c = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"', H2 = ['Sheet', 'Mobile', 'IMEI', 'Account', 'Lat', 'Long', 'Near', 'District', 'Time', 'Complaints', 'Operator', 'Home Circle', 'Roaming', 'Gang', 'In Cases'];
+  const t = [H2.join(',')].concat(F.map(r => [(K[r.k] || {}).l, r.mobile, r.imei, r.acc, r.lat, r.lng, r.near || r.area, r.district, when(r.t), r.total, r.op, r.circle, r.roam ? 'Yes' : '', r.gang ? 'G' + r.gang + ' ' + r.gcat : '', r.cases.join('; ')].map(c).join(','))).join('\\r\\n');
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['\\ufeff' + t], { type: 'text/csv' })); a.download = 'suspect_locations_map.csv'; a.click(); };
+let dr = null; cv.onmousedown = e => { dr = { x: e.clientX, y: e.clientY, lat: V.lat, lng: V.lng, m: 0 }; cv.classList.add('drag'); };
+addEventListener('mouseup', e => { if (dr && dr.m < 4) { const b = cv.getBoundingClientRect(), r = at(e.clientX - b.left, e.clientY - b.top); if (r) { sel = r; list(); draw(); const el = document.querySelector('#list .it.on'); el && el.scrollIntoView({ block: 'center' }); } } dr = null; cv.classList.remove('drag'); });
+addEventListener('mousemove', e => { const tip = $('#tip'); if (dr) { dr.m = Math.max(dr.m, Math.hypot(e.clientX - dr.x, e.clientY - dr.y)); V.lat = dr.lat + (e.clientY - dr.y) / V.s; V.lng = dr.lng - (e.clientX - dr.x) / V.s / cosl(); draw(); tip.style.display = 'none'; return; }
+  const b = cv.getBoundingClientRect(); if (e.target !== cv) { tip.style.display = 'none'; return; } const r = at(e.clientX - b.left, e.clientY - b.top); if (r !== hov) { hov = r; draw(); }
+  if (!r) { tip.style.display = 'none'; return; } const S2 = same(r); tip.innerHTML = card(r) + (S2.length > 1 ? '<div class="mut">+ ' + (S2.length - 1) + ' more at this spot: ' + esc(S2.filter(x => x !== r).slice(0, 4).map(line).join(' | ')) + '</div>' : '') + '<div class="mut">Click for details · Google Maps link</div>';
+  tip.style.display = 'block'; tip.style.left = Math.min(innerWidth - 390, e.clientX + 14) + 'px'; tip.style.top = Math.min(innerHeight - tip.offsetHeight - 8, e.clientY + 14) + 'px'; });
+cv.addEventListener('wheel', e => { e.preventDefault(); const b = cv.getBoundingClientRect(), mx = e.clientX - b.left, my = e.clientY - b.top, la = V.lat - (my - H / 2) / V.s, lo = V.lng + (mx - W / 2) / V.s / cosl(), f = e.deltaY < 0 ? 1.25 : 0.8; V.s *= f; V.lat = la + (my - H / 2) / V.s; V.lng = lo - (mx - W / 2) / V.s / cosl(); draw(); }, { passive: false });
+addEventListener('resize', size); F = R.slice(); size(); apply();
+<\/script></body></html>`;
+  }
+};
+
+</script>
+<script>
 /* mirror.js – Dashboard › 🪞 Case Mirror (Vijay, 14-11-2026): one view that mirrors every case –
    the case open in the CASE box, or All / FIR / NCRP cases – with money (fraud, hold, refund), work (done / pending),
    and every target found anywhere in the cases: state, district, mobile, alternate number, e-mail, account, IFSC, UPI,
@@ -21057,9 +21520,24 @@ const Mirror = {
       const st = String(f.address || '').match(/\b(UTTAR PRADESH|BIHAR|RAJASTHAN|JHARKHAND|WEST BENGAL|HARYANA|DELHI|MAHARASHTRA|GUJARAT|MADHYA PRADESH|ODISHA|ASSAM|PUNJAB|KARNATAKA|TAMIL NADU|TELANGANA|ANDHRA PRADESH|KERALA|UTTARAKHAND|CHHATTISGARH|HIMACHAL PRADESH|JAMMU|GOA|TRIPURA|MANIPUR|MEGHALAYA|NAGALAND|MIZORAM|SIKKIM|ARUNACHAL PRADESH)\b/i);
       if (st) put('state', st[1].toUpperCase(), 'CAF', n); }
     for (const n of d.ncrp || []) for (const [k, v] of Object.entries(n)) { if (/suspect.*state|accused.*state/i.test(k)) put('state', String(v).toUpperCase(), 'NCRP'); if (/suspect.*district|accused.*district/i.test(k)) put('district', String(v).toUpperCase(), 'NCRP'); }
-    let amount = 0, hold = 0, comps = 0;
+    /* District: KYC / money-trail columns are often empty, so also read the target's address (CAF, KYC, NCRP suspect),
+       the PIN code in it, and the branch district of every IFSC in the case (Vijay 14-11: "target by district not shown") */
+    const geo = (txt, s, n) => { try { const g = Geo.find(txt); if (!g) return; put('district', g.district, s + (g.how && g.how !== 'Address' ? ' · ' + g.how : ''), n); if (g.state) put('state', g.state, s, n); } catch (e) { } };
+    for (const f of d.caf || []) geo(f.address, 'CAF address', f.name);
+    for (const k of d.kyc || []) for (const [key, val] of Object.entries(k)) if (/addr/i.test(key) && val) geo(val, 'KYC address', k.name);
+    for (const n of d.ncrp || []) for (const [k, v] of Object.entries(n)) if (/(suspect|accused).*(addr|location|district)/i.test(k) && v) geo(v, 'NCRP suspect');
+    const ifs = new Set(); (d.kyc || []).forEach(k => k.ifsc && ifs.add(String(k.ifsc).toUpperCase().trim())); (d.txns || []).forEach(t => { if (t._type !== 'stmt' && t.to_ifsc) ifs.add(String(t.to_ifsc).toUpperCase().trim()); if (t.to_ifsc_district) put('district', Geo.name(t.to_ifsc_district), 'IFSC branch (' + (t.to_ifsc || '') + ')'); });
+    out.filter(r => r.t === 'ifsc').forEach(r => ifs.add(String(r.v).toUpperCase().trim()));
+    try { if (typeof IFSCDB !== 'undefined') for (const i of ifs) { const b = IFSCDB.get(i); if (b && b.district) { put('district', Geo.name(b.district), 'IFSC branch ' + i, b.branch || ''); if (b.state) put('state', String(b.state).toUpperCase(), 'IFSC branch ' + i); } } } catch (e) { }
+    let amount = 0, hold = 0, comps = 0, amtSrc = '';
     try { const keep = S.data; S.data = d; Analysis.invalidate(); const L = Trail.complaints(); comps = L.length || (d.ncrp || []).length; amount = sum(d.ncrp || [], r => +r.amount || 0) || sum(L, x => +x.amount || 0); hold = sum(L, x => +x.hold || 0); S.data = keep; Analysis.invalidate(); } catch (e) { }
-    const seen = new Set(); return { R: out.filter(r => { const k = r.t + '|' + r.v.toLowerCase() + '|' + r.s; if (seen.has(k)) return false; seen.add(k); return true; }), amount, hold, comps };
+    if (amount) amtSrc = 'NCRP complaints';
+    if (!hold) hold = sum(d.ncrp || [], r => +(r.hold || r.hold_amount || r.lien || 0) || 0);
+    if (!amount) { amount = sum((d.txns || []).filter(t => t._type !== 'stmt' && +t.layer === 1), t => Math.abs(+t.amount || 0)); if (amount) amtSrc = 'Money trail (victim → layer 1)'; }
+    if (!amount) { const cc = d.cctns || {}, T = [cc.fir && cc.fir.text, ...(cc.cd || []).slice(0, 3).map(x => x.text)].filter(Boolean).join('\n'); let mx = 0;
+      for (const m of T.matchAll(/(?:₹|\bRS\.?|\bINR\b|RUPEES?|रुपये|रूपये|रु0?\.?)\s*[:\-]?\s*(\d{1,3}(?:,\d{2,3})+|\d{3,9})(?:\.\d+)?\s*(?:\/-)?/gi)) { const v = +m[1].replace(/,/g, ''); if (v > mx && v < 1e10) mx = v; }
+      if (mx) { amount = mx; amtSrc = 'FIR / case diary text'; } }
+    const seen = new Set(); return { R: out.filter(r => { const k = r.t + '|' + r.v.toLowerCase() + '|' + r.s; if (seen.has(k)) return false; seen.add(k); return true; }), amount, hold, comps, amtSrc };
   },
   async collect() {
     const key = S.cases.map(c => c.id + ':' + c.name + ':' + (c.final ? 1 : 0)).join(',');
@@ -21067,9 +21545,13 @@ const Mirror = {
     const C = [];
     for (const c of S.cases) {
       let r = null;
-      try { r = c.id === S.caseId && S.data && !isScope(S.caseId) ? this.one(c, S.data) : await Vault.sum(c.id, 'mir', 'v1|' + JSON.stringify(c), async () => { const d = await DB.get('case:' + c.id); return d ? this.one(c, Object.assign(emptyCase(), d)) : { R: [], amount: 0, hold: 0, comps: 0 }; }); } catch (e) { r = { R: [], amount: 0, hold: 0, comps: 0 }; }
+      try { r = c.id === S.caseId && S.data && !isScope(S.caseId) ? this.one(c, S.data) : await Vault.sum(c.id, 'mir', 'v2|' + (typeof IFSCDB !== 'undefined' && IFSCDB.ok() ? 'i' : '') + JSON.stringify(c), async () => { const d = await DB.get('case:' + c.id); return d ? this.one(c, Object.assign(emptyCase(), d)) : { R: [], amount: 0, hold: 0, comps: 0 }; }); } catch (e) { r = { R: [], amount: 0, hold: 0, comps: 0 }; }
       C.push({ c, ...r }); await new Promise(z => setTimeout(z, 0));
     }
+    try { const P = await Off.get('prb', []); if (P && P.length) { const ix = new Map(), nk = v => String(v || '').replace(/\D/g, '').slice(-10);
+        for (const r of P) { const ds = r.district || '', stt = r.state || ''; if (!ds && !stt) continue; for (const v of [r.mobile && 'm' + nk(r.mobile), r.imei && 'i' + String(r.imei).replace(/\D/g, '').slice(0, 14), r.acc && 'a' + String(r.acc).replace(/\s/g, '')].filter(Boolean)) { let a = ix.get(v); if (!a) ix.set(v, a = []); if (a.length < 30) a.push(r); } }
+        for (const x of C) { const add = [], seen = new Set(); for (const t of x.R) { const k = t.t === 'mobile' || t.t === 'alt' ? 'm' + nk(t.v) : t.t === 'imei' ? 'i' + String(t.v).replace(/\D/g, '').slice(0, 14) : t.t === 'account' ? 'a' + String(t.v).replace(/\s/g, '') : ''; for (const r of (k && ix.get(k)) || []) { const id = (r.district || '') + '|' + (r.state || '') + '|' + t.v; if (seen.has(id)) continue; seen.add(id); if (r.district) add.push({ t: 'district', v: Geo.name(r.district), s: 'Pratibimb (' + t.v + ')', n: r.name || '' }); if (r.state) add.push({ t: 'state', v: String(r.state).toUpperCase(), s: 'Pratibimb', n: r.name || '' }); } }
+          if (add.length) x.R = x.R.concat(add); } } } catch (e) { }
     let good = []; try { good = await Off.get('good', []); } catch (e) { }
     const nf = f => String(f || '').toUpperCase().replace(/\s+/g, '').replace(/^FIR(NO\.?)?/, ''), refundOf = c => c.fir ? sum(good.filter(g => g.fir && nf(g.fir) === nf(c.fir)), g => +g.refunded || 0) : 0;
     C.forEach(x => { x.refund = refundOf(x.c); x.pend = typeof AllDash !== 'undefined' ? AllDash.pend(x.c) : true; x.fin = typeof AllDash !== 'undefined' ? AllDash.fin(x.c) : ''; });
@@ -21103,10 +21585,11 @@ const Mirror = {
       <div class="mir-net-h"><h4>🕸 Case Network <span class="muted small">cases joined by the same mobile, account, UPI, PAN, Aadhaar, POS…</span></h4></div><div class="graph-box" id="mirNet" style="height:430px"></div>`;
     $$('[data-mk]', el).forEach(b => b.onclick = () => K[+b.dataset.mk][3]());
     $$('[data-mt]', el).forEach(b => b.onclick = () => { const t = b.dataset.mt, L = byT.get(t) || []; this.list((this.T.find(x => x[0] === t) || [])[2], L); });
-    const hb = (id, rows, o) => { const box = $(id, el); if (!rows.length) { box.innerHTML = '<div class="muted small">None found yet</div>'; return; } Charts.hbar(box, rows.slice(0, 12), o); };
+    const EM = { '#mirSt': 'No state found yet in KYC, CAF address, IFSC branch, NCRP suspect details or Pratibimb.', '#mirDi': 'No district found yet. It is read from KYC, the address in CAF / KYC (Dist., PIN or district name), the IFSC branch (load the IFSC list in Tools for this) and Pratibimb rows of the same mobile / IMEI / account.', '#mirAm': 'No fraud amount yet. It comes from the NCRP complaint sheet, else the money trail (victim → layer 1), else the amount written in the FIR / case diary (₹ / Rs. / रुपये).' };
+    const hb = (id, rows, o) => { const box = $(id, el); if (!rows.length) { box.innerHTML = '<div class="muted small">' + (EM[id] || 'None found yet') + '</div>'; return; } Charts.hbar(box, rows.slice(0, 12), o); };
     hb('#mirSt', (byT.get('state') || []).map(g => ({ label: g.v, value: g.cases.size, sub: g.cases.size + ' case(s)', g })).sort((a, b) => b.value - a.value), { fmt: v => v + ' case(s)', onClick: d => this.list('State ' + d.label, [d.g]) });
     hb('#mirDi', (byT.get('district') || []).map(g => ({ label: g.v, value: g.cases.size, sub: g.cases.size + ' case(s)', g })).sort((a, b) => b.value - a.value), { fmt: v => v + ' case(s)', onClick: d => this.list('District ' + d.label, [d.g]) });
-    hb('#mirAm', X.filter(x => x.amount).map(x => ({ label: this.nameOf(x.c.id), value: x.amount, sub: 'Hold ' + fmtINR(x.hold || 0), x })).sort((a, b) => b.value - a.value), { fmt: fmtINR, onClick: d => this.open(d.x.c.id) });
+    hb('#mirAm', X.filter(x => x.amount).map(x => ({ label: this.nameOf(x.c.id), value: x.amount, sub: 'Hold ' + fmtINR(x.hold || 0) + (x.amtSrc ? ' · from ' + x.amtSrc : ''), x })).sort((a, b) => b.value - a.value), { fmt: fmtINR, onClick: d => this.open(d.x.c.id) });
     this.net(D, ids);
   },
   net(D, ids) {

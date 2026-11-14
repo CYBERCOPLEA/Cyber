@@ -82,6 +82,22 @@ const DataFind = {
       ...(AllMode.on() ? [{ key: 'nc', label: 'Cases', num: true, csv: r => r.cases.join(' | '), render: r => `<span title="${esc(r.cases.join(' | '))}">${r.nc > 1 ? `<b class="bad-t">${r.nc}</b>` : r.nc}</span>` }] : []),
       { key: 'go', label: 'Track', sortVal: () => '', csv: () => '', render: () => '<span class="btn sm">🎯 Track</span>' }] });
   },
+  /* the page's own sheet is empty: show what the documents hold FIRST, and fold the empty boxes / tables away
+     (Vijay 14-11: "no data on top, but the same page has data below – improve it") */
+  lift(main, p) {
+    const box = $('#dfPg', main), host = $('#tabBody', main) || main; if (!box || box.parentElement === null) return; if ($('.bs-src', host)) return;
+    const keep = x => x === box || x.matches('.imp-off,.page-head,.tabs,.ff-steps,.ff-tabs,.df-emp,.bs-src') || (x.classList.contains('note') && /offline/i.test(x.textContent));
+    const rest = [...host.children].filter(x => !keep(x) && !x.contains(box));
+    const first = [...host.children].find(x => !x.matches('.imp-off,.page-head,.tabs,.ff-steps,.ff-tabs') && !(x.classList.contains('note') && /offline/i.test(x.textContent)) && x !== box) || null;
+    host.insertBefore(box, first && first !== box ? first : null);
+    box.classList.add('df-top');
+    if (!rest.length) return;
+    const what = p === 'social' ? 'social-media reply' : p === 'financial' ? 'bank statement / money trail / KYC sheet' : 'NCRP / money-trail sheet';
+    const det = document.createElement('details'); det.className = 'df-emp';
+    det.innerHTML = `<summary><b>📂 Empty sections of this page</b> <span class="muted small">– no ${what} imported yet, so they show 0. Open to see them, or import the sheet to fill them.</span><button type="button" class="btn sm primary df-imp">⬆ Import Sheet</button></summary>`;
+    rest.forEach(x => det.appendChild(x)); box.after(det);
+    const ib = $('.df-imp', det); ib.onclick = e => { e.preventDefault(); e.stopPropagation(); const k = p === 'social' ? ['social'] : p === 'financial' ? ['txn', 'ncrp', 'stmt', 'kyc'] : ['txn', 'ncrp']; try { openImport(k, render); } catch (x) { } };
+  },
   /* page hooks */
   empty(p, d) { return p === 'financial' ? !d.kyc.length && !d.txns.length : p === 'ncrp' ? !d.ncrp.length && !d.txns.length : p === 'trail' ? !d.txns.length : p === 'social' ? !d.social.length && !(d.google || []).length : false; }
 };
@@ -93,6 +109,7 @@ const DataFind = {
       const p = S.page, d = S.data || {}, main = $('#main');
       if (d._loading) return r;
       if (DataFind.PAGE[p] && (d.idents || []).length && DataFind.empty(p, d)) DataFind.panel(main, DataFind.PAGE[p], { id: 'Pg', why: `This page has no ${p === 'social' ? 'social-media reply' : p === 'financial' ? 'bank / KYC sheet' : 'NCRP / money-trail sheet'} yet, but the documents of ${AllMode.on() ? 'your cases' : 'this case'} name these – track them now, and import the sheet for the full trail.` });
+      if ($('#dfPg', main)) DataFind.lift(main, p);
       if (p === 'dashboard' && S.cases.length) DataFind.check(main);
       if (p === 'cctns' && (S.sub.cctns || 'diary') === 'diary' && AllMode.on()) { const c = $('.card', main); if (c) { const w = document.createElement('div'); c.after(w); DataFind.check(w); } }
     } catch (e) { console.warn('datafind', e); }
